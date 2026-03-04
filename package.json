@@ -1,29 +1,8 @@
 {
-  "name": "hextimator",
-  "version": "0.0.1",
-  "description": "color palette creator",
-  "keywords": [
-    "color",
-    "palette",
-    "generator",
-    "creator",
-    "oklch",
-    "rgb",
-    "rgb2oklch"
-  ],
-  "homepage": "https://github.com/fgrgic/hextimator#readme",
-  "bugs": {
-    "url": "https://github.com/fgrgic/hextimator/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/fgrgic/hextimator.git"
-  },
-  "license": "ISC",
-  "author": "ditherbug",
-  "type": "commonjs",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  }
+  "name": "hextimator-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ]
 }
