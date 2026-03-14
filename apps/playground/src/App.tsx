@@ -1,27 +1,32 @@
-import { useState } from 'react'
-import { hextimate } from 'hextimator'
-import './App.css'
+import { hextimate } from "hextimator";
+import { useState } from "react";
+import "./App.css";
 
 function App() {
-  const [hex, setHex] = useState('#3a86ff')
-  const result = hextimate(hex)
+  const [input, setInput] = useState("#3a86ff");
+  let result = "";
+  try {
+    result = JSON.stringify(hextimate(input), null, 2);
+  } catch (error) {
+    result = error instanceof Error ? error.message : "Unknown error";
+  }
 
   return (
     <>
       <h1>hextimator playground</h1>
-      <div className="card">
+      <div className='card'>
         <label>
-          Hex input:{' '}
+          input:{" "}
           <input
-            type="text"
-            value={hex}
-            onChange={(e) => setHex(e.target.value)}
+            type='text'
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
           />
         </label>
-        <pre>{JSON.stringify(result, null, 2)}</pre>
+        {input && <pre>{result}</pre>}
       </div>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
