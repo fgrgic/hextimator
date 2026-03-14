@@ -25,7 +25,7 @@ a:hover {
 body {
   margin: 0;
   display: flex;
-  place-items: center;
+  place-items: start;
   min-width: 320px;
   min-height: 100vh;
 }
@@ -54,6 +54,22 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+pre {
+  font-family:
+    "picomono", "Monaco", "Menlo", "Ubuntu Mono", "Consolas", "source-code-pro",
+    monospace;
+  background-color: #1a1a1a;
+  padding: 1.5rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  text-align: left;
+  font-size: 0.9em;
+  line-height: 1.6;
+  border: 1px solid #333;
+  max-width: 600px;
+  margin: 1rem auto;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
@@ -64,5 +80,10 @@ button:focus-visible {
   }
   button {
     background-color: #f9f9f9;
+  }
+  pre {
+    background-color: #f5f5f5;
+    border-color: #ddd;
+    color: #213547;
   }
 }
