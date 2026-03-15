@@ -1,8 +1,9 @@
 import { convert } from "./convert";
+import { parse } from "./parse";
 import { ColorInput } from "./types";
-import { parseColor } from "./utils";
 
-export { convert } from "./convert";
+export { convert as convertColor } from "./convert";
+export { parse as parseColor } from "./parse";
 
 /**
  * Creates a palette from 1 base color, or more colors passed to it with additional options
@@ -10,7 +11,7 @@ export { convert } from "./convert";
  * @returns
  */
 export function hextimate(color: ColorInput, options?: any): any | null {
-  const parsedColor = parseColor(color);
+  const parsedColor = parse(color);
   if (!parsedColor) return null;
 
   const oklch = convert(parsedColor, "oklch");

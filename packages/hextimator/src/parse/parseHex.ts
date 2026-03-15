@@ -1,4 +1,4 @@
-import { RGB } from "../../types";
+import { RGB } from "../types";
 
 const HEX_PATTERNS = {
   prefixed: /^#([0-9a-f]{3,8})$/, // e.g. #FF6666

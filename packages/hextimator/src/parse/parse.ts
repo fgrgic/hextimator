@@ -1,5 +1,5 @@
 import { ColorInput } from "bun";
-import { Color, ColorSpace, ColorTuple } from "../../types";
+import { Color, ColorSpace, ColorTuple } from "../types";
 import { tryParseCommaSeparated } from "./parseCommaSeparated";
 import { tryParseCSSFunction } from "./parseCSSFunction";
 import { tryParseHex } from "./parseHex";
@@ -30,7 +30,7 @@ class ColorParseError extends Error {
  * @param assumeSpace color space to assume. If not provided, the color space will be inferred from the input, and default to 'srgb' if ambiguous
  * @returns Color or throws a ColorParseError if parsing fails
  */
-export function parseColor(input: ColorInput, assumeSpace?: ColorSpace): Color {
+export function parse(input: ColorInput, assumeSpace?: ColorSpace): Color {
   if (isColor(input)) return input;
 
   if (typeof input === "number") {

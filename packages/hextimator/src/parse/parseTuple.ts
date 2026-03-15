@@ -1,4 +1,4 @@
-import { Color, ColorSpace, ColorTuple } from "../../types";
+import { Color, ColorSpace, ColorTuple } from "../types";
 
 /**
  * Try to parse a color tuple into a Color.
