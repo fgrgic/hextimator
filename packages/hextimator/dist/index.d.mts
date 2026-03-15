@@ -48,6 +48,10 @@ interface P3 {
     readonly alpha: number;
 }
 type Color = RGB | HSL | OKLCH | OKLab | Lab | LinearRGB | P3;
+type ColorInSpace<S extends Color["space"]> = Extract<Color, {
+    space: S;
+}>;
+type ColorSpace = Color["space"];
 /**
  * "FF6666", "#FF6666", "0xFF6666", "#F66" with optional alpha
  */
@@ -61,10 +65,17 @@ type ColorTuple = readonly [number, number, number, number?];
 type ColorInput = HexString | CSSColorString | ColorTuple | Color | number;
 
 /**
+ * Convert a Color to a target color space.
+ *
+ * Supports all directed pairs among: srgb, linear-rgb, oklab, oklch, hsl.
+ */
+declare function convert<S extends ColorSpace>(color: Color, to: S): ColorInSpace<S>;
+
+/**
  * Creates a palette from 1 base color, or more colors passed to it with additional options
  * @param color ColorInput
  * @returns
  */
-declare function hextimate(color: ColorInput, options?: any): Color | null;
+declare function hextimate(color: ColorInput, options?: any): any | null;
 
-export { hextimate };
+export { convert, hextimate };

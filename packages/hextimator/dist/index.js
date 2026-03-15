@@ -20,9 +20,205 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
+  convert: () => convert,
   hextimate: () => hextimate
 });
 module.exports = __toCommonJS(index_exports);
+
+// src/convert/matrices.ts
+var M1 = [
+  [0.4122214708, 0.5363325363, 0.0514459929],
+  [0.2119034982, 0.6806995451, 0.1073969566],
+  [0.0883024619, 0.2817188376, 0.6299787005]
+];
+var M2 = [
+  [0.2104542553, 0.793617785, -0.0040720468],
+  [1.9779984951, -2.428592205, 0.4505937099],
+  [0.0259040371, 0.7827717662, -0.808675766]
+];
+var M1_INV = [
+  [4.0767416621, -3.3077115913, 0.2309699292],
+  [-1.2684380046, 2.6097574011, -0.3413193965],
+  [-0.0041960863, -0.7034186147, 1.707614701]
+];
+var M2_INV = [
+  [1, 0.3963377774, 0.2158037573],
+  [1, -0.1055613458, -0.0638541728],
+  [1, -0.0894841775, -1.291485548]
+];
+function multiplyMatrix3(m, v) {
+  return [
+    m[0][0] * v[0] + m[0][1] * v[1] + m[0][2] * v[2],
+    m[1][0] * v[0] + m[1][1] * v[1] + m[1][2] * v[2],
+    m[2][0] * v[0] + m[2][1] * v[1] + m[2][2] * v[2]
+  ];
+}
+
+// src/convert/linear-oklab.ts
+function linearRgbToOklab(color) {
+  const lms = multiplyMatrix3(M1, [color.r, color.g, color.b]);
+  const lms_ = lms.map((v) => Math.cbrt(v));
+  const [l, a, b] = multiplyMatrix3(M2, lms_);
+  return { space: "oklab", l, a, b, alpha: color.alpha };
+}
+function oklabToLinearRgb(color) {
+  const lms_ = multiplyMatrix3(M2_INV, [color.l, color.a, color.b]);
+  const lms = lms_.map((v) => v * v * v);
+  const [r, g, b] = multiplyMatrix3(M1_INV, lms);
+  return { space: "linear-rgb", r, g, b, alpha: color.alpha };
+}
+
+// src/convert/oklab-oklch.ts
+var RAD_TO_DEG = 180 / Math.PI;
+var DEG_TO_RAD = Math.PI / 180;
+function oklabToOklch(color) {
+  const c = Math.sqrt(color.a * color.a + color.b * color.b);
+  let h = Math.atan2(color.b, color.a) * RAD_TO_DEG;
+  if (h < 0) h += 360;
+  return { space: "oklch", l: color.l, c, h, alpha: color.alpha };
+}
+function oklchToOklab(color) {
+  const hRad = color.h * DEG_TO_RAD;
+  return {
+    space: "oklab",
+    l: color.l,
+    a: color.c * Math.cos(hRad),
+    b: color.c * Math.sin(hRad),
+    alpha: color.alpha
+  };
+}
+
+// src/convert/srgb-hsl.ts
+function srgbToHsl(color) {
+  const r = color.r / 255;
+  const g = color.g / 255;
+  const b = color.b / 255;
+  const max = Math.max(r, g, b);
+  const min = Math.min(r, g, b);
+  const d = max - min;
+  const l = (max + min) / 2;
+  if (d === 0) {
+    return { space: "hsl", h: 0, s: 0, l: l * 100, alpha: color.alpha };
+  }
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+  let h;
+  if (max === r) {
+    h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+  } else if (max === g) {
+    h = ((b - r) / d + 2) / 6;
+  } else {
+    h = ((r - g) / d + 4) / 6;
+  }
+  return {
+    space: "hsl",
+    h: h * 360,
+    s: s * 100,
+    l: l * 100,
+    alpha: color.alpha
+  };
+}
+function hslToSrgb(color) {
+  const h = color.h / 360;
+  const s = color.s / 100;
+  const l = color.l / 100;
+  if (s === 0) {
+    const v = Math.round(l * 255);
+    return { space: "srgb", r: v, g: v, b: v, alpha: color.alpha };
+  }
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+  const p = 2 * l - q;
+  return {
+    space: "srgb",
+    r: Math.round(hueToRgb(p, q, h + 1 / 3) * 255),
+    g: Math.round(hueToRgb(p, q, h) * 255),
+    b: Math.round(hueToRgb(p, q, h - 1 / 3) * 255),
+    alpha: color.alpha
+  };
+}
+function hueToRgb(p, q, t) {
+  if (t < 0) t += 1;
+  if (t > 1) t -= 1;
+  if (t < 1 / 6) return p + (q - p) * 6 * t;
+  if (t < 1 / 2) return q;
+  if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+  return p;
+}
+
+// src/convert/srgb-linear.ts
+function gammaDecodeChannel(c) {
+  const s = c / 255;
+  return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+}
+function gammaEncodeChannel(c) {
+  const s = c <= 31308e-7 ? c * 12.92 : 1.055 * c ** (1 / 2.4) - 0.055;
+  return Math.round(Math.min(255, Math.max(0, s * 255)));
+}
+function srgbToLinear(color) {
+  return {
+    space: "linear-rgb",
+    r: gammaDecodeChannel(color.r),
+    g: gammaDecodeChannel(color.g),
+    b: gammaDecodeChannel(color.b),
+    alpha: color.alpha
+  };
+}
+function linearToSrgb(color) {
+  return {
+    space: "srgb",
+    r: gammaEncodeChannel(color.r),
+    g: gammaEncodeChannel(color.g),
+    b: gammaEncodeChannel(color.b),
+    alpha: color.alpha
+  };
+}
+
+// src/convert/index.ts
+function chain(...fns) {
+  return (color) => fns.reduce((c, fn) => fn(c), color);
+}
+var conversions = {
+  // srgb ↔ linear-rgb
+  "srgb->linear-rgb": srgbToLinear,
+  "linear-rgb->srgb": linearToSrgb,
+  // linear-rgb ↔ oklab
+  "linear-rgb->oklab": linearRgbToOklab,
+  "oklab->linear-rgb": oklabToLinearRgb,
+  // oklab ↔ oklch
+  "oklab->oklch": oklabToOklch,
+  "oklch->oklab": oklchToOklab,
+  // srgb ↔ hsl
+  "srgb->hsl": srgbToHsl,
+  "hsl->srgb": hslToSrgb,
+  // srgb → oklab / oklch
+  "srgb->oklab": chain(srgbToLinear, linearRgbToOklab),
+  "srgb->oklch": chain(srgbToLinear, linearRgbToOklab, oklabToOklch),
+  // oklab / oklch → srgb
+  "oklab->srgb": chain(oklabToLinearRgb, linearToSrgb),
+  "oklch->srgb": chain(oklchToOklab, oklabToLinearRgb, linearToSrgb),
+  // linear-rgb → oklch
+  "linear-rgb->oklch": chain(linearRgbToOklab, oklabToOklch),
+  "oklch->linear-rgb": chain(oklchToOklab, oklabToLinearRgb),
+  // hsl ↔ linear-rgb
+  "hsl->linear-rgb": chain(hslToSrgb, srgbToLinear),
+  "linear-rgb->hsl": chain(linearToSrgb, srgbToHsl),
+  // hsl ↔ oklab
+  "hsl->oklab": chain(hslToSrgb, srgbToLinear, linearRgbToOklab),
+  "oklab->hsl": chain(oklabToLinearRgb, linearToSrgb, srgbToHsl),
+  // hsl ↔ oklch
+  "hsl->oklch": chain(hslToSrgb, srgbToLinear, linearRgbToOklab, oklabToOklch),
+  "oklch->hsl": chain(oklchToOklab, oklabToLinearRgb, linearToSrgb, srgbToHsl)
+};
+function convert(color, to) {
+  if (color.space === to) {
+    return { ...color };
+  }
+  const key = `${color.space}->${to}`;
+  const fn = conversions[key];
+  if (!fn) {
+    throw new Error(`Unsupported conversion: ${color.space} \u2192 ${to}`);
+  }
+  return fn(color);
+}
 
 // src/utils/parseColor/parseTuple.ts
 function tryParseTuple(t, assumeSpace = "srgb") {
@@ -258,9 +454,14 @@ function isColor(value) {
 function hextimate(color, options) {
   const parsedColor = parseColor(color);
   if (!parsedColor) return null;
-  return parsedColor;
+  const oklch = convert(parsedColor, "oklch");
+  return {
+    parsedColor,
+    oklch
+  };
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  convert,
   hextimate
 });
