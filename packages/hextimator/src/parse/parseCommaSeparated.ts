@@ -1,4 +1,4 @@
-import { Color, ColorSpace } from "../../types";
+import { Color, ColorSpace } from "../types";
 import { tryParseTuple } from "./parseTuple";
 
 export function tryParseCommaSeparated(

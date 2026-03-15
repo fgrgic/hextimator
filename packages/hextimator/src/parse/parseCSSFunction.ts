@@ -1,4 +1,4 @@
-import { Color, HSL, Lab, OKLab, OKLCH, RGB } from "../../types";
+import { Color, HSL, Lab, OKLab, OKLCH, RGB } from "../types";
 
 const CSS_FUNC_REGULAR_EXPRESSION =
   /^(rgba?|hsla?|oklch|oklab|lab|color)\(\s*(.+?)\s*\)$/;

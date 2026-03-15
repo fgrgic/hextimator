@@ -1,4 +1,4 @@
-import { RGB } from "../../types";
+import { RGB } from "../types";
 
 /**
  * Try to parse a numeric hex value into a RGB Color.
