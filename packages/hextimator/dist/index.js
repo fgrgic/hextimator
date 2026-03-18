@@ -8,21 +8,25 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 var __copyProps = (to, from, except, desc) => {
-  if (from && typeof from === "object" || typeof from === "function") {
+  if ((from && typeof from === "object") || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
       if (!__hasOwnProp.call(to, key) && key !== except)
-        __defProp(to, key, { get: () => from[key], enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable });
+        __defProp(to, key, {
+          get: () => from[key],
+          enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable,
+        });
   }
   return to;
 };
-var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+var __toCommonJS = (mod) =>
+  __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
   convertColor: () => convert,
   hextimate: () => hextimate,
-  parseColor: () => parse
+  parseColor: () => parse,
 });
 module.exports = __toCommonJS(index_exports);
 
@@ -30,28 +34,28 @@ module.exports = __toCommonJS(index_exports);
 var M1 = [
   [0.4122214708, 0.5363325363, 0.0514459929],
   [0.2119034982, 0.6806995451, 0.1073969566],
-  [0.0883024619, 0.2817188376, 0.6299787005]
+  [0.0883024619, 0.2817188376, 0.6299787005],
 ];
 var M2 = [
   [0.2104542553, 0.793617785, -0.0040720468],
   [1.9779984951, -2.428592205, 0.4505937099],
-  [0.0259040371, 0.7827717662, -0.808675766]
+  [0.0259040371, 0.7827717662, -0.808675766],
 ];
 var M1_INV = [
   [4.0767416621, -3.3077115913, 0.2309699292],
   [-1.2684380046, 2.6097574011, -0.3413193965],
-  [-0.0041960863, -0.7034186147, 1.707614701]
+  [-0.0041960863, -0.7034186147, 1.707614701],
 ];
 var M2_INV = [
   [1, 0.3963377774, 0.2158037573],
   [1, -0.1055613458, -0.0638541728],
-  [1, -0.0894841775, -1.291485548]
+  [1, -0.0894841775, -1.291485548],
 ];
 function multiplyMatrix3(m, v) {
   return [
     m[0][0] * v[0] + m[0][1] * v[1] + m[0][2] * v[2],
     m[1][0] * v[0] + m[1][1] * v[1] + m[1][2] * v[2],
-    m[2][0] * v[0] + m[2][1] * v[1] + m[2][2] * v[2]
+    m[2][0] * v[0] + m[2][1] * v[1] + m[2][2] * v[2],
   ];
 }
 
@@ -85,7 +89,7 @@ function oklchToOklab(color) {
     l: color.l,
     a: color.c * Math.cos(hRad),
     b: color.c * Math.sin(hRad),
-    alpha: color.alpha
+    alpha: color.alpha,
   };
 }
 
@@ -115,7 +119,7 @@ function srgbToHsl(color) {
     h: h * 360,
     s: s * 100,
     l: l * 100,
-    alpha: color.alpha
+    alpha: color.alpha,
   };
 }
 function hslToSrgb(color) {
@@ -133,7 +137,7 @@ function hslToSrgb(color) {
     r: Math.round(hueToRgb(p, q, h + 1 / 3) * 255),
     g: Math.round(hueToRgb(p, q, h) * 255),
     b: Math.round(hueToRgb(p, q, h - 1 / 3) * 255),
-    alpha: color.alpha
+    alpha: color.alpha,
   };
 }
 function hueToRgb(p, q, t) {
@@ -160,7 +164,7 @@ function srgbToLinear(color) {
     r: gammaDecodeChannel(color.r),
     g: gammaDecodeChannel(color.g),
     b: gammaDecodeChannel(color.b),
-    alpha: color.alpha
+    alpha: color.alpha,
   };
 }
 function linearToSrgb(color) {
@@ -169,7 +173,7 @@ function linearToSrgb(color) {
     r: gammaEncodeChannel(color.r),
     g: gammaEncodeChannel(color.g),
     b: gammaEncodeChannel(color.b),
-    alpha: color.alpha
+    alpha: color.alpha,
   };
 }
 
@@ -207,7 +211,7 @@ var conversions = {
   "oklab->hsl": chain(oklabToLinearRgb, linearToSrgb, srgbToHsl),
   // hsl ↔ oklch
   "hsl->oklch": chain(hslToSrgb, srgbToLinear, linearRgbToOklab, oklabToOklch),
-  "oklch->hsl": chain(oklchToOklab, oklabToLinearRgb, linearToSrgb, srgbToHsl)
+  "oklch->hsl": chain(oklchToOklab, oklabToLinearRgb, linearToSrgb, srgbToHsl),
 };
 function convert(color, to) {
   if (color.space === to) {
@@ -239,30 +243,34 @@ function expandColorToScale(color, themeType, options) {
     strongDeltaDark = STRONG_DELTA_DARK,
     strongDeltaLight = STRONG_DELTA_LIGHT,
     weakDeltaDark = WEAK_DELTA_DARK,
-    weakDeltaLight = WEAK_DELTA_LIGHT
+    weakDeltaLight = WEAK_DELTA_LIGHT,
   } = options ?? {};
   const colorOKLCH = convert(color, "oklch");
   const normalizedColorOKLCH = {
     ...colorOKLCH,
-    l: themeType === "light" ? baselineLValueLight : baselineLValueDark
+    l: themeType === "light" ? baselineLValueLight : baselineLValueDark,
   };
   const strongColorOKLCH = {
     ...normalizedColorOKLCH,
-    l: normalizedColorOKLCH.l + (themeType === "light" ? strongDeltaLight : strongDeltaDark)
+    l:
+      normalizedColorOKLCH.l +
+      (themeType === "light" ? strongDeltaLight : strongDeltaDark),
   };
   const weakColorOKLCH = {
     ...normalizedColorOKLCH,
-    l: normalizedColorOKLCH.l + (themeType === "light" ? weakDeltaLight : weakDeltaDark)
+    l:
+      normalizedColorOKLCH.l +
+      (themeType === "light" ? weakDeltaLight : weakDeltaDark),
   };
   const foregroundColorOKLCH = {
     ...colorOKLCH,
-    l: themeType === "light" ? foregroundLValueLight : foregroundLValueDark
+    l: themeType === "light" ? foregroundLValueLight : foregroundLValueDark,
   };
   return {
     DEFAULT: convert(colorOKLCH, "srgb") ?? void 0,
     strong: convert(strongColorOKLCH, "srgb") ?? void 0,
     weak: convert(weakColorOKLCH, "srgb") ?? void 0,
-    foreground: convert(foregroundColorOKLCH, "srgb") ?? void 0
+    foreground: convert(foregroundColorOKLCH, "srgb") ?? void 0,
   };
 }
 
@@ -284,7 +292,7 @@ function generateAccent(accent, themeType) {
     strongDeltaDark: STRONG_DELTA_DARK2,
     strongDeltaLight: STRONG_DELTA_LIGHT2,
     weakDeltaDark: WEAK_DELTA_DARK2,
-    weakDeltaLight: WEAK_DELTA_LIGHT2
+    weakDeltaLight: WEAK_DELTA_LIGHT2,
   });
 }
 
@@ -319,13 +327,16 @@ function tryParseCommaSeparated(input, assumeSpace = "srgb") {
   const numbers = parts.map(parseFloat);
   if (numbers.some(Number.isNaN)) return null;
   return tryParseTuple(
-    numbers.length === 4 ? [numbers[0], numbers[1], numbers[2], numbers[3]] : [numbers[0], numbers[1], numbers[2]],
-    assumeSpace
+    numbers.length === 4
+      ? [numbers[0], numbers[1], numbers[2], numbers[3]]
+      : [numbers[0], numbers[1], numbers[2]],
+    assumeSpace,
   );
 }
 
 // src/parse/parseCSSFunction.ts
-var CSS_FUNC_REGULAR_EXPRESSION = /^(rgba?|hsla?|oklch|oklab|lab|color)\(\s*(.+?)\s*\)$/;
+var CSS_FUNC_REGULAR_EXPRESSION =
+  /^(rgba?|hsla?|oklch|oklab|lab|color)\(\s*(.+?)\s*\)$/;
 function parseCSSArgs(raw) {
   let alpha = 1;
   let body = raw;
@@ -336,8 +347,13 @@ function parseCSSArgs(raw) {
     alpha = parseNumericValue(alphaPart);
     body = body.slice(0, slashIdx).trim();
   }
-  const parts = body.includes(",") ? body.split(",").map((p) => p.trim()) : body.split(/\s+/);
-  if (parts.length === 4 && slashIdx !== -1 || parts.length === 4 && commaIdx !== -1) {
+  const parts = body.includes(",")
+    ? body.split(",").map((p) => p.trim())
+    : body.split(/\s+/);
+  if (
+    (parts.length === 4 && slashIdx !== -1) ||
+    (parts.length === 4 && commaIdx !== -1)
+  ) {
     alpha = parseNumericValue(parts.pop(), 1);
   }
   if (parts.length !== 3) {
@@ -354,7 +370,7 @@ function parseNumericValue(raw, percentScale) {
   if (s === "none") return 0;
   if (s.endsWith("%")) {
     const base = parseFloat(s);
-    return percentScale ? base / 100 * percentScale : base / 100;
+    return percentScale ? (base / 100) * percentScale : base / 100;
   }
   return parseFloat(s);
 }
@@ -429,7 +445,7 @@ var HEX_PATTERNS = {
   // e.g. #FF6666
   numeric: /^0x([0-9a-f]{6}|[0-9a-f]{8})$/,
   // e.g. 0xFF6666
-  bare: /^([0-9a-f]{6}|[0-9a-f]{8})$/
+  bare: /^([0-9a-f]{6}|[0-9a-f]{8})$/,
   // e.g. FF6666
 };
 function parseHexDigits(hex) {
@@ -464,18 +480,18 @@ function tryParseNumeric(n) {
   if (n <= 16777215) {
     return {
       space: "srgb",
-      r: n >> 16 & 255,
-      g: n >> 8 & 255,
+      r: (n >> 16) & 255,
+      g: (n >> 8) & 255,
       b: n & 255,
-      alpha: 1
+      alpha: 1,
     };
   }
   return {
     space: "srgb",
-    r: n >> 24 & 255,
-    g: n >> 16 & 255,
-    b: n >> 8 & 255,
-    alpha: (n & 255) / 255
+    r: (n >> 24) & 255,
+    g: (n >> 16) & 255,
+    b: (n >> 8) & 255,
+    alpha: (n & 255) / 255,
   };
 }
 
@@ -515,7 +531,12 @@ function _normalizeInput(raw) {
   return raw.trim().toLowerCase();
 }
 function isColor(value) {
-  return typeof value === "object" && value !== null && "space" in value && typeof value.space === "string";
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "space" in value &&
+    typeof value.space === "string"
+  );
 }
 
 // src/generate/generateBase.ts
@@ -530,7 +551,10 @@ var STRONG_DELTA_LIGHT3 = 0.05;
 var WEAK_DELTA_DARK3 = 0.05;
 var WEAK_DELTA_LIGHT3 = -0.05;
 function generateBase(color, themeType, options) {
-  const preferredBaseColorInput = themeType === "light" ? options?.preferredBaseColors?.light ?? DEFAULT_BASE_LIGHT_COLOR : options?.preferredBaseColors?.dark ?? DEFAULT_BASE_DARK_COLOR;
+  const preferredBaseColorInput =
+    themeType === "light"
+      ? (options?.preferredBaseColors?.light ?? DEFAULT_BASE_LIGHT_COLOR)
+      : (options?.preferredBaseColors?.dark ?? DEFAULT_BASE_DARK_COLOR);
   const preferredBaseColor = parse(preferredBaseColorInput);
   if (!preferredBaseColor) return null;
   return expandColorToScale(preferredBaseColor, themeType, {
@@ -541,7 +565,7 @@ function generateBase(color, themeType, options) {
     strongDeltaDark: STRONG_DELTA_DARK3,
     strongDeltaLight: STRONG_DELTA_LIGHT3,
     weakDeltaDark: WEAK_DELTA_DARK3,
-    weakDeltaLight: WEAK_DELTA_LIGHT3
+    weakDeltaLight: WEAK_DELTA_LIGHT3,
   });
 }
 
@@ -551,26 +575,29 @@ var NEGATIVE_RANGE = [345, 15];
 var WARNING_RANGE = [35, 55];
 function generateSemanticColors(color, themeType, options) {
   const positiveBaseColor = parse(
-    options?.semanticColors?.positive ?? _determineBaseColorFromRange(
-      color,
-      options?.semanticColorRanges?.positive ?? POSITIVE_RANGE
-    )
+    options?.semanticColors?.positive ??
+      _determineBaseColorFromRange(
+        color,
+        options?.semanticColorRanges?.positive ?? POSITIVE_RANGE,
+      ),
   );
   if (!positiveBaseColor) return null;
   console.log("positiveBaseColor", positiveBaseColor);
   const negativeBaseColor = parse(
-    options?.semanticColors?.negative ?? _determineBaseColorFromRange(
-      color,
-      options?.semanticColorRanges?.negative ?? NEGATIVE_RANGE
-    )
+    options?.semanticColors?.negative ??
+      _determineBaseColorFromRange(
+        color,
+        options?.semanticColorRanges?.negative ?? NEGATIVE_RANGE,
+      ),
   );
   if (!negativeBaseColor) return null;
   console.log("negativeBaseColor", negativeBaseColor);
   const warningBaseColor = parse(
-    options?.semanticColors?.warning ?? _determineBaseColorFromRange(
-      color,
-      options?.semanticColorRanges?.warning ?? WARNING_RANGE
-    )
+    options?.semanticColors?.warning ??
+      _determineBaseColorFromRange(
+        color,
+        options?.semanticColorRanges?.warning ?? WARNING_RANGE,
+      ),
   );
   if (!warningBaseColor) return null;
   const positiveColorScale = expandColorToScale(positiveBaseColor, themeType);
@@ -580,19 +607,22 @@ function generateSemanticColors(color, themeType, options) {
   return {
     positive: positiveColorScale,
     negative: negativeColorScale,
-    warning: warningColorScale
+    warning: warningColorScale,
   };
 }
 function _determineBaseColorFromRange(color, range) {
   const complementaryColor = _getComplementaryColor(color);
-  const splitComplementaryColors = _getSplitComplementaryColors(complementaryColor);
+  const splitComplementaryColors =
+    _getSplitComplementaryColors(complementaryColor);
   const targetColors = [...splitComplementaryColors, complementaryColor];
   const closestColor = targetColors.reduce(
     (closest, target) => {
       const distance = _getDistance(target, color);
-      return distance < closest.distance ? { color: target, distance } : closest;
+      return distance < closest.distance
+        ? { color: target, distance }
+        : closest;
     },
-    { color: targetColors[0], distance: Infinity }
+    { color: targetColors[0], distance: Infinity },
   );
   return closestColor.color;
 }
@@ -600,7 +630,9 @@ function _getDistance(color1, color2) {
   const color1OKLCH = convert(color1, "oklch");
   const color2OKLCH = convert(color2, "oklch");
   return Math.sqrt(
-    Math.pow(color1OKLCH.l - color2OKLCH.l, 2) + Math.pow(color1OKLCH.c - color2OKLCH.c, 2) + Math.pow(color1OKLCH.h - color2OKLCH.h, 2)
+    Math.pow(color1OKLCH.l - color2OKLCH.l, 2) +
+      Math.pow(color1OKLCH.c - color2OKLCH.c, 2) +
+      Math.pow(color1OKLCH.h - color2OKLCH.h, 2),
   );
 }
 function _getComplementaryColor(color) {
@@ -611,7 +643,7 @@ function _getSplitComplementaryColors(color) {
   const colorHSL = convert(color, "hsl");
   return [
     convert({ ...colorHSL, h: (colorHSL.h + 150) % 360 }, "srgb"),
-    convert({ ...colorHSL, h: (colorHSL.h + 210) % 360 }, "srgb")
+    convert({ ...colorHSL, h: (colorHSL.h + 210) % 360 }, "srgb"),
   ];
 }
 
@@ -628,7 +660,7 @@ function generate(color, themeType, options) {
     accent,
     positive: semanticColors.positive,
     negative: semanticColors.negative,
-    warning: semanticColors.warning
+    warning: semanticColors.warning,
   };
 }
 
@@ -641,12 +673,13 @@ function hextimate(color, options) {
   if (!lightPalette || !darkPalette) return null;
   return {
     light: lightPalette,
-    dark: darkPalette
+    dark: darkPalette,
   };
 }
 // Annotate the CommonJS export names for ESM import in node:
-0 && (module.exports = {
-  convertColor,
-  hextimate,
-  parseColor
-});
+0 &&
+  (module.exports = {
+    convertColor,
+    hextimate,
+    parseColor,
+  });
