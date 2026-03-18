@@ -6,6 +6,14 @@ import { expandColorToScale } from "./utils";
 const DEFAULT_BASE_DARK_COLOR = "#1a1a1a";
 const DEFAULT_BASE_LIGHT_COLOR = "#fafafa";
 
+const BASELINE_DARK_L_VALUE = 0.01;
+const BASELINE_LIGHT_L_VALUE = 0.95;
+
+const STRONG_DELTA_DARK = -0.05;
+const STRONG_DELTA_LIGHT = 0.05;
+const WEAK_DELTA_DARK = 0.05;
+const WEAK_DELTA_LIGHT = -0.05;
+
 export function generateBase(
   color: Color,
   themeType: ThemeType,
@@ -19,5 +27,17 @@ export function generateBase(
   const preferredBaseColor = parse(preferredBaseColorInput);
   if (!preferredBaseColor) return null;
 
-  return expandColorToScale(preferredBaseColor, themeType);
+  const normalizedPreferredBaseColor = {
+    ...preferredBaseColor,
+    l: themeType === "light" ? BASELINE_LIGHT_L_VALUE : BASELINE_DARK_L_VALUE,
+  };
+
+  return expandColorToScale(normalizedPreferredBaseColor, themeType, {
+    baselineLValueDark: BASELINE_DARK_L_VALUE,
+    baselineLValueLight: BASELINE_LIGHT_L_VALUE,
+    strongDeltaDark: STRONG_DELTA_DARK,
+    strongDeltaLight: STRONG_DELTA_LIGHT,
+    weakDeltaDark: WEAK_DELTA_DARK,
+    weakDeltaLight: WEAK_DELTA_LIGHT,
+  });
 }

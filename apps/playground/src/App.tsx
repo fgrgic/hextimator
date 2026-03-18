@@ -5,12 +5,12 @@ import "./App.css";
 
 function ColorGrid({ tokens }: { tokens: Record<string, string> }) {
   return (
-    <div className="color-grid">
+    <div className='color-grid'>
       {Object.entries(tokens).map(([name, value]) => (
-        <div key={name} className="color-row">
-          <div className="color-swatch" style={{ background: value }} />
-          <span className="color-name">{name}</span>
-          <code className="color-value">{value}</code>
+        <div key={name} className='color-row'>
+          <div className='color-swatch' style={{ background: value }} />
+          <span className='color-name'>{name}</span>
+          <code className='color-value'>{value}</code>
         </div>
       ))}
     </div>
@@ -19,15 +19,12 @@ function ColorGrid({ tokens }: { tokens: Record<string, string> }) {
 
 function PalettePreview({ result }: { result: HextimateResult }) {
   return (
-    <div className="palette-preview">
+    <div className='palette-preview'>
       {(["light", "dark"] as const).map((mode) => {
         const tokens = result[mode];
         if (typeof tokens === "string" || tokens === null) return null;
         return (
-          <section
-            key={mode}
-            className={`palette-section palette-${mode}`}
-          >
+          <section key={mode} className={`palette-section palette-${mode}`}>
             <h2>{mode}</h2>
             <ColorGrid tokens={tokens as Record<string, string>} />
           </section>
@@ -43,7 +40,12 @@ function App() {
   let error = "";
 
   try {
-    result = hextimate(input);
+    result = hextimate(input, {
+      preferredBaseColors: {
+        dark: "#FE3D42",
+        light: "#fafafa",
+      },
+    });
   } catch (e) {
     error = e instanceof Error ? e.message : "Unknown error";
   }
@@ -51,22 +53,22 @@ function App() {
   return (
     <>
       <h1>hextimator playground</h1>
-      <div className="card">
+      <div className='card'>
         <label>
           <input
-            type="color"
+            type='color'
             value={input}
             onChange={(e) => setInput(e.target.value)}
           />
           <input
-            type="text"
+            type='text'
             value={input}
             onChange={(e) => setInput(e.target.value)}
             spellCheck={false}
           />
         </label>
       </div>
-      {error && <p className="error">{error}</p>}
+      {error && <p className='error'>{error}</p>}
       {result && <PalettePreview result={result} />}
     </>
   );
