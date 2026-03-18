@@ -2,22 +2,24 @@ import { convert } from "../convert";
 import { Color } from "../types";
 import { ColorScale, ThemeType } from "./types";
 
-const BASELINE_DARK_L_VALUE = 0.4;
-const BASELINE_LIGHT_L_VALUE = 0.6;
+const BASELINE_DARK_L_VALUE = 0.45;
+const BASELINE_LIGHT_L_VALUE = 0.55;
 
 const FOREGROUND_DARK_L_VALUE = 0.98;
-const FOREGROUND_LIGHT_L_VALUE = 0.1;
+const FOREGROUND_LIGHT_L_VALUE = 0.02;
+const FOREGROUND_MAX_CHROMA = 0.05;
 
-const STRONG_DELTA_DARK = -0.05;
-const STRONG_DELTA_LIGHT = 0.05;
-const WEAK_DELTA_DARK = 0.05;
-const WEAK_DELTA_LIGHT = -0.05;
+const STRONG_DELTA_DARK = 0.05;
+const STRONG_DELTA_LIGHT = -0.05;
+const WEAK_DELTA_DARK = -0.05;
+const WEAK_DELTA_LIGHT = 0.05;
 
 interface ExpandColorToScaleOptions {
   baselineLValueDark?: number;
   baselineLValueLight?: number;
   foregroundLValueDark?: number;
   foregroundLValueLight?: number;
+  foregroundMaxChroma?: number;
   strongDeltaDark?: number;
   strongDeltaLight?: number;
   weakDeltaDark?: number;
@@ -34,6 +36,7 @@ export function expandColorToScale(
     baselineLValueLight = BASELINE_LIGHT_L_VALUE,
     foregroundLValueDark = FOREGROUND_DARK_L_VALUE,
     foregroundLValueLight = FOREGROUND_LIGHT_L_VALUE,
+    foregroundMaxChroma = FOREGROUND_MAX_CHROMA,
     strongDeltaDark = STRONG_DELTA_DARK,
     strongDeltaLight = STRONG_DELTA_LIGHT,
     weakDeltaDark = WEAK_DELTA_DARK,
@@ -61,8 +64,9 @@ export function expandColorToScale(
   };
 
   const foregroundColorOKLCH = {
-    ...colorOKLCH,
+    ...normalizedColorOKLCH,
     l: themeType === "light" ? foregroundLValueLight : foregroundLValueDark,
+    c: Math.min(normalizedColorOKLCH.c, foregroundMaxChroma),
   };
 
   return {
