@@ -214,7 +214,29 @@ export interface HextimateOptions {
    * - "css": { "--base": "#f2eee8", "--base-strong": "#d4cfc8", ...}
    * - "tailwind": { base: { DEFAULT: "#f2eee8", strong: "#d4cfc8", weak: "#faf8f6" } }
    * - "scss": { $base: "#f2eee8", $base-strong: "#d4cfc8", ...}
-   * - "json": { "base": "#f2eee8", "base-strong": "#d4cfc8", ...}
+   * - "json": '{ "base": "#f2eee8", "base-strong": "#d4cfc8", ...}'
    */
   format?: "css" | "tailwind" | "scss" | "json";
+
+  /**
+   * How color values are serialized in the output.
+   *
+   * - "hex" (default) → "#f2eee8"
+   * - "hsl"           → "hsl(30, 10%, 94%)"
+   * - "hsl-raw"       → "30 10% 94%"            (shadcn / CSS variable style)
+   * - "oklch"         → "oklch(0.96 0.01 70)"
+   * - "oklch-raw"     → "0.96 0.01 70"
+   * - "rgb"           → "rgb(242, 238, 232)"
+   * - "rgb-raw"       → "242 238 232"
+   */
+  colorFormat?: ColorFormat;
 }
+
+export type ColorFormat =
+  | "hex"
+  | "hsl"
+  | "hsl-raw"
+  | "oklch"
+  | "oklch-raw"
+  | "rgb"
+  | "rgb-raw";

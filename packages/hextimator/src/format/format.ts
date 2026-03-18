@@ -1,11 +1,31 @@
-import { HextimatePalette } from "../generate/types";
-import { FormatOptions } from "./types";
+import type { HextimatePalette } from "../generate/types";
+import { buildTokenEntries } from "./buildTokenEntries";
+import {
+  formatCSS,
+  formatJSON,
+  formatObject,
+  formatSCSS,
+  formatTailwind,
+} from "./formatters";
+import type { FormatOptions, FormatResult } from "./types";
 
-// TODO: format return types
 export function format(
   palette: HextimatePalette,
   options?: FormatOptions,
-): string | null {
-  // TODO: format the palette
-  return null;
+): FormatResult {
+  const entries = buildTokenEntries(palette, options);
+  const sep = options?.separator ?? "-";
+
+  switch (options?.format) {
+    case "css":
+      return formatCSS(entries, sep);
+    case "scss":
+      return formatSCSS(entries, sep);
+    case "tailwind":
+      return formatTailwind(entries);
+    case "json":
+      return formatJSON(entries, sep);
+    default:
+      return formatObject(entries, sep);
+  }
 }
