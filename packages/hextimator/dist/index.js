@@ -20,8 +20,9 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
-  convert: () => convert,
-  hextimate: () => hextimate
+  convertColor: () => convert,
+  hextimate: () => hextimate,
+  parseColor: () => parse
 });
 module.exports = __toCommonJS(index_exports);
 
@@ -220,7 +221,74 @@ function convert(color, to) {
   return fn(color);
 }
 
-// src/utils/parseColor/parseTuple.ts
+// src/generate/utils.ts
+var BASELINE_DARK_L_VALUE = 0.4;
+var BASELINE_LIGHT_L_VALUE = 0.6;
+var FOREGROUND_DARK_L_VALUE = 0.98;
+var FOREGROUND_LIGHT_L_VALUE = 0.1;
+var STRONG_DELTA_DARK = -0.05;
+var STRONG_DELTA_LIGHT = 0.05;
+var WEAK_DELTA_DARK = 0.05;
+var WEAK_DELTA_LIGHT = -0.05;
+function expandColorToScale(color, themeType, options) {
+  const {
+    baselineLValueDark = BASELINE_DARK_L_VALUE,
+    baselineLValueLight = BASELINE_LIGHT_L_VALUE,
+    foregroundLValueDark = FOREGROUND_DARK_L_VALUE,
+    foregroundLValueLight = FOREGROUND_LIGHT_L_VALUE,
+    strongDeltaDark = STRONG_DELTA_DARK,
+    strongDeltaLight = STRONG_DELTA_LIGHT,
+    weakDeltaDark = WEAK_DELTA_DARK,
+    weakDeltaLight = WEAK_DELTA_LIGHT
+  } = options ?? {};
+  const colorOKLCH = convert(color, "oklch");
+  const normalizedColorOKLCH = {
+    ...colorOKLCH,
+    l: themeType === "light" ? baselineLValueLight : baselineLValueDark
+  };
+  const strongColorOKLCH = {
+    ...normalizedColorOKLCH,
+    l: normalizedColorOKLCH.l + (themeType === "light" ? strongDeltaLight : strongDeltaDark)
+  };
+  const weakColorOKLCH = {
+    ...normalizedColorOKLCH,
+    l: normalizedColorOKLCH.l + (themeType === "light" ? weakDeltaLight : weakDeltaDark)
+  };
+  const foregroundColorOKLCH = {
+    ...colorOKLCH,
+    l: themeType === "light" ? foregroundLValueLight : foregroundLValueDark
+  };
+  return {
+    DEFAULT: convert(colorOKLCH, "srgb") ?? void 0,
+    strong: convert(strongColorOKLCH, "srgb") ?? void 0,
+    weak: convert(weakColorOKLCH, "srgb") ?? void 0,
+    foreground: convert(foregroundColorOKLCH, "srgb") ?? void 0
+  };
+}
+
+// src/generate/generateAccent.ts
+var ACCENT_DARK_L_VALUE = 0.4;
+var ACCENT_LIGHT_L_VALUE = 0.6;
+var FOREGROUND_DARK_L_VALUE2 = 0.98;
+var FOREGROUND_LIGHT_L_VALUE2 = 0.1;
+var STRONG_DELTA_DARK2 = -0.05;
+var STRONG_DELTA_LIGHT2 = 0.05;
+var WEAK_DELTA_DARK2 = 0.05;
+var WEAK_DELTA_LIGHT2 = -0.05;
+function generateAccent(accent, themeType) {
+  return expandColorToScale(accent, themeType, {
+    baselineLValueDark: ACCENT_DARK_L_VALUE,
+    baselineLValueLight: ACCENT_LIGHT_L_VALUE,
+    foregroundLValueDark: FOREGROUND_DARK_L_VALUE2,
+    foregroundLValueLight: FOREGROUND_LIGHT_L_VALUE2,
+    strongDeltaDark: STRONG_DELTA_DARK2,
+    strongDeltaLight: STRONG_DELTA_LIGHT2,
+    weakDeltaDark: WEAK_DELTA_DARK2,
+    weakDeltaLight: WEAK_DELTA_LIGHT2
+  });
+}
+
+// src/parse/parseTuple.ts
 function tryParseTuple(t, assumeSpace = "srgb") {
   const [a, b, c, maybeAlpha] = t;
   const alpha = maybeAlpha ?? 1;
@@ -244,7 +312,7 @@ function tryParseTuple(t, assumeSpace = "srgb") {
   }
 }
 
-// src/utils/parseColor/parseCommaSeparated.ts
+// src/parse/parseCommaSeparated.ts
 function tryParseCommaSeparated(input, assumeSpace = "srgb") {
   const parts = input.split(",").map((p) => p.trim());
   if (parts.length < 3 || parts.length > 4) return null;
@@ -256,7 +324,7 @@ function tryParseCommaSeparated(input, assumeSpace = "srgb") {
   );
 }
 
-// src/utils/parseColor/parseCSSFunction.ts
+// src/parse/parseCSSFunction.ts
 var CSS_FUNC_REGULAR_EXPRESSION = /^(rgba?|hsla?|oklch|oklab|lab|color)\(\s*(.+?)\s*\)$/;
 function parseCSSArgs(raw) {
   let alpha = 1;
@@ -355,7 +423,7 @@ function tryParseCSSFunction(input) {
   }
 }
 
-// src/utils/parseColor/parseHex.ts
+// src/parse/parseHex.ts
 var HEX_PATTERNS = {
   prefixed: /^#([0-9a-f]{3,8})$/,
   // e.g. #FF6666
@@ -390,7 +458,7 @@ function tryParseHex(input) {
   return null;
 }
 
-// src/utils/parseColor/parseNumeric.ts
+// src/parse/parseNumeric.ts
 function tryParseNumeric(n) {
   if (!Number.isInteger(n) || n < 0 || n > 4294967295) return null;
   if (n <= 16777215) {
@@ -411,7 +479,7 @@ function tryParseNumeric(n) {
   };
 }
 
-// src/utils/parseColor/parseColor.ts
+// src/parse/parse.ts
 var ColorParseError = class extends Error {
   constructor(input, message) {
     super(message ?? `Failed to parse color:  ${String(input)}`);
@@ -419,7 +487,7 @@ var ColorParseError = class extends Error {
     this.name = "ColorParseError";
   }
 };
-function parseColor(input, assumeSpace) {
+function parse(input, assumeSpace) {
   if (isColor(input)) return input;
   if (typeof input === "number") {
     const result = tryParseNumeric(input);
@@ -450,18 +518,135 @@ function isColor(value) {
   return typeof value === "object" && value !== null && "space" in value && typeof value.space === "string";
 }
 
+// src/generate/generateBase.ts
+var DEFAULT_BASE_DARK_COLOR = "#1a1a1a";
+var DEFAULT_BASE_LIGHT_COLOR = "#fafafa";
+var BASELINE_DARK_L_VALUE2 = 0.1;
+var BASELINE_LIGHT_L_VALUE2 = 0.95;
+var FOREGROUND_DARK_L_VALUE3 = 0.98;
+var FOREGROUND_LIGHT_L_VALUE3 = 0.1;
+var STRONG_DELTA_DARK3 = -0.05;
+var STRONG_DELTA_LIGHT3 = 0.05;
+var WEAK_DELTA_DARK3 = 0.05;
+var WEAK_DELTA_LIGHT3 = -0.05;
+function generateBase(color, themeType, options) {
+  const preferredBaseColorInput = themeType === "light" ? options?.preferredBaseColors?.light ?? DEFAULT_BASE_LIGHT_COLOR : options?.preferredBaseColors?.dark ?? DEFAULT_BASE_DARK_COLOR;
+  const preferredBaseColor = parse(preferredBaseColorInput);
+  if (!preferredBaseColor) return null;
+  return expandColorToScale(preferredBaseColor, themeType, {
+    baselineLValueDark: BASELINE_DARK_L_VALUE2,
+    baselineLValueLight: BASELINE_LIGHT_L_VALUE2,
+    foregroundLValueDark: FOREGROUND_DARK_L_VALUE3,
+    foregroundLValueLight: FOREGROUND_LIGHT_L_VALUE3,
+    strongDeltaDark: STRONG_DELTA_DARK3,
+    strongDeltaLight: STRONG_DELTA_LIGHT3,
+    weakDeltaDark: WEAK_DELTA_DARK3,
+    weakDeltaLight: WEAK_DELTA_LIGHT3
+  });
+}
+
+// src/generate/generateSemanticColors.ts
+var POSITIVE_RANGE = [90, 150];
+var NEGATIVE_RANGE = [345, 15];
+var WARNING_RANGE = [35, 55];
+function generateSemanticColors(color, themeType, options) {
+  const positiveBaseColor = parse(
+    options?.semanticColors?.positive ?? _determineBaseColorFromRange(
+      color,
+      options?.semanticColorRanges?.positive ?? POSITIVE_RANGE
+    )
+  );
+  if (!positiveBaseColor) return null;
+  console.log("positiveBaseColor", positiveBaseColor);
+  const negativeBaseColor = parse(
+    options?.semanticColors?.negative ?? _determineBaseColorFromRange(
+      color,
+      options?.semanticColorRanges?.negative ?? NEGATIVE_RANGE
+    )
+  );
+  if (!negativeBaseColor) return null;
+  console.log("negativeBaseColor", negativeBaseColor);
+  const warningBaseColor = parse(
+    options?.semanticColors?.warning ?? _determineBaseColorFromRange(
+      color,
+      options?.semanticColorRanges?.warning ?? WARNING_RANGE
+    )
+  );
+  if (!warningBaseColor) return null;
+  const positiveColorScale = expandColorToScale(positiveBaseColor, themeType);
+  const negativeColorScale = expandColorToScale(negativeBaseColor, themeType);
+  const warningColorScale = expandColorToScale(warningBaseColor, themeType);
+  console.log("warningBaseColor", warningBaseColor);
+  return {
+    positive: positiveColorScale,
+    negative: negativeColorScale,
+    warning: warningColorScale
+  };
+}
+function _determineBaseColorFromRange(color, range) {
+  const complementaryColor = _getComplementaryColor(color);
+  const splitComplementaryColors = _getSplitComplementaryColors(complementaryColor);
+  const targetColors = [...splitComplementaryColors, complementaryColor];
+  const closestColor = targetColors.reduce(
+    (closest, target) => {
+      const distance = _getDistance(target, color);
+      return distance < closest.distance ? { color: target, distance } : closest;
+    },
+    { color: targetColors[0], distance: Infinity }
+  );
+  return closestColor.color;
+}
+function _getDistance(color1, color2) {
+  const color1OKLCH = convert(color1, "oklch");
+  const color2OKLCH = convert(color2, "oklch");
+  return Math.sqrt(
+    Math.pow(color1OKLCH.l - color2OKLCH.l, 2) + Math.pow(color1OKLCH.c - color2OKLCH.c, 2) + Math.pow(color1OKLCH.h - color2OKLCH.h, 2)
+  );
+}
+function _getComplementaryColor(color) {
+  const colorHSL = convert(color, "hsl");
+  return convert({ ...colorHSL, h: (colorHSL.h + 180) % 360 }, "srgb");
+}
+function _getSplitComplementaryColors(color) {
+  const colorHSL = convert(color, "hsl");
+  return [
+    convert({ ...colorHSL, h: (colorHSL.h + 150) % 360 }, "srgb"),
+    convert({ ...colorHSL, h: (colorHSL.h + 210) % 360 }, "srgb")
+  ];
+}
+
+// src/generate/generate.ts
+function generate(color, themeType, options) {
+  const accent = generateAccent(color, themeType);
+  if (!accent) return null;
+  const base = generateBase(color, themeType, options);
+  if (!base) return null;
+  const semanticColors = generateSemanticColors(color, themeType, options);
+  if (!semanticColors) return null;
+  return {
+    base,
+    accent,
+    positive: semanticColors.positive,
+    negative: semanticColors.negative,
+    warning: semanticColors.warning
+  };
+}
+
 // src/index.ts
 function hextimate(color, options) {
-  const parsedColor = parseColor(color);
+  const parsedColor = parse(color);
   if (!parsedColor) return null;
-  const oklch = convert(parsedColor, "oklch");
+  const lightPalette = generate(parsedColor, "light", options);
+  const darkPalette = generate(parsedColor, "dark", options);
+  if (!lightPalette || !darkPalette) return null;
   return {
-    parsedColor,
-    oklch
+    light: lightPalette,
+    dark: darkPalette
   };
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  convert,
-  hextimate
+  convertColor,
+  hextimate,
+  parseColor
 });
