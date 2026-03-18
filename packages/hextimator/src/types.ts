@@ -111,3 +111,110 @@ export type ConvertColor = <S extends ColorSpace>(
 //   to: S,
 //   assumeSpace?: ColorSpace,
 // ) => ColorInSpace<S>;
+
+/**
+ * Optional config to tweak the hextimation process
+ * and output format to get the theme adapted to your needs
+ */
+export interface HextimateOptions {
+  /**
+   * Preferred base color for dark and light mode
+   * It will be used as a baseline to generate the rest of base colors (strong, weak)
+   * If not provided, the default base colors will be used
+   * The default base colors are:
+   * - dark: #1a1a1a
+   * - light: #ffffff
+   */
+  preferredBaseColors?: {
+    dark?: ColorInput; // e.g. #1a1a1a
+    light?: ColorInput; // e.g. #ffffff
+  };
+
+  /**
+   * Semantic colors to use for the theme
+   * If not provided, they will be generated from the provided main color,
+   * and the semantic color ranges.
+   */
+  semanticColors?: {
+    positive?: ColorInput;
+    negative?: ColorInput;
+    warning?: ColorInput;
+  };
+
+  /**
+   * Degree ranges for the semantic colors.
+   * Determines where to look for "green", "red", "yellow" in the color space.
+   * If not provided, the default ranges will be used:
+   * - positive: [90, 150]   greens
+   * - negative: [345, 15]   reds
+   * - warning: [35, 55]    ambers
+   */
+  semanticColorRanges?: {
+    positive?: [number, number]; // [start, end]
+    negative?: [number, number]; // [start, end]
+    warning?: [number, number]; // [start, end]
+  };
+
+  /**
+   * Rename roles in the output token keys.
+   * Internal name → your custom name.
+   *
+   * Examples:
+   * - base: "bg"
+   * - accent: "button"
+   * - positive: "success"
+   * - negative: "error"
+   * - warning: "warning"
+   *
+   * If not provided, the default role names will be used.
+   * The default role names are:
+   * - base: "base"
+   * - accent: "accent"
+   * - positive: "positive"
+   * - negative: "negative"
+   * - warning: "warning"
+   */
+  roleNames?: {
+    base?: string;
+    accent?: string;
+    positive?: string;
+    negative?: string;
+    warning?: string;
+  };
+
+  /**
+   * Rename variant suffixes in the output token keys.
+   * Internal name → your custom name.
+   *
+   * Examples:
+   * - DEFAULT: "secondary"
+   * - strong: "primary"
+   * - weak: "tertiary"
+   * - foreground: "text"
+   */
+  variantNames?: {
+    DEFAULT?: string;
+    strong?: string;
+    weak?: string;
+    foreground?: string;
+  };
+
+  /**
+   * Separator to use between the role and the variant in the output token keys.
+   * If not provided, the default separator will be used.
+   * The default separator is: "-"
+   *
+   * Use "_" for "base_strong", "/" for "base/strong", etc.
+   */
+  separator?: string;
+
+  /**
+   * Output format.
+   * - "object" (default): { base: "#f2eee8", "base-strong": "#d4cfc8", ...}
+   * - "css": { "--base": "#f2eee8", "--base-strong": "#d4cfc8", ...}
+   * - "tailwind": { base: { DEFAULT: "#f2eee8", strong: "#d4cfc8", weak: "#faf8f6" } }
+   * - "scss": { $base: "#f2eee8", $base-strong: "#d4cfc8", ...}
+   * - "json": { "base": "#f2eee8", "base-strong": "#d4cfc8", ...}
+   */
+  format?: "css" | "tailwind" | "scss" | "json";
+}
