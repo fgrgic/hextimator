@@ -49,5 +49,8 @@ export function serializeColor(
 			const oklch = convert(color, 'oklch');
 			return `${round(oklch.l, 4)} ${round(oklch.c, 4)} ${round(oklch.h, 1)}`;
 		}
+		default: {
+			throw new Error(`Unsupported color format: ${colorFormat}`);
+		}
 	}
 }

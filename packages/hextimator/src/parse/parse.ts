@@ -1,5 +1,4 @@
-import type { ColorInput } from 'bun';
-import type { Color, ColorSpace, ColorTuple } from '../types';
+import type { Color, ColorInput, ColorSpace, ColorTuple } from '../types';
 import { tryParseCommaSeparated } from './parseCommaSeparated';
 import { tryParseCSSFunction } from './parseCSSFunction';
 import { tryParseHex } from './parseHex';

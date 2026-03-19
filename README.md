@@ -96,4 +96,4 @@ Issues and PRs are welcome at [github.com/fgrgic/hextimator](https://github.com/
 
 ## License
 
-ISC © [ditherbug](https://github.com/fgrgic)
+ISC © [fgrgic](https://github.com/fgrgic)

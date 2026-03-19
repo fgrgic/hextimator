@@ -12,13 +12,13 @@ describe('tryParseTuple', () => {
 		});
 	});
 
-	it('uses provided alpha from 4-tuple', () => {
+	it('ignores alpha from 4-tuple', () => {
 		expect(tryParseTuple([255, 102, 102, 0.5])).toEqual({
 			space: 'srgb',
 			r: 255,
 			g: 102,
 			b: 102,
-			alpha: 0.5,
+			alpha: 1,
 		});
 	});
 

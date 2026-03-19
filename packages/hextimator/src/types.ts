@@ -32,14 +32,6 @@ export interface OKLab {
 	readonly alpha: number;
 }
 
-export interface Lab {
-	readonly space: 'lab';
-	readonly l: number; // 0-100
-	readonly a: number; // -128-127
-	readonly b: number; // -128-127
-	readonly alpha: number;
-}
-
 export interface LinearRGB {
 	readonly space: 'linear-rgb';
 	readonly r: number; // 0-1
@@ -48,15 +40,7 @@ export interface LinearRGB {
 	readonly alpha: number;
 }
 
-export interface P3 {
-	readonly space: 'p3';
-	readonly r: number; // 0-1
-	readonly g: number; // 0-1
-	readonly b: number; // 0-1
-	readonly alpha: number;
-}
-
-export type Color = RGB | HSL | OKLCH | OKLab | Lab | LinearRGB | P3;
+export type Color = RGB | HSL | OKLCH | OKLab | LinearRGB;
 
 export type ColorInSpace<S extends Color['space']> = Extract<
 	Color,

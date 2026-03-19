@@ -1,26 +1,29 @@
-import type { Color, ColorInSpace, ColorSpace } from '../types';
+import type { Color, ColorInSpace, ColorSpace, OKLCH } from '../types';
 import { gamutMapOklch } from './gamut';
 import { linearRgbToOklab, oklabToLinearRgb } from './linear-oklab';
 import { oklabToOklch, oklchToOklab } from './oklab-oklch';
 import { hslToSrgb, srgbToHsl } from './srgb-hsl';
 import { linearToSrgb, srgbToLinear } from './srgb-linear';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ConvertFn = (color: any) => Color;
+type ConvertFn = (color: Color) => Color;
 
 /** Gamut-map an OKLCH color before converting to a gamut-bounded space. */
-const gamutMap: ConvertFn = (color) => gamutMapOklch(color);
+const gamutMap = ((color: Color) => gamutMapOklch(color as OKLCH)) as ConvertFn;
 
 /** Chain multiple conversion functions into one. */
-function chain(...fns: ConvertFn[]): ConvertFn {
+// biome-ignore lint/suspicious/noExplicitAny: each fn takes a narrow Color variant; type safety is enforced by the conversion table keys
+function chain(...fns: Array<(color: any) => Color>): ConvertFn {
 	return (color: Color) => fns.reduce((c, fn) => fn(c), color);
 }
 
 /**
  * Lookup table for all directed pairs among: srgb, linear-rgb, oklab, oklch, hsl.
  * Each entry is a function that converts from the key's source to its target.
+ *
+ * Type safety is enforced at the public `convert()` boundary — each converter
+ * receives the correct narrow type because the lookup key matches `color.space`.
  */
-const conversions: Record<string, ConvertFn> = {
+const conversions = {
 	// srgb ↔ linear-rgb
 	'srgb->linear-rgb': srgbToLinear,
 	'linear-rgb->srgb': linearToSrgb,
@@ -59,8 +62,14 @@ const conversions: Record<string, ConvertFn> = {
 
 	// hsl ↔ oklch
 	'hsl->oklch': chain(hslToSrgb, srgbToLinear, linearRgbToOklab, oklabToOklch),
-	'oklch->hsl': chain(gamutMap, oklchToOklab, oklabToLinearRgb, linearToSrgb, srgbToHsl),
-};
+	'oklch->hsl': chain(
+		gamutMap,
+		oklchToOklab,
+		oklabToLinearRgb,
+		linearToSrgb,
+		srgbToHsl,
+	),
+} as Record<string, ConvertFn>;
 
 /**
  * Convert a Color to a target color space.

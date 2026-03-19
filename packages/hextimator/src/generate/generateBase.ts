@@ -7,7 +7,7 @@ import { expandColorToScale } from './utils';
 const DEFAULT_BASE_DARK_COLOR = '#1a1a1a';
 const DEFAULT_BASE_LIGHT_COLOR = '#fafafa';
 
-const BASELINE_DARK_L_VALUE = 0.01;
+const BASELINE_DARK_L_VALUE = 0.1;
 const BASELINE_LIGHT_L_VALUE = 0.97;
 const BASELINE_MAX_CHROMA = 0.02;
 
@@ -20,7 +20,7 @@ export function generateBase(
 	_color: Color,
 	themeType: ThemeType,
 	options?: GenerateOptions,
-): ColorScale | null {
+): ColorScale {
 	const preferredBaseColorInput =
 		themeType === 'light'
 			? (options?.preferredBaseColors?.light ?? DEFAULT_BASE_LIGHT_COLOR)
@@ -30,7 +30,6 @@ export function generateBase(
 		options?.neutralColorsMaxChroma ?? BASELINE_MAX_CHROMA;
 
 	const preferredBaseColor = convert(parse(preferredBaseColorInput), 'oklch');
-	if (!preferredBaseColor) return null;
 
 	const normalizedPreferredBaseColor = {
 		...preferredBaseColor,

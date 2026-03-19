@@ -32,12 +32,12 @@ describe('tryParseNumeric', () => {
 		});
 	});
 
-	it('parses 8-digit RGBA', () => {
+	it('parses 8-digit RGBA, ignoring alpha', () => {
 		const result = tryParseNumeric(0xff666680);
 		expect(result?.r).toBe(255);
 		expect(result?.g).toBe(102);
 		expect(result?.b).toBe(102);
-		expect(result?.alpha).toBeCloseTo(0x80 / 255, 5);
+		expect(result?.alpha).toBe(1);
 	});
 
 	it('returns null for negative numbers', () => {

@@ -11,24 +11,23 @@ export function tryParseTuple(
 	t: ColorTuple,
 	assumeSpace: ColorSpace = 'srgb',
 ): Color | null {
-	const [a, b, c, maybeAlpha] = t;
-	const alpha = maybeAlpha ?? 1;
+	const [a, b, c] = t;
 
 	switch (assumeSpace) {
 		case 'srgb':
-			return { space: 'srgb', r: a, g: b, b: c, alpha };
+			return { space: 'srgb', r: a, g: b, b: c, alpha: 1 };
 		case 'hsl':
-			return { space: 'hsl', h: a, s: b, l: c, alpha };
+			return { space: 'hsl', h: a, s: b, l: c, alpha: 1 };
 		case 'oklch':
-			return { space: 'oklch', l: a, c: b, h: c, alpha };
+			return { space: 'oklch', l: a, c: b, h: c, alpha: 1 };
 		case 'oklab':
-			return { space: 'oklab', l: a, a: b, b: c, alpha };
+			return { space: 'oklab', l: a, a: b, b: c, alpha: 1 };
 		case 'lab':
-			return { space: 'lab', l: a, a: b, b: c, alpha };
+			return { space: 'lab', l: a, a: b, b: c, alpha: 1 };
 		case 'linear-rgb':
-			return { space: 'linear-rgb', r: a, g: b, b: c, alpha };
+			return { space: 'linear-rgb', r: a, g: b, b: c, alpha: 1 };
 		case 'p3':
-			return { space: 'p3', r: a, g: b, b: c, alpha };
+			return { space: 'p3', r: a, g: b, b: c, alpha: 1 };
 		default:
 			return null;
 	}

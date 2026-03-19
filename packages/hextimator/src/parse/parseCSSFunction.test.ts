@@ -13,23 +13,23 @@ describe('tryParseCSSFunction', () => {
 			});
 		});
 
-		it('parses rgba() with alpha', () => {
+		it('parses rgba(), ignoring alpha', () => {
 			expect(tryParseCSSFunction('rgba(255, 102, 102, 0.5)')).toEqual({
 				space: 'srgb',
 				r: 255,
 				g: 102,
 				b: 102,
-				alpha: 0.5,
+				alpha: 1,
 			});
 		});
 
-		it('parses rgb() with space syntax and slash alpha', () => {
+		it('parses rgb() with space syntax and slash alpha, ignoring alpha', () => {
 			expect(tryParseCSSFunction('rgb(255 102 102 / 0.5)')).toEqual({
 				space: 'srgb',
 				r: 255,
 				g: 102,
 				b: 102,
-				alpha: 0.5,
+				alpha: 1,
 			});
 		});
 	});
@@ -45,14 +45,14 @@ describe('tryParseCSSFunction', () => {
 			});
 		});
 
-		it('parses hsla() with alpha', () => {
+		it('parses hsla(), ignoring alpha', () => {
 			const result = tryParseCSSFunction('hsla(200, 10%, 50%, 0.8)');
 			expect(result).toEqual({
 				space: 'hsl',
 				h: 200,
 				s: 0.1,
 				l: 0.5,
-				alpha: 0.8,
+				alpha: 1,
 			});
 		});
 	});
@@ -68,13 +68,13 @@ describe('tryParseCSSFunction', () => {
 			});
 		});
 
-		it('parses oklch() with slash alpha', () => {
+		it('parses oklch() with slash alpha, ignoring alpha', () => {
 			expect(tryParseCSSFunction('oklch(0.7 0.15 200 / 0.5)')).toEqual({
 				space: 'oklch',
 				l: 0.7,
 				c: 0.15,
 				h: 200,
-				alpha: 0.5,
+				alpha: 1,
 			});
 		});
 

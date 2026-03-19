@@ -12,13 +12,13 @@ describe('tryParseCommaSeparated', () => {
 		});
 	});
 
-	it('parses 4-value sRGB with alpha', () => {
+	it('parses 4-value sRGB, ignoring alpha', () => {
 		expect(tryParseCommaSeparated('255, 102, 102, 0.5')).toEqual({
 			space: 'srgb',
 			r: 255,
 			g: 102,
 			b: 102,
-			alpha: 0.5,
+			alpha: 1,
 		});
 	});
 

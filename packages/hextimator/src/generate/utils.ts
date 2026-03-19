@@ -7,9 +7,6 @@ import {
 } from './consts';
 import type { ColorScale, GenerateOptions, ThemeType } from './types';
 
-const _BASELINE_DARK_L_VALUE = 0.45;
-const _BASELINE_LIGHT_L_VALUE = 0.55;
-
 const FOREGROUND_DARK_L_VALUE = 0.98;
 const FOREGROUND_LIGHT_L_VALUE = 0.02;
 const FOREGROUND_MAX_CHROMA = 0.05;
@@ -78,38 +75,25 @@ export function expandColorToScale(
 			(themeType === 'light' ? weakDeltaLight : weakDeltaDark),
 	};
 
-	const foregroundCandidate1 = {
+	const candidates = [foregroundLValueLight, foregroundLValueDark].map((l) => ({
 		...normalizedColorOKLCH,
-		l: themeType === 'light' ? foregroundLValueLight : foregroundLValueDark,
+		l,
 		c: Math.min(normalizedColorOKLCH.c, foregroundMaxChroma),
-	};
+	}));
 
-	const foregroundCandidate2 = {
-		...foregroundCandidate1,
-		l: themeType === 'light' ? foregroundLValueDark : foregroundLValueLight,
-	};
-
-	const contrastRatioBetweenBaseAndCandidate1 = calculateContrast(
-		normalizedColorOKLCH,
-		foregroundCandidate1,
-	);
-	const contrastRatioBetweenBaseAndCandidate2 = calculateContrast(
-		normalizedColorOKLCH,
-		foregroundCandidate2,
-	);
+	const [preferred, fallback] =
+		themeType === 'light' ? candidates : candidates.toReversed();
 
 	const foregroundColorOKLCH =
-		contrastRatioBetweenBaseAndCandidate1 > 7 ||
-		contrastRatioBetweenBaseAndCandidate1 >
-			contrastRatioBetweenBaseAndCandidate2
-			? foregroundCandidate1
-			: foregroundCandidate2;
+		calculateContrast(normalizedColorOKLCH, preferred) > 7
+			? preferred
+			: fallback;
 
 	return {
-		DEFAULT: convert(normalizedColorOKLCH, 'srgb') ?? undefined,
-		strong: convert(strongColorOKLCH, 'srgb') ?? undefined,
-		weak: convert(weakColorOKLCH, 'srgb') ?? undefined,
-		foreground: convert(foregroundColorOKLCH, 'srgb') ?? undefined,
+		DEFAULT: convert(normalizedColorOKLCH, 'srgb'),
+		strong: convert(strongColorOKLCH, 'srgb'),
+		weak: convert(weakColorOKLCH, 'srgb'),
+		foreground: convert(foregroundColorOKLCH, 'srgb'),
 	};
 }
 
@@ -128,7 +112,7 @@ export function generateLightnessPair(
 	const darkDelta = options?.darkDelta ?? DEFAULT_THEME_LIGHTNESS_DARK_DELTA;
 
 	const lightThemeLightnessValue = Math.min(themeLightness + lightDelta, 1);
-	const darkThemeLightnessValue = Math.min(themeLightness + darkDelta, 1);
+	const darkThemeLightnessValue = Math.max(themeLightness + darkDelta, 0);
 
 	return {
 		lightThemeLightnessValue,

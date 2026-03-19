@@ -4,25 +4,21 @@ import { generateBase } from './generateBase';
 import { generateSemanticColors } from './generateSemanticColors';
 import type { GenerateOptions, HextimatePalette, ThemeType } from './types';
 
+export class GeneratePaletteError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = 'GeneratePaletteError';
+	}
+}
+
 export function generate(
 	color: Color,
 	themeType: ThemeType,
 	options?: GenerateOptions,
-): HextimatePalette | null {
-	const accent = generateAccent(color, themeType, options);
-	if (!accent) return null;
-
-	const base = generateBase(color, themeType, options);
-	if (!base) return null;
-
-	const semanticColors = generateSemanticColors(color, themeType, options);
-	if (!semanticColors) return null;
-
+): HextimatePalette {
 	return {
-		base,
-		accent,
-		positive: semanticColors.positive,
-		negative: semanticColors.negative,
-		warning: semanticColors.warning,
+		base: generateBase(color, themeType, options),
+		accent: generateAccent(color, themeType, options),
+		...generateSemanticColors(color, themeType, options),
 	};
 }

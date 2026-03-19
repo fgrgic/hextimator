@@ -22,20 +22,20 @@ describe('tryParseHex', () => {
 		});
 	});
 
-	it('parses prefixed 8-digit hex with alpha', () => {
+	it('parses prefixed 8-digit hex, ignoring alpha', () => {
 		const result = tryParseHex('#ff666680');
 		expect(result?.r).toBe(255);
 		expect(result?.g).toBe(102);
 		expect(result?.b).toBe(102);
-		expect(result?.alpha).toBeCloseTo(0x80 / 255, 5);
+		expect(result?.alpha).toBe(1);
 	});
 
-	it('parses prefixed 4-digit shorthand with alpha', () => {
+	it('parses prefixed 4-digit shorthand, ignoring alpha', () => {
 		const result = tryParseHex('#f668');
 		expect(result?.r).toBe(255);
 		expect(result?.g).toBe(102);
 		expect(result?.b).toBe(102);
-		expect(result?.alpha).toBeCloseTo(0x88 / 255, 5);
+		expect(result?.alpha).toBe(1);
 	});
 
 	it('parses bare 6-digit hex without prefix', () => {
