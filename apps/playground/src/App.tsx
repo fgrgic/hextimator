@@ -42,9 +42,11 @@ function App() {
   try {
     result = hextimate(input, {
       preferredBaseColors: {
-        dark: "#FE3D42",
-        light: "#fafafa",
+        dark: "#FF54DA",
+        light: "#FF54DA",
       },
+      neutralColorsMaxChroma: 0.01,
+      themeLightness: 0.1
     });
   } catch (e) {
     error = e instanceof Error ? e.message : "Unknown error";
