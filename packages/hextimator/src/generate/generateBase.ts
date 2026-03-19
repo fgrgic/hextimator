@@ -8,13 +8,13 @@ const DEFAULT_BASE_DARK_COLOR = "#1a1a1a";
 const DEFAULT_BASE_LIGHT_COLOR = "#fafafa";
 
 const BASELINE_DARK_L_VALUE = 0.01;
-const BASELINE_LIGHT_L_VALUE = 0.95;
+const BASELINE_LIGHT_L_VALUE = 0.97;
 const BASELINE_MAX_CHROMA = 0.02;
 
 const STRONG_DELTA_DARK = -0.05;
-const STRONG_DELTA_LIGHT = 0.05;
+const STRONG_DELTA_LIGHT = 0.03;
 const WEAK_DELTA_DARK = 0.05;
-const WEAK_DELTA_LIGHT = -0.05;
+const WEAK_DELTA_LIGHT = -0.03;
 
 export function generateBase(
   color: Color,

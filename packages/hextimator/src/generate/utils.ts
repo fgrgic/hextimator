@@ -47,11 +47,11 @@ export function expandColorToScale(
     weakDeltaLight = WEAK_DELTA_LIGHT,
   } = options ?? {};
 
-  console.log({themeLightness})
+  console.log({ themeLightness })
 
   const { lightThemeLightnessValue, darkThemeLightnessValue } = generateLightnessPair(themeLightness, options);
 
-  console.log({lightThemeLightnessValue, darkThemeLightnessValue})
+  console.log({ lightThemeLightnessValue, darkThemeLightnessValue })
 
   const colorOKLCH = convert(color, "oklch");
   const normalizedColorOKLCH = {
@@ -74,11 +74,21 @@ export function expandColorToScale(
       (themeType === "light" ? weakDeltaLight : weakDeltaDark),
   };
 
-  const foregroundColorOKLCH = {
+  const foregroundCandidate1 = {
     ...normalizedColorOKLCH,
     l: themeType === "light" ? foregroundLValueLight : foregroundLValueDark,
     c: Math.min(normalizedColorOKLCH.c, foregroundMaxChroma),
-  };
+  }
+
+  const foregroundCandidate2 = {
+    ...foregroundCandidate1,
+    l: themeType === "light" ? foregroundLValueDark : foregroundLValueLight,
+  }
+
+  const contrastRatioBetweenBaseAndCandidate1 = calculateContrast(normalizedColorOKLCH, foregroundCandidate1);
+  const contrastRatioBetweenBaseAndCandidate2 = calculateContrast(normalizedColorOKLCH, foregroundCandidate2);
+
+  const foregroundColorOKLCH = (contrastRatioBetweenBaseAndCandidate1 > 7 || contrastRatioBetweenBaseAndCandidate1 > contrastRatioBetweenBaseAndCandidate2) ? foregroundCandidate1 : foregroundCandidate2
 
   return {
     DEFAULT: convert(normalizedColorOKLCH, "srgb") ?? undefined,
@@ -107,4 +117,17 @@ export function generateLightnessPair(lightness?: number, options?: { darkDelta?
     darkThemeLightnessValue
   }
 
+}
+
+export function calculateContrast(colorA: Color, colorB: Color): number {
+  const luminance = (color: Color): number => {
+    const { r, g, b } = convert(color, "linear-rgb");
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  };
+
+  const L1 = luminance(colorA);
+  const L2 = luminance(colorB);
+  const lighter = Math.max(L1, L2);
+  const darker = Math.min(L1, L2);
+  return (lighter + 0.05) / (darker + 0.05);
 }
