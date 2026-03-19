@@ -1,19 +1,19 @@
-import { ColorInput } from "bun";
-import { Color, ColorSpace, ColorTuple } from "../types";
-import { tryParseCommaSeparated } from "./parseCommaSeparated";
-import { tryParseCSSFunction } from "./parseCSSFunction";
-import { tryParseHex } from "./parseHex";
-import { tryParseNumeric } from "./parseNumeric";
-import { tryParseTuple } from "./parseTuple";
+import type { ColorInput } from 'bun';
+import type { Color, ColorSpace, ColorTuple } from '../types';
+import { tryParseCommaSeparated } from './parseCommaSeparated';
+import { tryParseCSSFunction } from './parseCSSFunction';
+import { tryParseHex } from './parseHex';
+import { tryParseNumeric } from './parseNumeric';
+import { tryParseTuple } from './parseTuple';
 
 class ColorParseError extends Error {
-  constructor(
-    public readonly input: ColorInput,
-    message?: string,
-  ) {
-    super(message ?? `Failed to parse color:  ${String(input)}`);
-    this.name = "ColorParseError";
-  }
+	constructor(
+		public readonly input: ColorInput,
+		message?: string,
+	) {
+		super(message ?? `Failed to parse color:  ${String(input)}`);
+		this.name = 'ColorParseError';
+	}
 }
 
 /**
@@ -31,48 +31,48 @@ class ColorParseError extends Error {
  * @returns Color or throws a ColorParseError if parsing fails
  */
 export function parse(input: ColorInput, assumeSpace?: ColorSpace): Color {
-  if (isColor(input)) return input;
+	if (isColor(input)) return input;
 
-  if (typeof input === "number") {
-    const result = tryParseNumeric(input);
-    if (result) return result;
-    throw new ColorParseError(input);
-  }
+	if (typeof input === 'number') {
+		const result = tryParseNumeric(input);
+		if (result) return result;
+		throw new ColorParseError(input);
+	}
 
-  if (Array.isArray(input)) {
-    const result = tryParseTuple(input as ColorTuple, assumeSpace);
-    if (result) return result;
-    throw new ColorParseError(input);
-  }
+	if (Array.isArray(input)) {
+		const result = tryParseTuple(input as ColorTuple, assumeSpace);
+		if (result) return result;
+		throw new ColorParseError(input);
+	}
 
-  if (typeof input === "string") {
-    const normalized = _normalizeInput(input);
+	if (typeof input === 'string') {
+		const normalized = _normalizeInput(input);
 
-    const cssResult = tryParseCSSFunction(normalized);
-    if (cssResult) return cssResult;
+		const cssResult = tryParseCSSFunction(normalized);
+		if (cssResult) return cssResult;
 
-    const hexResult = tryParseHex(normalized);
-    if (hexResult) return hexResult;
+		const hexResult = tryParseHex(normalized);
+		if (hexResult) return hexResult;
 
-    const commaResult = tryParseCommaSeparated(normalized, assumeSpace);
-    if (commaResult) return commaResult;
+		const commaResult = tryParseCommaSeparated(normalized, assumeSpace);
+		if (commaResult) return commaResult;
 
-    throw new ColorParseError(input, `Unrecognized color format: ${input}`);
-  }
+		throw new ColorParseError(input, `Unrecognized color format: ${input}`);
+	}
 
-  throw new ColorParseError(input);
+	throw new ColorParseError(input);
 }
 
 // Helpers
 function _normalizeInput(raw: string): string {
-  return raw.trim().toLowerCase();
+	return raw.trim().toLowerCase();
 }
 
 function isColor(value: unknown): value is Color {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "space" in value &&
-    typeof (value as Color).space === "string"
-  );
+	return (
+		typeof value === 'object' &&
+		value !== null &&
+		'space' in value &&
+		typeof (value as Color).space === 'string'
+	);
 }

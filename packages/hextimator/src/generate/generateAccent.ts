@@ -1,14 +1,11 @@
-import { convert } from "../convert";
-import { Color } from "../types";
-import { DEFAULT_THEME_LIGHTNESS } from "./consts";
-import { ColorScale, GenerateOptions, ThemeType } from "./types";
-import { expandColorToScale, generateLightnessPair } from "./utils";
-
+import type { Color } from '../types';
+import type { ColorScale, GenerateOptions, ThemeType } from './types';
+import { expandColorToScale } from './utils';
 
 export function generateAccent(
-  accent: Color,
-  themeType: ThemeType,
-  options?: GenerateOptions
+	accent: Color,
+	themeType: ThemeType,
+	options?: GenerateOptions,
 ): ColorScale | null {
-  return expandColorToScale(accent, themeType, options);
+	return expandColorToScale(accent, themeType, options);
 }

@@ -1,15 +1,15 @@
-import { HextimateOptions } from "../types";
+import type { HextimateOptions } from '../types';
 
 export type FormatOptions = Pick<
-  HextimateOptions,
-  "format" | "roleNames" | "variantNames" | "separator" | "colorFormat"
+	HextimateOptions,
+	'format' | 'roleNames' | 'variantNames' | 'separator' | 'colorFormat'
 >;
 
 export interface TokenEntry {
-  role: string;
-  variant: string;
-  isDefault: boolean;
-  value: string;
+	role: string;
+	variant: string;
+	isDefault: boolean;
+	value: string;
 }
 
 export type FlatTokenMap = Record<string, string>;

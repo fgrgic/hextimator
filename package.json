@@ -1,8 +1,16 @@
 {
-  "name": "hextimator-monorepo",
-  "private": true,
-  "workspaces": [
-    "packages/*",
-    "apps/*"
-  ]
+	"name": "hextimator-monorepo",
+	"private": true,
+	"workspaces": [
+		"packages/*",
+		"apps/*"
+	],
+	"scripts": {
+		"format": "biome format --write .",
+		"lint": "biome lint .",
+		"check": "biome check --write ."
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.4.8"
+	}
 }

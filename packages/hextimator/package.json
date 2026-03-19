@@ -1,46 +1,46 @@
 {
-  "name": "hextimator",
-  "version": "0.0.1",
-  "description": "color palette creator",
-  "keywords": [
-    "color",
-    "palette",
-    "generator",
-    "creator",
-    "oklch",
-    "rgb",
-    "rgb2oklch"
-  ],
-  "homepage": "https://github.com/fgrgic/hextimator#readme",
-  "bugs": {
-    "url": "https://github.com/fgrgic/hextimator/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/fgrgic/hextimator.git"
-  },
-  "license": "ISC",
-  "author": "ditherbug",
-  "main": "dist/index.js",
-  "module": "dist/index.mjs",
-  "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
-    }
-  },
-  "files": [
-    "dist"
-  ],
-  "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch",
-    "test": "bun test"
-  },
-  "devDependencies": {
-    "tsup": "^8.0.0",
-    "typescript": "^5.0.0"
-  }
+	"name": "hextimator",
+	"version": "0.0.1",
+	"description": "color palette creator",
+	"keywords": [
+		"color",
+		"palette",
+		"generator",
+		"creator",
+		"oklch",
+		"rgb",
+		"rgb2oklch"
+	],
+	"homepage": "https://github.com/fgrgic/hextimator#readme",
+	"bugs": {
+		"url": "https://github.com/fgrgic/hextimator/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/fgrgic/hextimator.git"
+	},
+	"license": "ISC",
+	"author": "ditherbug",
+	"main": "dist/index.js",
+	"module": "dist/index.mjs",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.mjs",
+			"require": "./dist/index.js"
+		}
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsup",
+		"dev": "tsup --watch",
+		"test": "bun test"
+	},
+	"devDependencies": {
+		"tsup": "^8.0.0",
+		"typescript": "^5.0.0"
+	}
 }
