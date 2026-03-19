@@ -1,9 +1,6 @@
-import type { HextimateOptions } from '../types';
+import type { HextimateFormatOptions } from '../types';
 
-export type FormatOptions = Pick<
-	HextimateOptions,
-	'format' | 'roleNames' | 'variantNames' | 'separator' | 'colorFormat'
->;
+export type FormatOptions = HextimateFormatOptions;
 
 export interface TokenEntry {
 	role: string;

@@ -24,7 +24,14 @@ function oklchToLinearRgbRaw(
 }
 
 function isInGamut(r: number, g: number, b: number): boolean {
-	return r >= -EPSILON && r <= 1 + EPSILON && g >= -EPSILON && g <= 1 + EPSILON && b >= -EPSILON && b <= 1 + EPSILON;
+	return (
+		r >= -EPSILON &&
+		r <= 1 + EPSILON &&
+		g >= -EPSILON &&
+		g <= 1 + EPSILON &&
+		b >= -EPSILON &&
+		b <= 1 + EPSILON
+	);
 }
 
 /**

@@ -37,12 +37,12 @@ describe('format() — default (no options)', () => {
 
 describe('format() — css', () => {
 	it('prefixes all keys with --', () => {
-		const result = format(palette, { format: 'css' }) as Record<string, string>;
+		const result = format(palette, { as: 'css' }) as Record<string, string>;
 		expect(Object.keys(result).every((k) => k.startsWith('--'))).toBe(true);
 	});
 
 	it('includes --base and --base-strong', () => {
-		const result = format(palette, { format: 'css' }) as Record<string, string>;
+		const result = format(palette, { as: 'css' }) as Record<string, string>;
 		expect(result['--base']).toBeDefined();
 		expect(result['--base-strong']).toBeDefined();
 	});
@@ -50,17 +50,14 @@ describe('format() — css', () => {
 
 describe('format() — scss', () => {
 	it('prefixes all keys with $', () => {
-		const result = format(palette, { format: 'scss' }) as Record<
-			string,
-			string
-		>;
+		const result = format(palette, { as: 'scss' }) as Record<string, string>;
 		expect(Object.keys(result).every((k) => k.startsWith('$'))).toBe(true);
 	});
 });
 
 describe('format() — tailwind', () => {
 	it('returns a nested object', () => {
-		const result = format(palette, { format: 'tailwind' }) as Record<
+		const result = format(palette, { as: 'tailwind' }) as Record<
 			string,
 			Record<string, string>
 		>;
@@ -70,7 +67,7 @@ describe('format() — tailwind', () => {
 	});
 
 	it('groups all five roles at the top level', () => {
-		const result = format(palette, { format: 'tailwind' }) as Record<
+		const result = format(palette, { as: 'tailwind' }) as Record<
 			string,
 			unknown
 		>;
@@ -84,16 +81,16 @@ describe('format() — tailwind', () => {
 
 describe('format() — json', () => {
 	it('returns a string', () => {
-		expect(typeof format(palette, { format: 'json' })).toBe('string');
+		expect(typeof format(palette, { as: 'json' })).toBe('string');
 	});
 
 	it('is valid JSON', () => {
-		const result = format(palette, { format: 'json' }) as string;
+		const result = format(palette, { as: 'json' }) as string;
 		expect(() => JSON.parse(result)).not.toThrow();
 	});
 
 	it('contains base and base-strong keys', () => {
-		const result = JSON.parse(format(palette, { format: 'json' }) as string);
+		const result = JSON.parse(format(palette, { as: 'json' }) as string);
 		expect(result.base).toBeDefined();
 		expect(result['base-strong']).toBeDefined();
 	});
@@ -125,16 +122,13 @@ describe('format() — options', () => {
 		expect(result['base-strong']).toBeUndefined();
 	});
 
-	it('respects colorFormat: rgb', () => {
-		const result = format(palette, { colorFormat: 'rgb' }) as Record<
-			string,
-			string
-		>;
+	it('respects colors: rgb', () => {
+		const result = format(palette, { colors: 'rgb' }) as Record<string, string>;
 		expect(Object.values(result).every((v) => v.startsWith('rgb('))).toBe(true);
 	});
 
-	it('respects colorFormat: oklch', () => {
-		const result = format(palette, { colorFormat: 'oklch' }) as Record<
+	it('respects colors: oklch', () => {
+		const result = format(palette, { colors: 'oklch' }) as Record<
 			string,
 			string
 		>;

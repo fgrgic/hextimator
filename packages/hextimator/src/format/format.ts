@@ -16,7 +16,7 @@ export function format(
 	const entries = buildTokenEntries(palette, options);
 	const sep = options?.separator ?? '-';
 
-	switch (options?.format) {
+	switch (options?.as) {
 		case 'css':
 			return formatCSS(entries, sep);
 		case 'scss':
