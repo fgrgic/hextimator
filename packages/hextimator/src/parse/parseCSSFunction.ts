@@ -1,4 +1,4 @@
-import type { Color, HSL, Lab, OKLab, OKLCH, RGB } from '../types';
+import type { Color, HSL, OKLab, OKLCH, RGB } from '../types';
 
 const CSS_FUNC_REGULAR_EXPRESSION =
 	/^(rgba?|hsla?|oklch|oklab|lab|color)\(\s*(.+?)\s*\)$/;
@@ -85,11 +85,6 @@ function buildOKLab(args: ParsedArgs): OKLab {
 	return { space: 'oklab', l, a, b, alpha: 1 };
 }
 
-function buildLab(args: ParsedArgs): Lab {
-	const [l, a, b] = args.values;
-	return { space: 'lab', l, a, b, alpha: 1 };
-}
-
 /**
  * CSS `color()` function: color(display-p3 0.9 0.4 0.4)
  * The first token is the color space identifier.
@@ -107,8 +102,6 @@ function tryParseColorFunction(argsRaw: string): Color | null {
 	const [r, g, b] = args.values;
 
 	switch (spaceId) {
-		case 'display-p3':
-			return { space: 'p3', r, g, b, alpha: 1 };
 		case 'srgb-linear':
 			return { space: 'linear-rgb', r, g, b, alpha: 1 };
 		// .. add other spaces here
@@ -156,8 +149,6 @@ export function tryParseCSSFunction(input: string): Color | null {
 			return buildOKLCH(args);
 		case 'oklab':
 			return buildOKLab(args);
-		case 'lab':
-			return buildLab(args);
 		default:
 			return null;
 	}

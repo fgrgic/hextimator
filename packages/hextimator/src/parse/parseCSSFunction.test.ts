@@ -102,29 +102,7 @@ describe('tryParseCSSFunction', () => {
 		});
 	});
 
-	describe('lab', () => {
-		it('parses lab()', () => {
-			expect(tryParseCSSFunction('lab(70 10 -20)')).toEqual({
-				space: 'lab',
-				l: 70,
-				a: 10,
-				b: -20,
-				alpha: 1,
-			});
-		});
-	});
-
 	describe('color()', () => {
-		it('parses color(display-p3 ...)', () => {
-			expect(tryParseCSSFunction('color(display-p3 0.9 0.4 0.4)')).toEqual({
-				space: 'p3',
-				r: 0.9,
-				g: 0.4,
-				b: 0.4,
-				alpha: 1,
-			});
-		});
-
 		it('parses color(srgb-linear ...)', () => {
 			expect(tryParseCSSFunction('color(srgb-linear 0.9 0.4 0.4)')).toEqual({
 				space: 'linear-rgb',
