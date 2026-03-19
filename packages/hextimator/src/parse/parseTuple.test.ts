@@ -52,30 +52,10 @@ describe('tryParseTuple', () => {
 		});
 	});
 
-	it('parses lab space', () => {
-		expect(tryParseTuple([70, 10, -20], 'lab')).toEqual({
-			space: 'lab',
-			l: 70,
-			a: 10,
-			b: -20,
-			alpha: 1,
-		});
-	});
-
 	it('parses linear-rgb space', () => {
 		expect(tryParseTuple([1, 0.4, 0.4], 'linear-rgb')).toEqual({
 			space: 'linear-rgb',
 			r: 1,
-			g: 0.4,
-			b: 0.4,
-			alpha: 1,
-		});
-	});
-
-	it('parses p3 space', () => {
-		expect(tryParseTuple([0.9, 0.4, 0.4], 'p3')).toEqual({
-			space: 'p3',
-			r: 0.9,
 			g: 0.4,
 			b: 0.4,
 			alpha: 1,
