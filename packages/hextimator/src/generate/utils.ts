@@ -82,7 +82,7 @@ export function expandColorToScale(
 	}));
 
 	const [preferred, fallback] =
-		themeType === 'light' ? candidates : candidates.toReversed();
+		themeType === 'light' ? candidates : [...candidates].reverse();
 
 	const foregroundColorOKLCH =
 		calculateContrast(normalizedColorOKLCH, preferred) > 7

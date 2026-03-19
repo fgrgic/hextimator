@@ -22,12 +22,8 @@ export function tryParseTuple(
 			return { space: 'oklch', l: a, c: b, h: c, alpha: 1 };
 		case 'oklab':
 			return { space: 'oklab', l: a, a: b, b: c, alpha: 1 };
-		case 'lab':
-			return { space: 'lab', l: a, a: b, b: c, alpha: 1 };
 		case 'linear-rgb':
 			return { space: 'linear-rgb', r: a, g: b, b: c, alpha: 1 };
-		case 'p3':
-			return { space: 'p3', r: a, g: b, b: c, alpha: 1 };
 		default:
 			return null;
 	}
