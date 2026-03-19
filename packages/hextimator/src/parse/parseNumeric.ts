@@ -24,6 +24,6 @@ export function tryParseNumeric(n: number): RGB | null {
 		r: (n >> 24) & 0xff,
 		g: (n >> 16) & 0xff,
 		b: (n >> 8) & 0xff,
-		alpha: (n & 0xff) / 255,
+		alpha: 1,
 	};
 }

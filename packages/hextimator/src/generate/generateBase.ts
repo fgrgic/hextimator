@@ -20,7 +20,7 @@ export function generateBase(
 	_color: Color,
 	themeType: ThemeType,
 	options?: GenerateOptions,
-): ColorScale | null {
+): ColorScale {
 	const preferredBaseColorInput =
 		themeType === 'light'
 			? (options?.preferredBaseColors?.light ?? DEFAULT_BASE_LIGHT_COLOR)
@@ -30,7 +30,6 @@ export function generateBase(
 		options?.neutralColorsMaxChroma ?? BASELINE_MAX_CHROMA;
 
 	const preferredBaseColor = convert(parse(preferredBaseColorInput), 'oklch');
-	if (!preferredBaseColor) return null;
 
 	const normalizedPreferredBaseColor = {
 		...preferredBaseColor,

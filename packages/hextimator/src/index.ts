@@ -14,6 +14,16 @@ export interface HextimateResult {
 	dark: FormatResult;
 }
 
+class HextimateError extends Error {
+	constructor(
+		public readonly input: ColorInput,
+		message?: string,
+	) {
+		super(message ?? `Failed to hextimate color:  ${String(input)}`);
+		this.name = 'HextimateError';
+	}
+}
+
 /**
  * Creates a palette from 1 base color, or more colors passed to it with additional options
  * @param color ColorInput
@@ -22,17 +32,21 @@ export interface HextimateResult {
 export function hextimate(
 	color: ColorInput,
 	options?: HextimateOptions,
-): HextimateResult | null {
-	const parsedColor = parse(color);
-	if (!parsedColor) return null;
+): HextimateResult {
+	try {
+		const parsedColor = parse(color);
 
-	const lightPalette = generate(parsedColor, 'light', options);
-	const darkPalette = generate(parsedColor, 'dark', options);
-
-	if (!lightPalette || !darkPalette) return null;
-
-	return {
-		light: format(lightPalette, options),
-		dark: format(darkPalette, options),
-	};
+		return {
+			light: format(generate(parsedColor, 'light', options), options),
+			dark: format(generate(parsedColor, 'dark', options), options),
+		};
+	} catch (e) {
+		if (e instanceof HextimateError) {
+			throw e;
+		}
+		throw new HextimateError(
+			color,
+			e instanceof Error ? e.message : 'Unknown error',
+		);
+	}
 }

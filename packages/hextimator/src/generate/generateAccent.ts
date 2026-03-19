@@ -6,6 +6,6 @@ export function generateAccent(
 	accent: Color,
 	themeType: ThemeType,
 	options?: GenerateOptions,
-): ColorScale | null {
+): ColorScale {
 	return expandColorToScale(accent, themeType, options);
 }

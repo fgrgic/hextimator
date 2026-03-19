@@ -1,18 +1,19 @@
 import { convert } from '../convert';
 import { parse } from '../parse';
 import type { Color } from '../types';
+import { DEFAULT_SEMANTIC_DARK_L_VALUE, DEFAULT_SEMANTIC_LIGHT_L_VALUE } from './consts';
 import type { GenerateOptions, HextimatePalette, ThemeType } from './types';
 import { expandColorToScale } from './utils';
 
-const POSITIVE_RANGE: [number, number] = [135, 160];
-const NEGATIVE_RANGE: [number, number] = [5, 25];
-const WARNING_RANGE: [number, number] = [45, 65];
+const POSITIVE_RANGE: [number, number] = [135, 160]; // green range in hue values
+const NEGATIVE_RANGE: [number, number] = [5, 25];    // red range in hue values
+const WARNING_RANGE: [number, number] = [45, 65];    // yellow/amber range in hue values
 
 export function generateSemanticColors(
 	color: Color,
 	themeType: ThemeType,
 	options?: GenerateOptions,
-): Pick<HextimatePalette, 'positive' | 'negative' | 'warning'> | null {
+): Pick<HextimatePalette, 'positive' | 'negative' | 'warning'> {
 	const positiveBaseColor = parse(
 		options?.semanticColors?.positive ??
 			_determineBaseColorFromRange(
@@ -21,7 +22,6 @@ export function generateSemanticColors(
 				themeType,
 			),
 	);
-	if (!positiveBaseColor) return null;
 
 	const negativeBaseColor = parse(
 		options?.semanticColors?.negative ??
@@ -31,7 +31,6 @@ export function generateSemanticColors(
 				themeType,
 			),
 	);
-	if (!negativeBaseColor) return null;
 
 	const warningBaseColor = parse(
 		options?.semanticColors?.warning ??
@@ -41,7 +40,6 @@ export function generateSemanticColors(
 				themeType,
 			),
 	);
-	if (!warningBaseColor) return null;
 
 	const positiveColorScale = expandColorToScale(positiveBaseColor, themeType, {
 		themeLightness: options?.themeLightness,
@@ -60,16 +58,13 @@ export function generateSemanticColors(
 	};
 }
 
-const BASE_DARK_L_VALUE = 0.45;
-const BASE_LIGHT_L_VALUE = 0.55;
-
 function _determineBaseColorFromRange(
 	color: Color,
 	range: [number, number],
 	themeType: ThemeType,
 ): Color {
-	const baseLValue =
-		themeType === 'light' ? BASE_LIGHT_L_VALUE : BASE_DARK_L_VALUE;
+  const baseLValue =
+    themeType === 'light' ? DEFAULT_SEMANTIC_LIGHT_L_VALUE : DEFAULT_SEMANTIC_DARK_L_VALUE;
 	const complementaryColor = _getComplementaryColor(color);
 	const splitComplementaryColors =
 		_getSplitComplementaryColors(complementaryColor);

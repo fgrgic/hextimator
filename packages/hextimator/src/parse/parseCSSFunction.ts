@@ -5,7 +5,6 @@ const CSS_FUNC_REGULAR_EXPRESSION =
 
 interface ParsedArgs {
 	values: number[];
-	alpha: number;
 }
 
 /**
@@ -18,15 +17,11 @@ interface ParsedArgs {
  * @returns Parsed arguments or null if parsing failed
  */
 function parseCSSArgs(raw: string): ParsedArgs | null {
-	let alpha = 1;
 	let body = raw;
 
-	// split off alpha ( / 0.5, or , 0.5 fourth value)
+	// Strip alpha if present (/ 0.5 syntax) — alpha is not supported, always 1
 	const slashIdx = body.lastIndexOf('/');
-	const commaIdx = body.lastIndexOf(',');
 	if (slashIdx !== -1) {
-		const alphaPart = body.slice(slashIdx + 1);
-		alpha = parseNumericValue(alphaPart);
 		body = body.slice(0, slashIdx).trim();
 	}
 
@@ -34,14 +29,9 @@ function parseCSSArgs(raw: string): ParsedArgs | null {
 		? body.split(',').map((p) => p.trim())
 		: body.split(/\s+/);
 
-	if (
-		(parts.length === 4 && slashIdx !== -1) ||
-		(parts.length === 4 && commaIdx !== -1)
-	) {
-		const lastPart = parts.pop();
-		if (lastPart !== undefined) {
-			alpha = parseNumericValue(lastPart, 1);
-		}
+	// Drop 4th value if present (rgba 4th-arg alpha syntax)
+	if (parts.length === 4) {
+		parts.pop();
 	}
 
 	if (parts.length !== 3) {
@@ -53,7 +43,7 @@ function parseCSSArgs(raw: string): ParsedArgs | null {
 		return null;
 	}
 
-	return { values, alpha };
+	return { values };
 }
 
 /**
@@ -77,27 +67,27 @@ function parseNumericValue(raw: string, percentScale?: number): number {
 
 function buildRGB(args: ParsedArgs): RGB {
 	const [r, g, b] = args.values;
-	return { space: 'srgb', r, g, b, alpha: args.alpha };
+	return { space: 'srgb', r, g, b, alpha: 1 };
 }
 
 function buildHSL(args: ParsedArgs): HSL {
 	const [h, s, l] = args.values;
-	return { space: 'hsl', h, s, l, alpha: args.alpha };
+	return { space: 'hsl', h, s, l, alpha: 1 };
 }
 
 function buildOKLCH(args: ParsedArgs): OKLCH {
 	const [l, c, h] = args.values;
-	return { space: 'oklch', l, c, h, alpha: args.alpha };
+	return { space: 'oklch', l, c, h, alpha: 1 };
 }
 
 function buildOKLab(args: ParsedArgs): OKLab {
 	const [l, a, b] = args.values;
-	return { space: 'oklab', l, a, b, alpha: args.alpha };
+	return { space: 'oklab', l, a, b, alpha: 1 };
 }
 
 function buildLab(args: ParsedArgs): Lab {
 	const [l, a, b] = args.values;
-	return { space: 'lab', l, a, b, alpha: args.alpha };
+	return { space: 'lab', l, a, b, alpha: 1 };
 }
 
 /**
@@ -118,9 +108,9 @@ function tryParseColorFunction(argsRaw: string): Color | null {
 
 	switch (spaceId) {
 		case 'display-p3':
-			return { space: 'p3', r, g, b, alpha: args.alpha };
+			return { space: 'p3', r, g, b, alpha: 1 };
 		case 'srgb-linear':
-			return { space: 'linear-rgb', r, g, b, alpha: args.alpha };
+			return { space: 'linear-rgb', r, g, b, alpha: 1 };
 		// .. add other spaces here
 		default:
 			return null;
