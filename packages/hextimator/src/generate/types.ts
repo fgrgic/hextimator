@@ -1,23 +1,27 @@
-import { ColorInput, HextimateOptions } from "../types";
+import type { ColorInput, HextimateOptions } from '../types';
 
 export interface ColorScale {
-  DEFAULT: ColorInput;
-  strong: ColorInput;
-  weak: ColorInput;
-  foreground: ColorInput;
+	DEFAULT: ColorInput;
+	strong: ColorInput;
+	weak: ColorInput;
+	foreground: ColorInput;
 }
 
 export interface HextimatePalette {
-  base: ColorScale;
-  accent: ColorScale;
-  positive: ColorScale;
-  negative: ColorScale;
-  warning: ColorScale;
+	base: ColorScale;
+	accent: ColorScale;
+	positive: ColorScale;
+	negative: ColorScale;
+	warning: ColorScale;
 }
 
 export type GenerateOptions = Pick<
-  HextimateOptions,
-  "preferredBaseColors" | "semanticColors" | "semanticColorRanges"
+	HextimateOptions,
+	| 'preferredBaseColors'
+	| 'semanticColors'
+	| 'semanticColorRanges'
+	| 'neutralColorsMaxChroma'
+	| 'themeLightness'
 >;
 
-export type ThemeType = "light" | "dark";
+export type ThemeType = 'light' | 'dark';
