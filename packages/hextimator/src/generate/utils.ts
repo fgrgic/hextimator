@@ -1,6 +1,7 @@
 import { convert } from "../convert";
 import { Color } from "../types";
-import { ColorScale, ThemeType } from "./types";
+import { DEFAULT_THEME_LIGHTNESS, DEFAULT_THEME_LIGHTNESS_DARK_DELTA, DEFAULT_THEME_LIGHTNESS_LIGHT_DELTA } from "./consts";
+import { ColorScale, GenerateOptions, ThemeType } from "./types";
 
 const BASELINE_DARK_L_VALUE = 0.45;
 const BASELINE_LIGHT_L_VALUE = 0.55;
@@ -14,7 +15,9 @@ const STRONG_DELTA_LIGHT = -0.05;
 const WEAK_DELTA_DARK = -0.05;
 const WEAK_DELTA_LIGHT = 0.05;
 
-interface ExpandColorToScaleOptions {
+interface ExpandColorToScaleOptions extends Pick<GenerateOptions, 'themeLightness'> {
+  lightDelta?: number;
+  darkDelta?: number;
   baselineLValueDark?: number;
   baselineLValueLight?: number;
   foregroundLValueDark?: number;
@@ -32,8 +35,9 @@ export function expandColorToScale(
   options?: ExpandColorToScaleOptions,
 ): ColorScale {
   const {
-    baselineLValueDark = BASELINE_DARK_L_VALUE,
-    baselineLValueLight = BASELINE_LIGHT_L_VALUE,
+    baselineLValueDark,
+    baselineLValueLight,
+    themeLightness,
     foregroundLValueDark = FOREGROUND_DARK_L_VALUE,
     foregroundLValueLight = FOREGROUND_LIGHT_L_VALUE,
     foregroundMaxChroma = FOREGROUND_MAX_CHROMA,
@@ -43,11 +47,18 @@ export function expandColorToScale(
     weakDeltaLight = WEAK_DELTA_LIGHT,
   } = options ?? {};
 
+  console.log({themeLightness})
+
+  const { lightThemeLightnessValue, darkThemeLightnessValue } = generateLightnessPair(themeLightness, options);
+
+  console.log({lightThemeLightnessValue, darkThemeLightnessValue})
+
   const colorOKLCH = convert(color, "oklch");
   const normalizedColorOKLCH = {
     ...colorOKLCH,
-    l: themeType === "light" ? baselineLValueLight : baselineLValueDark,
+    l: themeType === "light" ? baselineLValueLight ?? lightThemeLightnessValue : baselineLValueDark ?? darkThemeLightnessValue,
   };
+
 
   const strongColorOKLCH = {
     ...normalizedColorOKLCH,
@@ -75,4 +86,25 @@ export function expandColorToScale(
     weak: convert(weakColorOKLCH, "srgb") ?? undefined,
     foreground: convert(foregroundColorOKLCH, "srgb") ?? undefined,
   };
+}
+
+/**
+ * Based on the preferred lightness (of the theme)
+ * Generates the lightness pair for dark and light theme
+ * @param lightness number between 0 and 1
+ */
+export function generateLightnessPair(lightness?: number, options?: { darkDelta?: number; lightDelta?: number }) {
+  const themeLightness = lightness ?? DEFAULT_THEME_LIGHTNESS;
+
+  const lightDelta = options?.lightDelta ?? DEFAULT_THEME_LIGHTNESS_LIGHT_DELTA;
+  const darkDelta = options?.darkDelta ?? DEFAULT_THEME_LIGHTNESS_DARK_DELTA;
+
+  const lightThemeLightnessValue = Math.min(themeLightness + lightDelta, 1);
+  const darkThemeLightnessValue = Math.min(themeLightness + darkDelta, 1);
+
+  return {
+    lightThemeLightnessValue,
+    darkThemeLightnessValue
+  }
+
 }

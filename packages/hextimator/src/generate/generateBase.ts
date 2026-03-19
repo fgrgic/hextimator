@@ -1,3 +1,4 @@
+import { convert } from "../convert";
 import { parse } from "../parse";
 import { Color } from "../types";
 import { ColorScale, GenerateOptions, ThemeType } from "./types";
@@ -8,6 +9,7 @@ const DEFAULT_BASE_LIGHT_COLOR = "#fafafa";
 
 const BASELINE_DARK_L_VALUE = 0.01;
 const BASELINE_LIGHT_L_VALUE = 0.95;
+const BASELINE_MAX_CHROMA = 0.02;
 
 const STRONG_DELTA_DARK = -0.05;
 const STRONG_DELTA_LIGHT = 0.05;
@@ -24,11 +26,14 @@ export function generateBase(
       ? (options?.preferredBaseColors?.light ?? DEFAULT_BASE_LIGHT_COLOR)
       : (options?.preferredBaseColors?.dark ?? DEFAULT_BASE_DARK_COLOR);
 
-  const preferredBaseColor = parse(preferredBaseColorInput);
+  const baselineMaxChroma = options?.neutralColorsMaxChroma ?? BASELINE_MAX_CHROMA;
+
+  const preferredBaseColor = convert(parse(preferredBaseColorInput), 'oklch');
   if (!preferredBaseColor) return null;
 
   const normalizedPreferredBaseColor = {
     ...preferredBaseColor,
+    c: Math.min(preferredBaseColor.c, baselineMaxChroma),
     l: themeType === "light" ? BASELINE_LIGHT_L_VALUE : BASELINE_DARK_L_VALUE,
   };
 

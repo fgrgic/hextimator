@@ -17,7 +17,7 @@ export interface HextimatePalette {
 
 export type GenerateOptions = Pick<
   HextimateOptions,
-  "preferredBaseColors" | "semanticColors" | "semanticColorRanges"
+  "preferredBaseColors" | "semanticColors" | "semanticColorRanges" | "neutralColorsMaxChroma" | "themeLightness"
 >;
 
 export type ThemeType = "light" | "dark";

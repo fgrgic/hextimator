@@ -5,8 +5,8 @@ import { GenerateOptions, HextimatePalette, ThemeType } from "./types";
 import { expandColorToScale } from "./utils";
 
 const POSITIVE_RANGE: [number, number] = [135, 160];
-const NEGATIVE_RANGE: [number, number] = [345, 15];
-const WARNING_RANGE: [number, number] = [35, 55];
+const NEGATIVE_RANGE: [number, number] = [5, 25];
+const WARNING_RANGE: [number, number] = [45, 65];
 
 export function generateSemanticColors(
   color: Color,
@@ -43,9 +43,9 @@ export function generateSemanticColors(
   );
   if (!warningBaseColor) return null;
 
-  const positiveColorScale = expandColorToScale(positiveBaseColor, themeType);
-  const negativeColorScale = expandColorToScale(negativeBaseColor, themeType);
-  const warningColorScale = expandColorToScale(warningBaseColor, themeType);
+  const positiveColorScale = expandColorToScale(positiveBaseColor, themeType, {themeLightness: options?.themeLightness});
+  const negativeColorScale = expandColorToScale(negativeBaseColor, themeType, {themeLightness: options?.themeLightness});
+  const warningColorScale = expandColorToScale(warningBaseColor, themeType, {themeLightness: options?.themeLightness});
 
   return {
     positive: positiveColorScale,

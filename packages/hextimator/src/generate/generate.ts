@@ -9,7 +9,7 @@ export function generate(
   themeType: ThemeType,
   options?: GenerateOptions,
 ): HextimatePalette | null {
-  const accent = generateAccent(color, themeType);
+  const accent = generateAccent(color, themeType, options);
   if (!accent) return null;
 
   const base = generateBase(color, themeType, options);

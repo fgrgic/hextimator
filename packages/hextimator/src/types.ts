@@ -230,6 +230,26 @@ export interface HextimateOptions {
    * - "rgb-raw"       → "242 238 232"
    */
   colorFormat?: ColorFormat;
+
+  /**
+   * defines how "saturated" the neutral colors can get
+   * neutral colors are:
+   * - base colors
+   * - all foreground colors
+   *
+   * Max chroma is about 0.4 (depending on color in OKLCH)
+   *
+   * Default: 0.02
+   */
+  neutralColorsMaxChroma?: number;
+
+  /**
+   * Perceived lightness of the theme.
+   * Number between 0 and 1
+   *
+   * Default: 0.7
+   */
+  themeLightness?: number;
 }
 
 export type ColorFormat =
