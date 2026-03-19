@@ -70,7 +70,7 @@ export function expandColorToScale(
   };
 
   return {
-    DEFAULT: convert(colorOKLCH, "srgb") ?? undefined,
+    DEFAULT: convert(normalizedColorOKLCH, "srgb") ?? undefined,
     strong: convert(strongColorOKLCH, "srgb") ?? undefined,
     weak: convert(weakColorOKLCH, "srgb") ?? undefined,
     foreground: convert(foregroundColorOKLCH, "srgb") ?? undefined,
