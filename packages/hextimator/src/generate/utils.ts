@@ -78,32 +78,19 @@ export function expandColorToScale(
 			(themeType === 'light' ? weakDeltaLight : weakDeltaDark),
 	};
 
-	const foregroundCandidate1 = {
+	const candidates = [foregroundLValueLight, foregroundLValueDark].map((l) => ({
 		...normalizedColorOKLCH,
-		l: themeType === 'light' ? foregroundLValueLight : foregroundLValueDark,
+		l,
 		c: Math.min(normalizedColorOKLCH.c, foregroundMaxChroma),
-	};
+	}));
 
-	const foregroundCandidate2 = {
-		...foregroundCandidate1,
-		l: themeType === 'light' ? foregroundLValueDark : foregroundLValueLight,
-	};
-
-	const contrastRatioBetweenBaseAndCandidate1 = calculateContrast(
-		normalizedColorOKLCH,
-		foregroundCandidate1,
-	);
-	const contrastRatioBetweenBaseAndCandidate2 = calculateContrast(
-		normalizedColorOKLCH,
-		foregroundCandidate2,
-	);
+	const [preferred, fallback] =
+		themeType === 'light' ? candidates : candidates.toReversed();
 
 	const foregroundColorOKLCH =
-		contrastRatioBetweenBaseAndCandidate1 > 7 ||
-		contrastRatioBetweenBaseAndCandidate1 >
-			contrastRatioBetweenBaseAndCandidate2
-			? foregroundCandidate1
-			: foregroundCandidate2;
+		calculateContrast(normalizedColorOKLCH, preferred) > 7
+			? preferred
+			: fallback;
 
 	return {
 		DEFAULT: convert(normalizedColorOKLCH, 'srgb') ?? undefined,
