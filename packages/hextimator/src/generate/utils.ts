@@ -52,12 +52,8 @@ export function expandColorToScale(
 		weakDeltaLight = WEAK_DELTA_LIGHT,
 	} = options ?? {};
 
-	console.log({ themeLightness });
-
 	const { lightThemeLightnessValue, darkThemeLightnessValue } =
 		generateLightnessPair(themeLightness, options);
-
-	console.log({ lightThemeLightnessValue, darkThemeLightnessValue });
 
 	const colorOKLCH = convert(color, 'oklch');
 	const normalizedColorOKLCH = {
