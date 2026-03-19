@@ -1,10 +1,15 @@
 import type { Color, ColorInSpace, ColorSpace } from '../types';
+import { gamutMapOklch } from './gamut';
 import { linearRgbToOklab, oklabToLinearRgb } from './linear-oklab';
 import { oklabToOklch, oklchToOklab } from './oklab-oklch';
 import { hslToSrgb, srgbToHsl } from './srgb-hsl';
 import { linearToSrgb, srgbToLinear } from './srgb-linear';
 
-type ConvertFn = (color: Color) => Color;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type ConvertFn = (color: any) => Color;
+
+/** Gamut-map an OKLCH color before converting to a gamut-bounded space. */
+const gamutMap: ConvertFn = (color) => gamutMapOklch(color);
 
 /** Chain multiple conversion functions into one. */
 function chain(...fns: ConvertFn[]): ConvertFn {
@@ -36,13 +41,13 @@ const conversions: Record<string, ConvertFn> = {
 	'srgb->oklab': chain(srgbToLinear, linearRgbToOklab),
 	'srgb->oklch': chain(srgbToLinear, linearRgbToOklab, oklabToOklch),
 
-	// oklab / oklch → srgb
+	// oklab / oklch → srgb (gamut-mapped)
 	'oklab->srgb': chain(oklabToLinearRgb, linearToSrgb),
-	'oklch->srgb': chain(oklchToOklab, oklabToLinearRgb, linearToSrgb),
+	'oklch->srgb': chain(gamutMap, oklchToOklab, oklabToLinearRgb, linearToSrgb),
 
 	// linear-rgb → oklch
 	'linear-rgb->oklch': chain(linearRgbToOklab, oklabToOklch),
-	'oklch->linear-rgb': chain(oklchToOklab, oklabToLinearRgb),
+	'oklch->linear-rgb': chain(gamutMap, oklchToOklab, oklabToLinearRgb),
 
 	// hsl ↔ linear-rgb
 	'hsl->linear-rgb': chain(hslToSrgb, srgbToLinear),
@@ -54,7 +59,7 @@ const conversions: Record<string, ConvertFn> = {
 
 	// hsl ↔ oklch
 	'hsl->oklch': chain(hslToSrgb, srgbToLinear, linearRgbToOklab, oklabToOklch),
-	'oklch->hsl': chain(oklchToOklab, oklabToLinearRgb, linearToSrgb, srgbToHsl),
+	'oklch->hsl': chain(gamutMap, oklchToOklab, oklabToLinearRgb, linearToSrgb, srgbToHsl),
 };
 
 /**
