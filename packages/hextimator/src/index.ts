@@ -5,8 +5,10 @@ import type { ColorInput, HextimateGenerationOptions } from './types';
 export { convert as convertColor } from './convert';
 export type { FlatTokenMap, FormatResult, NestedTokenMap } from './format';
 export {
+	type DerivedToken,
 	HextimatePaletteBuilder,
 	type HextimateResult,
+	type TokenValue,
 	type VariantPlacement,
 } from './HextimatePaletteBuilder';
 export { parse as parseColor } from './parse';

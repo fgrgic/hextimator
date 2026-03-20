@@ -1,6 +1,8 @@
 import { convert } from './convert';
 import type { FormatResult } from './format';
 import { format } from './format';
+import { serializeColor } from './format/serializeColor';
+import type { TokenEntry } from './format/types';
 import { generate } from './generate';
 import type { ColorScale, HextimatePalette } from './generate/types';
 import { expandColorToScale } from './generate/utils';
@@ -21,10 +23,24 @@ export type VariantPlacement =
 	| { beyond: string }
 	| { between: [string, string] };
 
+export interface DerivedToken {
+	from: string;
+	lightness?: number;
+	chroma?: number;
+}
+
+export type TokenValue =
+	| DerivedToken
+	| { light: DerivedToken; dark: DerivedToken };
+
 export class HextimatePaletteBuilder {
 	private lightPalette: HextimatePalette;
 	private darkPalette: HextimatePalette;
 	private readonly options: HextimateGenerationOptions;
+	private readonly standaloneTokens: Array<{
+		name: string;
+		value: TokenValue;
+	}> = [];
 
 	constructor(color: Color, options?: HextimateGenerationOptions) {
 		this.options = options ?? {};
@@ -57,11 +73,90 @@ export class HextimatePaletteBuilder {
 		return this;
 	}
 
+	addToken(name: string, value: TokenValue): this {
+		this.standaloneTokens.push({ name, value });
+		return this;
+	}
+
 	format(options?: HextimateFormatOptions): HextimateResult {
+		const colorFormat = options?.colors ?? 'hex';
+
+		const lightTokens = this.resolveStandaloneTokens(
+			'light',
+			this.lightPalette,
+			colorFormat,
+		);
+		const darkTokens = this.resolveStandaloneTokens(
+			'dark',
+			this.darkPalette,
+			colorFormat,
+		);
+
 		return {
-			light: format(this.lightPalette, options),
-			dark: format(this.darkPalette, options),
+			light: format(this.lightPalette, options, lightTokens),
+			dark: format(this.darkPalette, options, darkTokens),
 		};
+	}
+
+	private resolveStandaloneTokens(
+		themeType: 'light' | 'dark',
+		palette: HextimatePalette,
+		colorFormat: HextimateFormatOptions['colors'],
+	): TokenEntry[] {
+		return this.standaloneTokens.map(({ name, value }) => {
+			const color = this.resolveTokenValue(value, themeType, palette);
+			return {
+				role: name,
+				variant: 'DEFAULT',
+				isDefault: true,
+				value: serializeColor(color, colorFormat ?? 'hex'),
+			};
+		});
+	}
+
+	private resolveTokenValue(
+		value: TokenValue,
+		themeType: 'light' | 'dark',
+		palette: HextimatePalette,
+	): Color {
+		// Per-theme override: { light: ..., dark: ... }
+		if ('light' in value && 'dark' in value) {
+			const themeValue = themeType === 'light' ? value.light : value.dark;
+			return this.resolveDerivedToken(themeValue, palette);
+		}
+
+		// Derived token: { from: 'base.foreground', lightness: +0.3 }
+		return this.resolveDerivedToken(value as DerivedToken, palette);
+	}
+
+	private resolveDerivedToken(
+		token: DerivedToken,
+		palette: HextimatePalette,
+	): Color {
+		const [role, variant = 'DEFAULT'] = token.from.split('.');
+		const scale = palette[role];
+		if (!scale) {
+			throw new Error(
+				`Unknown role "${role}" in token reference "${token.from}"`,
+			);
+		}
+
+		const sourceColor = scale[variant];
+		if (!sourceColor) {
+			throw new Error(
+				`Unknown variant "${variant}" in token reference "${token.from}"`,
+			);
+		}
+
+		const oklch = convert(parse(sourceColor), 'oklch');
+
+		const adjusted = {
+			...oklch,
+			l: Math.max(0, Math.min(1, oklch.l + (token.lightness ?? 0))),
+			c: Math.max(0, oklch.c + (token.chroma ?? 0)),
+		};
+
+		return convert(adjusted, 'srgb');
 	}
 
 	private computeVariantColor(
