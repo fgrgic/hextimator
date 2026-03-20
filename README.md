@@ -34,36 +34,27 @@ const theme = hextimate("#6A5ACD")
 
 ### Output formats
 
-```typescript
-// CSS custom properties
-hextimate("#6A5ACD").format({ as: "css" });
-// → { light: { "--accent": "#...", "--accent-strong": "#...", ... }, dark: { ... } }
+| Format | `as` | Token shape |
+|---|---|---|
+| Plain object (default) | `"object"` | `{ "accent": "#...", "accent-strong": "#...", ... }` |
+| CSS custom properties | `"css"` | `{ "--accent": "#...", "--accent-strong": "#...", ... }` |
+| Tailwind nested tokens | `"tailwind"` | `{ accent: { DEFAULT: "#...", strong: "#...", ... }, ... }` |
+| SCSS variables | `"scss"` | `{ "$accent": "#...", "$accent-strong": "#...", ... }` |
+| JSON string | `"json"` | `'{ "accent": "#...", "accent-strong": "#...", ... }'` |
 
-// Tailwind nested tokens
-hextimate("#6A5ACD").format({ as: "tailwind" });
-// → { light: { accent: { DEFAULT: "#...", strong: "#...", ... }, ... }, dark: { ... } }
-
-// SCSS variables
-hextimate("#6A5ACD").format({ as: "scss" });
-
-// JSON string
-hextimate("#6A5ACD").format({ as: "json" });
-
-// Plain object (default)
-hextimate("#6A5ACD").format();
-```
+All formats return `{ light: { ... }, dark: { ... } }`.
 
 ### Color value formats
 
-```typescript
-hextimate("#6A5ACD").format({ colors: "hex" });       // "#6a5acd" (default)
-hextimate("#6A5ACD").format({ colors: "oklch" });      // "oklch(0.54 0.18 276)"
-hextimate("#6A5ACD").format({ colors: "oklch-raw" });  // "0.54 0.18 276"
-hextimate("#6A5ACD").format({ colors: "rgb" });        // "rgb(106, 90, 205)"
-hextimate("#6A5ACD").format({ colors: "rgb-raw" });    // "106 90 205"
-hextimate("#6A5ACD").format({ colors: "hsl" });        // "hsl(248, 53%, 58%)"
-hextimate("#6A5ACD").format({ colors: "hsl-raw" });    // "248 53% 58%"
-```
+| `colors` | Example output |
+|---|---|
+| `"hex"` (default) | `"#6a5acd"` |
+| `"oklch"` | `"oklch(0.54 0.18 276)"` |
+| `"oklch-raw"` | `"0.54 0.18 276"` |
+| `"rgb"` | `"rgb(106, 90, 205)"` |
+| `"rgb-raw"` | `"106 90 205"` |
+| `"hsl"` | `"hsl(248, 53%, 58%)"` |
+| `"hsl-raw"` | `"248 53% 58%"` |
 
 ### Flexible input
 
@@ -128,6 +119,32 @@ When light and dark themes need different directions:
 })
 ```
 
+## Customization
+
+### Generation options
+
+Passed to `hextimate()` — these affect how colors are generated.
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `preferredBaseColors` | `{ dark?: color, light?: color }` | `{ dark: "#1a1a1a", light: "#ffffff" }` | Base colors used as baseline for generating the rest of the base scale |
+| `semanticColors` | `{ positive?: color, negative?: color, warning?: color }` | Auto-generated from seed | Override specific semantic colors instead of deriving them |
+| `semanticColorRanges` | `{ positive?: [start, end], ... }` | `positive: [90,150]`, `negative: [345,15]`, `warning: [35,55]` | Hue degree ranges for finding semantic colors |
+| `neutralColorsMaxChroma` | `number` | `0.02` | Max chroma for base and foreground colors (higher = more saturated neutrals) |
+| `themeLightness` | `number` (0–1) | `0.7` | Perceived lightness of the generated theme |
+
+### Format options
+
+Passed to `.format()` — these affect the output shape.
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `as` | `"object" \| "css" \| "tailwind" \| "scss" \| "json"` | `"object"` | Output format (see [Output formats](#output-formats)) |
+| `colors` | `"hex" \| "rgb" \| "rgb-raw" \| "hsl" \| "hsl-raw" \| "oklch" \| "oklch-raw"` | `"hex"` | Color value serialization (see [Color value formats](#color-value-formats)) |
+| `roleNames` | `Record<string, string>` | Built-in names | Rename roles in output keys (e.g. `{ accent: "brand", base: "surface" }`) |
+| `variantNames` | `Record<string, string>` | Built-in names | Rename variant suffixes in output keys (e.g. `{ strong: "primary", foreground: "text" }`) |
+| `separator` | `string` | `"-"` | Separator between role and variant in token keys |
+
 ## Real-world examples
 
 ### shadcn/ui theme
@@ -163,6 +180,11 @@ const theme = hextimate("#6366F1")
       foreground: "foreground",
     },
   });
+
+// Output keys (light & dark):
+// --background, --background-foreground, --primary, --primary-foreground,
+// --success, --destructive, --warning, --muted, --card, --popover,
+// --border, --input, --ring, + strong/weak variants for each role
 ```
 
 ### Stripe-style payment UI
@@ -184,6 +206,12 @@ const theme = hextimate("#635BFF")
       foreground: "text",
     },
   });
+
+// Output keys (light & dark):
+// primary, primary-strong, primary-weak, primary-text,
+// background, background-strong, background-weak, background-text,
+// success, danger, warning + variants,
+// text-secondary, text-placeholder, icon
 ```
 
 ### Slack-style sidebar
@@ -204,36 +232,11 @@ const theme = hextimate("#4A154B")
       foreground: "text-color",
     },
   });
-```
 
-## Customization
-
-### Generation options
-
-Passed to `hextimate()` — these affect how colors are generated.
-
-```typescript
-hextimate("#6A5ACD", {
-  preferredBaseColors: { dark: "#111111", light: "#FEFEFE" },
-  semanticColors: { positive: "#22C55E" },
-  semanticColorRanges: { positive: [90, 150] },
-  neutralColorsMaxChroma: 0.02,
-  themeLightness: 0.65,
-});
-```
-
-### Format options
-
-Passed to `.format()` — these affect the output shape.
-
-```typescript
-.format({
-  as: "css",           // "object" | "css" | "tailwind" | "scss" | "json"
-  colors: "oklch",     // "hex" | "rgb" | "rgb-raw" | "hsl" | "hsl-raw" | "oklch" | "oklch-raw"
-  roleNames: { accent: "brand", base: "surface" },
-  variantNames: { strong: "primary", weak: "tertiary", foreground: "text" },
-  separator: "-",      // token key separator
-})
+// Output keys (light & dark):
+// column-bg-DEFAULT, column-bg-menu-bg, column-bg-hover-item, column-bg-text-color,
+// active-item-DEFAULT, active-item-menu-bg, active-item-hover-item, active-item-text-color,
+// active-presence, mention-badge, warning + variants
 ```
 
 ## How it works
