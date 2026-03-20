@@ -74,10 +74,8 @@ Need more than the built-in 5 roles? Add any number of seed colors. Each gets it
 ```typescript
 hextimate("#6A5ACD")
   .addRole("cta", "#EE2244")
-  .addRole("info", "#2266EE")
   .format({ as: "css" });
 // Adds: --cta, --cta-strong, --cta-weak, --cta-foreground,
-//       --info, --info-strong, --info-weak, --info-foreground
 ```
 
 ### `addVariant` — add a lightness step to every role
