@@ -29,7 +29,7 @@ class HextimateError extends Error {
 }
 
 /**
- * Creates a palette builder from a base color.
+ * Creates a palette builder from an accent/brand color.
  *
  * @example
  * // Two-step API: generate, then format
