@@ -1,6 +1,6 @@
 # hextimator
 
-Generate perceptually uniform color palettes from any input color. Throw in a hex code (or RGB, HSL, OKLCH…) and get a full theme — accent scales, base tones, and semantic colors (positive/negative/warning) — all with consistent perceived contrast across hues.
+Generate perceptually uniform color palettes from any input color. Throw in a hex code (or RGB, HSL, OKLCH...) and get a full theme — accent scales, base tones, and semantic colors (positive/negative/warning) — all with consistent perceived contrast across hues.
 
 Built for runtime use: output CSS custom properties, Tailwind tokens, SCSS variables, or plain objects. Ideal for products where each account/tenant needs its own branded theme generated on the fly.
 
@@ -15,55 +15,226 @@ npm install hextimator
 ```typescript
 import { hextimate } from "hextimator";
 
-// Pass any color — hex string, RGB tuple, CSS function, numeric hex…
-const palette = hextimate("#6A5ACD");
+const theme = hextimate("#6A5ACD").format();
 
-// palette.light / palette.dark each contain your full theme tokens
-console.log(palette.light);
-// { "accent": "#6A5ACD", "accent-strong": "...", "base": "...", ... }
+// theme.light / theme.dark each contain your full theme tokens
+console.log(theme.light);
+// { accent: "#...", "accent-strong": "#...", base: "#...", ... }
+```
+
+## Two-step API: generate, then format
+
+hextimator separates **palette generation** (color math) from **formatting** (output shape). This lets you extend the palette before choosing how to serialize it.
+
+```typescript
+const theme = hextimate("#6A5ACD")
+  .format({ as: "css", colors: "oklch" });
+// { light: { "--accent": "oklch(...)", "--base": "...", ... }, dark: { ... } }
 ```
 
 ### Output formats
 
-```typescript
-// CSS custom properties
-hextimate("#6A5ACD", { format: "css" });
-// → { "--accent": "#6A5ACD", "--accent-strong": "...", ... }
+| Format | `as` | Token shape |
+|---|---|---|
+| Plain object (default) | `"object"` | `{ "accent": "#...", "accent-strong": "#...", ... }` |
+| CSS custom properties | `"css"` | `{ "--accent": "#...", "--accent-strong": "#...", ... }` |
+| Tailwind nested tokens | `"tailwind"` | `{ accent: { DEFAULT: "#...", strong: "#...", ... }, ... }` |
+| SCSS variables | `"scss"` | `{ "$accent": "#...", "$accent-strong": "#...", ... }` |
+| JSON string | `"json"` | `'{ "accent": "#...", "accent-strong": "#...", ... }'` |
 
-// Tailwind nested tokens
-hextimate("#6A5ACD", { format: "tailwind" });
-// → { accent: { DEFAULT: "#6A5ACD", strong: "...", ... }, ... }
+All formats return `{ light: { ... }, dark: { ... } }`.
 
-// SCSS variables
-hextimate("#6A5ACD", { format: "scss" });
+### Color value formats
 
-// Choose color value format
-hextimate("#6A5ACD", { format: "css", colorFormat: "oklch" });
-// → { "--accent": "oklch(0.54 0.18 276)", ... }
-```
+| `colors` | Example output |
+|---|---|
+| `"hex"` (default) | `"#6a5acd"` |
+| `"oklch"` | `"oklch(0.54 0.18 276)"` |
+| `"oklch-raw"` | `"0.54 0.18 276"` |
+| `"rgb"` | `"rgb(106, 90, 205)"` |
+| `"rgb-raw"` | `"106 90 205"` |
+| `"hsl"` | `"hsl(248, 53%, 58%)"` |
+| `"hsl-raw"` | `"248 53% 58%"` |
 
 ### Flexible input
 
 ```typescript
-hextimate("#FF6666");           // hex string
+hextimate("#FF6666");            // hex string
 hextimate("rgb(255, 102, 102)"); // CSS function
-hextimate([255, 102, 102]);     // RGB tuple
-hextimate(0xFF6666);            // numeric hex
+hextimate([255, 102, 102]);      // RGB tuple
+hextimate(0xff6666);             // numeric hex
 ```
 
-### Customization
+## Extending the palette
+
+### `addRole` — add a new color with its full scale
+
+Need more than the built-in 5 roles? Add any number of seed colors. Each gets its own DEFAULT, strong, weak, and foreground variants.
 
 ```typescript
-hextimate("#6A5ACD", {
-  // Override base surface colors (background)
-  preferredBaseColors: { dark: "#111111", light: "#FEFEFE" },
-  // Rename token roles
-  roleNames: { accent: "brand", base: "surface" },
-  // Custom semantic overrides
-  semanticColors: { positive: "#22C55E" },
-  // Adjust perceived lightness (0–1)
-  themeLightness: 0.65,
-});
+hextimate("#6A5ACD")
+  .addRole("cta", "#EE2244")
+  .format({ as: "css" });
+// Adds: --cta, --cta-strong, --cta-weak, --cta-foreground,
+```
+
+### `addVariant` — add a lightness step to every role
+
+Extend the scale depth across all roles at once.
+
+```typescript
+hextimate("#6A5ACD")
+  .addVariant("hover", { beyond: "strong" })
+  .addVariant("subtle", { between: ["DEFAULT", "weak"] })
+  .format({ as: "tailwind" });
+// Every role now has: DEFAULT, strong, weak, foreground, hover, subtle
+```
+
+- `{ beyond: "strong" }` — one step past strong (stronger)
+- `{ beyond: "weak" }` — one step past weak (weaker)
+- `{ beyond: "hover" }` — chain them: go past a custom variant
+- `{ between: ["DEFAULT", "weak"] }` — midpoint between two variants
+
+### `addToken` — add standalone derived tokens
+
+For one-off tokens that don't need a full scale. Every token is derived from the palette, so changing the seed color updates everything.
+
+```typescript
+hextimate("#6A5ACD")
+  .addToken("border", { from: "base.weak", lightness: -0.05 })
+  .addToken("ring", { from: "accent" })
+  .addToken("placeholder", { from: "base.foreground", lightness: +0.3 })
+  .format({ as: "css" });
+// Adds: --border, --ring, --placeholder
+```
+
+When light and dark themes need different directions:
+
+```typescript
+.addToken("border", {
+  light: { from: "base.weak", lightness: -0.05 },
+  dark: { from: "base.weak", lightness: +0.05 },
+})
+```
+
+## Customization
+
+### Generation options
+
+Passed to `hextimate()` — these affect how colors are generated.
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `preferredBaseColors` | `{ dark?: color, light?: color }` | `{ dark: "#1a1a1a", light: "#ffffff" }` | Base colors used as baseline for generating the rest of the base scale |
+| `semanticColors` | `{ positive?: color, negative?: color, warning?: color }` | Auto-generated from seed | Override specific semantic colors instead of deriving them |
+| `semanticColorRanges` | `{ positive?: [start, end], ... }` | `positive: [90,150]`, `negative: [345,15]`, `warning: [35,55]` | Hue degree ranges for finding semantic colors |
+| `neutralColorsMaxChroma` | `number` | `0.02` | Max chroma for base and foreground colors (higher = more saturated neutrals) |
+| `themeLightness` | `number` (0–1) | `0.7` | Perceived lightness of the generated theme |
+
+### Format options
+
+Passed to `.format()` — these affect the output shape.
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `as` | `"object" \| "css" \| "tailwind" \| "scss" \| "json"` | `"object"` | Output format (see [Output formats](#output-formats)) |
+| `colors` | `"hex" \| "rgb" \| "rgb-raw" \| "hsl" \| "hsl-raw" \| "oklch" \| "oklch-raw"` | `"hex"` | Color value serialization (see [Color value formats](#color-value-formats)) |
+| `roleNames` | `Record<string, string>` | Built-in names | Rename roles in output keys (e.g. `{ accent: "brand", base: "surface" }`) |
+| `variantNames` | `Record<string, string>` | Built-in names | Rename variant suffixes in output keys (e.g. `{ strong: "primary", foreground: "text" }`) |
+| `separator` | `string` | `"-"` | Separator between role and variant in token keys |
+
+## Real-world examples
+
+### shadcn/ui theme
+
+```typescript
+const theme = hextimate("#6366F1")
+  .addRole("muted", "#94A3B8")
+  .addRole("card", "#F8FAFC")
+  .addRole("popover", "#F8FAFC")
+  .addToken("border", {
+    light: { from: "base.weak", lightness: -0.08 },
+    dark: { from: "base.weak", lightness: +0.08 },
+  })
+  .addToken("input", {
+    light: { from: "base.weak", lightness: -0.1 },
+    dark: { from: "base.weak", lightness: +0.1 },
+  })
+  .addToken("ring", { from: "accent" })
+  .format({
+    as: "css",
+    colors: "oklch",
+    roleNames: {
+      base: "background",
+      accent: "primary",
+      positive: "success",
+      negative: "destructive",
+      warning: "warning",
+      muted: "muted",
+      card: "card",
+      popover: "popover",
+    },
+    variantNames: {
+      foreground: "foreground",
+    },
+  });
+
+// Output keys (light & dark):
+// --background, --background-foreground, --primary, --primary-foreground,
+// --success, --destructive, --warning, --muted, --card, --popover,
+// --border, --input, --ring, + strong/weak variants for each role
+```
+
+### Stripe-style payment UI
+
+```typescript
+const theme = hextimate("#635BFF")
+  .addToken("text-secondary", { from: "base.foreground", lightness: +0.25 })
+  .addToken("text-placeholder", { from: "base.foreground", lightness: +0.4 })
+  .addToken("icon", { from: "base.foreground", lightness: +0.15 })
+  .format({
+    roleNames: {
+      accent: "primary",
+      base: "background",
+      positive: "success",
+      negative: "danger",
+      warning: "warning",
+    },
+    variantNames: {
+      foreground: "text",
+    },
+  });
+
+// Output keys (light & dark):
+// primary, primary-strong, primary-weak, primary-text,
+// background, background-strong, background-weak, background-text,
+// success, danger, warning + variants,
+// text-secondary, text-placeholder, icon
+```
+
+### Slack-style sidebar
+
+```typescript
+const theme = hextimate("#4A154B")
+  .format({
+    roleNames: {
+      base: "column-bg",
+      accent: "active-item",
+      positive: "active-presence",
+      negative: "mention-badge",
+    },
+    variantNames: {
+      DEFAULT: "DEFAULT",
+      strong: "menu-bg",
+      weak: "hover-item",
+      foreground: "text-color",
+    },
+  });
+
+// Output keys (light & dark):
+// column-bg-DEFAULT, column-bg-menu-bg, column-bg-hover-item, column-bg-text-color,
+// active-item-DEFAULT, active-item-menu-bg, active-item-hover-item, active-item-text-color,
+// active-presence, mention-badge, warning + variants
 ```
 
 ## How it works
@@ -73,6 +244,17 @@ hextimate("#6A5ACD", {
 3. **Generate** accent, base, and semantic color scales — each with DEFAULT, strong, weak, and foreground variants.
 4. **Gamut-map** back to sRGB via binary-search chroma reduction (preserves lightness and hue).
 5. **Format** into your chosen output (CSS vars, Tailwind, SCSS, JSON, or plain object).
+
+## Utilities
+
+hextimator also exports its parsing and conversion functions for standalone use:
+
+```typescript
+import { parseColor, convertColor } from "hextimator";
+
+const color = parseColor("rgb(255, 102, 102)");
+const oklch = convertColor(color, "oklch");
+```
 
 ## Dev workflow
 

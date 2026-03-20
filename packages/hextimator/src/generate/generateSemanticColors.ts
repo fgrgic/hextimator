@@ -1,13 +1,16 @@
 import { convert } from '../convert';
 import { parse } from '../parse';
 import type { Color } from '../types';
-import { DEFAULT_SEMANTIC_DARK_L_VALUE, DEFAULT_SEMANTIC_LIGHT_L_VALUE } from './consts';
+import {
+	DEFAULT_SEMANTIC_DARK_L_VALUE,
+	DEFAULT_SEMANTIC_LIGHT_L_VALUE,
+} from './consts';
 import type { GenerateOptions, HextimatePalette, ThemeType } from './types';
 import { expandColorToScale } from './utils';
 
 const POSITIVE_RANGE: [number, number] = [135, 160]; // green range in hue values
-const NEGATIVE_RANGE: [number, number] = [5, 25];    // red range in hue values
-const WARNING_RANGE: [number, number] = [45, 65];    // yellow/amber range in hue values
+const NEGATIVE_RANGE: [number, number] = [5, 25]; // red range in hue values
+const WARNING_RANGE: [number, number] = [45, 65]; // yellow/amber range in hue values
 
 export function generateSemanticColors(
 	color: Color,
@@ -63,8 +66,10 @@ function _determineBaseColorFromRange(
 	range: [number, number],
 	themeType: ThemeType,
 ): Color {
-  const baseLValue =
-    themeType === 'light' ? DEFAULT_SEMANTIC_LIGHT_L_VALUE : DEFAULT_SEMANTIC_DARK_L_VALUE;
+	const baseLValue =
+		themeType === 'light'
+			? DEFAULT_SEMANTIC_LIGHT_L_VALUE
+			: DEFAULT_SEMANTIC_DARK_L_VALUE;
 	const complementaryColor = _getComplementaryColor(color);
 	const splitComplementaryColors =
 		_getSplitComplementaryColors(complementaryColor);

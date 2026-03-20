@@ -1,18 +1,22 @@
-import type { FormatResult } from './format';
-import { format } from './format';
-import { generate } from './generate';
+import { HextimatePaletteBuilder } from './HextimatePaletteBuilder';
 import { parse } from './parse';
-import type { ColorInput, HextimateOptions } from './types';
+import type { ColorInput, HextimateGenerationOptions } from './types';
 
 export { convert as convertColor } from './convert';
 export type { FlatTokenMap, FormatResult, NestedTokenMap } from './format';
+export {
+	type DerivedToken,
+	HextimatePaletteBuilder,
+	type HextimateResult,
+	type TokenValue,
+	type VariantPlacement,
+} from './HextimatePaletteBuilder';
 export { parse as parseColor } from './parse';
-export { HextimateOptions } from './types';
-
-export interface HextimateResult {
-	light: FormatResult;
-	dark: FormatResult;
-}
+export type {
+	HextimateFormatOptions,
+	HextimateGenerationOptions,
+	HextimateOptions,
+} from './types';
 
 class HextimateError extends Error {
 	constructor(
@@ -25,21 +29,27 @@ class HextimateError extends Error {
 }
 
 /**
- * Creates a palette from 1 base color, or more colors passed to it with additional options
- * @param color ColorInput
- * @param options HextimateOptions
+ * Creates a palette builder from an accent/brand color.
+ *
+ * @example
+ * // Two-step API: generate, then format
+ * const theme = hextimate('#ff6600')
+ *   .format({ as: 'css', colors: 'oklch' });
+ *
+ * @example
+ * // Extended: add roles and variants before formatting
+ * const theme = hextimate('#ff6600', { themeLightness: 0.7 })
+ *   .addRole('cta', '#ee2244')
+ *   .addVariant('hover', { beyond: 'strong' })
+ *   .format({ as: 'tailwind' });
  */
 export function hextimate(
 	color: ColorInput,
-	options?: HextimateOptions,
-): HextimateResult {
+	options?: HextimateGenerationOptions,
+): HextimatePaletteBuilder {
 	try {
 		const parsedColor = parse(color);
-
-		return {
-			light: format(generate(parsedColor, 'light', options), options),
-			dark: format(generate(parsedColor, 'dark', options), options),
-		};
+		return new HextimatePaletteBuilder(parsedColor, options);
 	} catch (e) {
 		if (e instanceof HextimateError) {
 			throw e;

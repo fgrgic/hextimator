@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'bun:test';
-import type { Color, ColorSpace, HSL, LinearRGB, OKLab, OKLCH, RGB } from '../types';
+import type {
+	Color,
+	ColorSpace,
+	HSL,
+	LinearRGB,
+	OKLab,
+	OKLCH,
+	RGB,
+} from '../types';
 import { convert } from './index';
 
 const red: RGB = { space: 'srgb', r: 255, g: 0, b: 0, alpha: 1 };
@@ -64,7 +72,9 @@ describe('convert() dispatcher', () => {
 	});
 
 	it('throws for unsupported conversion', () => {
-		expect(() => convert(red, 'p3' as unknown as ColorSpace)).toThrow('Unsupported conversion');
+		expect(() => convert(red, 'p3' as unknown as ColorSpace)).toThrow(
+			'Unsupported conversion',
+		);
 	});
 });
 

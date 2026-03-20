@@ -87,20 +87,9 @@ export type ConvertColor = <S extends ColorSpace>(
 ) => ColorInSpace<S>;
 
 /**
- * Parse and convert color
- * Optional. Let's see if we need something like that!
+ * Options that affect color generation (the math)
  */
-// type ResolveColor = <S extends ColorSpace>(
-//   input: ColorInput,
-//   to: S,
-//   assumeSpace?: ColorSpace,
-// ) => ColorInSpace<S>;
-
-/**
- * Optional config to tweak the hextimation process
- * and output format to get the theme adapted to your needs
- */
-export interface HextimateOptions {
+export interface HextimateGenerationOptions {
 	/**
 	 * Preferred base color for dark and light mode
 	 * It will be used as a baseline to generate the rest of base colors (strong, weak)
@@ -140,82 +129,6 @@ export interface HextimateOptions {
 	};
 
 	/**
-	 * Rename roles in the output token keys.
-	 * Internal name → your custom name.
-	 *
-	 * Examples:
-	 * - base: "bg"
-	 * - accent: "button"
-	 * - positive: "success"
-	 * - negative: "error"
-	 * - warning: "warning"
-	 *
-	 * If not provided, the default role names will be used.
-	 * The default role names are:
-	 * - base: "base"
-	 * - accent: "accent"
-	 * - positive: "positive"
-	 * - negative: "negative"
-	 * - warning: "warning"
-	 */
-	roleNames?: {
-		base?: string;
-		accent?: string;
-		positive?: string;
-		negative?: string;
-		warning?: string;
-	};
-
-	/**
-	 * Rename variant suffixes in the output token keys.
-	 * Internal name → your custom name.
-	 *
-	 * Examples:
-	 * - DEFAULT: "secondary"
-	 * - strong: "primary"
-	 * - weak: "tertiary"
-	 * - foreground: "text"
-	 */
-	variantNames?: {
-		DEFAULT?: string;
-		strong?: string;
-		weak?: string;
-		foreground?: string;
-	};
-
-	/**
-	 * Separator to use between the role and the variant in the output token keys.
-	 * If not provided, the default separator will be used.
-	 * The default separator is: "-"
-	 *
-	 * Use "_" for "base_strong", "/" for "base/strong", etc.
-	 */
-	separator?: string;
-
-	/**
-	 * Output format.
-	 * - "object" (default): { base: "#f2eee8", "base-strong": "#d4cfc8", ...}
-	 * - "css": { "--base": "#f2eee8", "--base-strong": "#d4cfc8", ...}
-	 * - "tailwind": { base: { DEFAULT: "#f2eee8", strong: "#d4cfc8", weak: "#faf8f6" } }
-	 * - "scss": { $base: "#f2eee8", $base-strong: "#d4cfc8", ...}
-	 * - "json": '{ "base": "#f2eee8", "base-strong": "#d4cfc8", ...}'
-	 */
-	format?: 'css' | 'tailwind' | 'scss' | 'json';
-
-	/**
-	 * How color values are serialized in the output.
-	 *
-	 * - "hex" (default) → "#f2eee8"
-	 * - "hsl"           → "hsl(30, 10%, 94%)"
-	 * - "hsl-raw"       → "30 10% 94%"            (shadcn / CSS variable style)
-	 * - "oklch"         → "oklch(0.96 0.01 70)"
-	 * - "oklch-raw"     → "0.96 0.01 70"
-	 * - "rgb"           → "rgb(242, 238, 232)"
-	 * - "rgb-raw"       → "242 238 232"
-	 */
-	colorFormat?: ColorFormat;
-
-	/**
 	 * defines how "saturated" the neutral colors can get
 	 * neutral colors are:
 	 * - base colors
@@ -235,6 +148,83 @@ export interface HextimateOptions {
 	 */
 	themeLightness?: number;
 }
+
+/**
+ * Options that affect output formatting (serialization)
+ */
+export interface HextimateFormatOptions {
+	/**
+	 * Rename roles in the output token keys.
+	 * Internal name → your custom name.
+	 *
+	 * Examples:
+	 * - base: "bg"
+	 * - accent: "button"
+	 * - positive: "success"
+	 * - negative: "error"
+	 * - warning: "warning"
+	 *
+	 * If not provided, the default role names will be used.
+	 * The default role names are:
+	 * - base: "base"
+	 * - accent: "accent"
+	 * - positive: "positive"
+	 * - negative: "negative"
+	 * - warning: "warning"
+	 */
+	roleNames?: Record<string, string>;
+
+	/**
+	 * Rename variant suffixes in the output token keys.
+	 * Internal name → your custom name.
+	 *
+	 * Examples:
+	 * - DEFAULT: "secondary"
+	 * - strong: "primary"
+	 * - weak: "tertiary"
+	 * - foreground: "text"
+	 */
+	variantNames?: Record<string, string>;
+
+	/**
+	 * Separator to use between the role and the variant in the output token keys.
+	 * If not provided, the default separator will be used.
+	 * The default separator is: "-"
+	 *
+	 * Use "_" for "base_strong", "/" for "base/strong", etc.
+	 */
+	separator?: string;
+
+	/**
+	 * Output format.
+	 * - "object" (default): { base: "#f2eee8", "base-strong": "#d4cfc8", ...}
+	 * - "css": { "--base": "#f2eee8", "--base-strong": "#d4cfc8", ...}
+	 * - "tailwind": { base: { DEFAULT: "#f2eee8", strong: "#d4cfc8", weak: "#faf8f6" } }
+	 * - "scss": { $base: "#f2eee8", $base-strong: "#d4cfc8", ...}
+	 * - "json": '{ "base": "#f2eee8", "base-strong": "#d4cfc8", ...}'
+	 */
+	as?: 'object' | 'css' | 'tailwind' | 'scss' | 'json';
+
+	/**
+	 * How color values are serialized in the output.
+	 *
+	 * - "hex" (default) → "#f2eee8"
+	 * - "hsl"           → "hsl(30, 10%, 94%)"
+	 * - "hsl-raw"       → "30 10% 94%"            (shadcn / CSS variable style)
+	 * - "oklch"         → "oklch(0.96 0.01 70)"
+	 * - "oklch-raw"     → "0.96 0.01 70"
+	 * - "rgb"           → "rgb(242, 238, 232)"
+	 * - "rgb-raw"       → "242 238 232"
+	 */
+	colors?: ColorFormat;
+}
+
+/**
+ * Combined options for the convenience API.
+ * Allows passing both generation and format options in one call.
+ */
+export type HextimateOptions = HextimateGenerationOptions &
+	HextimateFormatOptions;
 
 export type ColorFormat =
 	| 'hex'

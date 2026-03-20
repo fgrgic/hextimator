@@ -7,16 +7,22 @@ import {
 	formatSCSS,
 	formatTailwind,
 } from './formatters';
-import type { FormatOptions, FormatResult } from './types';
+import type { FormatOptions, FormatResult, TokenEntry } from './types';
 
 export function format(
 	palette: HextimatePalette,
 	options?: FormatOptions,
+	standaloneTokens?: TokenEntry[],
 ): FormatResult {
 	const entries = buildTokenEntries(palette, options);
+
+	if (standaloneTokens) {
+		entries.push(...standaloneTokens);
+	}
+
 	const sep = options?.separator ?? '-';
 
-	switch (options?.format) {
+	switch (options?.as) {
 		case 'css':
 			return formatCSS(entries, sep);
 		case 'scss':

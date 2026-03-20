@@ -3,9 +3,6 @@ import type { Color, ColorInput } from '../types';
 import { serializeColor } from './serializeColor';
 import type { FormatOptions, TokenEntry } from './types';
 
-const ROLES = ['base', 'accent', 'positive', 'negative', 'warning'] as const;
-const VARIANTS = ['DEFAULT', 'strong', 'weak', 'foreground'] as const;
-
 function isColorObject(input: ColorInput): input is Color {
 	return typeof input === 'object' && input !== null && 'space' in input;
 }
@@ -14,12 +11,16 @@ export function buildTokenEntries(
 	palette: HextimatePalette,
 	options?: FormatOptions,
 ): TokenEntry[] {
-	const colorFormat = options?.colorFormat ?? 'hex';
+	const colorFormat = options?.colors ?? 'hex';
 	const entries: TokenEntry[] = [];
 
-	for (const role of ROLES) {
+	const roles = Object.keys(palette);
+
+	for (const role of roles) {
 		const scale = palette[role];
-		for (const variant of VARIANTS) {
+		const variants = Object.keys(scale);
+
+		for (const variant of variants) {
 			const raw = scale[variant];
 			if (!isColorObject(raw)) continue;
 
