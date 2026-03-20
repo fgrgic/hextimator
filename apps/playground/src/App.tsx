@@ -41,29 +41,17 @@ function App() {
 
 	try {
 		result = hextimate(input, {
-			preferredBaseColors: {
-				dark: '#FF54DA',
-				light: '#FF54DA',
-			},
-		})
+			// preferredBaseColors: {
+			// 	dark: '#FF54DA',
+			// 	light: '#FF54DA',
+			// },
+    })
+      .addVariant('faint', { beyond: 'weak' })
 			.addVariant('intense', { beyond: 'strong' })
 			.addVariant('extreme', { beyond: 'intense' })
 			.format({
 				as: 'object',
 				colors: 'hex',
-				roleNames: {
-					base: 'background',
-					accent: 'brand',
-					positive: 'success',
-					negative: 'error',
-					warning: 'danger',
-				},
-				variantNames: {
-					DEFAULT: 'primary',
-					strong: 'secondary',
-					intense: 'tertiary',
-					weak: 'subtle',
-				},
 			});
 	} catch (e) {
 		error = e instanceof Error ? e.message : 'Unknown error';

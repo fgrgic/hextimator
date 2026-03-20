@@ -11,10 +11,10 @@ const FOREGROUND_DARK_L_VALUE = 0.98;
 const FOREGROUND_LIGHT_L_VALUE = 0.02;
 const FOREGROUND_MAX_CHROMA = 0.05;
 
-const STRONG_DELTA_DARK = 0.05;
-const STRONG_DELTA_LIGHT = -0.05;
-const WEAK_DELTA_DARK = -0.05;
-const WEAK_DELTA_LIGHT = 0.05;
+const FALLBACK_STRONG_DELTA_DARK = 0.05;
+const FALLBACK_STRONG_DELTA_LIGHT = -0.05;
+const FALLBACK_WEAK_DELTA_DARK = -0.05;
+const FALLBACK_WEAK_DELTA_LIGHT = 0.05;
 
 interface ExpandColorToScaleOptions
 	extends Pick<GenerateOptions, 'themeLightness'> {
@@ -43,11 +43,17 @@ export function expandColorToScale(
 		foregroundLValueDark = FOREGROUND_DARK_L_VALUE,
 		foregroundLValueLight = FOREGROUND_LIGHT_L_VALUE,
 		foregroundMaxChroma = FOREGROUND_MAX_CHROMA,
-		strongDeltaDark = STRONG_DELTA_DARK,
-		strongDeltaLight = STRONG_DELTA_LIGHT,
-		weakDeltaDark = WEAK_DELTA_DARK,
-		weakDeltaLight = WEAK_DELTA_LIGHT,
+		strongDeltaDark,
+		strongDeltaLight,
+		weakDeltaDark,
+		weakDeltaLight,
 	} = options ?? {};
+
+	const hasExplicitDeltas =
+		strongDeltaDark !== undefined ||
+		strongDeltaLight !== undefined ||
+		weakDeltaDark !== undefined ||
+		weakDeltaLight !== undefined;
 
 	const { lightThemeLightnessValue, darkThemeLightnessValue } =
 		generateLightnessPair(themeLightness, options);
@@ -59,20 +65,6 @@ export function expandColorToScale(
 			themeType === 'light'
 				? (baselineLValueLight ?? lightThemeLightnessValue)
 				: (baselineLValueDark ?? darkThemeLightnessValue),
-	};
-
-	const strongColorOKLCH = {
-		...normalizedColorOKLCH,
-		l:
-			normalizedColorOKLCH.l +
-			(themeType === 'light' ? strongDeltaLight : strongDeltaDark),
-	};
-
-	const weakColorOKLCH = {
-		...normalizedColorOKLCH,
-		l:
-			normalizedColorOKLCH.l +
-			(themeType === 'light' ? weakDeltaLight : weakDeltaDark),
 	};
 
 	const candidates = [foregroundLValueLight, foregroundLValueDark].map((l) => ({
@@ -88,6 +80,74 @@ export function expandColorToScale(
 		calculateContrast(normalizedColorOKLCH, preferred) > 7
 			? preferred
 			: fallback;
+
+	let strongColorOKLCH: typeof normalizedColorOKLCH;
+	let weakColorOKLCH: typeof normalizedColorOKLCH;
+
+	if (hasExplicitDeltas) {
+		const sd =
+			themeType === 'light'
+				? (strongDeltaLight ?? FALLBACK_STRONG_DELTA_LIGHT)
+				: (strongDeltaDark ?? FALLBACK_STRONG_DELTA_DARK);
+		const wd =
+			themeType === 'light'
+				? (weakDeltaLight ?? FALLBACK_WEAK_DELTA_LIGHT)
+				: (weakDeltaDark ?? FALLBACK_WEAK_DELTA_DARK);
+
+		strongColorOKLCH = {
+			...normalizedColorOKLCH,
+			l: normalizedColorOKLCH.l + sd,
+		};
+		weakColorOKLCH = {
+			...normalizedColorOKLCH,
+			l: normalizedColorOKLCH.l + wd,
+		};
+	} else {
+		const boundaryL = findContrastBoundaryLightness(
+			normalizedColorOKLCH,
+			foregroundColorOKLCH,
+		);
+
+		if (boundaryL !== null) {
+			const delta = Math.abs(normalizedColorOKLCH.l - boundaryL);
+			const foregroundDirection = Math.sign(
+				foregroundColorOKLCH.l - normalizedColorOKLCH.l,
+			);
+
+			strongColorOKLCH = {
+				...normalizedColorOKLCH,
+				l: Math.max(
+					0,
+					Math.min(1, normalizedColorOKLCH.l + delta * foregroundDirection),
+				),
+			};
+			weakColorOKLCH = {
+				...normalizedColorOKLCH,
+				l: Math.max(
+					0,
+					Math.min(1, normalizedColorOKLCH.l - delta * foregroundDirection),
+				),
+			};
+		} else {
+			const sd =
+				themeType === 'light'
+					? FALLBACK_STRONG_DELTA_LIGHT
+					: FALLBACK_STRONG_DELTA_DARK;
+			const wd =
+				themeType === 'light'
+					? FALLBACK_WEAK_DELTA_LIGHT
+					: FALLBACK_WEAK_DELTA_DARK;
+
+			strongColorOKLCH = {
+				...normalizedColorOKLCH,
+				l: normalizedColorOKLCH.l + sd,
+			};
+			weakColorOKLCH = {
+				...normalizedColorOKLCH,
+				l: normalizedColorOKLCH.l + wd,
+			};
+		}
+	}
 
 	return {
 		DEFAULT: convert(normalizedColorOKLCH, 'srgb'),
@@ -118,6 +178,47 @@ export function generateLightnessPair(
 		lightThemeLightnessValue,
 		darkThemeLightnessValue,
 	};
+}
+
+export function findContrastBoundaryLightness(
+	defaultColor: Color,
+	foregroundColor: Color,
+	targetContrast = 7,
+): number | null {
+	const defaultOKLCH = convert(defaultColor, 'oklch');
+	const foregroundOKLCH = convert(foregroundColor, 'oklch');
+
+	const defaultContrast = calculateContrast(defaultColor, foregroundColor);
+	if (defaultContrast <= targetContrast) {
+		return null;
+	}
+
+	const { r: fr, g: fg, b: fb } = convert(foregroundColor, 'linear-rgb');
+	const foregroundLuminance = 0.2126 * fr + 0.7152 * fg + 0.0722 * fb;
+
+	let tLo = 0;
+	let tHi = 1;
+
+	for (let i = 0; i < 20; i++) {
+		const tMid = (tLo + tHi) / 2;
+		const l = defaultOKLCH.l + tMid * (foregroundOKLCH.l - defaultOKLCH.l);
+		const testColor = { ...defaultOKLCH, l };
+
+		const { r, g, b } = convert(testColor, 'linear-rgb');
+		const testLuminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+
+		const lighter = Math.max(testLuminance, foregroundLuminance);
+		const darker = Math.min(testLuminance, foregroundLuminance);
+		const contrast = (lighter + 0.05) / (darker + 0.05);
+
+		if (contrast > targetContrast) {
+			tLo = tMid;
+		} else {
+			tHi = tMid;
+		}
+	}
+
+	return defaultOKLCH.l + ((tLo + tHi) / 2) * (foregroundOKLCH.l - defaultOKLCH.l);
 }
 
 export function calculateContrast(colorA: Color, colorB: Color): number {
