@@ -1,5 +1,3 @@
-// types per color space
-
 export interface RGB {
 	readonly space: 'srgb';
 	readonly r: number; // 0-255
@@ -48,16 +46,10 @@ export type ColorInSpace<S extends Color['space']> = Extract<
 >;
 export type ColorSpace = Color['space'];
 
-// input
-
-/**
- * "FF6666", "#FF6666", "0xFF6666", "#F66" with optional alpha
- */
+/** "FF6666", "#FF6666", "0xFF6666", "#F66" with optional alpha. */
 export type HexString = string;
 
-/**
- * e.g. rgb(255, 102, 102), rgba(255, 102, 102, 0.5)
- */
+/** e.g. `rgb(255, 102, 102)`, `rgba(255, 102, 102, 0.5)`. */
 export type CSSColorString = string;
 
 /** Loose tuple: [255, 102, 102], [255, 102, 102, 0.5] */
