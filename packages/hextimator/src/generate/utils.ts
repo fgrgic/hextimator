@@ -165,29 +165,21 @@ export function expandColorToScale(
 			contrastTarget,
 		);
 		const maxStrongDelta =
-			boundaryL !== null
-				? Math.abs(normalizedColorOKLCH.l - boundaryL)
-				: 0;
+			boundaryL !== null ? Math.abs(normalizedColorOKLCH.l - boundaryL) : 0;
 		const strongDelta = Math.min(VARIANT_DELTA, maxStrongDelta);
 
 		strongColorOKLCH = {
 			...normalizedColorOKLCH,
 			l: Math.max(
 				0,
-				Math.min(
-					1,
-					normalizedColorOKLCH.l + strongDelta * contrastDirection,
-				),
+				Math.min(1, normalizedColorOKLCH.l + strongDelta * contrastDirection),
 			),
 		};
 		weakColorOKLCH = {
 			...normalizedColorOKLCH,
 			l: Math.max(
 				0,
-				Math.min(
-					1,
-					normalizedColorOKLCH.l - weakDelta * contrastDirection,
-				),
+				Math.min(1, normalizedColorOKLCH.l - weakDelta * contrastDirection),
 			),
 		};
 	}
@@ -199,6 +191,15 @@ export function expandColorToScale(
 		foreground: convert(foregroundColorOKLCH, 'srgb'),
 	};
 }
+
+/**
+ * Safe lightness bounds that guarantee AAA contrast (7:1 + margin)
+ * against near-white (L=0.98) and near-black (L=0.02) foregrounds.
+ * Light theme needs high lightness (dark text on light bg).
+ * Dark theme needs low lightness (light text on dark bg).
+ */
+const LIGHT_THEME_LIGHTNESS_RANGE = [0.69, 0.99] as const;
+const DARK_THEME_LIGHTNESS_RANGE = [0.2, 0.43] as const;
 
 /**
  * Based on the preferred lightness (of the theme)
@@ -214,8 +215,14 @@ export function generateLightnessPair(
 	const lightDelta = options?.lightDelta ?? DEFAULT_THEME_LIGHTNESS_LIGHT_DELTA;
 	const darkDelta = options?.darkDelta ?? DEFAULT_THEME_LIGHTNESS_DARK_DELTA;
 
-	const lightThemeLightnessValue = Math.min(themeLightness + lightDelta, 1);
-	const darkThemeLightnessValue = Math.max(themeLightness + darkDelta, 0);
+	const lightThemeLightnessValue = Math.min(
+		Math.max(themeLightness + lightDelta, LIGHT_THEME_LIGHTNESS_RANGE[0]),
+		LIGHT_THEME_LIGHTNESS_RANGE[1],
+	);
+	const darkThemeLightnessValue = Math.min(
+		Math.max(themeLightness + darkDelta, DARK_THEME_LIGHTNESS_RANGE[0]),
+		DARK_THEME_LIGHTNESS_RANGE[1],
+	);
 
 	return {
 		lightThemeLightnessValue,

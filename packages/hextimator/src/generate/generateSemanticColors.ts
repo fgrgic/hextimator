@@ -1,10 +1,6 @@
 import { convert } from '../convert';
 import { parse } from '../parse';
 import type { Color } from '../types';
-import {
-	DEFAULT_SEMANTIC_DARK_L_VALUE,
-	DEFAULT_SEMANTIC_LIGHT_L_VALUE,
-} from './consts';
 import type { GenerateOptions, HextimatePalette, ThemeType } from './types';
 import { expandColorToScale } from './utils';
 
@@ -22,7 +18,6 @@ export function generateSemanticColors(
 			_determineBaseColorFromRange(
 				color,
 				options?.semanticColorRanges?.positive ?? POSITIVE_RANGE,
-				themeType,
 			),
 	);
 
@@ -31,7 +26,6 @@ export function generateSemanticColors(
 			_determineBaseColorFromRange(
 				color,
 				options?.semanticColorRanges?.negative ?? NEGATIVE_RANGE,
-				themeType,
 			),
 	);
 
@@ -40,7 +34,6 @@ export function generateSemanticColors(
 			_determineBaseColorFromRange(
 				color,
 				options?.semanticColorRanges?.warning ?? WARNING_RANGE,
-				themeType,
 			),
 	);
 
@@ -74,12 +67,7 @@ export function generateSemanticColors(
 function _determineBaseColorFromRange(
 	color: Color,
 	range: [number, number],
-	themeType: ThemeType,
 ): Color {
-	const baseLValue =
-		themeType === 'light'
-			? DEFAULT_SEMANTIC_LIGHT_L_VALUE
-			: DEFAULT_SEMANTIC_DARK_L_VALUE;
 	const complementaryColor = _getComplementaryColor(color);
 	const splitComplementaryColors =
 		_getSplitComplementaryColors(complementaryColor);
@@ -97,16 +85,16 @@ function _determineBaseColorFromRange(
 				: h >= range[0] || h <= range[1];
 
 		if (inRange) {
-			return convert({ ...convert(color, 'oklch'), l: baseLValue, h }, 'oklch');
+			return convert({ ...convert(color, 'oklch'), l: 0.5, h }, 'oklch');
 		}
 	}
 
 	const candidate1 = convert(
-		{ ...convert(color, 'oklch'), l: baseLValue, h: range[0] },
+		{ ...convert(color, 'oklch'), l: 0.5, h: range[0] },
 		'oklch',
 	);
 	const candidate2 = convert(
-		{ ...convert(color, 'oklch'), l: baseLValue, h: range[1] },
+		{ ...convert(color, 'oklch'), l: 0.5, h: range[1] },
 		'oklch',
 	);
 

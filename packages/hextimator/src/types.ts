@@ -136,7 +136,9 @@ export interface HextimateGenerationOptions {
 	 * Perceived lightness of the theme.
 	 * Number between 0 and 1
 	 *
-	 * Default: 0.7
+	 * Default: 0.8. Higher values will produce a lighter theme, lower values will produce a darker theme.
+	 * Light theme: 0.8 + 0 = 0.8 lightness.
+	 * Dark theme: 0.8 - 0.4 = 0.4 lightness.
 	 */
 	themeLightness?: number;
 

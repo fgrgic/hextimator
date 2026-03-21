@@ -279,7 +279,7 @@ export class HextimatePaletteBuilder {
 						minContrast + 0.15,
 					);
 					maxDelta =
-						boundaryL !== null ? Math.abs(defaultOKLCH.l - boundaryL) : 0.05;
+						boundaryL !== null ? Math.abs(defaultOKLCH.l - boundaryL) : 0;
 				} else {
 					// Contrast only improves away from foreground; cap at gamut boundary
 					const gamutBound = sideDirection > 0 ? 1 : 0;
