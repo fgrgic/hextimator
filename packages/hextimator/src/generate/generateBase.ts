@@ -4,7 +4,7 @@ import type { Color } from '../types';
 import type { ColorScale, GenerateOptions, ThemeType } from './types';
 import { expandColorToScale } from './utils';
 
-const BASELINE_DARK_L_VALUE = 0.1;
+const BASELINE_DARK_L_VALUE = 0.2;
 const BASELINE_LIGHT_L_VALUE = 0.97;
 
 // only the slightest hint of input color by default

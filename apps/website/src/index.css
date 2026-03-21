@@ -1,2 +1,6 @@
 @import "tailwindcss";
 @import "hextimator/tailwind.css";
+
+body {
+	background-color: var(--color-base);
+}
