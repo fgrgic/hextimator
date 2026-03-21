@@ -1,8 +1,10 @@
 # hextimator
 
-Generate perceptually uniform color palettes from any input color. Throw in a hex code (or RGB, HSL, OKLCH...) and get a full theme — accent scales, base tones, and semantic colors (positive/negative/warning) — all with consistent perceived contrast across hues.
+One brand color in, full accessible theme out.
 
-Built for runtime use: output CSS custom properties, Tailwind tokens, SCSS variables, or plain objects. Ideal for products where each account/tenant needs its own branded theme generated on the fly.
+- Input: any single color. Output: complete light + dark theme with accessibility guarantees (AAA contrast by default).
+- Works at runtime — built for multi-tenant apps that need per-brand themes on the fly.
+- Perceptually uniform (OKLCH) — blue and yellow palettes look equally balanced, unlike HSL-based generators.
 
 ## Installation
 
@@ -139,7 +141,7 @@ Passed to `hextimate()` — these affect how colors are generated.
 | `semanticColors` | `{ positive?: color, negative?: color, warning?: color }` | Auto-generated from seed | Override specific semantic colors instead of deriving them |
 | `semanticColorRanges` | `{ positive?: [start, end], ... }` | `positive: [90,150]`, `negative: [345,15]`, `warning: [35,55]` | Hue degree ranges for finding semantic colors |
 | `neutralColorsMaxChroma` | `number` | `0.02` | Max chroma for base and foreground colors (higher = more saturated neutrals) |
-| `themeLightness` | `number` (0–1) | `0.7` | Perceived lightness of the generated theme |
+| `themeLightness` | `number` (0–1) | `0.8` | Perceived lightness of the generated theme |
 | `minContrastRatio` | `"AAA" \| "AA" \| number` | `"AAA"` | Minimum WCAG contrast ratio between variants and foreground. `"AAA"` = 7, `"AA"` = 4.5, or pass any number |
 
 ### Format options

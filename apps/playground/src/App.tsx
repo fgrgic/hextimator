@@ -40,7 +40,7 @@ function App() {
 	let error = '';
 
 	try {
-		result = hextimate(input, { minContrastRatio: 'AA' })
+		result = hextimate(input, { minContrastRatio: 'AAA' })
 			.addRole('banner', '#ff006e')
 			.addRole('moonpay', 'bb00ff')
 			.addVariant('placeholder', { beyond: 'weak' })

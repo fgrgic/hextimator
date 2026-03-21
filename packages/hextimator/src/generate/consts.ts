@@ -1,6 +1,12 @@
-export const DEFAULT_THEME_LIGHTNESS = 0.7;
-export const DEFAULT_THEME_LIGHTNESS_DARK_DELTA = -0.3;
-export const DEFAULT_THEME_LIGHTNESS_LIGHT_DELTA = 0.1;
-
-export const DEFAULT_SEMANTIC_DARK_L_VALUE = 0.45;
-export const DEFAULT_SEMANTIC_LIGHT_L_VALUE = 0.55;
+/**
+ * Base OKLCH Lightness for light theme.
+ * Dark theme: 0.8 - 0.4 = 0.4 lightness.
+ * Light theme: 0.8 + 0 = 0.8 lightness.
+ */
+export const DEFAULT_THEME_LIGHTNESS = 0.8;
+/**
+ * Dark theme: 0.8 - 0.4 = 0.4 lightness.
+ * Light theme: 0.8 + 0 = 0.8 lightness.
+ */
+export const DEFAULT_THEME_LIGHTNESS_DARK_DELTA = -0.4;
+export const DEFAULT_THEME_LIGHTNESS_LIGHT_DELTA = 0;
