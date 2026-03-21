@@ -16,6 +16,11 @@ const FALLBACK_STRONG_DELTA_LIGHT = -0.05;
 const FALLBACK_WEAK_DELTA_DARK = -0.05;
 const FALLBACK_WEAK_DELTA_LIGHT = 0.05;
 
+/**
+ * Target slightly above 7 to absorb gamut-mapping drift.
+ */
+const AAA_TARGET = 7.15;
+
 interface ExpandColorToScaleOptions
 	extends Pick<GenerateOptions, 'themeLightness'> {
 	lightDelta?: number;
@@ -83,9 +88,9 @@ export function expandColorToScale(
 
 	// If neither foreground achieves AAA (7:1), adjust the color's lightness
 	// minimally until the preferred foreground meets the threshold.
-	// Target slightly above 7 to absorb gamut-mapping drift.
-	const aaaTarget = 7.15;
-	if (calculateContrast(normalizedColorOKLCH, foregroundColorOKLCH) < aaaTarget) {
+	if (
+		calculateContrast(normalizedColorOKLCH, foregroundColorOKLCH) < AAA_TARGET
+	) {
 		// In dark mode, go darker so a light foreground gains contrast.
 		// In light mode, go lighter so a dark foreground gains contrast.
 		const direction = themeType === 'light' ? 1 : -1;
@@ -95,8 +100,7 @@ export function expandColorToScale(
 		for (let i = 0; i < 20; i++) {
 			const mid = (lo + hi) / 2;
 			const testColor = { ...normalizedColorOKLCH, l: mid };
-			if (calculateContrast(testColor, preferred) > aaaTarget) {
-				// Can stay closer to original
+			if (calculateContrast(testColor, preferred) > AAA_TARGET) {
 				if (direction === 1) hi = mid;
 				else lo = mid;
 			} else {
@@ -169,18 +173,16 @@ export function expandColorToScale(
 			darkFg,
 		);
 
-		const lightDelta = lightBoundaryL !== null
-			? Math.abs(lightDefaultL - lightBoundaryL)
-			: null;
-		const darkDelta = darkBoundaryL !== null
-			? Math.abs(darkDefaultL - darkBoundaryL)
-			: null;
+		const lightDelta =
+			lightBoundaryL !== null ? Math.abs(lightDefaultL - lightBoundaryL) : null;
+		const darkDelta =
+			darkBoundaryL !== null ? Math.abs(darkDefaultL - darkBoundaryL) : null;
 
 		// Use the smaller of the two deltas for symmetry
 		const symmetricDelta =
 			lightDelta !== null && darkDelta !== null
 				? Math.min(lightDelta, darkDelta)
-				: lightDelta ?? darkDelta;
+				: (lightDelta ?? darkDelta);
 
 		if (symmetricDelta !== null) {
 			// Strong increases contrast against the base, weak decreases it.
@@ -192,14 +194,20 @@ export function expandColorToScale(
 				...normalizedColorOKLCH,
 				l: Math.max(
 					0,
-					Math.min(1, normalizedColorOKLCH.l + symmetricDelta * contrastDirection),
+					Math.min(
+						1,
+						normalizedColorOKLCH.l + symmetricDelta * contrastDirection,
+					),
 				),
 			};
 			weakColorOKLCH = {
 				...normalizedColorOKLCH,
 				l: Math.max(
 					0,
-					Math.min(1, normalizedColorOKLCH.l - symmetricDelta * contrastDirection),
+					Math.min(
+						1,
+						normalizedColorOKLCH.l - symmetricDelta * contrastDirection,
+					),
 				),
 			};
 		} else {
@@ -292,7 +300,9 @@ export function findContrastBoundaryLightness(
 		}
 	}
 
-	return defaultOKLCH.l + ((tLo + tHi) / 2) * (foregroundOKLCH.l - defaultOKLCH.l);
+	return (
+		defaultOKLCH.l + ((tLo + tHi) / 2) * (foregroundOKLCH.l - defaultOKLCH.l)
+	);
 }
 
 export function calculateContrast(colorA: Color, colorB: Color): number {
