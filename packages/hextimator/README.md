@@ -276,7 +276,3 @@ const oklch = convertColor(color, "oklch");
 ## Contributing
 
 Issues and PRs are welcome at [github.com/fgrgic/hextimator](https://github.com/fgrgic/hextimator/issues).
-
-## License
-
-ISC © [fgrgic](https://github.com/fgrgic)

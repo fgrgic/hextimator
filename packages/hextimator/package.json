@@ -19,7 +19,7 @@
 		"type": "git",
 		"url": "git+https://github.com/fgrgic/hextimator.git"
 	},
-	"license": "ISC",
+	"license": "MIT",
 	"author": "ditherbug",
 	"main": "dist/index.js",
 	"module": "dist/index.mjs",
