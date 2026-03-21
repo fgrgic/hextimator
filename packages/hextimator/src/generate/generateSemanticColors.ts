@@ -44,15 +44,25 @@ export function generateSemanticColors(
 			),
 	);
 
-	const positiveColorScale = expandColorToScale(positiveBaseColor, themeType, {
+	const scaleOptions = {
 		themeLightness: options?.themeLightness,
-	});
-	const negativeColorScale = expandColorToScale(negativeBaseColor, themeType, {
-		themeLightness: options?.themeLightness,
-	});
-	const warningColorScale = expandColorToScale(warningBaseColor, themeType, {
-		themeLightness: options?.themeLightness,
-	});
+		minContrastRatio: options?.minContrastRatio,
+	};
+	const positiveColorScale = expandColorToScale(
+		positiveBaseColor,
+		themeType,
+		scaleOptions,
+	);
+	const negativeColorScale = expandColorToScale(
+		negativeBaseColor,
+		themeType,
+		scaleOptions,
+	);
+	const warningColorScale = expandColorToScale(
+		warningBaseColor,
+		themeType,
+		scaleOptions,
+	);
 
 	return {
 		positive: positiveColorScale,

@@ -246,6 +246,91 @@ describe('addVariant: applies to roles, not tokens', () => {
 });
 
 // ──────────────────────────────────────────────
+// 7. minContrastRatio option
+// ──────────────────────────────────────────────
+describe('minContrastRatio', () => {
+	it('"AA" enforces 4.5 contrast with foreground', () => {
+		for (const color of TEST_COLORS) {
+			for (const theme of THEME_TYPES) {
+				const result = hextimate(color, { minContrastRatio: 'AA' }).format({
+					as: 'object',
+					colors: 'hex',
+				});
+				const palette = result[theme] as Record<string, string>;
+				const roleScales = groupByRole(palette);
+
+				for (const [role, scale] of Object.entries(roleScales)) {
+					const fg = scale.foreground;
+					if (!fg) continue;
+
+					for (const [variant, value] of Object.entries(scale)) {
+						if (variant === 'foreground') continue;
+						const cr = contrast(value, fg);
+						if (cr < 4.5) {
+							throw new Error(
+								`${role}.${variant} (${value}) vs foreground (${fg}) = ${cr.toFixed(2)} in ${theme} for ${color}`,
+							);
+						}
+					}
+				}
+			}
+		}
+	});
+
+	it('numeric value is respected', () => {
+		for (const color of TEST_COLORS) {
+			for (const theme of THEME_TYPES) {
+				const result = hextimate(color, { minContrastRatio: 3 }).format({
+					as: 'object',
+					colors: 'hex',
+				});
+				const palette = result[theme] as Record<string, string>;
+				const roleScales = groupByRole(palette);
+
+				for (const [role, scale] of Object.entries(roleScales)) {
+					const fg = scale.foreground;
+					if (!fg) continue;
+
+					for (const [variant, value] of Object.entries(scale)) {
+						if (variant === 'foreground') continue;
+						const cr = contrast(value, fg);
+						if (cr < 3) {
+							throw new Error(
+								`${role}.${variant} (${value}) vs foreground (${fg}) = ${cr.toFixed(2)} in ${theme} for ${color}`,
+							);
+						}
+					}
+				}
+			}
+		}
+	});
+
+	it('defaults to AAA (7) when omitted', () => {
+		const result = hextimate('#ff1414').format({
+			as: 'object',
+			colors: 'hex',
+		});
+		const palette = result.light as Record<string, string>;
+		const roleScales = groupByRole(palette);
+
+		for (const [role, scale] of Object.entries(roleScales)) {
+			const fg = scale.foreground;
+			if (!fg) continue;
+
+			for (const [variant, value] of Object.entries(scale)) {
+				if (variant === 'foreground') continue;
+				const cr = contrast(value, fg);
+				if (cr < 7) {
+					throw new Error(
+						`${role}.${variant} (${value}) vs foreground (${fg}) = ${cr.toFixed(2)} — should default to AAA`,
+					);
+				}
+			}
+		}
+	});
+});
+
+// ──────────────────────────────────────────────
 // Helpers
 // ──────────────────────────────────────────────
 

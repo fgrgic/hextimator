@@ -8,6 +8,7 @@ import type { ColorScale, HextimatePalette } from './generate/types';
 import {
 	expandColorToScale,
 	findContrastBoundaryLightness,
+	resolveContrastRatio,
 } from './generate/utils';
 import { parse } from './parse';
 import type {
@@ -64,9 +65,11 @@ export class HextimatePaletteBuilder {
 
 		this.lightPalette[name] = expandColorToScale(parsedColor, 'light', {
 			themeLightness: this.options.themeLightness,
+			minContrastRatio: this.options.minContrastRatio,
 		});
 		this.darkPalette[name] = expandColorToScale(parsedColor, 'dark', {
 			themeLightness: this.options.themeLightness,
+			minContrastRatio: this.options.minContrastRatio,
 		});
 
 		return this;
@@ -267,11 +270,13 @@ export class HextimatePaletteBuilder {
 
 				let maxDelta: number;
 				if (isTowardForeground) {
-					// Bounded by AAA contrast boundary to preserve accessibility
+					const minContrast = resolveContrastRatio(
+						this.options.minContrastRatio,
+					);
 					const boundaryL = findContrastBoundaryLightness(
 						parse(scale.DEFAULT),
 						parse(scale.foreground),
-						7,
+						minContrast + 0.15,
 					);
 					maxDelta =
 						boundaryL !== null ? Math.abs(defaultOKLCH.l - boundaryL) : 0.05;

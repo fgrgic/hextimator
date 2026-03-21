@@ -18,13 +18,19 @@ const FALLBACK_WEAK_DELTA_LIGHT = 0.05;
 
 const VARIANT_DELTA = 0.1;
 
-/**
- * Target slightly above 7 to absorb gamut-mapping drift.
- */
-const AAA_TARGET = 7.15;
+/** Small buffer above the target to absorb gamut-mapping drift. */
+const CONTRAST_MARGIN = 0.15;
+
+export function resolveContrastRatio(
+	value: 'AAA' | 'AA' | number | undefined,
+): number {
+	if (value === undefined || value === 'AAA') return 7;
+	if (value === 'AA') return 4.5;
+	return value;
+}
 
 interface ExpandColorToScaleOptions
-	extends Pick<GenerateOptions, 'themeLightness'> {
+	extends Pick<GenerateOptions, 'themeLightness' | 'minContrastRatio'> {
 	lightDelta?: number;
 	darkDelta?: number;
 	baselineLValueDark?: number;
@@ -47,6 +53,7 @@ export function expandColorToScale(
 		baselineLValueDark,
 		baselineLValueLight,
 		themeLightness,
+		minContrastRatio: minContrastRatioOption,
 		foregroundLValueDark = FOREGROUND_DARK_L_VALUE,
 		foregroundLValueLight = FOREGROUND_LIGHT_L_VALUE,
 		foregroundMaxChroma = FOREGROUND_MAX_CHROMA,
@@ -55,6 +62,9 @@ export function expandColorToScale(
 		weakDeltaDark,
 		weakDeltaLight,
 	} = options ?? {};
+
+	const minContrast = resolveContrastRatio(minContrastRatioOption);
+	const contrastTarget = minContrast + CONTRAST_MARGIN;
 
 	const hasExplicitDeltas =
 		strongDeltaDark !== undefined ||
@@ -84,14 +94,15 @@ export function expandColorToScale(
 		themeType === 'light' ? candidates : [...candidates].reverse();
 
 	let foregroundColorOKLCH =
-		calculateContrast(normalizedColorOKLCH, preferred) > 7
+		calculateContrast(normalizedColorOKLCH, preferred) > minContrast
 			? preferred
 			: fallback;
 
-	// If neither foreground achieves AAA (7:1), adjust the color's lightness
+	// If neither foreground meets the target, adjust the color's lightness
 	// minimally until the preferred foreground meets the threshold.
 	if (
-		calculateContrast(normalizedColorOKLCH, foregroundColorOKLCH) < AAA_TARGET
+		calculateContrast(normalizedColorOKLCH, foregroundColorOKLCH) <
+		contrastTarget
 	) {
 		// In dark mode, go darker so a light foreground gains contrast.
 		// In light mode, go lighter so a dark foreground gains contrast.
@@ -102,7 +113,7 @@ export function expandColorToScale(
 		for (let i = 0; i < 20; i++) {
 			const mid = (lo + hi) / 2;
 			const testColor = { ...normalizedColorOKLCH, l: mid };
-			if (calculateContrast(testColor, preferred) > AAA_TARGET) {
+			if (calculateContrast(testColor, preferred) > contrastTarget) {
 				if (direction === 1) hi = mid;
 				else lo = mid;
 			} else {
@@ -151,7 +162,7 @@ export function expandColorToScale(
 		const boundaryL = findContrastBoundaryLightness(
 			normalizedColorOKLCH,
 			foregroundColorOKLCH,
-			AAA_TARGET,
+			contrastTarget,
 		);
 		const maxStrongDelta =
 			boundaryL !== null

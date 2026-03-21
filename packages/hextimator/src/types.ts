@@ -139,6 +139,16 @@ export interface HextimateGenerationOptions {
 	 * Default: 0.7
 	 */
 	themeLightness?: number;
+
+	/**
+	 * Minimum WCAG contrast ratio between non-foreground variants and the
+	 * foreground variant.
+	 *
+	 * - `"AAA"` (default) → 7
+	 * - `"AA"` → 4.5
+	 * - any number → exact ratio (e.g. 3 for large text)
+	 */
+	minContrastRatio?: 'AAA' | 'AA' | number;
 }
 
 /**
