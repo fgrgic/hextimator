@@ -304,6 +304,13 @@ export class HextimatePaletteBuilder {
 	): void {
 		if (sideVariants.length < 1) return;
 
+		// Best approximation of pre-gamut-mapping chroma.
+		const sourceChroma = Math.max(
+			...Object.entries(scale)
+				.filter(([k]) => k !== 'foreground')
+				.map(([, v]) => convert(parse(v), 'oklch').c),
+		);
+
 		const n = sideVariants.length;
 
 		const sorted = [...sideVariants].sort((a, b) => {
@@ -316,7 +323,11 @@ export class HextimatePaletteBuilder {
 			const variantName = sorted[i];
 			const newL = defaultOKLCH.l + ((i + 1) / (n + 1)) * totalDelta;
 			scale[variantName] = convert(
-				{ ...defaultOKLCH, l: Math.max(0, Math.min(1, newL)) },
+				{
+					...defaultOKLCH,
+					l: Math.max(0, Math.min(1, newL)),
+					c: sourceChroma,
+				},
 				'srgb',
 			);
 		}

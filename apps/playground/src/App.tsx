@@ -43,8 +43,8 @@ function App() {
 		result = hextimate(input)
 			// .addRole('banner', '#ff006e')
 			// .addRole('moonpay', 'bb00ff')
-			// .addVariant('placeholder', { beyond: 'weak' })
-			// .addVariant('intense', { beyond: 'strong' })
+			.addVariant('placeholder', { beyond: 'weak' })
+			.addVariant('intense', { beyond: 'strong' })
 			// .addToken('brand', '#3a86ff')
 			.format({
 				// as: 'css',
