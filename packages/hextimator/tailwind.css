@@ -1,4 +1,4 @@
-@theme {
+@theme inline {
   --color-accent: var(--accent);
   --color-accent-strong: var(--accent-strong);
   --color-accent-weak: var(--accent-weak);

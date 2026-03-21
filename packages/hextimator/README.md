@@ -41,6 +41,7 @@ const theme = hextimate("#6A5ACD")
 | Plain object (default) | `"object"` | `{ "accent": "#...", "accent-strong": "#...", ... }` |
 | CSS custom properties | `"css"` | `{ "--accent": "#...", "--accent-strong": "#...", ... }` |
 | Tailwind nested tokens | `"tailwind"` | `{ accent: { DEFAULT: "#...", strong: "#...", ... }, ... }` |
+| Tailwind CSS `@theme` | `"tailwind-css"` | `@theme { --color-accent: #...; --color-accent-strong: #...; ... }` |
 | SCSS variables | `"scss"` | `{ "$accent": "#...", "$accent-strong": "#...", ... }` |
 | JSON string | `"json"` | `'{ "accent": "#...", "accent-strong": "#...", ... }'` |
 
@@ -154,11 +155,135 @@ Passed to `.format()` — these affect the output shape.
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `as` | `"object" \| "css" \| "tailwind" \| "scss" \| "json"` | `"object"` | Output format (see [Output formats](#output-formats)) |
+| `as` | `"object" \| "css" \| "tailwind" \| "tailwind-css" \| "scss" \| "json"` | `"object"` | Output format (see [Output formats](#output-formats)) |
 | `colors` | `"hex" \| "rgb" \| "rgb-raw" \| "hsl" \| "hsl-raw" \| "oklch" \| "oklch-raw" \| "p3" \| "p3-raw"` | `"hex"` | Color value serialization (see [Color value formats](#color-value-formats)) |
 | `roleNames` | `Record<string, string>` | Built-in names | Rename roles in output keys (e.g. `{ accent: "brand", base: "surface" }`) |
 | `variantNames` | `Record<string, string>` | Built-in names | Rename variant suffixes in output keys (e.g. `{ strong: "primary", foreground: "text" }`) |
 | `separator` | `string` | `"-"` | Separator between role and variant in token keys |
+
+## Tailwind CSS v4
+
+hextimator ships a ready-made CSS file that registers all built-in color tokens with Tailwind v4. This gives you utility classes like `bg-accent`, `text-base-foreground`, `border-negative`, etc.
+
+### Setup
+
+1. Install Tailwind v4 with the Vite plugin:
+
+```bash
+npm install tailwindcss @tailwindcss/vite
+```
+
+2. Add the plugin to your `vite.config.ts`:
+
+```typescript
+import tailwindcss from "@tailwindcss/vite";
+
+export default defineConfig({
+  plugins: [tailwindcss()],
+});
+```
+
+3. Import Tailwind and hextimator's theme in your CSS:
+
+```css
+@import "tailwindcss";
+@import "hextimator/tailwind.css";
+```
+
+That's it. All 20 built-in tokens (accent, base, positive, negative, warning × DEFAULT/strong/weak/foreground) are available as Tailwind utilities.
+
+### How it works
+
+`hextimator/tailwind.css` contains a `@theme inline` block that maps Tailwind's `--color-*` namespace to bare CSS variables:
+
+```css
+@theme inline {
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  /* ...all 20 tokens */
+}
+```
+
+At runtime, you set the bare variables (`--accent`, `--base`, etc.) on any element — via JavaScript, inline styles, or the React hook — and Tailwind utilities resolve them automatically.
+
+The `inline` keyword means values are resolved where the class is applied, not at `:root`. This enables scoped theming — different parts of the page can have different brand colors.
+
+### Custom roles and variants
+
+If you extend the palette with `addRole()` or `addVariant()`, add the extra tokens to your CSS:
+
+```css
+@import "tailwindcss";
+@import "hextimator/tailwind.css";
+
+@theme inline {
+  --color-cta: var(--cta);
+  --color-cta-strong: var(--cta-strong);
+  --color-cta-weak: var(--cta-weak);
+  --color-cta-foreground: var(--cta-foreground);
+}
+```
+
+## React
+
+hextimator provides a React hook that generates a palette and injects CSS variables onto `document.documentElement`. Combined with `hextimator/tailwind.css`, this gives you live-updating Tailwind utilities with zero glue code.
+
+```bash
+npm install hextimator react
+```
+
+### Basic usage
+
+```typescript
+import { useHextimator } from "hextimator/react";
+
+function App() {
+  useHextimator("#6A5ACD");
+
+  return <div className="bg-accent text-accent-foreground">Themed!</div>;
+}
+```
+
+### With options
+
+```typescript
+useHextimator("#6A5ACD", {
+  generation: { minContrastRatio: "AA" },
+  format: { colors: "oklch" },
+});
+```
+
+### With custom roles and variants
+
+```typescript
+useHextimator("#6A5ACD", {
+  format: { colors: "oklch" },
+  configure: (builder) => {
+    builder
+      .addRole("cta", "#EE2244")
+      .addVariant("hover", { beyond: "strong" })
+      .addToken("border", { from: "base.weak", lightness: -0.05 });
+  },
+});
+```
+
+### Dynamic theming
+
+The hook re-generates the palette whenever the color changes:
+
+```typescript
+function App() {
+  const [color, setColor] = useState("#6A5ACD");
+  useHextimator(color);
+
+  return (
+    <div className="bg-base text-base-foreground">
+      <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
+      {/* Everything re-themes instantly */}
+    </div>
+  );
+}
+```
 
 ## Real-world examples
 
