@@ -4,27 +4,26 @@ import type { Color } from '../types';
 import type { ColorScale, GenerateOptions, ThemeType } from './types';
 import { expandColorToScale } from './utils';
 
-const DEFAULT_BASE_DARK_COLOR = '#1a1a1a';
-const DEFAULT_BASE_LIGHT_COLOR = '#fafafa';
-
 const BASELINE_DARK_L_VALUE = 0.1;
 const BASELINE_LIGHT_L_VALUE = 0.97;
-const BASELINE_MAX_CHROMA = 0.02;
 
-const STRONG_DELTA_DARK = -0.05;
+// only the slightest hint of input color by default
+const BASELINE_MAX_CHROMA = 0.005;
+
+const STRONG_DELTA_DARK = -0.1;
 const STRONG_DELTA_LIGHT = 0.03;
-const WEAK_DELTA_DARK = 0.05;
+const WEAK_DELTA_DARK = 0.1;
 const WEAK_DELTA_LIGHT = -0.03;
 
 export function generateBase(
-	_color: Color,
+	color: Color,
 	themeType: ThemeType,
 	options?: GenerateOptions,
 ): ColorScale {
 	const preferredBaseColorInput =
 		themeType === 'light'
-			? (options?.preferredBaseColors?.light ?? DEFAULT_BASE_LIGHT_COLOR)
-			: (options?.preferredBaseColors?.dark ?? DEFAULT_BASE_DARK_COLOR);
+			? (options?.preferredBaseColors?.light ?? color)
+			: (options?.preferredBaseColors?.dark ?? color);
 
 	const baselineMaxChroma =
 		options?.neutralColorsMaxChroma ?? BASELINE_MAX_CHROMA;
