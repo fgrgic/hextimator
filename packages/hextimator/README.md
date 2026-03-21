@@ -226,7 +226,7 @@ If you extend the palette with `addRole()` or `addVariant()`, add the extra toke
 
 ## React
 
-hextimator provides a React hook that generates a palette and injects CSS variables onto `document.documentElement`. Combined with `hextimator/tailwind.css`, this gives you live-updating Tailwind utilities with zero glue code.
+hextimator provides a React hook that generates both light and dark palettes and injects them as CSS variables via a `<style>` tag. Combined with `hextimator/tailwind.css`, this gives you live-updating Tailwind utilities with dark mode support and zero glue code.
 
 ```bash
 npm install hextimator react
@@ -244,7 +244,59 @@ function App() {
 }
 ```
 
-### With options
+By default, both light and dark themes are injected and toggled via `prefers-color-scheme`.
+
+### Dark mode strategies
+
+```typescript
+// System preference (default)
+useHextimator("#6A5ACD", { darkMode: { type: "media" } });
+
+// Class-based (Tailwind's `dark` class, Next.js, etc.)
+useHextimator("#6A5ACD", { darkMode: { type: "class" } });
+// → .dark { --accent: ...; }
+
+// Custom class name
+useHextimator("#6A5ACD", { darkMode: { type: "class", className: "theme-dark" } });
+
+// Data attribute
+useHextimator("#6A5ACD", { darkMode: { type: "data" } });
+// → [data-theme="dark"] { --accent: ...; }
+
+// Custom attribute
+useHextimator("#6A5ACD", { darkMode: { type: "data", attribute: "data-mode" } });
+
+// Light only, no dark theme
+useHextimator("#6A5ACD", { darkMode: false });
+```
+
+### CSS prefix
+
+Namespace CSS variables to avoid collisions with other libraries:
+
+```typescript
+useHextimator("#6A5ACD", { cssPrefix: "ht-" });
+// → --ht-accent, --ht-base, etc.
+```
+
+### Scoped theming with `target`
+
+Apply theme variables to a specific element instead of globally:
+
+```typescript
+function BrandedSection({ brandColor }: { brandColor: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useHextimator(brandColor, { target: ref });
+
+  return (
+    <div ref={ref} className="bg-accent text-accent-foreground">
+      This section has its own brand colors.
+    </div>
+  );
+}
+```
+
+### With generation and format options
 
 ```typescript
 useHextimator("#6A5ACD", {
@@ -284,6 +336,17 @@ function App() {
   );
 }
 ```
+
+### Hook options reference
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `darkMode` | `{ type: "media" \| "class" \| "data", ... } \| false` | `{ type: "media" }` | Dark mode strategy |
+| `cssPrefix` | `string` | `""` | Prefix for CSS variable names |
+| `target` | `RefObject<HTMLElement>` | — | Scope vars to an element instead of injecting a `<style>` tag |
+| `generation` | `HextimateGenerationOptions` | — | Palette generation options |
+| `format` | `Omit<HextimateFormatOptions, "as">` | — | Color serialization options |
+| `configure` | `(builder) => void` | — | Access the builder to add roles, variants, or tokens |
 
 ## Real-world examples
 
