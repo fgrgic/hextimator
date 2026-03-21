@@ -212,13 +212,11 @@ export class HextimatePaletteBuilder {
 
 		const oklch = convert(parse(sourceColor), 'oklch');
 
-		const adjusted = {
+		return {
 			...oklch,
 			l: Math.max(0, Math.min(1, oklch.l + (token.lightness ?? 0))),
 			c: Math.max(0, oklch.c + (token.chroma ?? 0)),
 		};
-
-		return convert(adjusted, 'srgb');
 	}
 
 	private getSideVariantsFor(variantName: string): string[] | null {
@@ -327,14 +325,11 @@ export class HextimatePaletteBuilder {
 		for (let i = 0; i < n; i++) {
 			const variantName = sorted[i];
 			const newL = defaultOKLCH.l + ((i + 1) / (n + 1)) * totalDelta;
-			scale[variantName] = convert(
-				{
-					...defaultOKLCH,
-					l: Math.max(0, Math.min(1, newL)),
-					c: sourceChroma,
-				},
-				'srgb',
-			);
+			scale[variantName] = {
+				...defaultOKLCH,
+				l: Math.max(0, Math.min(1, newL)),
+				c: sourceChroma,
+			};
 		}
 	}
 
@@ -360,7 +355,7 @@ export class HextimatePaletteBuilder {
 		const delta = edgeColor.l - defaultColor.l;
 		const newL = Math.max(0, Math.min(1, edgeColor.l + delta));
 
-		return convert({ ...edgeColor, l: newL }, 'srgb');
+		return { ...edgeColor, l: newL };
 	}
 
 	private computeBetweenVariant(
@@ -374,6 +369,6 @@ export class HextimatePaletteBuilder {
 		const midL = (colorA.l + colorB.l) / 2;
 		const midC = (colorA.c + colorB.c) / 2;
 
-		return convert({ ...colorA, l: midL, c: midC }, 'srgb');
+		return { ...colorA, l: midL, c: midC };
 	}
 }

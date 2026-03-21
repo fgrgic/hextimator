@@ -188,10 +188,10 @@ export function expandColorToScale(
 	}
 
 	return {
-		DEFAULT: convert(normalizedColorOKLCH, 'srgb'),
-		strong: convert(strongColorOKLCH, 'srgb'),
-		weak: convert(weakColorOKLCH, 'srgb'),
-		foreground: convert(foregroundColorOKLCH, 'srgb'),
+		DEFAULT: { ...normalizedColorOKLCH },
+		strong: { ...strongColorOKLCH },
+		weak: { ...weakColorOKLCH },
+		foreground: { ...foregroundColorOKLCH },
 	};
 }
 

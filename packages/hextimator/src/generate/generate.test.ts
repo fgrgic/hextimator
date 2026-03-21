@@ -114,7 +114,12 @@ describe('lightness ordering: strong is closer to foreground than weak', () => {
 
 				for (const [role, scale] of Object.entries(roleScales)) {
 					if (role === 'base') continue;
-					if (!scale.strong || !scale.weak || !scale.DEFAULT || !scale.foreground)
+					if (
+						!scale.strong ||
+						!scale.weak ||
+						!scale.DEFAULT ||
+						!scale.foreground
+					)
 						continue;
 
 					const fgL = convert(parse(scale.foreground), 'oklch').l;
@@ -171,8 +176,12 @@ describe('addToken: value does not change with input color', () => {
 		const firstDark = (results[0].dark as Record<string, string>).fixedBright;
 
 		for (const result of results.slice(1)) {
-			expect((result.light as Record<string, string>).fixedBright).toBe(firstLight);
-			expect((result.dark as Record<string, string>).fixedBright).toBe(firstDark);
+			expect((result.light as Record<string, string>).fixedBright).toBe(
+				firstLight,
+			);
+			expect((result.dark as Record<string, string>).fixedBright).toBe(
+				firstDark,
+			);
 		}
 	});
 });
@@ -219,9 +228,7 @@ describe('addVariant: applies to roles, not tokens', () => {
 			.addVariant('stronger', { beyond: 'strong' })
 			.format({ as: 'object', colors: 'hex' });
 
-		const lightScales = groupByRole(
-			result.light as Record<string, string>,
-		);
+		const lightScales = groupByRole(result.light as Record<string, string>);
 
 		const defaultRoles = ['base', 'accent', 'positive', 'negative', 'warning'];
 

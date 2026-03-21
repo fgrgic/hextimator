@@ -1,5 +1,6 @@
 import type { OKLCH } from '../types';
 import { M1_INV, M2_INV, multiplyMatrix3 } from './matrices';
+import { LINEAR_SRGB_TO_P3 } from './p3-matrices';
 
 const DEG_TO_RAD = Math.PI / 180;
 const EPSILON = 1e-4;
@@ -60,6 +61,41 @@ export function gamutMapOklch(color: OKLCH): OKLCH {
 		const [rm, gm, bm] = oklchToLinearRgbRaw(color.l, mid, color.h);
 
 		if (isInGamut(rm, gm, bm)) {
+			lo = mid;
+		} else {
+			hi = mid;
+		}
+	}
+
+	return { ...color, c: lo };
+}
+
+/** Same as gamutMapOklch but targeting the wider Display P3 gamut. */
+export function gamutMapOklchToP3(color: OKLCH): OKLCH {
+	if (color.c <= EPSILON) {
+		return { ...color, c: 0 };
+	}
+
+	const [rSrgb, gSrgb, bSrgb] = oklchToLinearRgbRaw(color.l, color.c, color.h);
+	const [rP3, gP3, bP3] = multiplyMatrix3(LINEAR_SRGB_TO_P3, [
+		rSrgb,
+		gSrgb,
+		bSrgb,
+	]);
+
+	if (isInGamut(rP3, gP3, bP3)) {
+		return color;
+	}
+
+	let lo = 0;
+	let hi = color.c;
+
+	for (let i = 0; i < MAX_ITERATIONS; i++) {
+		const mid = (lo + hi) / 2;
+		const [rm, gm, bm] = oklchToLinearRgbRaw(color.l, mid, color.h);
+		const [rP3m, gP3m, bP3m] = multiplyMatrix3(LINEAR_SRGB_TO_P3, [rm, gm, bm]);
+
+		if (isInGamut(rP3m, gP3m, bP3m)) {
 			lo = mid;
 		} else {
 			hi = mid;

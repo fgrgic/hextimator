@@ -1,4 +1,4 @@
-import type { Color, HSL, OKLab, OKLCH, RGB } from '../types';
+import type { Color, DisplayP3, HSL, OKLab, OKLCH, RGB } from '../types';
 
 const CSS_FUNC_REGULAR_EXPRESSION =
 	/^(rgba?|hsla?|oklch|oklab|lab|color)\(\s*(.+?)\s*\)$/;
@@ -104,7 +104,8 @@ function tryParseColorFunction(argsRaw: string): Color | null {
 	switch (spaceId) {
 		case 'srgb-linear':
 			return { space: 'linear-rgb', r, g, b, alpha: 1 };
-		// .. add other spaces here
+		case 'display-p3':
+			return { space: 'display-p3', r, g, b, alpha: 1 } as DisplayP3;
 		default:
 			return null;
 	}

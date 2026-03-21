@@ -38,7 +38,15 @@ export interface LinearRGB {
 	readonly alpha: number;
 }
 
-export type Color = RGB | HSL | OKLCH | OKLab | LinearRGB;
+export interface DisplayP3 {
+	readonly space: 'display-p3';
+	readonly r: number; // 0-1
+	readonly g: number; // 0-1
+	readonly b: number; // 0-1
+	readonly alpha: number;
+}
+
+export type Color = RGB | HSL | OKLCH | OKLab | LinearRGB | DisplayP3;
 
 export type ColorInSpace<S extends Color['space']> = Extract<
 	Color,
@@ -86,9 +94,7 @@ export interface HextimateGenerationOptions {
 	 * Preferred base color for dark and light mode
 	 * It will be used as a baseline to generate the rest of base colors (strong, weak)
 	 * If not provided, the default base colors will be used
-	 * The default base colors are:
-	 * - dark: #1a1a1a
-	 * - light: #ffffff
+	 * The default base colors are derived from the input color, but with very low chroma
 	 */
 	preferredBaseColors?: {
 		dark?: ColorInput; // e.g. #1a1a1a
@@ -128,7 +134,9 @@ export interface HextimateGenerationOptions {
 	 *
 	 * Max chroma is about 0.4 (depending on color in OKLCH)
 	 *
-	 * Default: 0.02
+	 * Higher values will produce more colorful neutrals, lower values will produce more gray neutrals.
+	 *
+	 * Default: 0.005.
 	 */
 	neutralColorsMaxChroma?: number;
 
@@ -217,6 +225,8 @@ export interface HextimateFormatOptions {
 	 * - "hsl-raw"       → "30 10% 94%"            (shadcn / CSS variable style)
 	 * - "oklch"         → "oklch(0.96 0.01 70)"
 	 * - "oklch-raw"     → "0.96 0.01 70"
+	 * - "p3"            → "color(display-p3 0.94 0.93 0.91)"  (wide gamut)
+	 * - "p3-raw"        → "0.94 0.93 0.91"
 	 * - "rgb"           → "rgb(242, 238, 232)"
 	 * - "rgb-raw"       → "242 238 232"
 	 */
@@ -236,5 +246,7 @@ export type ColorFormat =
 	| 'hsl-raw'
 	| 'oklch'
 	| 'oklch-raw'
+	| 'p3'
+	| 'p3-raw'
 	| 'rgb'
 	| 'rgb-raw';
