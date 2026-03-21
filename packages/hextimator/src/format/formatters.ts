@@ -38,6 +38,14 @@ export function formatTailwind(entries: TokenEntry[]): NestedTokenMap {
 	return result;
 }
 
+export function formatTailwindCSS(entries: TokenEntry[], sep: string): string {
+	const lines = entries.map((entry) => {
+		const key = toFlatKey(entry, sep);
+		return `  --color-${key}: ${entry.value};`;
+	});
+	return `@theme {\n${lines.join('\n')}\n}`;
+}
+
 export function formatJSON(entries: TokenEntry[], sep: string): string {
 	return JSON.stringify(formatObject(entries, sep), null, 2);
 }

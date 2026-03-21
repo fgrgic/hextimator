@@ -6,6 +6,7 @@ import {
 	formatObject,
 	formatSCSS,
 	formatTailwind,
+	formatTailwindCSS,
 } from './formatters';
 import type { FormatOptions, FormatResult, TokenEntry } from './types';
 
@@ -29,6 +30,8 @@ export function format(
 			return formatSCSS(entries, sep);
 		case 'tailwind':
 			return formatTailwind(entries);
+		case 'tailwind-css':
+			return formatTailwindCSS(entries, sep);
 		case 'json':
 			return formatJSON(entries, sep);
 		default:

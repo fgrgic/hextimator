@@ -214,8 +214,9 @@ export interface HextimateFormatOptions {
 	 * - "tailwind": { base: { DEFAULT: "#f2eee8", strong: "#d4cfc8", weak: "#faf8f6" } }
 	 * - "scss": { $base: "#f2eee8", $base-strong: "#d4cfc8", ...}
 	 * - "json": '{ "base": "#f2eee8", "base-strong": "#d4cfc8", ...}'
+	 * - "tailwind-css": '@theme { --color-base: #f2eee8; --color-base-strong: #d4cfc8; ... }'
 	 */
-	as?: 'object' | 'css' | 'tailwind' | 'scss' | 'json';
+	as?: 'object' | 'css' | 'tailwind' | 'tailwind-css' | 'scss' | 'json';
 
 	/**
 	 * How color values are serialized in the output.
