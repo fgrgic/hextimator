@@ -155,22 +155,23 @@ export function expandColorToScale(
 				: lightDelta ?? darkDelta;
 
 		if (symmetricDelta !== null) {
-			const foregroundDirection = Math.sign(
-				foregroundColorOKLCH.l - normalizedColorOKLCH.l,
-			);
+			// Strong increases contrast against the base, weak decreases it.
+			// In light mode (light base), that means strong goes darker (-1).
+			// In dark mode (dark base), strong goes lighter (+1).
+			const contrastDirection = themeType === 'light' ? -1 : 1;
 
 			strongColorOKLCH = {
 				...normalizedColorOKLCH,
 				l: Math.max(
 					0,
-					Math.min(1, normalizedColorOKLCH.l + symmetricDelta * foregroundDirection),
+					Math.min(1, normalizedColorOKLCH.l + symmetricDelta * contrastDirection),
 				),
 			};
 			weakColorOKLCH = {
 				...normalizedColorOKLCH,
 				l: Math.max(
 					0,
-					Math.min(1, normalizedColorOKLCH.l - symmetricDelta * foregroundDirection),
+					Math.min(1, normalizedColorOKLCH.l - symmetricDelta * contrastDirection),
 				),
 			};
 		} else {

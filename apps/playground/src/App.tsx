@@ -40,7 +40,9 @@ function App() {
 	let error = '';
 
 	try {
-		result = hextimate(input).format({ as: 'css' });
+		result = hextimate(input)
+			.addVariant('placeholder', { beyond: 'weak' })
+			.format({ as: 'css' });
 	} catch (e) {
 		error = e instanceof Error ? e.message : 'Unknown error';
 	}
