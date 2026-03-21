@@ -16,6 +16,8 @@ const FALLBACK_STRONG_DELTA_LIGHT = -0.05;
 const FALLBACK_WEAK_DELTA_DARK = -0.05;
 const FALLBACK_WEAK_DELTA_LIGHT = 0.05;
 
+const VARIANT_DELTA = 0.1;
+
 /**
  * Target slightly above 7 to absorb gamut-mapping drift.
  */
@@ -135,100 +137,48 @@ export function expandColorToScale(
 			l: normalizedColorOKLCH.l + wd,
 		};
 	} else {
-		// Compute boundary for BOTH themes so we can use the smaller delta,
-		// ensuring consistent lightness steps between light and dark.
-		const lightDefaultL = baselineLValueLight ?? lightThemeLightnessValue;
-		const darkDefaultL = baselineLValueDark ?? darkThemeLightnessValue;
+		// Strong increases contrast (toward foreground), weak decreases it.
+		// In light mode (light base), strong goes darker (-1).
+		// In dark mode (dark base), strong goes lighter (+1).
+		const contrastDirection = themeType === 'light' ? -1 : 1;
 
-		const lightDefaultColor = { ...colorOKLCH, l: lightDefaultL };
-		const darkDefaultColor = { ...colorOKLCH, l: darkDefaultL };
+		// Use a fixed delta for consistency across hues.
+		// Weak always moves away from foreground, so it's always safe.
+		const weakDelta = VARIANT_DELTA;
 
-		const lightFgColor = {
-			...colorOKLCH,
-			l: foregroundLValueLight,
-			c: Math.min(colorOKLCH.c, foregroundMaxChroma),
-		};
-		const darkFgColor = {
-			...colorOKLCH,
-			l: foregroundLValueDark,
-			c: Math.min(colorOKLCH.c, foregroundMaxChroma),
-		};
-
-		// Pick the correct foreground for each theme (same logic as above)
-		const lightFg =
-			calculateContrast(lightDefaultColor, lightFgColor) > 7
-				? lightFgColor
-				: darkFgColor;
-		const darkFg =
-			calculateContrast(darkDefaultColor, darkFgColor) > 7
-				? darkFgColor
-				: lightFgColor;
-
-		const lightBoundaryL = findContrastBoundaryLightness(
-			lightDefaultColor,
-			lightFg,
+		// Strong moves toward the foreground — clamp it so it doesn't
+		// cross the contrast boundary (preserve AAA on DEFAULT).
+		const boundaryL = findContrastBoundaryLightness(
+			normalizedColorOKLCH,
+			foregroundColorOKLCH,
+			AAA_TARGET,
 		);
-		const darkBoundaryL = findContrastBoundaryLightness(
-			darkDefaultColor,
-			darkFg,
-		);
+		const maxStrongDelta =
+			boundaryL !== null
+				? Math.abs(normalizedColorOKLCH.l - boundaryL)
+				: 0;
+		const strongDelta = Math.min(VARIANT_DELTA, maxStrongDelta);
 
-		const lightDelta =
-			lightBoundaryL !== null ? Math.abs(lightDefaultL - lightBoundaryL) : null;
-		const darkDelta =
-			darkBoundaryL !== null ? Math.abs(darkDefaultL - darkBoundaryL) : null;
-
-		// Use the smaller of the two deltas for symmetry
-		const symmetricDelta =
-			lightDelta !== null && darkDelta !== null
-				? Math.min(lightDelta, darkDelta)
-				: (lightDelta ?? darkDelta);
-
-		if (symmetricDelta !== null) {
-			// Strong increases contrast against the base, weak decreases it.
-			// In light mode (light base), that means strong goes darker (-1).
-			// In dark mode (dark base), strong goes lighter (+1).
-			const contrastDirection = themeType === 'light' ? -1 : 1;
-
-			strongColorOKLCH = {
-				...normalizedColorOKLCH,
-				l: Math.max(
-					0,
-					Math.min(
-						1,
-						normalizedColorOKLCH.l + symmetricDelta * contrastDirection,
-					),
+		strongColorOKLCH = {
+			...normalizedColorOKLCH,
+			l: Math.max(
+				0,
+				Math.min(
+					1,
+					normalizedColorOKLCH.l + strongDelta * contrastDirection,
 				),
-			};
-			weakColorOKLCH = {
-				...normalizedColorOKLCH,
-				l: Math.max(
-					0,
-					Math.min(
-						1,
-						normalizedColorOKLCH.l - symmetricDelta * contrastDirection,
-					),
+			),
+		};
+		weakColorOKLCH = {
+			...normalizedColorOKLCH,
+			l: Math.max(
+				0,
+				Math.min(
+					1,
+					normalizedColorOKLCH.l - weakDelta * contrastDirection,
 				),
-			};
-		} else {
-			const sd =
-				themeType === 'light'
-					? FALLBACK_STRONG_DELTA_LIGHT
-					: FALLBACK_STRONG_DELTA_DARK;
-			const wd =
-				themeType === 'light'
-					? FALLBACK_WEAK_DELTA_LIGHT
-					: FALLBACK_WEAK_DELTA_DARK;
-
-			strongColorOKLCH = {
-				...normalizedColorOKLCH,
-				l: normalizedColorOKLCH.l + sd,
-			};
-			weakColorOKLCH = {
-				...normalizedColorOKLCH,
-				l: normalizedColorOKLCH.l + wd,
-			};
-		}
+			),
+		};
 	}
 
 	return {

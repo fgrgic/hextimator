@@ -34,8 +34,9 @@ export interface DerivedToken {
 }
 
 export type TokenValue =
+	| ColorInput
 	| DerivedToken
-	| { light: DerivedToken; dark: DerivedToken };
+	| { light: DerivedToken | ColorInput; dark: DerivedToken | ColorInput };
 
 export class HextimatePaletteBuilder {
 	private lightPalette: HextimatePalette;
@@ -152,12 +153,39 @@ export class HextimatePaletteBuilder {
 		themeType: 'light' | 'dark',
 		palette: HextimatePalette,
 	): Color {
-		if ('light' in value && 'dark' in value) {
+		if (
+			typeof value === 'object' &&
+			value !== null &&
+			!Array.isArray(value) &&
+			'light' in value &&
+			'dark' in value
+		) {
 			const themeValue = themeType === 'light' ? value.light : value.dark;
-			return this.resolveDerivedToken(themeValue, palette);
+			return this.resolveTokenSingle(themeValue, palette);
 		}
 
-		return this.resolveDerivedToken(value as DerivedToken, palette);
+		return this.resolveTokenSingle(value as DerivedToken | ColorInput, palette);
+	}
+
+	private resolveTokenSingle(
+		value: DerivedToken | ColorInput,
+		palette: HextimatePalette,
+	): Color {
+		if (this.isDerivedToken(value)) {
+			return this.resolveDerivedToken(value, palette);
+		}
+		return parse(value);
+	}
+
+	private isDerivedToken(
+		value: DerivedToken | ColorInput,
+	): value is DerivedToken {
+		return (
+			typeof value === 'object' &&
+			value !== null &&
+			!Array.isArray(value) &&
+			'from' in value
+		);
 	}
 
 	private resolveDerivedToken(
@@ -198,9 +226,7 @@ export class HextimatePaletteBuilder {
 			return this.strongSideVariants;
 		}
 
-		const sampleRole = Object.keys(this.lightPalette).find(
-			(r) => r !== 'base',
-		);
+		const sampleRole = Object.keys(this.lightPalette).find((r) => r !== 'base');
 		if (!sampleRole) return null;
 
 		const scale = this.lightPalette[sampleRole];
@@ -214,9 +240,7 @@ export class HextimatePaletteBuilder {
 			Math.sign(edgeOKLCH.l - defaultOKLCH.l) ===
 			Math.sign(foregroundOKLCH.l - defaultOKLCH.l);
 
-		return isTowardForeground
-			? this.strongSideVariants
-			: this.weakSideVariants;
+		return isTowardForeground ? this.strongSideVariants : this.weakSideVariants;
 	}
 
 	private redistributeAllScales(sideVariants: readonly string[]): void {
@@ -250,16 +274,11 @@ export class HextimatePaletteBuilder {
 						7,
 					);
 					maxDelta =
-						boundaryL !== null
-							? Math.abs(defaultOKLCH.l - boundaryL)
-							: 0.05;
+						boundaryL !== null ? Math.abs(defaultOKLCH.l - boundaryL) : 0.05;
 				} else {
 					// Contrast only improves away from foreground; cap at gamut boundary
 					const gamutBound = sideDirection > 0 ? 1 : 0;
-					maxDelta = Math.min(
-						Math.abs(gamutBound - defaultOKLCH.l),
-						0.2,
-					);
+					maxDelta = Math.min(Math.abs(gamutBound - defaultOKLCH.l), 0.2);
 				}
 
 				this.redistributeVariants(
@@ -288,12 +307,8 @@ export class HextimatePaletteBuilder {
 		const n = sideVariants.length;
 
 		const sorted = [...sideVariants].sort((a, b) => {
-			const aL = Math.abs(
-				convert(parse(scale[a]), 'oklch').l - defaultOKLCH.l,
-			);
-			const bL = Math.abs(
-				convert(parse(scale[b]), 'oklch').l - defaultOKLCH.l,
-			);
+			const aL = Math.abs(convert(parse(scale[a]), 'oklch').l - defaultOKLCH.l);
+			const bL = Math.abs(convert(parse(scale[b]), 'oklch').l - defaultOKLCH.l);
 			return aL - bL;
 		});
 
