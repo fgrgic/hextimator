@@ -40,18 +40,25 @@ function App() {
 	let error = '';
 
 	try {
-		result = hextimate(input, {
-			// preferredBaseColors: {
-			// 	dark: '#FF54DA',
-			// 	light: '#FF54DA',
-			// },
-    })
-      .addVariant('faint', { beyond: 'weak' })
+		result = hextimate(input, { minContrastRatio: 'AA' })
+			.addRole('banner', '#ff006e')
+			.addRole('moonpay', 'bb00ff')
+			.addVariant('placeholder', { beyond: 'weak' })
 			.addVariant('intense', { beyond: 'strong' })
-			.addVariant('extreme', { beyond: 'intense' })
+			.addToken('brand', '#3a86ff')
 			.format({
-				as: 'object',
+				as: 'css',
 				colors: 'hex',
+				roleNames: {
+					base: 'bg',
+					accent: 'button',
+					positive: 'success',
+				},
+				variantNames: {
+					DEFAULT: 'primary',
+					strong: 'secondary',
+					weak: 'tertiary',
+				},
 			});
 	} catch (e) {
 		error = e instanceof Error ? e.message : 'Unknown error';

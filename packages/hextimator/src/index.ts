@@ -38,7 +38,7 @@ class HextimateError extends Error {
  *
  * @example
  * // Extended: add roles and variants before formatting
- * const theme = hextimate('#ff6600', { themeLightness: 0.7 })
+ * const theme = hextimate('#ff6600', { themeLightness: 0.8 })
  *   .addRole('cta', '#ee2244')
  *   .addVariant('hover', { beyond: 'strong' })
  *   .format({ as: 'tailwind' });

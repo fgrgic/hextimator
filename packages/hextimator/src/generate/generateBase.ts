@@ -44,5 +44,6 @@ export function generateBase(
 		strongDeltaLight: STRONG_DELTA_LIGHT,
 		weakDeltaDark: WEAK_DELTA_DARK,
 		weakDeltaLight: WEAK_DELTA_LIGHT,
+		minContrastRatio: options?.minContrastRatio,
 	});
 }

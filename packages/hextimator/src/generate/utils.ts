@@ -16,8 +16,21 @@ const FALLBACK_STRONG_DELTA_LIGHT = -0.05;
 const FALLBACK_WEAK_DELTA_DARK = -0.05;
 const FALLBACK_WEAK_DELTA_LIGHT = 0.05;
 
+const VARIANT_DELTA = 0.1;
+
+/** Small buffer above the target to absorb gamut-mapping drift. */
+const CONTRAST_MARGIN = 0.15;
+
+export function resolveContrastRatio(
+	value: 'AAA' | 'AA' | number | undefined,
+): number {
+	if (value === undefined || value === 'AAA') return 7;
+	if (value === 'AA') return 4.5;
+	return value;
+}
+
 interface ExpandColorToScaleOptions
-	extends Pick<GenerateOptions, 'themeLightness'> {
+	extends Pick<GenerateOptions, 'themeLightness' | 'minContrastRatio'> {
 	lightDelta?: number;
 	darkDelta?: number;
 	baselineLValueDark?: number;
@@ -40,6 +53,7 @@ export function expandColorToScale(
 		baselineLValueDark,
 		baselineLValueLight,
 		themeLightness,
+		minContrastRatio: minContrastRatioOption,
 		foregroundLValueDark = FOREGROUND_DARK_L_VALUE,
 		foregroundLValueLight = FOREGROUND_LIGHT_L_VALUE,
 		foregroundMaxChroma = FOREGROUND_MAX_CHROMA,
@@ -48,6 +62,9 @@ export function expandColorToScale(
 		weakDeltaDark,
 		weakDeltaLight,
 	} = options ?? {};
+
+	const minContrast = resolveContrastRatio(minContrastRatioOption);
+	const contrastTarget = minContrast + CONTRAST_MARGIN;
 
 	const hasExplicitDeltas =
 		strongDeltaDark !== undefined ||
@@ -76,10 +93,38 @@ export function expandColorToScale(
 	const [preferred, fallback] =
 		themeType === 'light' ? candidates : [...candidates].reverse();
 
-	const foregroundColorOKLCH =
-		calculateContrast(normalizedColorOKLCH, preferred) > 7
+	let foregroundColorOKLCH =
+		calculateContrast(normalizedColorOKLCH, preferred) > minContrast
 			? preferred
 			: fallback;
+
+	// If neither foreground meets the target, adjust the color's lightness
+	// minimally until the preferred foreground meets the threshold.
+	if (
+		calculateContrast(normalizedColorOKLCH, foregroundColorOKLCH) <
+		contrastTarget
+	) {
+		// In dark mode, go darker so a light foreground gains contrast.
+		// In light mode, go lighter so a dark foreground gains contrast.
+		const direction = themeType === 'light' ? 1 : -1;
+		let lo = direction === 1 ? normalizedColorOKLCH.l : 0;
+		let hi = direction === 1 ? 1 : normalizedColorOKLCH.l;
+
+		for (let i = 0; i < 20; i++) {
+			const mid = (lo + hi) / 2;
+			const testColor = { ...normalizedColorOKLCH, l: mid };
+			if (calculateContrast(testColor, preferred) > contrastTarget) {
+				if (direction === 1) hi = mid;
+				else lo = mid;
+			} else {
+				if (direction === 1) lo = mid;
+				else hi = mid;
+			}
+		}
+
+		normalizedColorOKLCH.l = (lo + hi) / 2;
+		foregroundColorOKLCH = preferred;
+	}
 
 	let strongColorOKLCH: typeof normalizedColorOKLCH;
 	let weakColorOKLCH: typeof normalizedColorOKLCH;
@@ -103,50 +148,48 @@ export function expandColorToScale(
 			l: normalizedColorOKLCH.l + wd,
 		};
 	} else {
+		// Strong increases contrast (toward foreground), weak decreases it.
+		// In light mode (light base), strong goes darker (-1).
+		// In dark mode (dark base), strong goes lighter (+1).
+		const contrastDirection = themeType === 'light' ? -1 : 1;
+
+		// Use a fixed delta for consistency across hues.
+		// Weak always moves away from foreground, so it's always safe.
+		const weakDelta = VARIANT_DELTA;
+
+		// Strong moves toward the foreground — clamp it so it doesn't
+		// cross the contrast boundary (preserve AAA on DEFAULT).
 		const boundaryL = findContrastBoundaryLightness(
 			normalizedColorOKLCH,
 			foregroundColorOKLCH,
+			contrastTarget,
 		);
+		const maxStrongDelta =
+			boundaryL !== null
+				? Math.abs(normalizedColorOKLCH.l - boundaryL)
+				: 0;
+		const strongDelta = Math.min(VARIANT_DELTA, maxStrongDelta);
 
-		if (boundaryL !== null) {
-			const delta = Math.abs(normalizedColorOKLCH.l - boundaryL);
-			const foregroundDirection = Math.sign(
-				foregroundColorOKLCH.l - normalizedColorOKLCH.l,
-			);
-
-			strongColorOKLCH = {
-				...normalizedColorOKLCH,
-				l: Math.max(
-					0,
-					Math.min(1, normalizedColorOKLCH.l + delta * foregroundDirection),
+		strongColorOKLCH = {
+			...normalizedColorOKLCH,
+			l: Math.max(
+				0,
+				Math.min(
+					1,
+					normalizedColorOKLCH.l + strongDelta * contrastDirection,
 				),
-			};
-			weakColorOKLCH = {
-				...normalizedColorOKLCH,
-				l: Math.max(
-					0,
-					Math.min(1, normalizedColorOKLCH.l - delta * foregroundDirection),
+			),
+		};
+		weakColorOKLCH = {
+			...normalizedColorOKLCH,
+			l: Math.max(
+				0,
+				Math.min(
+					1,
+					normalizedColorOKLCH.l - weakDelta * contrastDirection,
 				),
-			};
-		} else {
-			const sd =
-				themeType === 'light'
-					? FALLBACK_STRONG_DELTA_LIGHT
-					: FALLBACK_STRONG_DELTA_DARK;
-			const wd =
-				themeType === 'light'
-					? FALLBACK_WEAK_DELTA_LIGHT
-					: FALLBACK_WEAK_DELTA_DARK;
-
-			strongColorOKLCH = {
-				...normalizedColorOKLCH,
-				l: normalizedColorOKLCH.l + sd,
-			};
-			weakColorOKLCH = {
-				...normalizedColorOKLCH,
-				l: normalizedColorOKLCH.l + wd,
-			};
-		}
+			),
+		};
 	}
 
 	return {
@@ -218,7 +261,9 @@ export function findContrastBoundaryLightness(
 		}
 	}
 
-	return defaultOKLCH.l + ((tLo + tHi) / 2) * (foregroundOKLCH.l - defaultOKLCH.l);
+	return (
+		defaultOKLCH.l + ((tLo + tHi) / 2) * (foregroundOKLCH.l - defaultOKLCH.l)
+	);
 }
 
 export function calculateContrast(colorA: Color, colorB: Color): number {

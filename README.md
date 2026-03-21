@@ -108,6 +108,16 @@ hextimate("#6A5ACD")
 // Adds: --border, --ring, --placeholder
 ```
 
+You can also pass a raw color value instead of deriving from the palette:
+
+```typescript
+.addToken("brand-exact", "#FF6600")
+.addToken("surface", {
+  light: "#ffffff",
+  dark: "#1a1a1a",
+})
+```
+
 When light and dark themes need different directions:
 
 ```typescript
@@ -130,6 +140,7 @@ Passed to `hextimate()` — these affect how colors are generated.
 | `semanticColorRanges` | `{ positive?: [start, end], ... }` | `positive: [90,150]`, `negative: [345,15]`, `warning: [35,55]` | Hue degree ranges for finding semantic colors |
 | `neutralColorsMaxChroma` | `number` | `0.02` | Max chroma for base and foreground colors (higher = more saturated neutrals) |
 | `themeLightness` | `number` (0–1) | `0.7` | Perceived lightness of the generated theme |
+| `minContrastRatio` | `"AAA" \| "AA" \| number` | `"AAA"` | Minimum WCAG contrast ratio between variants and foreground. `"AAA"` = 7, `"AA"` = 4.5, or pass any number |
 
 ### Format options
 
