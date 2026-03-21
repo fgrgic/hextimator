@@ -70,18 +70,12 @@ export function gamutMapOklch(color: OKLCH): OKLCH {
 	return { ...color, c: lo };
 }
 
-/**
- * Map an OKLCH color into the Display P3 gamut by reducing chroma
- * while preserving lightness and hue.
- *
- * P3 has a wider gamut than sRGB, so less chroma reduction is needed.
- */
+/** Same as gamutMapOklch but targeting the wider Display P3 gamut. */
 export function gamutMapOklchToP3(color: OKLCH): OKLCH {
 	if (color.c <= EPSILON) {
 		return { ...color, c: 0 };
 	}
 
-	// Convert OKLCH → linear sRGB → linear P3 and check P3 gamut
 	const [rSrgb, gSrgb, bSrgb] = oklchToLinearRgbRaw(color.l, color.c, color.h);
 	const [rP3, gP3, bP3] = multiplyMatrix3(LINEAR_SRGB_TO_P3, [
 		rSrgb,

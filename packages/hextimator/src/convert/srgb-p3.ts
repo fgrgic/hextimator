@@ -7,41 +7,32 @@ import { LINEAR_P3_TO_SRGB, LINEAR_SRGB_TO_P3 } from './p3-matrices';
  * but with wider primaries. Values are in 0-1 range.
  */
 
-/** Decode a single gamma-encoded channel (sRGB TRC) to linear. */
 function gammaDecode(s: number): number {
 	return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
 }
 
-/** Encode a single linear channel using sRGB TRC. */
 function gammaEncode(c: number): number {
 	return c <= 0.0031308 ? c * 12.92 : 1.055 * c ** (1 / 2.4) - 0.055;
 }
 
-/** Display P3 → Linear sRGB (via linear P3 intermediate). */
+/** Display P3 → Linear sRGB. */
 export function displayP3ToLinearSrgb(color: DisplayP3): LinearRGB {
-	// 1. Decode P3 gamma → linear P3
 	const linP3: [number, number, number] = [
 		gammaDecode(color.r),
 		gammaDecode(color.g),
 		gammaDecode(color.b),
 	];
-
-	// 2. Linear P3 → Linear sRGB
 	const [r, g, b] = multiplyMatrix3(LINEAR_P3_TO_SRGB, linP3);
-
 	return { space: 'linear-rgb', r, g, b, alpha: color.alpha };
 }
 
-/** Linear sRGB → Display P3 (via linear P3 intermediate). */
+/** Linear sRGB → Display P3. */
 export function linearSrgbToDisplayP3(color: LinearRGB): DisplayP3 {
-	// 1. Linear sRGB → Linear P3
 	const [rLin, gLin, bLin] = multiplyMatrix3(LINEAR_SRGB_TO_P3, [
 		color.r,
 		color.g,
 		color.b,
 	]);
-
-	// 2. Encode linear P3 → P3 gamma
 	return {
 		space: 'display-p3',
 		r: gammaEncode(rLin),
@@ -53,7 +44,6 @@ export function linearSrgbToDisplayP3(color: LinearRGB): DisplayP3 {
 
 /** sRGB (0-255) → Display P3. */
 export function srgbToDisplayP3(color: RGB): DisplayP3 {
-	// Decode sRGB gamma to linear sRGB
 	const rLin =
 		color.r <= 0.04045 * 255
 			? color.r / 255 / 12.92
@@ -67,14 +57,11 @@ export function srgbToDisplayP3(color: RGB): DisplayP3 {
 			? color.b / 255 / 12.92
 			: ((color.b / 255 + 0.055) / 1.055) ** 2.4;
 
-	// Linear sRGB → Linear P3
 	const [rP3, gP3, bP3] = multiplyMatrix3(LINEAR_SRGB_TO_P3, [
 		rLin,
 		gLin,
 		bLin,
 	]);
-
-	// Encode linear P3 → P3 gamma
 	return {
 		space: 'display-p3',
 		r: gammaEncode(rP3),
@@ -86,17 +73,13 @@ export function srgbToDisplayP3(color: RGB): DisplayP3 {
 
 /** Display P3 → sRGB (0-255, rounded). */
 export function displayP3ToSrgb(color: DisplayP3): RGB {
-	// Decode P3 gamma → linear P3
 	const linP3: [number, number, number] = [
 		gammaDecode(color.r),
 		gammaDecode(color.g),
 		gammaDecode(color.b),
 	];
-
-	// Linear P3 → Linear sRGB
 	const [rLin, gLin, bLin] = multiplyMatrix3(LINEAR_P3_TO_SRGB, linP3);
 
-	// Encode linear sRGB → sRGB gamma (0-255)
 	function encodeChannel(c: number): number {
 		const s = c <= 0.0031308 ? c * 12.92 : 1.055 * c ** (1 / 2.4) - 0.055;
 		return Math.round(Math.min(255, Math.max(0, s * 255)));
