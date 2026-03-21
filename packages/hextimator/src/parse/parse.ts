@@ -25,6 +25,11 @@ class ColorParseError extends Error {
  * If the input is a CSS function string, it will be parsed as a CSS function.
  * If the input is a comma separated values string, it will be parsed as a comma separated values.
  *
+ * **Alpha is always set to 1.** Transparent inputs like `rgba(255,0,0,0.5)` are treated as
+ * fully opaque. This is intentional: alpha tokens break WCAG contrast guarantees because
+ * contrast ratios depend on whatever is rendered behind the element, which hextimator cannot
+ * know at generation time.
+ *
  * @param input ColorInput
  * @param assumeSpace color space to assume. If not provided, the color space will be inferred from the input, and default to 'srgb' if ambiguous
  * @returns Color or throws a ColorParseError if parsing fails

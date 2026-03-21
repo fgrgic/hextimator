@@ -338,6 +338,78 @@ describe('minContrastRatio', () => {
 });
 
 // ──────────────────────────────────────────────
+// 8. addToken error paths
+// ──────────────────────────────────────────────
+describe('addToken: error paths', () => {
+	it('throws when referencing an unknown role', () => {
+		expect(() =>
+			hextimate('#ff6600')
+				.addToken('bad', { from: 'nonexistent' })
+				.format(),
+		).toThrow('Unknown role "nonexistent"');
+	});
+
+	it('throws when referencing an unknown variant', () => {
+		expect(() =>
+			hextimate('#ff6600')
+				.addToken('bad', { from: 'accent.nonexistent' })
+				.format(),
+		).toThrow('Unknown variant "nonexistent"');
+	});
+
+	it('throws for unknown role with theme-split token', () => {
+		expect(() =>
+			hextimate('#ff6600')
+				.addToken('bad', {
+					light: { from: 'ghost.DEFAULT' },
+					dark: { from: 'accent' },
+				})
+				.format(),
+		).toThrow('Unknown role "ghost"');
+	});
+});
+
+// ──────────────────────────────────────────────
+// 9. addVariant: invalid between references
+// ──────────────────────────────────────────────
+describe('addVariant: invalid between references', () => {
+	it('throws when a between variant references a missing variant', () => {
+		expect(() =>
+			hextimate('#ff6600')
+				.addVariant('mid', { between: ['DEFAULT', 'ghost'] })
+				.format(),
+		).toThrow();
+	});
+});
+
+// ──────────────────────────────────────────────
+// 10. End-to-end pipeline shape
+// ──────────────────────────────────────────────
+describe('end-to-end: output shape', () => {
+	it('produces expected top-level roles by default', () => {
+		const result = hextimate('#6366f1').format({ as: 'object', colors: 'hex' });
+
+		for (const theme of ['light', 'dark'] as const) {
+			const tokens = result[theme] as Record<string, string>;
+			for (const role of ['accent', 'base', 'positive', 'negative', 'warning']) {
+				expect(tokens[role]).toMatch(/^#[0-9a-f]{6}$/);
+				expect(tokens[`${role}-strong`]).toMatch(/^#[0-9a-f]{6}$/);
+				expect(tokens[`${role}-weak`]).toMatch(/^#[0-9a-f]{6}$/);
+				expect(tokens[`${role}-foreground`]).toMatch(/^#[0-9a-f]{6}$/);
+			}
+		}
+	});
+
+	it('light and dark DEFAULT values differ', () => {
+		const result = hextimate('#6366f1').format({ as: 'object', colors: 'hex' });
+		const light = result.light as Record<string, string>;
+		const dark = result.dark as Record<string, string>;
+		expect(light.accent).not.toBe(dark.accent);
+		expect(light.base).not.toBe(dark.base);
+	});
+});
+
+// ──────────────────────────────────────────────
 // Helpers
 // ──────────────────────────────────────────────
 

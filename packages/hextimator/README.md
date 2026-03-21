@@ -57,6 +57,8 @@ All formats return `{ light: { ... }, dark: { ... } }`.
 | `"rgb-raw"` | `"106 90 205"` |
 | `"hsl"` | `"hsl(248, 53%, 58%)"` |
 | `"hsl-raw"` | `"248 53% 58%"` |
+| `"p3"` | `"color(display-p3 0.39 0.34 0.79)"` |
+| `"p3-raw"` | `"0.39 0.34 0.79"` |
 
 ### Flexible input
 
@@ -66,6 +68,8 @@ hextimate("rgb(255, 102, 102)"); // CSS function
 hextimate([255, 102, 102]);      // RGB tuple
 hextimate(0xff6666);             // numeric hex
 ```
+
+> **Note on alpha**: Alpha values are intentionally ignored everywhere — `rgba(255, 0, 0, 0.5)` is treated as fully opaque `rgb(255, 0, 0)`. Alpha tokens undermine accessibility guarantees because contrast ratios depend on the background, which hextimator does not control.
 
 ## Extending the palette
 
@@ -139,7 +143,7 @@ Passed to `hextimate()` — these affect how colors are generated.
 |---|---|---|---|
 | `preferredBaseColors` | `{ dark?: color, light?: color }` | `{ dark: "#1a1a1a", light: "#ffffff" }` | Base colors used as baseline for generating the rest of the base scale |
 | `semanticColors` | `{ positive?: color, negative?: color, warning?: color }` | Auto-generated from seed | Override specific semantic colors instead of deriving them |
-| `semanticColorRanges` | `{ positive?: [start, end], ... }` | `positive: [90,150]`, `negative: [345,15]`, `warning: [35,55]` | Hue degree ranges for finding semantic colors |
+| `semanticColorRanges` | `{ positive?: [start, end], ... }` | `positive: [135,160]`, `negative: [5,25]`, `warning: [45,65]` | Hue degree ranges for finding semantic colors. Ranges are clockwise arcs; `[350, 10]` wraps through 0°. |
 | `neutralColorsMaxChroma` | `number` | `0.02` | Max chroma for base and foreground colors (higher = more saturated neutrals) |
 | `themeLightness` | `number` (0–1) | `0.8` | Perceived lightness of the generated theme |
 | `minContrastRatio` | `"AAA" \| "AA" \| number` | `"AAA"` | Minimum WCAG contrast ratio between variants and foreground. `"AAA"` = 7, `"AA"` = 4.5, or pass any number |
@@ -151,7 +155,7 @@ Passed to `.format()` — these affect the output shape.
 | Option | Type | Default | Description |
 |---|---|---|---|
 | `as` | `"object" \| "css" \| "tailwind" \| "scss" \| "json"` | `"object"` | Output format (see [Output formats](#output-formats)) |
-| `colors` | `"hex" \| "rgb" \| "rgb-raw" \| "hsl" \| "hsl-raw" \| "oklch" \| "oklch-raw"` | `"hex"` | Color value serialization (see [Color value formats](#color-value-formats)) |
+| `colors` | `"hex" \| "rgb" \| "rgb-raw" \| "hsl" \| "hsl-raw" \| "oklch" \| "oklch-raw" \| "p3" \| "p3-raw"` | `"hex"` | Color value serialization (see [Color value formats](#color-value-formats)) |
 | `roleNames` | `Record<string, string>` | Built-in names | Rename roles in output keys (e.g. `{ accent: "brand", base: "surface" }`) |
 | `variantNames` | `Record<string, string>` | Built-in names | Rename variant suffixes in output keys (e.g. `{ strong: "primary", foreground: "text" }`) |
 | `separator` | `string` | `"-"` | Separator between role and variant in token keys |
@@ -268,22 +272,6 @@ import { parseColor, convertColor } from "hextimator";
 const color = parseColor("rgb(255, 102, 102)");
 const oklch = convertColor(color, "oklch");
 ```
-
-## Dev workflow
-
-In one terminal, watch-build the package:
-
-```bash
-cd packages/hextimator && bun run dev
-```
-
-In another, start the playground:
-
-```bash
-cd apps/playground && bun run dev
-```
-
-> The playground imports from `dist/`, so keep the package's `bun run dev` running to auto-rebuild on changes.
 
 ## Contributing
 
