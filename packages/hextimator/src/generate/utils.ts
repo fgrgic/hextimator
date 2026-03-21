@@ -103,13 +103,58 @@ export function expandColorToScale(
 			l: normalizedColorOKLCH.l + wd,
 		};
 	} else {
-		const boundaryL = findContrastBoundaryLightness(
-			normalizedColorOKLCH,
-			foregroundColorOKLCH,
+		// Compute boundary for BOTH themes so we can use the smaller delta,
+		// ensuring consistent lightness steps between light and dark.
+		const lightDefaultL = baselineLValueLight ?? lightThemeLightnessValue;
+		const darkDefaultL = baselineLValueDark ?? darkThemeLightnessValue;
+
+		const lightDefaultColor = { ...colorOKLCH, l: lightDefaultL };
+		const darkDefaultColor = { ...colorOKLCH, l: darkDefaultL };
+
+		const lightFgColor = {
+			...colorOKLCH,
+			l: foregroundLValueLight,
+			c: Math.min(colorOKLCH.c, foregroundMaxChroma),
+		};
+		const darkFgColor = {
+			...colorOKLCH,
+			l: foregroundLValueDark,
+			c: Math.min(colorOKLCH.c, foregroundMaxChroma),
+		};
+
+		// Pick the correct foreground for each theme (same logic as above)
+		const lightFg =
+			calculateContrast(lightDefaultColor, lightFgColor) > 7
+				? lightFgColor
+				: darkFgColor;
+		const darkFg =
+			calculateContrast(darkDefaultColor, darkFgColor) > 7
+				? darkFgColor
+				: lightFgColor;
+
+		const lightBoundaryL = findContrastBoundaryLightness(
+			lightDefaultColor,
+			lightFg,
+		);
+		const darkBoundaryL = findContrastBoundaryLightness(
+			darkDefaultColor,
+			darkFg,
 		);
 
-		if (boundaryL !== null) {
-			const delta = Math.abs(normalizedColorOKLCH.l - boundaryL);
+		const lightDelta = lightBoundaryL !== null
+			? Math.abs(lightDefaultL - lightBoundaryL)
+			: null;
+		const darkDelta = darkBoundaryL !== null
+			? Math.abs(darkDefaultL - darkBoundaryL)
+			: null;
+
+		// Use the smaller of the two deltas for symmetry
+		const symmetricDelta =
+			lightDelta !== null && darkDelta !== null
+				? Math.min(lightDelta, darkDelta)
+				: lightDelta ?? darkDelta;
+
+		if (symmetricDelta !== null) {
 			const foregroundDirection = Math.sign(
 				foregroundColorOKLCH.l - normalizedColorOKLCH.l,
 			);
@@ -118,14 +163,14 @@ export function expandColorToScale(
 				...normalizedColorOKLCH,
 				l: Math.max(
 					0,
-					Math.min(1, normalizedColorOKLCH.l + delta * foregroundDirection),
+					Math.min(1, normalizedColorOKLCH.l + symmetricDelta * foregroundDirection),
 				),
 			};
 			weakColorOKLCH = {
 				...normalizedColorOKLCH,
 				l: Math.max(
 					0,
-					Math.min(1, normalizedColorOKLCH.l - delta * foregroundDirection),
+					Math.min(1, normalizedColorOKLCH.l - symmetricDelta * foregroundDirection),
 				),
 			};
 		} else {

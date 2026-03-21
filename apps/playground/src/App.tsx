@@ -40,19 +40,7 @@ function App() {
 	let error = '';
 
 	try {
-		result = hextimate(input, {
-			// preferredBaseColors: {
-			// 	dark: '#FF54DA',
-			// 	light: '#FF54DA',
-			// },
-    })
-      .addVariant('faint', { beyond: 'weak' })
-			.addVariant('intense', { beyond: 'strong' })
-			.addVariant('extreme', { beyond: 'intense' })
-			.format({
-				as: 'object',
-				colors: 'hex',
-			});
+		result = hextimate(input).format({ as: 'css' });
 	} catch (e) {
 		error = e instanceof Error ? e.message : 'Unknown error';
 	}
