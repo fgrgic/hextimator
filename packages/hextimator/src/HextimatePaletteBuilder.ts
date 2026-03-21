@@ -41,6 +41,12 @@ export class HextimatePaletteBuilder {
 		name: string;
 		value: TokenValue;
 	}> = [];
+	private readonly weakSideVariants: string[] = ['weak'];
+	private readonly strongSideVariants: string[] = ['strong'];
+	private readonly betweenVariants: Array<{
+		name: string;
+		refs: [string, string];
+	}> = [];
 
 	constructor(color: Color, options?: HextimateGenerationOptions) {
 		this.options = options ?? {};
@@ -62,11 +68,37 @@ export class HextimatePaletteBuilder {
 	}
 
 	addVariant(name: string, placement: VariantPlacement): this {
-		for (const palette of [this.lightPalette, this.darkPalette]) {
-			for (const role of Object.keys(palette)) {
-				const scale = palette[role];
-				const newColor = this.computeVariantColor(scale, placement);
-				scale[name] = newColor;
+		if ('beyond' in placement) {
+			const edge = placement.beyond;
+
+			// Place the new variant one step beyond the edge
+			for (const palette of [this.lightPalette, this.darkPalette]) {
+				for (const role of Object.keys(palette)) {
+					const scale = palette[role];
+					scale[name] = this.computeBeyondVariant(scale, edge);
+				}
+			}
+
+			// Determine which side the edge is on and add the new variant
+			const sideVariants = this.getSideVariantsFor(edge);
+			if (sideVariants) {
+				sideVariants.push(name);
+				this.redistributeAllScales(sideVariants);
+				this.recomputeBetweenVariants();
+			}
+		} else {
+			// "between" variant
+			this.betweenVariants.push({ name, refs: placement.between });
+
+			for (const palette of [this.lightPalette, this.darkPalette]) {
+				for (const role of Object.keys(palette)) {
+					const scale = palette[role];
+					scale[name] = this.computeBetweenVariant(
+						scale,
+						placement.between[0],
+						placement.between[1],
+					);
+				}
 			}
 		}
 
@@ -159,18 +191,95 @@ export class HextimatePaletteBuilder {
 		return convert(adjusted, 'srgb');
 	}
 
-	private computeVariantColor(
-		scale: ColorScale,
-		placement: VariantPlacement,
-	): Color {
-		if ('beyond' in placement) {
-			return this.computeBeyondVariant(scale, placement.beyond);
+	private getSideVariantsFor(variantName: string): string[] | null {
+		if (this.weakSideVariants.includes(variantName)) {
+			return this.weakSideVariants;
 		}
-		return this.computeBetweenVariant(
-			scale,
-			placement.between[0],
-			placement.between[1],
+		if (this.strongSideVariants.includes(variantName)) {
+			return this.strongSideVariants;
+		}
+
+		// Edge is a "between" variant or unknown — determine side from lightness
+		const sampleRole = Object.keys(this.lightPalette).find(
+			(r) => r !== 'base',
 		);
+		if (!sampleRole) return null;
+
+		const scale = this.lightPalette[sampleRole];
+		if (!scale[variantName]) return null;
+
+		const defaultOKLCH = convert(parse(scale.DEFAULT), 'oklch');
+		const edgeOKLCH = convert(parse(scale[variantName]), 'oklch');
+		const foregroundOKLCH = convert(parse(scale.foreground), 'oklch');
+
+		const isTowardForeground =
+			Math.sign(edgeOKLCH.l - defaultOKLCH.l) ===
+			Math.sign(foregroundOKLCH.l - defaultOKLCH.l);
+
+		return isTowardForeground
+			? this.strongSideVariants
+			: this.weakSideVariants;
+	}
+
+	private redistributeAllScales(sideVariants: readonly string[]): void {
+		for (const palette of [this.lightPalette, this.darkPalette]) {
+			for (const role of Object.keys(palette)) {
+				this.redistributeVariants(palette[role], sideVariants);
+			}
+		}
+	}
+
+	private redistributeVariants(
+		scale: ColorScale,
+		sideVariants: readonly string[],
+	): void {
+		if (sideVariants.length <= 1) return;
+
+		const defaultOKLCH = convert(parse(scale.DEFAULT), 'oklch');
+
+		// Sort by distance from DEFAULT (closest first)
+		const sorted = [...sideVariants].sort((a, b) => {
+			const aL = Math.abs(
+				convert(parse(scale[a]), 'oklch').l - defaultOKLCH.l,
+			);
+			const bL = Math.abs(
+				convert(parse(scale[b]), 'oklch').l - defaultOKLCH.l,
+			);
+			return aL - bL;
+		});
+
+		// Outermost variant determines the total range
+		const outermostOKLCH = convert(
+			parse(scale[sorted[sorted.length - 1]]),
+			'oklch',
+		);
+		const totalDelta = outermostOKLCH.l - defaultOKLCH.l;
+		const n = sorted.length;
+
+		for (let i = 0; i < n; i++) {
+			const variantName = sorted[i];
+			const newL = defaultOKLCH.l + ((i + 1) / n) * totalDelta;
+			const variantOKLCH = convert(parse(scale[variantName]), 'oklch');
+			scale[variantName] = convert(
+				{ ...variantOKLCH, l: Math.max(0, Math.min(1, newL)) },
+				'srgb',
+			);
+		}
+	}
+
+	private recomputeBetweenVariants(): void {
+		for (const bv of this.betweenVariants) {
+			for (const palette of [this.lightPalette, this.darkPalette]) {
+				for (const role of Object.keys(palette)) {
+					const scale = palette[role];
+					scale[bv.name] = this.computeBetweenVariant(
+						scale,
+						bv.refs[0],
+						bv.refs[1],
+					);
+				}
+			}
+		}
 	}
 
 	private computeBeyondVariant(scale: ColorScale, edge: string): Color {
