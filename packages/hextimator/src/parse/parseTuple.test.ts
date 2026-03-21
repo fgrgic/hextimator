@@ -53,10 +53,10 @@ describe('tryParseTuple', () => {
 	});
 
 	it('parses linear-rgb space', () => {
-		expect(tryParseTuple([1, 0.4, 0.4], 'linear-rgb')).toEqual({
+		expect(tryParseTuple([1, 0.3, 0.4], 'linear-rgb')).toEqual({
 			space: 'linear-rgb',
 			r: 1,
-			g: 0.4,
+			g: 0.3,
 			b: 0.4,
 			alpha: 1,
 		});

@@ -74,15 +74,14 @@ function _determineBaseColorFromRange(
 
 	const targetColors = [complementaryColor, ...splitComplementaryColors];
 
-	// check if any of the target colors are in the range
-	// if so return the target color with the base L value
 	for (const targetColor of targetColors) {
 		const h = convert(targetColor, 'oklch').h;
 
-		const inRange =
-			range[0] <= range[1]
-				? h >= range[0] && h <= range[1]
-				: h >= range[0] || h <= range[1];
+		// When range[0] > range[1] the arc crosses 0°/360° (e.g. [350, 10]).
+		// The arc formula handles all cases uniformly, including both bounds > 180°.
+		const arc = (range[1] - range[0] + 360) % 360;
+		const dist = (h - range[0] + 360) % 360;
+		const inRange = dist <= arc;
 
 		if (inRange) {
 			return convert({ ...convert(color, 'oklch'), l: 0.5, h }, 'oklch');
