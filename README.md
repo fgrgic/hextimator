@@ -1,8 +1,10 @@
 # hextimator
 
-Generate perceptually uniform color palettes from any input color. Throw in a hex code (or RGB, HSL, OKLCH...) and get a full theme — accent scales, base tones, and semantic colors (positive/negative/warning) — all with consistent perceived contrast across hues.
+One brand color in, full accessible theme out.
 
-Built for runtime use: output CSS custom properties, Tailwind tokens, SCSS variables, or plain objects. Ideal for products where each account/tenant needs its own branded theme generated on the fly.
+- Input: any single color. Output: complete light + dark theme with accessibility guarantees (AAA contrast by default).
+- Works at runtime — built for multi-tenant apps that need per-brand themes on the fly.
+- Perceptually uniform (OKLCH) — blue and yellow palettes look equally balanced, unlike HSL-based generators.
 
 ## Installation
 

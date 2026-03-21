@@ -18,7 +18,10 @@ const FALLBACK_WEAK_DELTA_LIGHT = 0.05;
 
 const VARIANT_DELTA = 0.1;
 
-/** Small buffer above the target to absorb gamut-mapping drift. */
+/**
+ * Small buffer above the target to absorb gamut-mapping drift.
+ * gamut mapping can shift perceived lightness by up to ~0.1, so 0.15 provides safety
+ */
 const CONTRAST_MARGIN = 0.15;
 
 export function resolveContrastRatio(
