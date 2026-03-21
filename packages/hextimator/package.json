@@ -29,17 +29,34 @@
 			"types": "./dist/index.d.ts",
 			"import": "./dist/index.mjs",
 			"require": "./dist/index.js"
-		}
+		},
+		"./react": {
+			"types": "./dist/react.d.ts",
+			"import": "./dist/react.mjs",
+			"require": "./dist/react.js"
+		},
+		"./tailwind.css": "./tailwind.css"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"tailwind.css"
 	],
 	"scripts": {
 		"build": "tsup",
 		"dev": "tsup --watch",
 		"test": "bun test"
 	},
+	"peerDependencies": {
+		"react": ">=18"
+	},
+	"peerDependenciesMeta": {
+		"react": {
+			"optional": true
+		}
+	},
 	"devDependencies": {
+		"@types/react": "^19.2.7",
+		"react": "^19.2.0",
 		"tsup": "^8.0.0",
 		"typescript": "^5.0.0"
 	}

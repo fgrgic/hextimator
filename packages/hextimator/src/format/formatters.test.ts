@@ -5,6 +5,7 @@ import {
 	formatObject,
 	formatSCSS,
 	formatTailwind,
+	formatTailwindCSS,
 } from './formatters';
 import type { TokenEntry } from './types';
 
@@ -76,6 +77,28 @@ describe('formatTailwind', () => {
 	it('groups all variants under their role', () => {
 		const result = formatTailwind(entries);
 		expect(Object.keys(result.base)).toEqual(['DEFAULT', 'strong']);
+	});
+});
+
+describe('formatTailwindCSS', () => {
+	it('wraps entries in a @theme block with --color- prefix', () => {
+		const result = formatTailwindCSS(entries, '-');
+		expect(result).toContain('@theme {');
+		expect(result).toContain('--color-base: #ffffff;');
+		expect(result).toContain('--color-base-strong: #cccccc;');
+		expect(result).toContain('--color-accent: #0000ff;');
+		expect(result).toContain('--color-accent-weak: #8888ff;');
+	});
+
+	it('collapses DEFAULT variant to just the role name', () => {
+		const result = formatTailwindCSS(entries, '-');
+		expect(result).toContain('--color-base:');
+		expect(result).not.toContain('--color-base-DEFAULT');
+	});
+
+	it('respects custom separator', () => {
+		const result = formatTailwindCSS(entries, '_');
+		expect(result).toContain('--color-base_strong: #cccccc;');
 	});
 });
 
