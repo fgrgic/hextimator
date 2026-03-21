@@ -49,6 +49,14 @@ export function serializeColor(
 			const oklch = convert(color, 'oklch');
 			return `${round(oklch.l, 4)} ${round(oklch.c, 4)} ${round(oklch.h, 1)}`;
 		}
+		case 'p3': {
+			const p3 = convert(color, 'display-p3');
+			return `color(display-p3 ${round(clamp(p3.r, 0, 1), 5)} ${round(clamp(p3.g, 0, 1), 5)} ${round(clamp(p3.b, 0, 1), 5)})`;
+		}
+		case 'p3-raw': {
+			const p3 = convert(color, 'display-p3');
+			return `${round(clamp(p3.r, 0, 1), 5)} ${round(clamp(p3.g, 0, 1), 5)} ${round(clamp(p3.b, 0, 1), 5)}`;
+		}
 		default: {
 			throw new Error(`Unsupported color format: ${colorFormat}`);
 		}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
 import type { OKLCH } from '../types';
-import { gamutMapOklch } from './gamut';
+import { gamutMapOklch, gamutMapOklchToP3 } from './gamut';
 
 describe('gamutMapOklch', () => {
 	it('returns achromatic colors unchanged (c=0)', () => {
@@ -47,5 +47,44 @@ describe('gamutMapOklch', () => {
 		for (const color of mappedColors) {
 			expect(color.l).toBe(l);
 		}
+	});
+});
+
+describe('gamutMapOklchToP3', () => {
+	it('returns achromatic colors unchanged', () => {
+		const color: OKLCH = { space: 'oklch', l: 0.5, c: 0, h: 0, alpha: 1 };
+		const result = gamutMapOklchToP3(color);
+		expect(result.c).toBe(0);
+	});
+
+	it('preserves in-gamut colors', () => {
+		const color: OKLCH = { space: 'oklch', l: 0.7, c: 0.05, h: 90, alpha: 1 };
+		const result = gamutMapOklchToP3(color);
+		expect(result.c).toBe(color.c);
+	});
+
+	it('allows higher chroma than sRGB gamut mapping', () => {
+		// A vivid color that's out of sRGB but could be in P3
+		const color: OKLCH = { space: 'oklch', l: 0.7, c: 0.2, h: 150, alpha: 1 };
+		const srgbMapped = gamutMapOklch(color);
+		const p3Mapped = gamutMapOklchToP3(color);
+
+		// P3 gamut is wider, so it should preserve more chroma
+		expect(p3Mapped.c).toBeGreaterThanOrEqual(srgbMapped.c);
+	});
+
+	it('reduces chroma for colors outside P3 gamut', () => {
+		// Extremely high chroma — outside both sRGB and P3
+		const color: OKLCH = { space: 'oklch', l: 0.7, c: 0.4, h: 264, alpha: 1 };
+		const result = gamutMapOklchToP3(color);
+		expect(result.c).toBeLessThan(color.c);
+		expect(result.c).toBeGreaterThan(0);
+	});
+
+	it('preserves lightness and hue', () => {
+		const color: OKLCH = { space: 'oklch', l: 0.7, c: 0.4, h: 264, alpha: 1 };
+		const result = gamutMapOklchToP3(color);
+		expect(result.l).toBe(color.l);
+		expect(result.h).toBe(color.h);
 	});
 });

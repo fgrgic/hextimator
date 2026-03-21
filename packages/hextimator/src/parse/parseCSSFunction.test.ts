@@ -113,6 +113,28 @@ describe('tryParseCSSFunction', () => {
 			});
 		});
 
+		it('parses color(display-p3 ...)', () => {
+			expect(tryParseCSSFunction('color(display-p3 0.9 0.4 0.4)')).toEqual({
+				space: 'display-p3',
+				r: 0.9,
+				g: 0.4,
+				b: 0.4,
+				alpha: 1,
+			});
+		});
+
+		it('parses color(display-p3 ...) with alpha, ignoring alpha', () => {
+			expect(
+				tryParseCSSFunction('color(display-p3 0.9 0.4 0.4 / 0.5)'),
+			).toEqual({
+				space: 'display-p3',
+				r: 0.9,
+				g: 0.4,
+				b: 0.4,
+				alpha: 1,
+			});
+		});
+
 		it('returns null for unknown color space', () => {
 			expect(tryParseCSSFunction('color(xyz 0.9 0.4 0.4)')).toBeNull();
 		});

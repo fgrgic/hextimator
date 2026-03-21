@@ -38,7 +38,15 @@ export interface LinearRGB {
 	readonly alpha: number;
 }
 
-export type Color = RGB | HSL | OKLCH | OKLab | LinearRGB;
+export interface DisplayP3 {
+	readonly space: 'display-p3';
+	readonly r: number; // 0-1
+	readonly g: number; // 0-1
+	readonly b: number; // 0-1
+	readonly alpha: number;
+}
+
+export type Color = RGB | HSL | OKLCH | OKLab | LinearRGB | DisplayP3;
 
 export type ColorInSpace<S extends Color['space']> = Extract<
 	Color,
@@ -217,6 +225,8 @@ export interface HextimateFormatOptions {
 	 * - "hsl-raw"       → "30 10% 94%"            (shadcn / CSS variable style)
 	 * - "oklch"         → "oklch(0.96 0.01 70)"
 	 * - "oklch-raw"     → "0.96 0.01 70"
+	 * - "p3"            → "color(display-p3 0.94 0.93 0.91)"  (wide gamut)
+	 * - "p3-raw"        → "0.94 0.93 0.91"
 	 * - "rgb"           → "rgb(242, 238, 232)"
 	 * - "rgb-raw"       → "242 238 232"
 	 */
@@ -236,5 +246,7 @@ export type ColorFormat =
 	| 'hsl-raw'
 	| 'oklch'
 	| 'oklch-raw'
+	| 'p3'
+	| 'p3-raw'
 	| 'rgb'
 	| 'rgb-raw';

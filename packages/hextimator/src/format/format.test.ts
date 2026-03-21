@@ -136,4 +136,11 @@ describe('format() — options', () => {
 			true,
 		);
 	});
+
+	it('respects colors: p3', () => {
+		const result = format(palette, { colors: 'p3' }) as Record<string, string>;
+		expect(
+			Object.values(result).every((v) => v.startsWith('color(display-p3 ')),
+		).toBe(true);
+	});
 });

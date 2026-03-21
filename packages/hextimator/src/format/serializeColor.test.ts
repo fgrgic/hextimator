@@ -1,8 +1,15 @@
 import { describe, expect, it } from 'bun:test';
-import type { HSL, OKLCH, RGB } from '../types';
+import type { DisplayP3, HSL, OKLCH, RGB } from '../types';
 import { serializeColor } from './serializeColor';
 
 const red: RGB = { space: 'srgb', r: 255, g: 0, b: 0, alpha: 1 };
+const p3Color: DisplayP3 = {
+	space: 'display-p3',
+	r: 0.9,
+	g: 0.3,
+	b: 0.3,
+	alpha: 1,
+};
 const midGray: RGB = { space: 'srgb', r: 128, g: 128, b: 128, alpha: 1 };
 const teal: HSL = { space: 'hsl', h: 180, s: 50, l: 40, alpha: 1 };
 const oklchColor: OKLCH = {
@@ -86,6 +93,42 @@ describe('serializeColor', () => {
 			const result = serializeColor(oklchColor, 'oklch-raw');
 			expect(result).not.toContain('oklch(');
 			expect(result).toMatch(/^0\.\d+ 0\.\d+ \d/);
+		});
+	});
+
+	describe('p3', () => {
+		it('produces color(display-p3 ...) function syntax', () => {
+			const result = serializeColor(p3Color, 'p3');
+			expect(result).toMatch(/^color\(display-p3 /);
+			expect(result).toContain('0.9');
+		});
+
+		it('converts from srgb to p3', () => {
+			const result = serializeColor(red, 'p3');
+			expect(result).toMatch(/^color\(display-p3 /);
+		});
+
+		it('clamps values to 0-1 range', () => {
+			const result = serializeColor(red, 'p3');
+			const match = result.match(
+				/color\(display-p3 ([\d.]+) ([\d.]+) ([\d.]+)\)/,
+			);
+			expect(match).not.toBeNull();
+			if (match) {
+				for (const v of [match[1], match[2], match[3]]) {
+					const n = parseFloat(v);
+					expect(n).toBeGreaterThanOrEqual(0);
+					expect(n).toBeLessThanOrEqual(1);
+				}
+			}
+		});
+	});
+
+	describe('p3-raw', () => {
+		it('produces space-separated R G B values', () => {
+			const result = serializeColor(p3Color, 'p3-raw');
+			expect(result).not.toContain('color(');
+			expect(result).toMatch(/^0\.\d+ 0\.\d+ 0\.\d+$/);
 		});
 	});
 });
