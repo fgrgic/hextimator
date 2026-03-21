@@ -76,10 +76,38 @@ export function expandColorToScale(
 	const [preferred, fallback] =
 		themeType === 'light' ? candidates : [...candidates].reverse();
 
-	const foregroundColorOKLCH =
+	let foregroundColorOKLCH =
 		calculateContrast(normalizedColorOKLCH, preferred) > 7
 			? preferred
 			: fallback;
+
+	// If neither foreground achieves AAA (7:1), adjust the color's lightness
+	// minimally until the preferred foreground meets the threshold.
+	// Target slightly above 7 to absorb gamut-mapping drift.
+	const aaaTarget = 7.15;
+	if (calculateContrast(normalizedColorOKLCH, foregroundColorOKLCH) < aaaTarget) {
+		// In dark mode, go darker so a light foreground gains contrast.
+		// In light mode, go lighter so a dark foreground gains contrast.
+		const direction = themeType === 'light' ? 1 : -1;
+		let lo = direction === 1 ? normalizedColorOKLCH.l : 0;
+		let hi = direction === 1 ? 1 : normalizedColorOKLCH.l;
+
+		for (let i = 0; i < 20; i++) {
+			const mid = (lo + hi) / 2;
+			const testColor = { ...normalizedColorOKLCH, l: mid };
+			if (calculateContrast(testColor, preferred) > aaaTarget) {
+				// Can stay closer to original
+				if (direction === 1) hi = mid;
+				else lo = mid;
+			} else {
+				if (direction === 1) lo = mid;
+				else hi = mid;
+			}
+		}
+
+		normalizedColorOKLCH.l = (lo + hi) / 2;
+		foregroundColorOKLCH = preferred;
+	}
 
 	let strongColorOKLCH: typeof normalizedColorOKLCH;
 	let weakColorOKLCH: typeof normalizedColorOKLCH;

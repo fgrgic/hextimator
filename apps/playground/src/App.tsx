@@ -42,6 +42,7 @@ function App() {
 	try {
 		result = hextimate(input)
 			.addVariant('placeholder', { beyond: 'weak' })
+			.addVariant('intense', { beyond: 'strong' })
 			.format({ as: 'css' });
 	} catch (e) {
 		error = e instanceof Error ? e.message : 'Unknown error';

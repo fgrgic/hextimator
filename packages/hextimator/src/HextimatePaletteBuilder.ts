@@ -5,7 +5,10 @@ import { serializeColor } from './format/serializeColor';
 import type { TokenEntry } from './format/types';
 import { generate } from './generate';
 import type { ColorScale, HextimatePalette } from './generate/types';
-import { expandColorToScale } from './generate/utils';
+import {
+	expandColorToScale,
+	findContrastBoundaryLightness,
+} from './generate/utils';
 import { parse } from './parse';
 import type {
 	Color,
@@ -222,9 +225,57 @@ export class HextimatePaletteBuilder {
 	}
 
 	private redistributeAllScales(sideVariants: readonly string[]): void {
-		for (const palette of [this.lightPalette, this.darkPalette]) {
-			for (const role of Object.keys(palette)) {
-				this.redistributeVariants(palette[role], sideVariants);
+		const isStrongSide = sideVariants === this.strongSideVariants;
+
+		for (const role of Object.keys(this.lightPalette)) {
+			for (const [palette, themeType] of [
+				[this.lightPalette, 'light'],
+				[this.darkPalette, 'dark'],
+			] as const) {
+				const scale = palette[role];
+				const defaultOKLCH = convert(parse(scale.DEFAULT), 'oklch');
+				const foregroundOKLCH = convert(parse(scale.foreground), 'oklch');
+
+				// Which direction does this side go in lightness?
+				const contrastDirection = themeType === 'light' ? -1 : 1;
+				const sideDirection = isStrongSide
+					? contrastDirection
+					: -contrastDirection;
+
+				// Is this side moving toward or away from the foreground?
+				const foregroundDirection = Math.sign(
+					foregroundOKLCH.l - defaultOKLCH.l,
+				);
+				const isTowardForeground = sideDirection === foregroundDirection;
+
+				let maxDelta: number;
+				if (isTowardForeground) {
+					// Toward foreground: bounded by AAA contrast boundary
+					const boundaryL = findContrastBoundaryLightness(
+						parse(scale.DEFAULT),
+						parse(scale.foreground),
+						7,
+					);
+					maxDelta =
+						boundaryL !== null
+							? Math.abs(defaultOKLCH.l - boundaryL)
+							: 0.05;
+				} else {
+					// Away from foreground: contrast only improves, use
+					// gamut boundary capped at a reasonable max
+					const gamutBound = sideDirection > 0 ? 1 : 0;
+					maxDelta = Math.min(
+						Math.abs(gamutBound - defaultOKLCH.l),
+						0.2,
+					);
+				}
+
+				this.redistributeVariants(
+					scale,
+					sideVariants,
+					defaultOKLCH,
+					maxDelta * sideDirection,
+				);
 			}
 		}
 	}
@@ -232,10 +283,12 @@ export class HextimatePaletteBuilder {
 	private redistributeVariants(
 		scale: ColorScale,
 		sideVariants: readonly string[],
+		defaultOKLCH: ReturnType<typeof convert>,
+		totalDelta: number,
 	): void {
-		if (sideVariants.length <= 1) return;
+		if (sideVariants.length < 1) return;
 
-		const defaultOKLCH = convert(parse(scale.DEFAULT), 'oklch');
+		const n = sideVariants.length;
 
 		// Sort by distance from DEFAULT (closest first)
 		const sorted = [...sideVariants].sort((a, b) => {
@@ -248,20 +301,16 @@ export class HextimatePaletteBuilder {
 			return aL - bL;
 		});
 
-		// Outermost variant determines the total range
-		const outermostOKLCH = convert(
-			parse(scale[sorted[sorted.length - 1]]),
-			'oklch',
-		);
-		const totalDelta = outermostOKLCH.l - defaultOKLCH.l;
-		const n = sorted.length;
-
+		// Distribute variants evenly between DEFAULT and the boundary.
+		// Using (i+1)/(n+1) so variants never sit exactly at the boundary,
+		// preserving some AAA margin.
 		for (let i = 0; i < n; i++) {
 			const variantName = sorted[i];
-			const newL = defaultOKLCH.l + ((i + 1) / n) * totalDelta;
-			const variantOKLCH = convert(parse(scale[variantName]), 'oklch');
+			const newL = defaultOKLCH.l + ((i + 1) / (n + 1)) * totalDelta;
+			// Use DEFAULT's chroma and hue so gamut mapping starts from the
+			// full chroma value instead of a previously-reduced one.
 			scale[variantName] = convert(
-				{ ...variantOKLCH, l: Math.max(0, Math.min(1, newL)) },
+				{ ...defaultOKLCH, l: Math.max(0, Math.min(1, newL)) },
 				'srgb',
 			);
 		}
