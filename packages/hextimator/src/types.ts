@@ -94,9 +94,7 @@ export interface HextimateGenerationOptions {
 	 * Preferred base color for dark and light mode
 	 * It will be used as a baseline to generate the rest of base colors (strong, weak)
 	 * If not provided, the default base colors will be used
-	 * The default base colors are:
-	 * - dark: #1a1a1a
-	 * - light: #ffffff
+	 * The default base colors are derived from the input color, but with very low chroma
 	 */
 	preferredBaseColors?: {
 		dark?: ColorInput; // e.g. #1a1a1a
@@ -136,7 +134,9 @@ export interface HextimateGenerationOptions {
 	 *
 	 * Max chroma is about 0.4 (depending on color in OKLCH)
 	 *
-	 * Default: 0.02
+	 * Higher values will produce more colorful neutrals, lower values will produce more gray neutrals.
+	 *
+	 * Default: 0.005.
 	 */
 	neutralColorsMaxChroma?: number;
 
