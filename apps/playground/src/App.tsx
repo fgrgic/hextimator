@@ -40,32 +40,35 @@ function App() {
 	let error = '';
 
 	try {
-		result = hextimate(input, {
+		const theme = hextimate(input, {
 			minContrastRatio: 'AAA',
 			baseMaxChroma: 0.03,
 			baseColor: 'FFFDF4',
 			invertDarkModeBaseAccent: true,
-			// themeLightness: 0.7,
+			themeLightness: 0.6,
 		})
-			// .addRole('banner', '#ff006e')
-			// .addRole('moonpay', 'bb00ff')
-			// .addVariant('placeholder', { beyond: 'weak' })
-			// .addVariant('intense', { beyond: 'strong' })
-			// .addToken('brand', '#3a86ff')
-			.format({
-				// as: 'css',
-				// colors: 'hex',
-				// roleNames: {
-				// 	base: 'bg',
-				// 	accent: 'button',
-				// 	positive: 'success',
-				// },
-				// variantNames: {
-				// 	DEFAULT: 'primary',
-				// 	strong: 'secondary',
-				// 	weak: 'tertiary',
-				// },
-			});
+			.addRole('banner', '#ff006e')
+			.addRole('moonpay', 'bb00ff')
+			.addVariant('placeholder', { beyond: 'weak' })
+			.addVariant('intense', { beyond: 'strong' })
+			.addToken('brand', '#3a86ff');
+
+		// const themeFork = theme.fork('#ff6677').addRole('forked', '#00ffbb');
+
+		result = theme.format({
+			as: 'css',
+			colors: 'hex',
+			roleNames: {
+				base: 'bg',
+				accent: 'button',
+				positive: 'success',
+			},
+			variantNames: {
+				DEFAULT: 'primary',
+				strong: 'secondary',
+				weak: 'tertiary',
+			},
+		});
 	} catch (e) {
 		error = e instanceof Error ? e.message : 'Unknown error';
 	}
