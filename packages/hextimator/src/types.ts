@@ -130,7 +130,7 @@ export interface HextimateGenerationOptions {
 	 * Maximum chroma for the baseline colors (base, strong, weak).
 	 * Higher values will produce more colorful baseline colors, lower values will produce more gray baseline colors.
 	 *
-	 * Default: 0.02.
+	 * Default: 0.01.
 	 */
 	baseMaxChroma?: number;
 
@@ -138,7 +138,7 @@ export interface HextimateGenerationOptions {
 	 * Maximum chroma for all the foreground colors (e.g. base-accent-foreground)
 	 * Higher values will produce more colorful foreground colors, lower values will produce more gray foreground colors.
 	 *
-	 * Default: 0.02.
+	 * Default: 0.01.
 	 */
 	foregroundMaxChrome?: number;
 
