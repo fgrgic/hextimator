@@ -45,14 +45,13 @@ function App() {
 			baseMaxChroma: 0.03,
 			baseColor: 'FFFDF4',
 			invertDarkModeBaseAccent: true,
-			themeLightness: 0.6,
+			themeLightness: 0.7,
 		})
 			.addRole('banner', '#ff006e')
 			.addRole('moonpay', 'bb00ff')
 			.addVariant('placeholder', { beyond: 'weak' })
 			.addVariant('intense', { beyond: 'strong' })
-			.addToken('brand', '#3a86ff')
-			.adaptFor('deuteranopia');
+			.addToken('brand', '#3a86ff');
 
 		// const themeFork = theme.fork('#ff6677').addRole('forked', '#00ffbb');
 
