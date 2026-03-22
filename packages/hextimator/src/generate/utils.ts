@@ -266,8 +266,7 @@ export function expandColorToScale(
 			h: wrapHue(weakColorOKLCH.h - clamped),
 		};
 
-		// Hue shift can change effective luminance after gamut mapping,
-		// so re-check contrast and nudge lightness if needed.
+		// Gamut mapping at the new hue can shift luminance enough to break contrast.
 		strongColorOKLCH = ensureContrast(
 			strongColorOKLCH,
 			foregroundColorOKLCH,
@@ -369,10 +368,6 @@ export function findContrastBoundaryLightness(
 	);
 }
 
-/**
- * If the variant doesn't meet the contrast target against the foreground,
- * nudge its lightness away from the foreground until it does.
- */
 function ensureContrast(
 	variant: OKLCH,
 	foreground: OKLCH,

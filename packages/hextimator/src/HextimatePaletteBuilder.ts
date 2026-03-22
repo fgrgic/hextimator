@@ -316,6 +316,8 @@ export class HextimatePaletteBuilder {
 		const rawShift = this.options.hueShift ?? 0;
 		const clampedShift = clampHueShift(rawShift, totalVariants);
 		const hueShiftPerStep = isStrongSide ? clampedShift : -clampedShift;
+		const contrastTarget =
+			resolveContrastRatio(this.options.minContrastRatio) + 0.15;
 
 		for (const role of Object.keys(this.lightPalette)) {
 			for (const [palette, themeType] of [
@@ -338,25 +340,17 @@ export class HextimatePaletteBuilder {
 
 				let maxDelta: number;
 				if (isTowardForeground) {
-					const minContrast = resolveContrastRatio(
-						this.options.minContrastRatio,
-					);
 					const boundaryL = findContrastBoundaryLightness(
 						parse(scale.DEFAULT),
 						parse(scale.foreground),
-						minContrast + 0.15,
+						contrastTarget,
 					);
 					maxDelta =
 						boundaryL !== null ? Math.abs(defaultOKLCH.l - boundaryL) : 0;
 				} else {
-					// Contrast only improves away from foreground; cap at gamut boundary
 					const gamutBound = sideDirection > 0 ? 1 : 0;
 					maxDelta = Math.min(Math.abs(gamutBound - defaultOKLCH.l), 0.2);
 				}
-
-				const minContrast2 = resolveContrastRatio(
-					this.options.minContrastRatio,
-				);
 
 				this.redistributeVariants(
 					scale,
@@ -365,7 +359,7 @@ export class HextimatePaletteBuilder {
 					maxDelta * sideDirection,
 					hueShiftPerStep,
 					foregroundOKLCH,
-					minContrast2 + 0.15,
+					contrastTarget,
 				);
 			}
 		}
@@ -413,7 +407,6 @@ export class HextimatePaletteBuilder {
 				h: newH,
 			};
 
-			// If hue was shifted, re-check contrast and nudge lightness if needed.
 			if (
 				hueShiftPerStep !== 0 &&
 				foregroundOKLCH &&
