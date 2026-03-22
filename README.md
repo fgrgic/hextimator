@@ -137,7 +137,7 @@ Passed to `hextimate()` — these affect how colors are generated.
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `preferredBaseColors` | `{ dark?: color, light?: color }` | `{ dark: "#1a1a1a", light: "#ffffff" }` | Base colors used as baseline for generating the rest of the base scale |
+| `baseColor` | `ColorInput` | Auto-generated from input color with very low chroma | Base color used as baseline for generating the rest of the base scale |
 | `semanticColors` | `{ positive?: color, negative?: color, warning?: color }` | Auto-generated from seed | Override specific semantic colors instead of deriving them |
 | `semanticColorRanges` | `{ positive?: [start, end], ... }` | `positive: [90,150]`, `negative: [345,15]`, `warning: [35,55]` | Hue degree ranges for finding semantic colors |
 | `baseMaxChroma` | `number` | `0.01` | Max chroma for baseline colors (higher = more colorful) |

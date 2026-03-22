@@ -93,13 +93,9 @@ export interface HextimateGenerationOptions {
 	/**
 	 * Preferred base color for dark and light mode
 	 * It will be used as a baseline to generate the rest of base colors (strong, weak)
-	 * If not provided, the default base colors will be used
-	 * The default base colors are derived from the input color, but with very low chroma
+	 * If not provided, it will be derived from the main input color with very low chroma
 	 */
-	preferredBaseColors?: {
-		dark?: ColorInput; // e.g. #1a1a1a
-		light?: ColorInput; // e.g. #ffffff
-	};
+	baseColor: ColorInput;
 
 	/**
 	 * Semantic colors to use for the theme
@@ -111,6 +107,15 @@ export interface HextimateGenerationOptions {
 		negative?: ColorInput;
 		warning?: ColorInput;
 	};
+
+	/**
+	 * Invert the hue used for the accent color in dark mode.
+	 * Uses base hue as accent, and accent hue as base.
+	 * Only has effect if `baseColor` is provided alongside the main accent color
+	 *
+	 * Default: false.
+	 */
+	invertDarkModeBaseAccent?: boolean;
 
 	/**
 	 * Degree ranges for the semantic colors.
