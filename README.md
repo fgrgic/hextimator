@@ -37,16 +37,16 @@ Full API docs, options reference, React hook, Tailwind v4 setup, and examples li
 bun install          # install all workspaces
 ```
 
-In one terminal, watch-build the package:
+Run the playground and the package in watch mode:
 
 ```bash
-cd packages/hextimator && bun run dev
+bun run dev:playground
 ```
 
-In another, start the playground:
+Run the website and the package in watch mode:
 
 ```bash
-cd apps/playground && bun run dev
+bun run dev:website
 ```
 
 > The playground imports from `dist/`, so keep the package's `bun run dev` running to auto-rebuild on changes.
