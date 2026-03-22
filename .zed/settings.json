@@ -1,0 +1,30 @@
+{
+	"formatter": {
+		"external": {
+			"command": "bunx",
+			"arguments": ["biome", "format", "--stdin-file-path", "{buffer_path}"]
+		}
+	},
+	"format_on_save": "on",
+	"code_actions_on_format": {
+		"source.organizeImports.biome": true
+	},
+	"languages": {
+		"TypeScript": {
+			"formatter": {
+				"external": {
+					"command": "bunx",
+					"arguments": ["biome", "format", "--stdin-file-path", "{buffer_path}"]
+				}
+			}
+		},
+		"TSX": {
+			"formatter": {
+				"external": {
+					"command": "bunx",
+					"arguments": ["biome", "format", "--stdin-file-path", "{buffer_path}"]
+				}
+			}
+		}
+	}
+}

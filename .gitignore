@@ -22,3 +22,5 @@ bun-debug.log*
 # vite
 apps/*/dist/
 apps/*/.vite/
+
+apps/*-example
