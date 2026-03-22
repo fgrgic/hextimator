@@ -5,6 +5,7 @@
 		"moduleResolution": "bundler",
 		"strict": true,
 		"declaration": true,
-		"skipLibCheck": true
+		"skipLibCheck": true,
+		"verbatimModuleSyntax": true
 	}
 }

@@ -29,20 +29,20 @@ bun run format                                 # biome format --write .
 bun run lint                                   # biome lint .
 bun run check                                  # biome check --write .
 
-# Package development
+# Dev workflow (preferred — starts package watcher + app together)
+bun run dev:playground                         # watch-build hextimator + playground dev server
+bun run dev:website                            # watch-build hextimator + website dev server
+
+# Package only
 cd packages/hextimator
 bun run dev                                    # watch-build (tsup --watch)
 bun run build                                  # one-off build → dist/
 bun test                                       # run tests
-
-# Apps
-cd apps/playground && bun run dev              # dev server (imports hextimator via workspace)
-cd apps/website && bun run dev                 # landing page dev server
 ```
 
 ## Architecture
 
-The package source lives in `packages/hextimator/src/` with four modules:
+The package source lives in `packages/hextimator/src/` with six modules:
 
 | Module | Purpose |
 |---|---|
@@ -50,14 +50,18 @@ The package source lives in `packages/hextimator/src/` with four modules:
 | `convert/` | Color space conversions (sRGB ↔ Linear RGB ↔ OKLab ↔ OKLCH, sRGB ↔ HSL) with OKLCH gamut mapping |
 | `generate/` | Build accent, base, and semantic (positive/negative/warning) color scales in OKLCH, ensuring perceptually uniform lightness |
 | `format/` | Serialize palettes to CSS vars, Tailwind tokens, SCSS vars, JSON, or plain objects in any color format (hex, rgb, hsl, oklch) |
+| `HextimatePaletteBuilder.ts` | Builder-pattern API — `hextimate()` returns a builder that supports `.addRole()`, `.addVariant()`, `.format()` chaining |
+| `react.ts` | React hook (`useHextimate`) with dark mode support (class, data-attribute, or media query strategies) |
 
-**Entry point**: `packages/hextimator/src/index.ts` exports `hextimate()`, `parseColor`, `convertColor`, and the key types.
+**Entry point**: `packages/hextimator/src/index.ts` exports `hextimate()`, `HextimatePaletteBuilder`, `parseColor`, `convertColor`, and the key types. The package also has secondary entry points: `hextimator/react` (the React hook) and `hextimator/tailwind.css` (Tailwind utility layer).
 
 **Key design choice**: All palette generation happens in **OKLCH** (perceptual color space). This is what ensures consistent contrast across hues. Out-of-gamut colors are mapped back to sRGB via binary-search chroma reduction that preserves lightness and hue.
 
-The package is built by `tsup` into `dist/` (CJS + ESM). In development, the playground imports the package directly via Bun's workspace resolution (`workspace:*`), which means **the package must be built** (`bun run dev` or `bun run build`) before the playground can pick up changes.
+The package is built by `tsup` into `dist/` (CJS + ESM). In development, the playground imports the package directly via Bun's workspace resolution (`workspace:*`). Use the root `dev:playground` or `dev:website` scripts to start the package watcher and app dev server together.
 
 ## Publishing
+
+The package publishes three entry points: `.` (core), `./react` (hook), and `./tailwind.css`.
 
 ```bash
 cd packages/hextimator && bun run build && npm publish
