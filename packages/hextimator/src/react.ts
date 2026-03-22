@@ -1,7 +1,13 @@
-import { useEffect, useRef, useMemo } from 'react';
-import type { HextimatePaletteBuilder, HextimateResult } from './HextimatePaletteBuilder';
+import { useEffect, useMemo, useRef } from 'react';
+import type {
+	HextimatePaletteBuilder,
+	HextimateResult,
+} from './HextimatePaletteBuilder';
 import { hextimate } from './index';
-import type { HextimateFormatOptions, HextimateGenerationOptions } from './types';
+import type {
+	HextimateFormatOptions,
+	HextimateGenerationOptions,
+} from './types';
 
 type DarkModeStrategy =
 	| { type: 'class'; className?: string }
@@ -45,10 +51,9 @@ function buildStyleContent(
 
 	if (darkMode.type === 'class') {
 		const cls = darkMode.className ?? 'dark';
-		return [
-			`:root {\n  ${lightVars}\n}`,
-			`.${cls} {\n  ${darkVars}\n}`,
-		].join('\n');
+		return [`:root {\n  ${lightVars}\n}`, `.${cls} {\n  ${darkVars}\n}`].join(
+			'\n',
+		);
 	}
 
 	const attr = darkMode.attribute ?? 'data-theme';
@@ -64,13 +69,18 @@ function buildTargetedVars(
 	cssPrefix: string,
 ): { light: [string, string][]; dark: [string, string][] } {
 	const prefixEntries = (entries: [string, string][]) =>
-		entries.map(([key, value]) => [`${cssPrefix}${key}`, value] as [string, string]);
+		entries.map(
+			([key, value]) => [`${cssPrefix}${key}`, value] as [string, string],
+		);
 
 	return {
-		light: prefixEntries(Object.entries(palette.light as Record<string, string>)),
-		dark: darkMode !== false
-			? prefixEntries(Object.entries(palette.dark as Record<string, string>))
-			: [],
+		light: prefixEntries(
+			Object.entries(palette.light as Record<string, string>),
+		),
+		dark:
+			darkMode !== false
+				? prefixEntries(Object.entries(palette.dark as Record<string, string>))
+				: [],
 	};
 }
 
@@ -83,12 +93,15 @@ function useStableOptions(options?: UseHextimatorOptions) {
 		cssPrefix: options?.cssPrefix,
 	});
 
-	if (serialized !== JSON.stringify({
-		generation: ref.current?.generation,
-		format: ref.current?.format,
-		darkMode: ref.current?.darkMode,
-		cssPrefix: ref.current?.cssPrefix,
-	})) {
+	if (
+		serialized !==
+		JSON.stringify({
+			generation: ref.current?.generation,
+			format: ref.current?.format,
+			darkMode: ref.current?.darkMode,
+			cssPrefix: ref.current?.cssPrefix,
+		})
+	) {
 		ref.current = options;
 	}
 

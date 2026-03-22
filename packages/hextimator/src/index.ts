@@ -2,6 +2,8 @@ import { HextimatePaletteBuilder } from './HextimatePaletteBuilder';
 import { parse } from './parse';
 import type { ColorInput, HextimateGenerationOptions } from './types';
 
+export type { CVDType } from './a11y';
+export { daltonizeColor, simulateColor } from './a11y';
 export { convert as convertColor } from './convert';
 export type { FlatTokenMap, FormatResult, NestedTokenMap } from './format';
 export {

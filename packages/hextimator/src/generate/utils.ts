@@ -204,9 +204,7 @@ export function expandColorToScale(
 				contrastTarget,
 			);
 			distToBoundary =
-				boundaryL !== null
-					? Math.abs(normalizedColorOKLCH.l - boundaryL)
-					: 0;
+				boundaryL !== null ? Math.abs(normalizedColorOKLCH.l - boundaryL) : 0;
 		}
 
 		const strongDelta = Math.min(VARIANT_DELTA, distToBoundary);
@@ -229,7 +227,9 @@ export function expandColorToScale(
 				const mid = (lo + hi) / 2;
 				const testL = normalizedColorOKLCH.l - mid * contrastDirection;
 				const testColor = { ...normalizedColorOKLCH, l: testL };
-				if (calculateContrast(testColor, foregroundColorOKLCH) > contrastTarget) {
+				if (
+					calculateContrast(testColor, foregroundColorOKLCH) > contrastTarget
+				) {
 					lo = mid;
 				} else {
 					hi = mid;
