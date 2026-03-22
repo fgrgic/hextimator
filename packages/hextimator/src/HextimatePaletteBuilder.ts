@@ -6,9 +6,12 @@ import type { TokenEntry } from './format/types';
 import { generate } from './generate';
 import type { ColorScale, HextimatePalette } from './generate/types';
 import {
+	calculateContrast,
+	clampHueShift,
 	expandColorToScale,
 	findContrastBoundaryLightness,
 	resolveContrastRatio,
+	wrapHue,
 } from './generate/utils';
 import { parse } from './parse';
 import type {
@@ -74,10 +77,12 @@ export class HextimatePaletteBuilder {
 		this.lightPalette[name] = expandColorToScale(parsedColor, 'light', {
 			themeLightness: this.options.themeLightness,
 			minContrastRatio: this.options.minContrastRatio,
+			hueShift: this.options.hueShift,
 		});
 		this.darkPalette[name] = expandColorToScale(parsedColor, 'dark', {
 			themeLightness: this.options.themeLightness,
 			minContrastRatio: this.options.minContrastRatio,
+			hueShift: this.options.hueShift,
 		});
 
 		return this;
@@ -306,6 +311,14 @@ export class HextimatePaletteBuilder {
 	private redistributeAllScales(sideVariants: readonly string[]): void {
 		const isStrongSide = sideVariants === this.strongSideVariants;
 
+		const totalVariants =
+			this.weakSideVariants.length + this.strongSideVariants.length;
+		const rawShift = this.options.hueShift ?? 0;
+		const clampedShift = clampHueShift(rawShift, totalVariants);
+		const hueShiftPerStep = isStrongSide ? clampedShift : -clampedShift;
+		const contrastTarget =
+			resolveContrastRatio(this.options.minContrastRatio) + 0.15;
+
 		for (const role of Object.keys(this.lightPalette)) {
 			for (const [palette, themeType] of [
 				[this.lightPalette, 'light'],
@@ -327,18 +340,14 @@ export class HextimatePaletteBuilder {
 
 				let maxDelta: number;
 				if (isTowardForeground) {
-					const minContrast = resolveContrastRatio(
-						this.options.minContrastRatio,
-					);
 					const boundaryL = findContrastBoundaryLightness(
 						parse(scale.DEFAULT),
 						parse(scale.foreground),
-						minContrast + 0.15,
+						contrastTarget,
 					);
 					maxDelta =
 						boundaryL !== null ? Math.abs(defaultOKLCH.l - boundaryL) : 0;
 				} else {
-					// Contrast only improves away from foreground; cap at gamut boundary
 					const gamutBound = sideDirection > 0 ? 1 : 0;
 					maxDelta = Math.min(Math.abs(gamutBound - defaultOKLCH.l), 0.2);
 				}
@@ -348,6 +357,9 @@ export class HextimatePaletteBuilder {
 					sideVariants,
 					defaultOKLCH,
 					maxDelta * sideDirection,
+					hueShiftPerStep,
+					foregroundOKLCH,
+					contrastTarget,
 				);
 			}
 		}
@@ -363,6 +375,9 @@ export class HextimatePaletteBuilder {
 		sideVariants: readonly string[],
 		defaultOKLCH: OKLCH,
 		totalDelta: number,
+		hueShiftPerStep = 0,
+		foregroundOKLCH?: OKLCH,
+		contrastTarget?: number,
 	): void {
 		if (sideVariants.length < 1) return;
 
@@ -383,12 +398,41 @@ export class HextimatePaletteBuilder {
 
 		for (let i = 0; i < n; i++) {
 			const variantName = sorted[i];
-			const newL = defaultOKLCH.l + ((i + 1) / (n + 1)) * totalDelta;
-			scale[variantName] = {
+			let newL = defaultOKLCH.l + ((i + 1) / (n + 1)) * totalDelta;
+			const newH = wrapHue(defaultOKLCH.h + hueShiftPerStep * (i + 1));
+			let variant: OKLCH = {
 				...defaultOKLCH,
 				l: Math.max(0, Math.min(1, newL)),
 				c: sourceChroma,
+				h: newH,
 			};
+
+			if (
+				hueShiftPerStep !== 0 &&
+				foregroundOKLCH &&
+				contrastTarget &&
+				calculateContrast(variant, foregroundOKLCH) < contrastTarget
+			) {
+				const direction =
+					foregroundOKLCH.l < variant.l ? 1 : -1;
+				let lo = direction === 1 ? variant.l : 0;
+				let hi = direction === 1 ? 1 : variant.l;
+				for (let j = 0; j < 20; j++) {
+					const mid = (lo + hi) / 2;
+					const test = { ...variant, l: mid };
+					if (calculateContrast(test, foregroundOKLCH) >= contrastTarget) {
+						if (direction === 1) hi = mid;
+						else lo = mid;
+					} else {
+						if (direction === 1) lo = mid;
+						else hi = mid;
+					}
+				}
+				newL = (lo + hi) / 2;
+				variant = { ...variant, l: Math.max(0, Math.min(1, newL)) };
+			}
+
+			scale[variantName] = variant;
 		}
 	}
 
@@ -427,7 +471,10 @@ export class HextimatePaletteBuilder {
 
 		const midL = (colorA.l + colorB.l) / 2;
 		const midC = (colorA.c + colorB.c) / 2;
+		// Shortest-arc hue interpolation
+		const hueDiff = ((colorB.h - colorA.h + 540) % 360) - 180;
+		const midH = wrapHue(colorA.h + hueDiff / 2);
 
-		return { ...colorA, l: midL, c: midC };
+		return { ...colorA, l: midL, c: midC, h: midH };
 	}
 }

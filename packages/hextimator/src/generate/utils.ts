@@ -1,5 +1,5 @@
 import { convert } from '../convert';
-import type { Color } from '../types';
+import type { Color, OKLCH } from '../types';
 import {
 	DEFAULT_THEME_LIGHTNESS,
 	DEFAULT_THEME_LIGHTNESS_DARK_DELTA,
@@ -32,8 +32,22 @@ export function resolveContrastRatio(
 	return value;
 }
 
+export function clampHueShift(
+	hueShift: number,
+	totalVariants: number,
+): number {
+	if (totalVariants <= 0) return hueShift;
+	const max = 360 / (totalVariants + 1);
+	const sign = Math.sign(hueShift);
+	return sign * Math.min(Math.abs(hueShift), max);
+}
+
+export function wrapHue(h: number): number {
+	return ((h % 360) + 360) % 360;
+}
+
 interface ExpandColorToScaleOptions
-	extends Pick<GenerateOptions, 'themeLightness' | 'minContrastRatio'> {
+	extends Pick<GenerateOptions, 'themeLightness' | 'minContrastRatio' | 'hueShift'> {
 	lightDelta?: number;
 	darkDelta?: number;
 	baselineLValueDark?: number;
@@ -240,6 +254,31 @@ export function expandColorToScale(
 		};
 	}
 
+	const rawHueShift = options?.hueShift ?? 0;
+	if (rawHueShift !== 0) {
+		const clamped = clampHueShift(rawHueShift, 2);
+		strongColorOKLCH = {
+			...strongColorOKLCH,
+			h: wrapHue(strongColorOKLCH.h + clamped),
+		};
+		weakColorOKLCH = {
+			...weakColorOKLCH,
+			h: wrapHue(weakColorOKLCH.h - clamped),
+		};
+
+		// Gamut mapping at the new hue can shift luminance enough to break contrast.
+		strongColorOKLCH = ensureContrast(
+			strongColorOKLCH,
+			foregroundColorOKLCH,
+			contrastTarget,
+		);
+		weakColorOKLCH = ensureContrast(
+			weakColorOKLCH,
+			foregroundColorOKLCH,
+			contrastTarget,
+		);
+	}
+
 	return {
 		DEFAULT: { ...normalizedColorOKLCH },
 		strong: { ...strongColorOKLCH },
@@ -327,6 +366,33 @@ export function findContrastBoundaryLightness(
 	return (
 		defaultOKLCH.l + ((tLo + tHi) / 2) * (foregroundOKLCH.l - defaultOKLCH.l)
 	);
+}
+
+function ensureContrast(
+	variant: OKLCH,
+	foreground: OKLCH,
+	target: number,
+): OKLCH {
+	if (calculateContrast(variant, foreground) >= target) return variant;
+
+	const direction = foreground.l < variant.l ? 1 : -1;
+
+	let lo = direction === 1 ? variant.l : 0;
+	let hi = direction === 1 ? 1 : variant.l;
+
+	for (let i = 0; i < 20; i++) {
+		const mid = (lo + hi) / 2;
+		const test = { ...variant, l: mid };
+		if (calculateContrast(test, foreground) >= target) {
+			if (direction === 1) hi = mid;
+			else lo = mid;
+		} else {
+			if (direction === 1) lo = mid;
+			else hi = mid;
+		}
+	}
+
+	return { ...variant, l: (lo + hi) / 2 };
 }
 
 export function calculateContrast(colorA: Color, colorB: Color): number {

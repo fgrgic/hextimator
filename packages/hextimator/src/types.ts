@@ -166,6 +166,22 @@ export interface HextimateGenerationOptions {
 	 * - any number → exact ratio (e.g. 3 for large text)
 	 */
 	minContrastRatio?: 'AAA' | 'AA' | number;
+
+	/**
+	 * Shift the hue (in degrees) from variant to variant.
+	 *
+	 * - Positive value: strong-side variants shift toward higher hues,
+	 *   weak-side variants shift toward lower hues.
+	 * - Negative value: flips the direction.
+	 * - Each successive variant on a side shifts by an additional step
+	 *   (e.g. hueShift: 5 → strong +5°, stronger +10°, weak −5°, weaker −10°).
+	 *
+	 * Clamped to `360 / (totalVariants + 1)` so the palette never wraps
+	 * past a full rotation.
+	 *
+	 * Default: 0 (no hue shift).
+	 */
+	hueShift?: number;
 }
 
 /**
