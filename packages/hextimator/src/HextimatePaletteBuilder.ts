@@ -42,7 +42,13 @@ export type TokenValue =
 export class HextimatePaletteBuilder {
 	private lightPalette: HextimatePalette;
 	private darkPalette: HextimatePalette;
+	private readonly inputColor: Color;
 	private readonly options: Partial<HextimateGenerationOptions>;
+	private readonly operations: Array<
+		| { method: 'addRole'; args: [string, ColorInput] }
+		| { method: 'addVariant'; args: [string, VariantPlacement] }
+		| { method: 'addToken'; args: [string, TokenValue] }
+	> = [];
 	private readonly standaloneTokens: Array<{
 		name: string;
 		value: TokenValue;
@@ -55,12 +61,14 @@ export class HextimatePaletteBuilder {
 	}> = [];
 
 	constructor(color: Color, options?: HextimateGenerationOptions) {
+		this.inputColor = color;
 		this.options = options ?? {};
 		this.lightPalette = generate(color, 'light', options);
 		this.darkPalette = generate(color, 'dark', options);
 	}
 
 	addRole(name: string, color: ColorInput): this {
+		this.operations.push({ method: 'addRole', args: [name, color] });
 		const parsedColor = parse(color);
 
 		this.lightPalette[name] = expandColorToScale(parsedColor, 'light', {
@@ -76,6 +84,7 @@ export class HextimatePaletteBuilder {
 	}
 
 	addVariant(name: string, placement: VariantPlacement): this {
+		this.operations.push({ method: 'addVariant', args: [name, placement] });
 		if ('beyond' in placement) {
 			const edge = placement.beyond;
 
@@ -111,8 +120,58 @@ export class HextimatePaletteBuilder {
 	}
 
 	addToken(name: string, value: TokenValue): this {
+		this.operations.push({ method: 'addToken', args: [name, value] });
 		this.standaloneTokens.push({ name, value });
 		return this;
+	}
+
+	fork(
+		colorOrOptions?: ColorInput | Partial<HextimateGenerationOptions>,
+		maybeOptions?: Partial<HextimateGenerationOptions>,
+	): HextimatePaletteBuilder {
+		let newColor: Color;
+		let newOptions: HextimateGenerationOptions;
+
+		if (maybeOptions !== undefined) {
+			// fork(color, options)
+			newColor = parse(colorOrOptions as ColorInput);
+			newOptions = { ...this.options, ...maybeOptions } as HextimateGenerationOptions;
+		} else if (
+			colorOrOptions !== undefined &&
+			typeof colorOrOptions === 'object' &&
+			!Array.isArray(colorOrOptions) &&
+			!('space' in colorOrOptions)
+		) {
+			// fork(options) — override options only, keep same color
+			newColor = this.inputColor;
+			newOptions = { ...this.options, ...colorOrOptions } as HextimateGenerationOptions;
+		} else if (colorOrOptions !== undefined) {
+			// fork(color) — new color, same options
+			newColor = parse(colorOrOptions as ColorInput);
+			newOptions = { ...this.options } as HextimateGenerationOptions;
+		} else {
+			// fork() — plain clone
+			newColor = this.inputColor;
+			newOptions = { ...this.options } as HextimateGenerationOptions;
+		}
+
+		const builder = new HextimatePaletteBuilder(newColor, newOptions);
+
+		for (const op of this.operations) {
+			switch (op.method) {
+				case 'addRole':
+					builder.addRole(...op.args);
+					break;
+				case 'addVariant':
+					builder.addVariant(...op.args);
+					break;
+				case 'addToken':
+					builder.addToken(...op.args);
+					break;
+			}
+		}
+
+		return builder;
 	}
 
 	format(options?: HextimateFormatOptions): HextimateResult {
