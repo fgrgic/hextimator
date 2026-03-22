@@ -1,3 +1,4 @@
+import { adaptPalette, type CVDType, simulatePalette } from './a11y';
 import { convert } from './convert';
 import type { FormatResult } from './format';
 import { format } from './format';
@@ -51,6 +52,8 @@ export class HextimatePaletteBuilder {
 		| { method: 'addRole'; args: [string, ColorInput] }
 		| { method: 'addVariant'; args: [string, VariantPlacement] }
 		| { method: 'addToken'; args: [string, TokenValue] }
+		| { method: 'simulate'; args: [CVDType, number] }
+		| { method: 'adaptFor'; args: [CVDType, number] }
 	> = [];
 	private readonly standaloneTokens: Array<{
 		name: string;
@@ -130,6 +133,20 @@ export class HextimatePaletteBuilder {
 		return this;
 	}
 
+	simulate(type: CVDType, severity = 1): this {
+		this.operations.push({ method: 'simulate', args: [type, severity] });
+		this.lightPalette = simulatePalette(this.lightPalette, type, severity);
+		this.darkPalette = simulatePalette(this.darkPalette, type, severity);
+		return this;
+	}
+
+	adaptFor(type: CVDType, severity = 1): this {
+		this.operations.push({ method: 'adaptFor', args: [type, severity] });
+		this.lightPalette = adaptPalette(this.lightPalette, type, severity);
+		this.darkPalette = adaptPalette(this.darkPalette, type, severity);
+		return this;
+	}
+
 	fork(
 		colorOrOptions?: ColorInput | Partial<HextimateGenerationOptions>,
 		maybeOptions?: Partial<HextimateGenerationOptions>,
@@ -140,7 +157,10 @@ export class HextimatePaletteBuilder {
 		if (maybeOptions !== undefined) {
 			// fork(color, options)
 			newColor = parse(colorOrOptions as ColorInput);
-			newOptions = { ...this.options, ...maybeOptions } as HextimateGenerationOptions;
+			newOptions = {
+				...this.options,
+				...maybeOptions,
+			} as HextimateGenerationOptions;
 		} else if (
 			colorOrOptions !== undefined &&
 			typeof colorOrOptions === 'object' &&
@@ -149,7 +169,10 @@ export class HextimatePaletteBuilder {
 		) {
 			// fork(options) — override options only, keep same color
 			newColor = this.inputColor;
-			newOptions = { ...this.options, ...colorOrOptions } as HextimateGenerationOptions;
+			newOptions = {
+				...this.options,
+				...colorOrOptions,
+			} as HextimateGenerationOptions;
 		} else if (colorOrOptions !== undefined) {
 			// fork(color) — new color, same options
 			newColor = parse(colorOrOptions as ColorInput);
@@ -172,6 +195,12 @@ export class HextimatePaletteBuilder {
 					break;
 				case 'addToken':
 					builder.addToken(...op.args);
+					break;
+				case 'simulate':
+					builder.simulate(...op.args);
+					break;
+				case 'adaptFor':
+					builder.adaptFor(...op.args);
 					break;
 			}
 		}

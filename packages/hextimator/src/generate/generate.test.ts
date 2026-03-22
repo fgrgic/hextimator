@@ -559,9 +559,7 @@ describe('hueShift: clamping to 360/(n+1)', () => {
 describe('addToken: error paths', () => {
 	it('throws when referencing an unknown role', () => {
 		expect(() =>
-			hextimate('#ff6600')
-				.addToken('bad', { from: 'nonexistent' })
-				.format(),
+			hextimate('#ff6600').addToken('bad', { from: 'nonexistent' }).format(),
 		).toThrow('Unknown role "nonexistent"');
 	});
 
@@ -607,7 +605,13 @@ describe('end-to-end: output shape', () => {
 
 		for (const theme of ['light', 'dark'] as const) {
 			const tokens = result[theme] as Record<string, string>;
-			for (const role of ['accent', 'base', 'positive', 'negative', 'warning']) {
+			for (const role of [
+				'accent',
+				'base',
+				'positive',
+				'negative',
+				'warning',
+			]) {
 				expect(tokens[role]).toMatch(/^#[0-9a-f]{6}$/);
 				expect(tokens[`${role}-strong`]).toMatch(/^#[0-9a-f]{6}$/);
 				expect(tokens[`${role}-weak`]).toMatch(/^#[0-9a-f]{6}$/);
