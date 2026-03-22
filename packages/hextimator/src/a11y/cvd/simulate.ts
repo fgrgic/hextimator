@@ -4,10 +4,6 @@ import { parse } from '../../parse';
 import type { Color, OKLCH } from '../../types';
 import { type CVDType, simulateCVD } from './matrices';
 
-/**
- * Simulate how a color appears under a given color vision deficiency.
- * Converts to linear RGB for the matrix multiply, then back to OKLCH.
- */
 export function simulateColor(
 	color: Color,
 	type: CVDType,
@@ -27,10 +23,6 @@ export function simulateColor(
 	return convert(simulatedLinear, 'oklch');
 }
 
-/**
- * Simulate color vision deficiency on an entire palette.
- * Each color in each scale is transformed and stored back as OKLCH.
- */
 export function simulatePalette(
 	palette: HextimatePalette,
 	type: CVDType,

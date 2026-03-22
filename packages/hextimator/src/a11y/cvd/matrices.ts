@@ -2,13 +2,7 @@ import { multiplyMatrix3 } from '../../convert/matrices';
 
 type Matrix3 = readonly (readonly [number, number, number])[];
 
-/**
- * Brettel (1997) simulation matrices for color vision deficiency.
- * Each deficiency has two half-planes; the correct one is chosen
- * based on which side of the neutral axis the input color falls.
- *
- * Matrices operate in linear sRGB space.
- */
+// Brettel (1997) half-plane simulation matrices in linear sRGB
 
 // ── Protanopia ──────────────────────────────────────────────────────
 const PROTAN_A: Matrix3 = [
@@ -23,7 +17,6 @@ const PROTAN_B: Matrix3 = [
 	[-0.003882, -0.048116, 1.051998],
 ];
 
-// Separator vector for protanopia half-planes
 const PROTAN_SEP: readonly [number, number, number] = [
 	0.00048, 0.00393, -0.00441,
 ];
@@ -93,10 +86,6 @@ export function resolveBaseType(type: CVDType): string {
 	return ANOMALY_MAP[type] ?? type;
 }
 
-/**
- * Simulate a single CVD type on a linear RGB triplet.
- * Severity 0 = normal vision, 1 = full deficiency.
- */
 export function simulateCVD(
 	rgb: readonly [number, number, number],
 	type: CVDType,
@@ -108,14 +97,13 @@ export function simulateCVD(
 	let simulated: [number, number, number];
 
 	if (type === 'achromatopsia') {
-		// Luminance-based monochromacy using Rec. 709 coefficients
+		// Rec. 709 luminance
 		const y = 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
 		simulated = [y, y, y];
 	} else {
 		const baseType = resolveBaseType(type);
 		const params = BRETTEL[baseType];
 
-		// Pick half-plane based on separator
 		const dotSep =
 			rgb[0] * params.sep[0] + rgb[1] * params.sep[1] + rgb[2] * params.sep[2];
 		const matrix = dotSep >= 0 ? params.a : params.b;
@@ -123,7 +111,6 @@ export function simulateCVD(
 		simulated = multiplyMatrix3(matrix, rgb);
 	}
 
-	// Interpolate between original and simulated by severity
 	if (s < 1) {
 		return [
 			rgb[0] + s * (simulated[0] - rgb[0]),
