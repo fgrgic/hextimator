@@ -24,7 +24,7 @@ export function generateBase(
 			? (options?.preferredBaseColors?.light ?? color)
 			: (options?.preferredBaseColors?.dark ?? color);
 
-	const baselineMaxChroma = options?.baselineMaxChroma ?? BASELINE_MAX_CHROMA;
+	const baselineMaxChroma = options?.baseMaxChroma ?? BASELINE_MAX_CHROMA;
 
 	const preferredBaseColor = convert(parse(preferredBaseColorInput), 'oklch');
 

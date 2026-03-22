@@ -132,7 +132,7 @@ export interface HextimateGenerationOptions {
 	 *
 	 * Default: 0.02.
 	 */
-	baselineMaxChroma?: number;
+	baseMaxChroma?: number;
 
 	/**
 	 * Maximum chroma for all the foreground colors (e.g. base-accent-foreground)
