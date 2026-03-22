@@ -52,8 +52,7 @@ function App() {
 			.addVariant('placeholder', { beyond: 'weak' })
 			.addVariant('intense', { beyond: 'strong' })
 			.addToken('brand', '#3a86ff')
-			.adaptFor('deuteranopia')
-			.simulate('achromatopsia');
+			.adaptFor('deuteranopia');
 
 		// const themeFork = theme.fork('#ff6677').addRole('forked', '#00ffbb');
 
