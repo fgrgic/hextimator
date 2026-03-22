@@ -417,6 +417,64 @@ function App() {
 | `format` | `Omit<HextimateFormatOptions, "as">` | — | Color serialization options |
 | `configure` | `(builder) => void` | — | Access the builder to add roles, variants, or tokens |
 
+### Provider
+
+For apps where multiple components need access to the theme (or where users can change the color at runtime), wrap your app in `HextimatorProvider` instead of calling the hook directly.
+
+```typescript
+import { HextimatorProvider } from "hextimator/react";
+
+createRoot(root).render(
+  <HextimatorProvider defaultColor="#6A5ACD">
+    <App />
+  </HextimatorProvider>
+);
+```
+
+The provider accepts all the same options as `useHextimator` — `darkMode`, `cssPrefix`, `target`, `generation`, `format`, and `configure`:
+
+```typescript
+<HextimatorProvider
+  defaultColor="#6A5ACD"
+  generation={{ minContrastRatio: "AA" }}
+  format={{ colors: "oklch", roleNames: { accent: "brand" } }}
+  darkMode={{ type: "class" }}
+  cssPrefix="ht-"
+  configure={(builder) => builder.addRole("cta", "#EE2244")}
+>
+  <App />
+</HextimatorProvider>
+```
+
+Child components access and update the theme via `useHextimatorTheme()`:
+
+```typescript
+import { useHextimatorTheme } from "hextimator/react";
+
+function ThemePicker() {
+  const { color, setColor, palette, setConfigure } = useHextimatorTheme();
+
+  return (
+    <div>
+      <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
+      <button onClick={() => setConfigure((b) => b.adaptFor("deuteranopia"))}>
+        Deuteranopia mode
+      </button>
+    </div>
+  );
+}
+```
+
+| Method | Description |
+|---|---|
+| `color` | Current input color |
+| `setColor(color)` | Update the input color — palette regenerates automatically |
+| `generation` | Current generation options |
+| `setGeneration(opts)` | Update generation options at runtime |
+| `configure` | Current builder configure function |
+| `setConfigure(fn)` | Update the builder configure function (e.g. to toggle CVD adaptation) |
+| `palette` | The current formatted palette result |
+
 ## Real-world examples
 
 ### shadcn/ui theme
