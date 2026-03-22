@@ -149,6 +149,7 @@ Passed to `hextimate()` — these affect how colors are generated.
 | `foregroundMaxChroma` | `number` | `0.01` | Max chroma for foreground colors (higher = more colorful) |
 | `themeLightness` | `number` (0–1) | `0.8` | Perceived lightness of the generated theme |
 | `minContrastRatio` | `"AAA" \| "AA" \| number` | `"AAA"` | Minimum WCAG contrast ratio between variants and foreground. `"AAA"` = 7, `"AA"` = 4.5, or pass any number |
+| `invertDarkModeBaseAccent` | `boolean` | `false` | Swap base and accent hues in dark mode. The dark theme's base scale takes the accent hue and vice versa, creating a more visually distinct dark theme. Requires a `baseColor` to be set |
 
 ### Format options
 
