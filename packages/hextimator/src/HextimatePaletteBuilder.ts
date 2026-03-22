@@ -42,7 +42,7 @@ export type TokenValue =
 export class HextimatePaletteBuilder {
 	private lightPalette: HextimatePalette;
 	private darkPalette: HextimatePalette;
-	private readonly options: HextimateGenerationOptions;
+	private readonly options: Partial<HextimateGenerationOptions>;
 	private readonly standaloneTokens: Array<{
 		name: string;
 		value: TokenValue;
