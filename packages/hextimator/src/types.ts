@@ -95,7 +95,7 @@ export interface HextimateGenerationOptions {
 	 * It will be used as a baseline to generate the rest of base colors (strong, weak)
 	 * If not provided, it will be derived from the main input color with very low chroma
 	 */
-	baseColor: ColorInput;
+	baseColor?: ColorInput;
 
 	/**
 	 * Semantic colors to use for the theme

@@ -1,12 +1,11 @@
+import { useHextimatorTheme } from 'hextimator/react';
 import './App.css';
-import { useHextimator } from 'hextimator/react';
+import { Hero } from './components';
 
 function App() {
-	useHextimator('#3a86ff');
-
 	return (
-		<div className="bg-base-weak">
-			<h1 className="text-base-foreground">Hello, world!</h1>
+		<div className="bg-accent text-base-foreground min-h-3/5">
+			<Hero />
 		</div>
 	);
 }

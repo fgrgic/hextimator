@@ -64,7 +64,6 @@ describe('daltonize', () => {
 			expect(c).toBeLessThanOrEqual(1);
 		}
 	});
-
 });
 
 describe('daltonizeColor', () => {

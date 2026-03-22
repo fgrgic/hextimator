@@ -32,10 +32,7 @@ export function resolveContrastRatio(
 	return value;
 }
 
-export function clampHueShift(
-	hueShift: number,
-	totalVariants: number,
-): number {
+export function clampHueShift(hueShift: number, totalVariants: number): number {
 	if (totalVariants <= 0) return hueShift;
 	const max = 360 / (totalVariants + 1);
 	const sign = Math.sign(hueShift);
@@ -47,7 +44,10 @@ export function wrapHue(h: number): number {
 }
 
 interface ExpandColorToScaleOptions
-	extends Pick<GenerateOptions, 'themeLightness' | 'minContrastRatio' | 'hueShift'> {
+	extends Pick<
+		GenerateOptions,
+		'themeLightness' | 'minContrastRatio' | 'hueShift'
+	> {
 	lightDelta?: number;
 	darkDelta?: number;
 	baselineLValueDark?: number;

@@ -442,8 +442,7 @@ export class HextimatePaletteBuilder {
 				contrastTarget &&
 				calculateContrast(variant, foregroundOKLCH) < contrastTarget
 			) {
-				const direction =
-					foregroundOKLCH.l < variant.l ? 1 : -1;
+				const direction = foregroundOKLCH.l < variant.l ? 1 : -1;
 				let lo = direction === 1 ? variant.l : 0;
 				let hi = direction === 1 ? 1 : variant.l;
 				for (let j = 0; j < 20; j++) {

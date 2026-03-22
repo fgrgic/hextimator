@@ -1,4 +1,13 @@
-import { useEffect, useMemo, useRef } from 'react';
+import {
+	createContext,
+	type PropsWithChildren,
+	useCallback,
+	useContext,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+} from 'react';
 import type {
 	HextimatePaletteBuilder,
 	HextimateResult,
@@ -148,4 +157,94 @@ export function useHextimator(color: string, options?: UseHextimatorOptions) {
 			document.head.removeChild(style);
 		};
 	}, [palette, darkMode, cssPrefix, target]);
+
+	return palette;
+}
+
+// --- Provider ---
+
+export interface HextimatorProviderProps {
+	defaultColor: string;
+	generation?: HextimateGenerationOptions;
+	format?: Omit<HextimateFormatOptions, 'as'>;
+	configure?: (builder: HextimatePaletteBuilder) => void;
+	darkMode?: DarkModeStrategy;
+	cssPrefix?: string;
+	target?: React.RefObject<HTMLElement | null>;
+}
+
+interface HextimatorContextValue {
+	color: string;
+	setColor: (color: string) => void;
+	generation: HextimateGenerationOptions | undefined;
+	setGeneration: (opts: HextimateGenerationOptions | undefined) => void;
+	configure: ((builder: HextimatePaletteBuilder) => void) | undefined;
+	setConfigure: (
+		fn: ((builder: HextimatePaletteBuilder) => void) | undefined,
+	) => void;
+	palette: HextimateResult;
+}
+
+const HextimatorContext = createContext<HextimatorContextValue | null>(null);
+
+export function HextimatorProvider({
+	children,
+	defaultColor,
+	generation: initialGeneration,
+	format: formatOpts,
+	configure: initialConfigure,
+	darkMode,
+	cssPrefix,
+	target,
+}: PropsWithChildren<HextimatorProviderProps>) {
+	const [color, setColor] = useState(defaultColor);
+	const [generation, setGeneration] = useState(initialGeneration);
+	const [configure, setConfigureState] = useState<
+		((builder: HextimatePaletteBuilder) => void) | undefined
+	>(() => initialConfigure);
+
+	const setConfigure = useCallback(
+		(fn: ((builder: HextimatePaletteBuilder) => void) | undefined) => {
+			setConfigureState(() => fn);
+		},
+		[],
+	);
+
+	const palette = useHextimator(color, {
+		generation,
+		format: formatOpts,
+		configure,
+		darkMode,
+		cssPrefix,
+		target,
+	});
+
+	const value = useMemo<HextimatorContextValue>(
+		() => ({
+			color,
+			setColor,
+			generation,
+			setGeneration,
+			configure,
+			setConfigure,
+			palette,
+		}),
+		[color, generation, configure, setConfigure, palette],
+	);
+
+	return (
+		<HextimatorContext.Provider value={value}>
+			{children}
+		</HextimatorContext.Provider>
+	);
+}
+
+export function useHextimatorTheme(): HextimatorContextValue {
+	const ctx = useContext(HextimatorContext);
+	if (!ctx) {
+		throw new Error(
+			'useHextimatorTheme must be used within a <HextimatorProvider>',
+		);
+	}
+	return ctx;
 }
