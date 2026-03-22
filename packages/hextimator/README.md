@@ -142,13 +142,14 @@ Passed to `hextimate()` — these affect how colors are generated.
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `preferredBaseColors` | `{ dark?: color, light?: color }` | `{ dark: "#1a1a1a", light: "#ffffff" }` | Base colors used as baseline for generating the rest of the base scale |
+| `baseColor` | `ColorInput` | Auto-generated from input color with very low chroma | Base color used as baseline for generating the rest of the base scale |
 | `semanticColors` | `{ positive?: color, negative?: color, warning?: color }` | Auto-generated from seed | Override specific semantic colors instead of deriving them |
 | `semanticColorRanges` | `{ positive?: [start, end], ... }` | `positive: [135,160]`, `negative: [5,25]`, `warning: [45,65]` | Hue degree ranges for finding semantic colors. Ranges are clockwise arcs; `[350, 10]` wraps through 0°. |
 | `baseMaxChroma` | `number` | `0.01` | Max chroma for baseline colors (higher = more colorful) |
 | `foregroundMaxChroma` | `number` | `0.01` | Max chroma for foreground colors (higher = more colorful) |
 | `themeLightness` | `number` (0–1) | `0.8` | Perceived lightness of the generated theme |
 | `minContrastRatio` | `"AAA" \| "AA" \| number` | `"AAA"` | Minimum WCAG contrast ratio between variants and foreground. `"AAA"` = 7, `"AA"` = 4.5, or pass any number |
+| `invertDarkModeBaseAccent` | `boolean` | `false` | Swap base and accent hues in dark mode. The dark theme's base scale takes the accent hue and vice versa, creating a more visually distinct dark theme. Requires a `baseColor` to be set |
 
 ### Format options
 

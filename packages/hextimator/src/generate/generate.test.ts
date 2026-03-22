@@ -103,7 +103,7 @@ describe('contrast: added variants still meet AAA with foreground', () => {
 //    Strong moves toward the foreground, weak moves away. We verify
 //    this by comparing OKLCH lightness distances to the foreground.
 // ──────────────────────────────────────────────
-describe('lightness ordering: strong is closer to foreground than weak', () => {
+describe('lightness ordering: strong has more contrast with base than weak', () => {
 	for (const color of TEST_COLORS) {
 		for (const theme of THEME_TYPES) {
 			it(`${color} – ${theme}`, () => {
@@ -111,6 +111,8 @@ describe('lightness ordering: strong is closer to foreground than weak', () => {
 				const result = builder.format({ as: 'object', colors: 'hex' });
 				const palette = result[theme] as Record<string, string>;
 				const roleScales = groupByRole(palette);
+
+				const baseL = convert(parse(palette.base), 'oklch').l;
 
 				for (const [role, scale] of Object.entries(roleScales)) {
 					if (role === 'base') continue;
@@ -122,16 +124,15 @@ describe('lightness ordering: strong is closer to foreground than weak', () => {
 					)
 						continue;
 
-					const fgL = convert(parse(scale.foreground), 'oklch').l;
 					const strongL = convert(parse(scale.strong), 'oklch').l;
 					const weakL = convert(parse(scale.weak), 'oklch').l;
 
-					const strongDist = Math.abs(strongL - fgL);
-					const weakDist = Math.abs(weakL - fgL);
+					const strongDistToBase = Math.abs(strongL - baseL);
+					const weakDistToBase = Math.abs(weakL - baseL);
 
-					if (strongDist > weakDist) {
+					if (strongDistToBase < weakDistToBase) {
 						throw new Error(
-							`${role}: strong (dist=${strongDist.toFixed(4)}) should be closer to foreground than weak (dist=${weakDist.toFixed(4)}) in ${theme} for ${color}`,
+							`${role}: strong (dist=${strongDistToBase.toFixed(4)}) should have more contrast with base than weak (dist=${weakDistToBase.toFixed(4)}) in ${theme} for ${color}`,
 						);
 					}
 				}

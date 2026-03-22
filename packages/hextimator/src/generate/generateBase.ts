@@ -19,10 +19,12 @@ export function generateBase(
 	themeType: ThemeType,
 	options?: GenerateOptions,
 ): ColorScale {
-	const preferredBaseColorInput =
-		themeType === 'light'
-			? (options?.preferredBaseColors?.light ?? color)
-			: (options?.preferredBaseColors?.dark ?? color);
+	const invertBaseAndAccent =
+		themeType === 'dark' && options?.invertDarkModeBaseAccent;
+
+	const preferredBaseColorInput = invertBaseAndAccent
+		? (color ?? options?.baseColor)
+		: (options?.baseColor ?? color);
 
 	const baselineMaxChroma = options?.baseMaxChroma ?? BASELINE_MAX_CHROMA;
 

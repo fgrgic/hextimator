@@ -42,7 +42,10 @@ function App() {
 	try {
 		result = hextimate(input, {
 			minContrastRatio: 'AAA',
-			baselineMaxChroma: 0.01,
+			baseMaxChroma: 0.03,
+			baseColor: 'FFFDF4',
+			invertDarkModeBaseAccent: true,
+			// themeLightness: 0.7,
 		})
 			// .addRole('banner', '#ff006e')
 			// .addRole('moonpay', 'bb00ff')
