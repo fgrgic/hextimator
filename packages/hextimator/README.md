@@ -538,11 +538,11 @@ const adapted = hextimate("#3a86ff")
 Both methods accept an optional `severity` parameter (0–1, default `1`):
 
 ```typescript
-.simulate("tritanomaly", 0.5)
-.adaptFor("deuteranomaly", 0.7)
+.simulate("tritanopia", 0.5)
+.adaptFor("deuteranopia", 0.7)
 ```
 
-Supported CVD types: `protanopia`, `deuteranopia`, `tritanopia`, `protanomaly`, `deuteranomaly`, `tritanomaly`, `achromatopsia`.
+Supported CVD types: `protanopia`, `deuteranopia`, `tritanopia`, `achromatopsia`. Use `severity` to control partial deficiency.
 
 You can also chain them with other builder methods:
 

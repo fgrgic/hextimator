@@ -2,7 +2,7 @@ import { convert } from '../../convert';
 import type { HextimatePalette } from '../../generate/types';
 import { parse } from '../../parse';
 import type { Color, OKLCH } from '../../types';
-import { type CVDType, resolveBaseType, simulateCVD } from './matrices';
+import { type CVDType, simulateCVD } from './matrices';
 
 // Redistribute simulation error into channels the person can still perceive
 const ERROR_REDISTRIBUTION: Record<
@@ -45,7 +45,6 @@ export function daltonize(
 		];
 	}
 
-	const baseType = resolveBaseType(type);
 	const simulated = simulateCVD(rgb, type, 1);
 
 	const err: [number, number, number] = [
@@ -54,7 +53,7 @@ export function daltonize(
 		rgb[2] - simulated[2],
 	];
 
-	const redist = ERROR_REDISTRIBUTION[baseType];
+	const redist = ERROR_REDISTRIBUTION[type];
 	const correction: [number, number, number] = [
 		redist[0][0] * err[0] + redist[0][1] * err[1] + redist[0][2] * err[2],
 		redist[1][0] * err[0] + redist[1][1] * err[1] + redist[1][2] * err[2],

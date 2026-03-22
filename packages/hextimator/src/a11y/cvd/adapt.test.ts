@@ -65,12 +65,6 @@ describe('daltonize', () => {
 		}
 	});
 
-	it('works with anomaly types', () => {
-		const rgb: [number, number, number] = [0.8, 0.2, 0.1];
-		expect(() => daltonize(rgb, 'protanomaly', 1)).not.toThrow();
-		expect(() => daltonize(rgb, 'deuteranomaly', 1)).not.toThrow();
-		expect(() => daltonize(rgb, 'tritanomaly', 1)).not.toThrow();
-	});
 });
 
 describe('daltonizeColor', () => {

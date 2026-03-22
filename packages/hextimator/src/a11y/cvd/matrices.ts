@@ -59,9 +59,6 @@ export type CVDType =
 	| 'protanopia'
 	| 'deuteranopia'
 	| 'tritanopia'
-	| 'protanomaly'
-	| 'deuteranomaly'
-	| 'tritanomaly'
 	| 'achromatopsia';
 
 interface BrettelParams {
@@ -75,16 +72,6 @@ const BRETTEL: Record<string, BrettelParams> = {
 	deuteranopia: { a: DEUTAN_A, b: DEUTAN_B, sep: DEUTAN_SEP },
 	tritanopia: { a: TRITAN_A, b: TRITAN_B, sep: TRITAN_SEP },
 };
-
-const ANOMALY_MAP: Record<string, string> = {
-	protanomaly: 'protanopia',
-	deuteranomaly: 'deuteranopia',
-	tritanomaly: 'tritanopia',
-};
-
-export function resolveBaseType(type: CVDType): string {
-	return ANOMALY_MAP[type] ?? type;
-}
 
 export function simulateCVD(
 	rgb: readonly [number, number, number],
@@ -101,8 +88,7 @@ export function simulateCVD(
 		const y = 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
 		simulated = [y, y, y];
 	} else {
-		const baseType = resolveBaseType(type);
-		const params = BRETTEL[baseType];
+		const params = BRETTEL[type];
 
 		const dotSep =
 			rgb[0] * params.sep[0] + rgb[1] * params.sep[1] + rgb[2] * params.sep[2];
