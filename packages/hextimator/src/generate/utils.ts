@@ -32,8 +32,22 @@ export function resolveContrastRatio(
 	return value;
 }
 
+export function clampHueShift(
+	hueShift: number,
+	totalVariants: number,
+): number {
+	if (totalVariants <= 0) return hueShift;
+	const max = 360 / (totalVariants + 1);
+	const sign = Math.sign(hueShift);
+	return sign * Math.min(Math.abs(hueShift), max);
+}
+
+export function wrapHue(h: number): number {
+	return ((h % 360) + 360) % 360;
+}
+
 interface ExpandColorToScaleOptions
-	extends Pick<GenerateOptions, 'themeLightness' | 'minContrastRatio'> {
+	extends Pick<GenerateOptions, 'themeLightness' | 'minContrastRatio' | 'hueShift'> {
 	lightDelta?: number;
 	darkDelta?: number;
 	baselineLValueDark?: number;
@@ -237,6 +251,19 @@ export function expandColorToScale(
 				0,
 				Math.min(1, normalizedColorOKLCH.l - weakDelta * contrastDirection),
 			),
+		};
+	}
+
+	const rawHueShift = options?.hueShift ?? 0;
+	if (rawHueShift !== 0) {
+		const clamped = clampHueShift(rawHueShift, 2);
+		strongColorOKLCH = {
+			...strongColorOKLCH,
+			h: wrapHue(strongColorOKLCH.h + clamped),
+		};
+		weakColorOKLCH = {
+			...weakColorOKLCH,
+			h: wrapHue(weakColorOKLCH.h - clamped),
 		};
 	}
 
