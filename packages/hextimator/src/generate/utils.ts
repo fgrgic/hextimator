@@ -1,5 +1,5 @@
 import { convert } from '../convert';
-import type { Color } from '../types';
+import type { Color, OKLCH } from '../types';
 import {
 	DEFAULT_THEME_LIGHTNESS,
 	DEFAULT_THEME_LIGHTNESS_DARK_DELTA,
@@ -265,6 +265,19 @@ export function expandColorToScale(
 			...weakColorOKLCH,
 			h: wrapHue(weakColorOKLCH.h - clamped),
 		};
+
+		// Hue shift can change effective luminance after gamut mapping,
+		// so re-check contrast and nudge lightness if needed.
+		strongColorOKLCH = ensureContrast(
+			strongColorOKLCH,
+			foregroundColorOKLCH,
+			contrastTarget,
+		);
+		weakColorOKLCH = ensureContrast(
+			weakColorOKLCH,
+			foregroundColorOKLCH,
+			contrastTarget,
+		);
 	}
 
 	return {
@@ -354,6 +367,37 @@ export function findContrastBoundaryLightness(
 	return (
 		defaultOKLCH.l + ((tLo + tHi) / 2) * (foregroundOKLCH.l - defaultOKLCH.l)
 	);
+}
+
+/**
+ * If the variant doesn't meet the contrast target against the foreground,
+ * nudge its lightness away from the foreground until it does.
+ */
+function ensureContrast(
+	variant: OKLCH,
+	foreground: OKLCH,
+	target: number,
+): OKLCH {
+	if (calculateContrast(variant, foreground) >= target) return variant;
+
+	const direction = foreground.l < variant.l ? 1 : -1;
+
+	let lo = direction === 1 ? variant.l : 0;
+	let hi = direction === 1 ? 1 : variant.l;
+
+	for (let i = 0; i < 20; i++) {
+		const mid = (lo + hi) / 2;
+		const test = { ...variant, l: mid };
+		if (calculateContrast(test, foreground) >= target) {
+			if (direction === 1) hi = mid;
+			else lo = mid;
+		} else {
+			if (direction === 1) lo = mid;
+			else hi = mid;
+		}
+	}
+
+	return { ...variant, l: (lo + hi) / 2 };
 }
 
 export function calculateContrast(colorA: Color, colorB: Color): number {

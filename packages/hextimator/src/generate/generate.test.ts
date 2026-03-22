@@ -339,7 +339,222 @@ describe('minContrastRatio', () => {
 });
 
 // ──────────────────────────────────────────────
-// 8. addToken error paths
+// 8. hueShift
+// ──────────────────────────────────────────────
+describe('hueShift: all variants still meet AAA with foreground', () => {
+	const HUE_SHIFTS = [1, 5, 15, 30, 60, 120];
+
+	for (const color of TEST_COLORS) {
+		for (const theme of THEME_TYPES) {
+			for (const shift of HUE_SHIFTS) {
+				it(`${color} – ${theme} – hueShift: ${shift}`, () => {
+					const result = hextimate(color, { hueShift: shift }).format({
+						as: 'object',
+						colors: 'hex',
+					});
+					const palette = result[theme] as Record<string, string>;
+					const roleScales = groupByRole(palette);
+
+					for (const [role, scale] of Object.entries(roleScales)) {
+						const fg = scale.foreground;
+						if (!fg) continue;
+
+						for (const [variant, value] of Object.entries(scale)) {
+							if (variant === 'foreground') continue;
+							const cr = contrast(value, fg);
+							if (cr < MIN_CONTRAST) {
+								throw new Error(
+									`${role}.${variant} (${value}) vs foreground (${fg}) = ${cr.toFixed(2)} in ${theme} theme for ${color} with hueShift: ${shift}`,
+								);
+							}
+						}
+					}
+				});
+			}
+		}
+	}
+});
+
+describe('hueShift: negative values flip direction', () => {
+	for (const color of TEST_COLORS) {
+		for (const theme of THEME_TYPES) {
+			it(`${color} – ${theme} – hueShift: -10`, () => {
+				const result = hextimate(color, { hueShift: -10 }).format({
+					as: 'object',
+					colors: 'hex',
+				});
+				const palette = result[theme] as Record<string, string>;
+				const roleScales = groupByRole(palette);
+
+				for (const [role, scale] of Object.entries(roleScales)) {
+					const fg = scale.foreground;
+					if (!fg) continue;
+
+					for (const [variant, value] of Object.entries(scale)) {
+						if (variant === 'foreground') continue;
+						const cr = contrast(value, fg);
+						if (cr < MIN_CONTRAST) {
+							throw new Error(
+								`${role}.${variant} (${value}) vs foreground (${fg}) = ${cr.toFixed(2)} in ${theme} theme for ${color} with hueShift: -10`,
+							);
+						}
+					}
+				}
+			});
+		}
+	}
+});
+
+describe('hueShift: added variants still meet AAA', () => {
+	const HUE_SHIFTS = [5, 20, 60];
+
+	for (const color of TEST_COLORS) {
+		for (const theme of THEME_TYPES) {
+			for (const shift of HUE_SHIFTS) {
+				it(`${color} – ${theme} – hueShift: ${shift} (beyond + between)`, () => {
+					const result = hextimate(color, { hueShift: shift })
+						.addVariant('stronger', { beyond: 'strong' })
+						.addVariant('weaker', { beyond: 'weak' })
+						.addVariant('mid', { between: ['DEFAULT', 'strong'] })
+						.format({ as: 'object', colors: 'hex' });
+
+					const palette = result[theme] as Record<string, string>;
+					const roleScales = groupByRole(palette);
+
+					for (const [role, scale] of Object.entries(roleScales)) {
+						const fg = scale.foreground;
+						if (!fg) continue;
+
+						for (const [variant, value] of Object.entries(scale)) {
+							if (variant === 'foreground') continue;
+							const cr = contrast(value, fg);
+							if (cr < MIN_CONTRAST) {
+								throw new Error(
+									`${role}.${variant} (${value}) vs foreground (${fg}) = ${cr.toFixed(2)} in ${theme} theme for ${color} with hueShift: ${shift}`,
+								);
+							}
+						}
+					}
+				});
+			}
+		}
+	}
+});
+
+describe('hueShift: hue actually shifts between variants', () => {
+	it('strong and weak have different hues from DEFAULT when hueShift > 0', () => {
+		const result = hextimate('#6366f1', { hueShift: 10 }).format({
+			as: 'object',
+			colors: 'oklch',
+		});
+
+		for (const theme of THEME_TYPES) {
+			const palette = result[theme] as Record<string, string>;
+			const roleScales = groupByRole(palette);
+
+			for (const role of ['accent', 'positive', 'negative', 'warning']) {
+				const scale = roleScales[role];
+				if (!scale?.DEFAULT || !scale.strong || !scale.weak) continue;
+
+				const defaultH = parseOklchHue(scale.DEFAULT);
+				const strongH = parseOklchHue(scale.strong);
+				const weakH = parseOklchHue(scale.weak);
+
+				// Strong shifts positive, weak shifts negative
+				expect(strongH).not.toBeCloseTo(defaultH, 0);
+				expect(weakH).not.toBeCloseTo(defaultH, 0);
+				// Strong and weak shift in opposite directions
+				const strongDiff = hueDiff(strongH, defaultH);
+				const weakDiff = hueDiff(weakH, defaultH);
+				expect(Math.sign(strongDiff)).not.toBe(Math.sign(weakDiff));
+			}
+		}
+	});
+
+	it('hueShift: 0 keeps all variants at the same hue', () => {
+		const result = hextimate('#6366f1', { hueShift: 0 }).format({
+			as: 'object',
+			colors: 'oklch',
+		});
+
+		for (const theme of THEME_TYPES) {
+			const palette = result[theme] as Record<string, string>;
+			const roleScales = groupByRole(palette);
+
+			for (const role of ['accent']) {
+				const scale = roleScales[role];
+				if (!scale?.DEFAULT || !scale.strong || !scale.weak) continue;
+
+				const defaultH = parseOklchHue(scale.DEFAULT);
+				const strongH = parseOklchHue(scale.strong);
+				const weakH = parseOklchHue(scale.weak);
+
+				expect(strongH).toBeCloseTo(defaultH, 0);
+				expect(weakH).toBeCloseTo(defaultH, 0);
+			}
+		}
+	});
+});
+
+describe('hueShift: clamping to 360/(n+1)', () => {
+	it('extreme hueShift is clamped so palette stays bounded', () => {
+		// With 2 default variants (strong, weak), max = 360/3 = 120
+		const result = hextimate('#6366f1', { hueShift: 999 }).format({
+			as: 'object',
+			colors: 'oklch',
+		});
+
+		for (const theme of THEME_TYPES) {
+			const palette = result[theme] as Record<string, string>;
+			const roleScales = groupByRole(palette);
+
+			for (const role of ['accent']) {
+				const scale = roleScales[role];
+				if (!scale?.DEFAULT || !scale.strong) continue;
+
+				const defaultH = parseOklchHue(scale.DEFAULT);
+				const strongH = parseOklchHue(scale.strong);
+
+				// Shift should be clamped to 120 max
+				const diff = Math.abs(hueDiff(strongH, defaultH));
+				expect(diff).toBeLessThanOrEqual(121); // 120 + tolerance
+			}
+		}
+	});
+
+	it('clamping adjusts when more variants are added', () => {
+		// When weaker is added (4 total variants), weak side uses max = 360/5 = 72
+		const result = hextimate('#6366f1', { hueShift: 200 })
+			.addVariant('stronger', { beyond: 'strong' })
+			.addVariant('weaker', { beyond: 'weak' })
+			.format({ as: 'object', colors: 'oklch' });
+
+		for (const theme of THEME_TYPES) {
+			const palette = result[theme] as Record<string, string>;
+			const roleScales = groupByRole(palette);
+
+			for (const role of ['accent']) {
+				const scale = roleScales[role];
+				if (!scale?.DEFAULT || !scale.weak || !scale.weaker) continue;
+
+				const defaultH = parseOklchHue(scale.DEFAULT);
+				const weakH = parseOklchHue(scale.weak);
+				const weakerH = parseOklchHue(scale.weaker);
+
+				// Weak side was last redistributed with 4 total → max = 72 per step
+				const weakDiff = Math.abs(hueDiff(weakH, defaultH));
+				const weakerDiff = Math.abs(hueDiff(weakerH, defaultH));
+				expect(weakDiff).toBeLessThanOrEqual(73);
+				expect(weakerDiff).toBeLessThanOrEqual(145);
+				// weaker should shift more than weak
+				expect(weakerDiff).toBeGreaterThan(weakDiff - 1);
+			}
+		}
+	});
+});
+
+// ──────────────────────────────────────────────
+// 9. addToken error paths
 // ──────────────────────────────────────────────
 describe('addToken: error paths', () => {
 	it('throws when referencing an unknown role', () => {
@@ -442,6 +657,21 @@ function groupByRole(
 	}
 
 	return out;
+}
+
+/**
+ * Parse the hue value from an oklch() string like "oklch(0.5 0.1 270)".
+ */
+function parseOklchHue(oklchStr: string): number {
+	const match = oklchStr.match(/oklch\(\s*[\d.]+\s+[\d.]+\s+([\d.]+)\s*\)/);
+	return match ? Number.parseFloat(match[1]) : 0;
+}
+
+/**
+ * Signed shortest-arc hue difference (b - a), range [-180, 180].
+ */
+function hueDiff(a: number, b: number): number {
+	return ((a - b + 540) % 360) - 180;
 }
 
 /**

@@ -46,7 +46,7 @@ function App() {
 			baseColor: 'FFFDF4',
 			invertDarkModeBaseAccent: true,
 			themeLightness: 0.6,
-			hueShift: 5,
+			hueShift: 12,
 		})
 			// .addRole('banner', '#ff006e')
 			// .addRole('moonpay', 'bb00ff')

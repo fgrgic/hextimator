@@ -6,6 +6,7 @@ import type { TokenEntry } from './format/types';
 import { generate } from './generate';
 import type { ColorScale, HextimatePalette } from './generate/types';
 import {
+	calculateContrast,
 	clampHueShift,
 	expandColorToScale,
 	findContrastBoundaryLightness,
@@ -353,12 +354,18 @@ export class HextimatePaletteBuilder {
 					maxDelta = Math.min(Math.abs(gamutBound - defaultOKLCH.l), 0.2);
 				}
 
+				const minContrast2 = resolveContrastRatio(
+					this.options.minContrastRatio,
+				);
+
 				this.redistributeVariants(
 					scale,
 					sideVariants,
 					defaultOKLCH,
 					maxDelta * sideDirection,
 					hueShiftPerStep,
+					foregroundOKLCH,
+					minContrast2 + 0.15,
 				);
 			}
 		}
@@ -375,6 +382,8 @@ export class HextimatePaletteBuilder {
 		defaultOKLCH: OKLCH,
 		totalDelta: number,
 		hueShiftPerStep = 0,
+		foregroundOKLCH?: OKLCH,
+		contrastTarget?: number,
 	): void {
 		if (sideVariants.length < 1) return;
 
@@ -395,14 +404,42 @@ export class HextimatePaletteBuilder {
 
 		for (let i = 0; i < n; i++) {
 			const variantName = sorted[i];
-			const newL = defaultOKLCH.l + ((i + 1) / (n + 1)) * totalDelta;
+			let newL = defaultOKLCH.l + ((i + 1) / (n + 1)) * totalDelta;
 			const newH = wrapHue(defaultOKLCH.h + hueShiftPerStep * (i + 1));
-			scale[variantName] = {
+			let variant: OKLCH = {
 				...defaultOKLCH,
 				l: Math.max(0, Math.min(1, newL)),
 				c: sourceChroma,
 				h: newH,
 			};
+
+			// If hue was shifted, re-check contrast and nudge lightness if needed.
+			if (
+				hueShiftPerStep !== 0 &&
+				foregroundOKLCH &&
+				contrastTarget &&
+				calculateContrast(variant, foregroundOKLCH) < contrastTarget
+			) {
+				const direction =
+					foregroundOKLCH.l < variant.l ? 1 : -1;
+				let lo = direction === 1 ? variant.l : 0;
+				let hi = direction === 1 ? 1 : variant.l;
+				for (let j = 0; j < 20; j++) {
+					const mid = (lo + hi) / 2;
+					const test = { ...variant, l: mid };
+					if (calculateContrast(test, foregroundOKLCH) >= contrastTarget) {
+						if (direction === 1) hi = mid;
+						else lo = mid;
+					} else {
+						if (direction === 1) lo = mid;
+						else hi = mid;
+					}
+				}
+				newL = (lo + hi) / 2;
+				variant = { ...variant, l: Math.max(0, Math.min(1, newL)) };
+			}
+
+			scale[variantName] = variant;
 		}
 	}
 
