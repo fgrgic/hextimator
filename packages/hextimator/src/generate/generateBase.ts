@@ -7,8 +7,7 @@ import { expandColorToScale } from './utils';
 const BASELINE_DARK_L_VALUE = 0.2;
 const BASELINE_LIGHT_L_VALUE = 0.97;
 
-// only the slightest hint of input color by default
-const BASELINE_MAX_CHROMA = 0.005;
+const BASELINE_MAX_CHROMA = 0.01;
 
 const STRONG_DELTA_DARK = -0.1;
 const STRONG_DELTA_LIGHT = 0.03;
@@ -25,8 +24,7 @@ export function generateBase(
 			? (options?.preferredBaseColors?.light ?? color)
 			: (options?.preferredBaseColors?.dark ?? color);
 
-	const baselineMaxChroma =
-		options?.neutralColorsMaxChroma ?? BASELINE_MAX_CHROMA;
+	const baselineMaxChroma = options?.baselineMaxChroma ?? BASELINE_MAX_CHROMA;
 
 	const preferredBaseColor = convert(parse(preferredBaseColorInput), 'oklch');
 

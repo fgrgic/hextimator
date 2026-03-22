@@ -127,18 +127,20 @@ export interface HextimateGenerationOptions {
 	};
 
 	/**
-	 * defines how "saturated" the neutral colors can get
-	 * neutral colors are:
-	 * - base colors
-	 * - all foreground colors
+	 * Maximum chroma for the baseline colors (base, strong, weak).
+	 * Higher values will produce more colorful baseline colors, lower values will produce more gray baseline colors.
 	 *
-	 * Max chroma is about 0.4 (depending on color in OKLCH)
-	 *
-	 * Higher values will produce more colorful neutrals, lower values will produce more gray neutrals.
-	 *
-	 * Default: 0.005.
+	 * Default: 0.02.
 	 */
-	neutralColorsMaxChroma?: number;
+	baselineMaxChroma?: number;
+
+	/**
+	 * Maximum chroma for all the foreground colors (e.g. base-accent-foreground)
+	 * Higher values will produce more colorful foreground colors, lower values will produce more gray foreground colors.
+	 *
+	 * Default: 0.02.
+	 */
+	foregroundMaxChrome?: number;
 
 	/**
 	 * Perceived lightness of the theme.

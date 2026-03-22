@@ -7,9 +7,9 @@ import {
 } from './consts';
 import type { ColorScale, GenerateOptions, ThemeType } from './types';
 
-const FOREGROUND_DARK_L_VALUE = 0.98;
-const FOREGROUND_LIGHT_L_VALUE = 0.02;
-const FOREGROUND_MAX_CHROMA = 0.05;
+const FOREGROUND_DARK_L_VALUE = 0.97;
+const FOREGROUND_LIGHT_L_VALUE = 0.1;
+const FOREGROUND_MAX_CHROMA = 0.01;
 
 const FALLBACK_STRONG_DELTA_DARK = 0.05;
 const FALLBACK_STRONG_DELTA_LIGHT = -0.05;
