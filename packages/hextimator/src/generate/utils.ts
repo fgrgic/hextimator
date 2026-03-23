@@ -1,9 +1,8 @@
 import { convert } from '../convert';
-import type { Color, OKLCH } from '../types';
+import type { Color, HextimateGenerationOptions, OKLCH } from '../types';
 import {
-	DEFAULT_THEME_LIGHTNESS,
-	DEFAULT_THEME_LIGHTNESS_DARK_DELTA,
-	DEFAULT_THEME_LIGHTNESS_LIGHT_DELTA,
+	DEFAULT_DARK_THEME_LIGHTNESS,
+	DEFAULT_LIGHT_THEME_LIGHTNESS,
 } from './consts';
 import type { ColorScale, GenerateOptions, ThemeType } from './types';
 
@@ -46,10 +45,8 @@ export function wrapHue(h: number): number {
 interface ExpandColorToScaleOptions
 	extends Pick<
 		GenerateOptions,
-		'themeLightness' | 'minContrastRatio' | 'hueShift'
+		'minContrastRatio' | 'hueShift' | 'light' | 'dark'
 	> {
-	lightDelta?: number;
-	darkDelta?: number;
 	baselineLValueDark?: number;
 	baselineLValueLight?: number;
 	foregroundLValueDark?: number;
@@ -69,7 +66,6 @@ export function expandColorToScale(
 	const {
 		baselineLValueDark,
 		baselineLValueLight,
-		themeLightness,
 		minContrastRatio: minContrastRatioOption,
 		foregroundLValueDark = FOREGROUND_DARK_L_VALUE,
 		foregroundLValueLight = FOREGROUND_LIGHT_L_VALUE,
@@ -89,16 +85,25 @@ export function expandColorToScale(
 		weakDeltaDark !== undefined ||
 		weakDeltaLight !== undefined;
 
-	const { lightThemeLightnessValue, darkThemeLightnessValue } =
-		generateLightnessPair(themeLightness, options);
+	const themeLightness = resolveThemeLightness(themeType, options);
 
 	const colorOKLCH = convert(color, 'oklch');
+
+	const maxChroma =
+		themeType === 'light'
+			? options?.light?.maxChroma
+			: options?.dark?.maxChroma;
+
 	const normalizedColorOKLCH = {
 		...colorOKLCH,
 		l:
 			themeType === 'light'
-				? (baselineLValueLight ?? lightThemeLightnessValue)
-				: (baselineLValueDark ?? darkThemeLightnessValue),
+				? (baselineLValueLight ?? themeLightness)
+				: (baselineLValueDark ?? themeLightness),
+		c:
+			maxChroma !== undefined
+				? Math.min(colorOKLCH.c, maxChroma)
+				: colorOKLCH.c,
 	};
 
 	const candidates = [foregroundLValueLight, foregroundLValueDark].map((l) => ({
@@ -296,33 +301,24 @@ export function expandColorToScale(
 const LIGHT_THEME_LIGHTNESS_RANGE = [0.4, 0.99] as const;
 const DARK_THEME_LIGHTNESS_RANGE = [0.2, 0.8] as const;
 
-/**
- * Based on the preferred lightness (of the theme)
- * Generates the lightness pair for dark and light theme
- * @param lightness number between 0 and 1
- */
-export function generateLightnessPair(
-	lightness?: number,
-	options?: { darkDelta?: number; lightDelta?: number },
-) {
-	const themeLightness = lightness ?? DEFAULT_THEME_LIGHTNESS;
+export function resolveThemeLightness(
+	themeType: ThemeType,
+	options?: Pick<HextimateGenerationOptions, 'light' | 'dark'>,
+): number {
+	const themeAdjustments =
+		themeType === 'light' ? options?.light : options?.dark;
+	const range =
+		themeType === 'light'
+			? LIGHT_THEME_LIGHTNESS_RANGE
+			: DARK_THEME_LIGHTNESS_RANGE;
 
-	const lightDelta = options?.lightDelta ?? DEFAULT_THEME_LIGHTNESS_LIGHT_DELTA;
-	const darkDelta = options?.darkDelta ?? DEFAULT_THEME_LIGHTNESS_DARK_DELTA;
+	if (themeAdjustments?.lightness !== undefined) {
+		return Math.min(Math.max(themeAdjustments.lightness, range[0]), range[1]);
+	}
 
-	const lightThemeLightnessValue = Math.min(
-		Math.max(themeLightness + lightDelta, LIGHT_THEME_LIGHTNESS_RANGE[0]),
-		LIGHT_THEME_LIGHTNESS_RANGE[1],
-	);
-	const darkThemeLightnessValue = Math.min(
-		Math.max(themeLightness + darkDelta, DARK_THEME_LIGHTNESS_RANGE[0]),
-		DARK_THEME_LIGHTNESS_RANGE[1],
-	);
-
-	return {
-		lightThemeLightnessValue,
-		darkThemeLightnessValue,
-	};
+	return themeType === 'light'
+		? DEFAULT_LIGHT_THEME_LIGHTNESS
+		: DEFAULT_DARK_THEME_LIGHTNESS;
 }
 
 export function findContrastBoundaryLightness(

@@ -43,8 +43,8 @@ function App() {
 		const theme = hextimate(input, {
 			minContrastRatio: 'AAA',
 			baseMaxChroma: 0.03,
-			baseColor: 'FFFDF4',
-			// invertDarkModeBaseAccent: true,
+			baseColor: '#FF61DD',
+			invertDarkModeBaseAccent: true,
 			themeLightness: 0.7,
 		});
 		// .addRole('banner', '#ff006e')
