@@ -1,0 +1,214 @@
+import { writeFileSync } from 'node:fs';
+import { parseArgs } from 'node:util';
+import { hextimate } from './index';
+import type {
+	ColorFormat,
+	HextimateFormatOptions,
+	HextimateGenerationOptions,
+} from './types';
+
+const HELP = `
+hextimator <color> [options]
+
+Generate a perceptually uniform color palette from a single color.
+
+Arguments:
+  color                       Input color (quote hex values: '#ff6600')
+
+Format options:
+  -f, --format <type>         css | object | tailwind | tailwind-css | scss | json  (default: css)
+  -c, --colors <type>         hex | rgb | hsl | oklch | p3 and -raw variants        (default: hex)
+  -t, --theme <type>          light | dark | both                                   (default: both)
+      --separator <char>      Token separator                                       (default: -)
+
+Generation options:
+      --base-color <color>    Override base/neutral color
+      --base-hue-shift <deg>  Rotate base hue relative to accent
+      --hue-shift <deg>       Per-variant hue shift in degrees
+      --base-max-chroma <n>   Max chroma for base colors          (default: 0.01)
+      --fg-max-chroma <n>     Max chroma for foreground colors     (default: 0.01)
+      --light-lightness <n>   Light theme lightness 0-1            (default: 0.7)
+      --light-max-chroma <n>  Light theme max chroma
+      --dark-lightness <n>    Dark theme lightness 0-1             (default: 0.6)
+      --dark-max-chroma <n>   Dark theme max chroma
+      --min-contrast <value>  AAA | AA | <number>                  (default: AAA)
+
+Roles & variants (repeatable):
+      --role <name>=<color>   Add a custom role
+      --variant <spec>        beyond:  "name:beyond:edge"
+                              between: "name:between:a,b"
+
+Output:
+  -o, --output <path>         Write to file instead of stdout
+  -h, --help                  Show this help
+  -v, --version               Show version
+
+Examples:
+  hextimator '#ff6600'
+  hextimator '#ff6600' --format tailwind-css --colors oklch
+  hextimator '#3366cc' --format json --theme light
+  hextimator '#22aa44' --role cta=#ee2244 --variant hover:beyond:strong -o theme.css
+`.trim();
+
+function run(): void {
+	const { values, positionals } = parseArgs({
+		allowPositionals: true,
+		options: {
+			format: { type: 'string', short: 'f', default: 'css' },
+			colors: { type: 'string', short: 'c', default: 'hex' },
+			theme: { type: 'string', short: 't', default: 'both' },
+			separator: { type: 'string', default: '-' },
+			'base-color': { type: 'string' },
+			'base-hue-shift': { type: 'string' },
+			'hue-shift': { type: 'string' },
+			'base-max-chroma': { type: 'string' },
+			'fg-max-chroma': { type: 'string' },
+			'light-lightness': { type: 'string' },
+			'light-max-chroma': { type: 'string' },
+			'dark-lightness': { type: 'string' },
+			'dark-max-chroma': { type: 'string' },
+			'min-contrast': { type: 'string' },
+			role: { type: 'string', multiple: true },
+			variant: { type: 'string', multiple: true },
+			output: { type: 'string', short: 'o' },
+			help: { type: 'boolean', short: 'h' },
+			version: { type: 'boolean', short: 'v' },
+		},
+	});
+
+	if (values.help) {
+		console.log(HELP);
+		process.exit(0);
+	}
+
+	if (values.version) {
+		console.log('0.0.1');
+		process.exit(0);
+	}
+
+	const color = positionals[0];
+	if (!color) {
+		console.error('Error: missing color argument. Run with --help for usage.');
+		process.exit(1);
+	}
+
+	const generationOptions: HextimateGenerationOptions = {};
+
+	if (values['base-color']) generationOptions.baseColor = values['base-color'];
+	if (values['base-hue-shift'])
+		generationOptions.baseHueShift = Number(values['base-hue-shift']);
+	if (values['hue-shift'])
+		generationOptions.hueShift = Number(values['hue-shift']);
+	if (values['base-max-chroma'])
+		generationOptions.baseMaxChroma = Number(values['base-max-chroma']);
+	if (values['fg-max-chroma'])
+		generationOptions.foregroundMaxChrome = Number(values['fg-max-chroma']);
+
+	if (values['light-lightness'] || values['light-max-chroma']) {
+		generationOptions.light = {};
+		if (values['light-lightness'])
+			generationOptions.light.lightness = Number(values['light-lightness']);
+		if (values['light-max-chroma'])
+			generationOptions.light.maxChroma = Number(values['light-max-chroma']);
+	}
+
+	if (values['dark-lightness'] || values['dark-max-chroma']) {
+		generationOptions.dark = {};
+		if (values['dark-lightness'])
+			generationOptions.dark.lightness = Number(values['dark-lightness']);
+		if (values['dark-max-chroma'])
+			generationOptions.dark.maxChroma = Number(values['dark-max-chroma']);
+	}
+
+	if (values['min-contrast']) {
+		const mc = values['min-contrast'];
+		if (mc === 'AAA' || mc === 'AA') {
+			generationOptions.minContrastRatio = mc;
+		} else {
+			generationOptions.minContrastRatio = Number(mc);
+		}
+	}
+
+	const builder = hextimate(color, generationOptions);
+
+	if (values.role) {
+		for (const r of values.role) {
+			const eq = r.indexOf('=');
+			if (eq === -1) {
+				console.error(
+					`Error: invalid --role "${r}". Expected format: name=color`,
+				);
+				process.exit(1);
+			}
+			builder.addRole(r.slice(0, eq), r.slice(eq + 1));
+		}
+	}
+
+	if (values.variant) {
+		for (const v of values.variant) {
+			const parts = v.split(':');
+			if (parts.length < 3) {
+				console.error(
+					`Error: invalid --variant "${v}". Expected "name:beyond:edge" or "name:between:a,b"`,
+				);
+				process.exit(1);
+			}
+			const [name, type, ref] = parts;
+			if (type === 'beyond') {
+				builder.addVariant(name, { beyond: ref });
+			} else if (type === 'between') {
+				const refs = ref.split(',');
+				if (refs.length !== 2) {
+					console.error(
+						`Error: invalid --variant between spec "${v}". Expected "name:between:a,b"`,
+					);
+					process.exit(1);
+				}
+				builder.addVariant(name, { between: [refs[0], refs[1]] });
+			} else {
+				console.error(
+					`Error: invalid --variant type "${type}". Expected "beyond" or "between"`,
+				);
+				process.exit(1);
+			}
+		}
+	}
+
+	const formatOptions: HextimateFormatOptions = {
+		as: values.format as HextimateFormatOptions['as'],
+		colors: values.colors as ColorFormat,
+		separator: values.separator,
+	};
+
+	const result = builder.format(formatOptions);
+	const themeFilter = values.theme as string;
+
+	let output: string;
+	if (themeFilter === 'light') {
+		output = serialize(result.light);
+	} else if (themeFilter === 'dark') {
+		output = serialize(result.dark);
+	} else {
+		output = serialize({ light: result.light, dark: result.dark });
+	}
+
+	if (values.output) {
+		writeFileSync(values.output, `${output}\n`);
+	} else {
+		console.log(output);
+	}
+}
+
+function serialize(value: unknown): string {
+	if (typeof value === 'string') return value;
+	return JSON.stringify(value, null, 2);
+}
+
+try {
+	run();
+} catch (err) {
+	console.error(
+		`Error: ${err instanceof Error ? err.message : String(err)}`,
+	);
+	process.exit(1);
+}
