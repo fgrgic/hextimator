@@ -89,9 +89,9 @@ const oklch = convertColor(color, "oklch");
 - [Extending the palette](docs/extending-the-palette.md) — `addRole`, `addVariant`, `addToken`
 - [Multiple themes](docs/multiple-themes.md) — dynamic theming and `.fork()`
 - [Customization](docs/customization.md) — generation and format options reference
-- [Tailwind CSS v4](docs/tailwind.md) — setup and usage with Tailwind
-- [React](docs/react.md) — `useHextimator` hook, provider, dark mode strategies
 - [Color vision deficiency](docs/color-vision-deficiency.md) — simulate and adapt for CVD
+- [React](docs/react.md) — `useHextimator` hook, provider, dark mode strategies
+- [Tailwind CSS v4](docs/tailwind.md) — setup and usage with Tailwind
 - [Real-world examples](docs/examples.md) — shadcn/ui, Stripe, Slack configurations
 
 ## Contributing
