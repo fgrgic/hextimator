@@ -38,7 +38,8 @@ export function generateSemanticColors(
 	);
 
 	const scaleOptions = {
-		themeLightness: options?.themeLightness,
+		light: options?.light,
+		dark: options?.dark,
 		minContrastRatio: options?.minContrastRatio,
 		hueShift: options?.hueShift,
 	};

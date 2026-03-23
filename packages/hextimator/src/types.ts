@@ -87,6 +87,24 @@ export type ConvertColor = <S extends ColorSpace>(
 ) => ColorInSpace<S>;
 
 /**
+ * Per-theme adjustments for lightness and chroma.
+ */
+export interface ThemeAdjustments {
+	/**
+	 * Absolute OKLCH lightness for this theme (0–1).
+	 *
+	 * Default: 0.7 for light, 0.6 for dark.
+	 */
+	lightness?: number;
+
+	/**
+	 * Maximum chroma for accent/semantic colors in this theme.
+	 * Colors with higher chroma will be clamped to this value.
+	 */
+	maxChroma?: number;
+}
+
+/**
  * Options that affect color generation (the math)
  */
 export interface HextimateGenerationOptions {
@@ -148,14 +166,14 @@ export interface HextimateGenerationOptions {
 	foregroundMaxChrome?: number;
 
 	/**
-	 * Perceived lightness of the theme.
-	 * Number between 0 and 1
-	 *
-	 * Default: 0.8. Higher values will produce a lighter theme, lower values will produce a darker theme.
-	 * Light theme: 0.8 + 0 = 0.8 lightness.
-	 * Dark theme: 0.8 - 0.4 = 0.4 lightness.
+	 * Per-theme adjustments for the light theme.
 	 */
-	themeLightness?: number;
+	light?: ThemeAdjustments;
+
+	/**
+	 * Per-theme adjustments for the dark theme.
+	 */
+	dark?: ThemeAdjustments;
 
 	/**
 	 * Minimum WCAG contrast ratio between non-foreground variants and the

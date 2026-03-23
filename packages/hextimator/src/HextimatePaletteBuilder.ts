@@ -21,6 +21,7 @@ import type {
 	HextimateFormatOptions,
 	HextimateGenerationOptions,
 	OKLCH,
+	ThemeAdjustments,
 } from './types';
 
 export interface HextimateResult {
@@ -65,6 +66,8 @@ export class HextimatePaletteBuilder {
 		name: string;
 		refs: [string, string];
 	}> = [];
+	private lightThemeAdjustments?: ThemeAdjustments;
+	private darkThemeAdjustments?: ThemeAdjustments;
 
 	constructor(color: Color, options?: HextimateGenerationOptions) {
 		this.inputColor = color;
@@ -76,16 +79,19 @@ export class HextimatePaletteBuilder {
 	addRole(name: string, color: ColorInput): this {
 		this.operations.push({ method: 'addRole', args: [name, color] });
 		const parsedColor = parse(color);
+		const opts = this.resolvedOptions();
 
 		this.lightPalette[name] = expandColorToScale(parsedColor, 'light', {
-			themeLightness: this.options.themeLightness,
-			minContrastRatio: this.options.minContrastRatio,
-			hueShift: this.options.hueShift,
+			light: opts.light,
+			dark: opts.dark,
+			minContrastRatio: opts.minContrastRatio,
+			hueShift: opts.hueShift,
 		});
 		this.darkPalette[name] = expandColorToScale(parsedColor, 'dark', {
-			themeLightness: this.options.themeLightness,
-			minContrastRatio: this.options.minContrastRatio,
-			hueShift: this.options.hueShift,
+			light: opts.light,
+			dark: opts.dark,
+			minContrastRatio: opts.minContrastRatio,
+			hueShift: opts.hueShift,
 		});
 
 		return this;
@@ -147,6 +153,18 @@ export class HextimatePaletteBuilder {
 		return this;
 	}
 
+	light(adjustments: ThemeAdjustments): this {
+		this.lightThemeAdjustments = adjustments;
+		this.regenerate();
+		return this;
+	}
+
+	dark(adjustments: ThemeAdjustments): this {
+		this.darkThemeAdjustments = adjustments;
+		this.regenerate();
+		return this;
+	}
+
 	fork(
 		colorOrOptions?: ColorInput | Partial<HextimateGenerationOptions>,
 		maybeOptions?: Partial<HextimateGenerationOptions>,
@@ -184,6 +202,9 @@ export class HextimatePaletteBuilder {
 		}
 
 		const builder = new HextimatePaletteBuilder(newColor, newOptions);
+
+		if (this.lightThemeAdjustments) builder.light(this.lightThemeAdjustments);
+		if (this.darkThemeAdjustments) builder.dark(this.darkThemeAdjustments);
 
 		for (const op of this.operations) {
 			switch (op.method) {
@@ -504,5 +525,41 @@ export class HextimatePaletteBuilder {
 		const midH = wrapHue(colorA.h + hueDiff / 2);
 
 		return { ...colorA, l: midL, c: midC, h: midH };
+	}
+
+	private resolvedOptions(): HextimateGenerationOptions {
+		return {
+			...this.options,
+			light: { ...this.options.light, ...this.lightThemeAdjustments },
+			dark: { ...this.options.dark, ...this.darkThemeAdjustments },
+		} as HextimateGenerationOptions;
+	}
+
+	private regenerate(): void {
+		const rebuilt = new HextimatePaletteBuilder(
+			this.inputColor,
+			this.resolvedOptions(),
+		);
+		for (const op of this.operations) {
+			switch (op.method) {
+				case 'addRole':
+					rebuilt.addRole(...op.args);
+					break;
+				case 'addVariant':
+					rebuilt.addVariant(...op.args);
+					break;
+				case 'addToken':
+					rebuilt.addToken(...op.args);
+					break;
+				case 'simulate':
+					rebuilt.simulate(...op.args);
+					break;
+				case 'adaptFor':
+					rebuilt.adaptFor(...op.args);
+					break;
+			}
+		}
+		this.lightPalette = rebuilt.lightPalette;
+		this.darkPalette = rebuilt.darkPalette;
 	}
 }
