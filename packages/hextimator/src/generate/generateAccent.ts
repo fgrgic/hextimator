@@ -2,7 +2,7 @@ import { convert } from '../convert';
 import { parse } from '../parse';
 import type { Color } from '../types';
 import type { ColorScale, GenerateOptions, ThemeType } from './types';
-import { expandColorToScale } from './utils';
+import { expandColorToScale, wrapHue } from './utils';
 
 export function generateAccent(
 	accent: Color,
@@ -14,7 +14,20 @@ export function generateAccent(
 
 	if (invertBaseAndAccent) {
 		const accentOklch = convert(accent, 'oklch');
-		const baseOklch = convert(parse(options?.baseColor ?? accent), 'oklch');
+		const baseHueShift = options?.baseHueShift ?? 0;
+
+		let baseOklch = options?.baseColor
+			? convert(parse(options.baseColor), 'oklch')
+			: convert(accent, 'oklch');
+
+		// When inverted with baseHueShift, the accent gets the shifted hue
+		if (baseHueShift !== 0 && !options?.baseColor) {
+			baseOklch = {
+				...baseOklch,
+				h: wrapHue(accentOklch.h + baseHueShift),
+			};
+		}
+
 		const maxChroma = options?.dark?.maxChroma;
 		const invertedAccent = {
 			...baseOklch,

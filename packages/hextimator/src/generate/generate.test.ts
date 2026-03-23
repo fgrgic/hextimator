@@ -630,6 +630,103 @@ describe('end-to-end: output shape', () => {
 });
 
 // ──────────────────────────────────────────────
+// 11. baseHueShift
+// ──────────────────────────────────────────────
+describe('baseHueShift: rotates base hue relative to accent', () => {
+	it('180 shifts base hue ~180° from accent', () => {
+		const accentHue = convert(parse('#ff6600'), 'oklch').h;
+		const result = hextimate('#ff6600', { baseHueShift: 180 }).format({
+			as: 'object',
+			colors: 'oklch',
+		});
+
+		for (const theme of THEME_TYPES) {
+			const palette = result[theme] as Record<string, string>;
+			const baseH = parseOklchHue(palette.base);
+			const diff = Math.abs(hueDiff(baseH, accentHue));
+			expect(diff).toBeGreaterThan(170);
+			expect(diff).toBeLessThanOrEqual(180);
+		}
+	});
+
+	it('30 shifts base hue ~+30° from accent', () => {
+		const accentHue = convert(parse('#ff6600'), 'oklch').h;
+		const result = hextimate('#ff6600', { baseHueShift: 30 }).format({
+			as: 'object',
+			colors: 'oklch',
+		});
+
+		for (const theme of THEME_TYPES) {
+			const palette = result[theme] as Record<string, string>;
+			const baseH = parseOklchHue(palette.base);
+			const diff = hueDiff(baseH, accentHue);
+			expect(Math.abs(diff - 30)).toBeLessThan(5);
+		}
+	});
+
+	it('0 behaves the same as no baseHueShift', () => {
+		const without = hextimate('#ff6600').format({
+			as: 'object',
+			colors: 'hex',
+		});
+		const withShift = hextimate('#ff6600', { baseHueShift: 0 }).format({
+			as: 'object',
+			colors: 'hex',
+		});
+
+		expect(withShift.light).toEqual(without.light);
+		expect(withShift.dark).toEqual(without.dark);
+	});
+
+	it('explicit baseColor takes precedence over baseHueShift', () => {
+		const result = hextimate('#ff6600', {
+			baseColor: '#0000ff',
+			baseHueShift: 90,
+		}).format({ as: 'object', colors: 'oklch' });
+
+		const blueHue = convert(parse('#0000ff'), 'oklch').h;
+		for (const theme of THEME_TYPES) {
+			const palette = result[theme] as Record<string, string>;
+			const baseH = parseOklchHue(palette.base);
+			const diff = Math.abs(hueDiff(baseH, blueHue));
+			expect(diff).toBeLessThan(5);
+		}
+	});
+
+	it('all shifts still meet AAA contrast', () => {
+		const shifts = [30, 60, 90, 120, 150, 180, -30, -90, -180];
+
+		for (const shift of shifts) {
+			for (const color of TEST_COLORS) {
+				for (const theme of THEME_TYPES) {
+					const result = hextimate(color, { baseHueShift: shift }).format({
+						as: 'object',
+						colors: 'hex',
+					});
+					const palette = result[theme] as Record<string, string>;
+					const roleScales = groupByRole(palette);
+
+					for (const [role, scale] of Object.entries(roleScales)) {
+						const fg = scale.foreground;
+						if (!fg) continue;
+
+						for (const [variant, value] of Object.entries(scale)) {
+							if (variant === 'foreground') continue;
+							const cr = contrast(value, fg);
+							if (cr < MIN_CONTRAST) {
+								throw new Error(
+									`${role}.${variant} (${value}) vs foreground (${fg}) = ${cr.toFixed(2)} in ${theme} for ${color} with baseHueShift: ${shift}`,
+								);
+							}
+						}
+					}
+				}
+			}
+		}
+	});
+});
+
+// ──────────────────────────────────────────────
 // Helpers
 // ──────────────────────────────────────────────
 

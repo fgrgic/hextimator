@@ -109,11 +109,24 @@ export interface ThemeAdjustments {
  */
 export interface HextimateGenerationOptions {
 	/**
-	 * Preferred base color for dark and light mode
-	 * It will be used as a baseline to generate the rest of base colors (strong, weak)
-	 * If not provided, it will be derived from the main input color with very low chroma
+	 * Preferred base color for dark and light mode.
+	 * It will be used as a baseline to generate the rest of base colors (strong, weak).
+	 * If not provided, it will be derived from the main input color with very low chroma.
+	 *
+	 * Takes precedence over `baseHueShift` when both are set.
 	 */
 	baseColor?: ColorInput;
+
+	/**
+	 * Rotate the base color's hue relative to the accent color (in degrees).
+	 *
+	 * Examples: 180 for complementary, 30 for analogous, -30 for the other direction.
+	 *
+	 * Ignored when an explicit `baseColor` is provided.
+	 *
+	 * Default: 0 (same hue as the accent).
+	 */
+	baseHueShift?: number;
 
 	/**
 	 * Semantic colors to use for the theme

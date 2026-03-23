@@ -2,7 +2,7 @@ import { convert } from '../convert';
 import { parse } from '../parse';
 import type { Color } from '../types';
 import type { ColorScale, GenerateOptions, ThemeType } from './types';
-import { expandColorToScale } from './utils';
+import { expandColorToScale, wrapHue } from './utils';
 
 const BASELINE_DARK_L_VALUE = 0.2;
 const BASELINE_LIGHT_L_VALUE = 0.97;
@@ -30,9 +30,18 @@ export function generateBase(
 
 	const preferredBaseColor = convert(parse(preferredBaseColorInput), 'oklch');
 
+	let baseHue = preferredBaseColor.h;
+	const baseChroma = Math.min(preferredBaseColor.c, baselineMaxChroma);
+
+	const baseHueShift = options?.baseHueShift ?? 0;
+	if (baseHueShift !== 0 && !options?.baseColor && !invertBaseAndAccent) {
+		baseHue = wrapHue(convert(color, 'oklch').h + baseHueShift);
+	}
+
 	const normalizedPreferredBaseColor = {
 		...preferredBaseColor,
-		c: Math.min(preferredBaseColor.c, baselineMaxChroma),
+		h: baseHue,
+		c: baseChroma,
 		l: themeType === 'light' ? BASELINE_LIGHT_L_VALUE : BASELINE_DARK_L_VALUE,
 	};
 
