@@ -43,7 +43,7 @@ function App() {
 		const theme = hextimate(input, {
 			minContrastRatio: 'AA',
 			baseMaxChroma: 0.03,
-			baseColor: 'ffccaa',
+			baseHueShift: 180,
 			invertDarkModeBaseAccent: true,
 		})
 			.light({ maxChroma: 0.1, lightness: 0.5 })
