@@ -19,7 +19,6 @@ import type { HextimatePreset } from './types';
  */
 export const minimal: HextimatePreset = {
 	tokens: [
-		{ name: 'foreground', value: { from: 'base.foreground' } },
 		{
 			name: 'border',
 			value: {
