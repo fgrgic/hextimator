@@ -1,6 +1,6 @@
 import { adaptPalette, type CVDType, simulatePalette } from './a11y';
 import { convert } from './convert';
-import type { FormatResult } from './format';
+import type { FlatTokenMap, FormatResult, NestedTokenMap } from './format';
 import { format } from './format';
 import { serializeColor } from './format/serializeColor';
 import type { TokenEntry } from './format/types';
@@ -25,9 +25,9 @@ import type {
 } from './types';
 
 /** The result of formatting a palette, containing both light and dark theme tokens. */
-export interface HextimateResult {
-	light: FormatResult;
-	dark: FormatResult;
+export interface HextimateResult<F = FormatResult> {
+	light: F;
+	dark: F;
 }
 
 /**
@@ -340,21 +340,24 @@ export class HextimatePaletteBuilder {
 	}
 
 	/**
-	 *
-	 * Formats the palette into the desired output format, applying any standalone tokens as well.
-	 * The output format can be a simple object mapping token names to color strings, or a more complex structure depending on the options provided.
-	 *
-	 * e.g. `format({ colors: 'hex', as: 'object' })` outputs a simple object with hex color strings for each token.
-	 * `format({ colors: 'rgb', as: 'css' })` outputs a CSS string with RGB color values for each token.
-	 *
-	 * @param options Formatting options, including color format (e.g. 'hex', 'rgb') and output structure (e.g. 'object', 'css').
-	 * @returns
-	 */
-	/**
 	 * Serializes the palette into the chosen output format.
 	 *
 	 * @param options Format options controlling output shape (`as`), color serialization (`colors`), role/variant renaming, and separator.
 	 */
+	format(
+		options: HextimateFormatOptions & { as: 'tailwind' },
+	): HextimateResult<NestedTokenMap>;
+
+	format(
+		options: HextimateFormatOptions & { as: 'json' | 'tailwind-css' },
+	): HextimateResult<string>;
+
+	format(
+		options: HextimateFormatOptions & { as: 'object' | 'css' | 'scss' },
+	): HextimateResult<FlatTokenMap>;
+
+	format(options?: HextimateFormatOptions): HextimateResult;
+
 	format(options?: HextimateFormatOptions): HextimateResult {
 		const colorFormat = options?.colors ?? 'hex';
 
