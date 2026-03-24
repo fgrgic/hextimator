@@ -1,6 +1,5 @@
 import { describe, expect, test } from 'bun:test';
 import { hextimate } from '../index';
-import { minimal } from './minimal';
 import { shadcn } from './shadcn';
 import type { HextimatePreset } from './types';
 
@@ -84,25 +83,7 @@ describe('preset', () => {
 		expect(lightKeys).not.toContain('--warning');
 	});
 
-	test('minimal preset produces expected variables', () => {
-		const theme = hextimate('#3a86ff').preset(minimal).format();
-		const lightKeys = Object.keys(theme.light);
-
-		expect(lightKeys).toContain('--background');
-		expect(lightKeys).toContain('--primary');
-		expect(lightKeys).toContain('--success');
-		expect(lightKeys).toContain('--danger');
-		expect(lightKeys).toContain('--foreground');
-		expect(lightKeys).toContain('--border');
-	});
-
-	test('minimal preset uses hex color format', () => {
-		const theme = hextimate('#3a86ff').preset(minimal).format();
-		const primaryValue = (theme.light as Record<string, string>)['--primary'];
-		expect(primaryValue).toMatch(/^#/);
-	});
-
-	test('fork preserves preset', () => {
+test('fork preserves preset', () => {
 		const builder = hextimate('#6366F1').preset(shadcn);
 		const forked = builder.fork('#ff6600');
 		const theme = forked.format();

@@ -11,7 +11,6 @@ import type {
 
 const AVAILABLE_PRESETS: Record<string, HextimatePreset> = {
 	shadcn: presets.shadcn,
-	minimal: presets.minimal,
 };
 
 const HELP = `
@@ -23,7 +22,7 @@ Arguments:
   color                       Input color (quote hex values: '#ff6600')
 
 Presets:
-  -p, --preset <name>         Apply a preset: shadcn | minimal
+  -p, --preset <name>         Apply a preset: shadcn
                               Preset format defaults can be overridden with -f, -c, etc.
 
 Format options:
