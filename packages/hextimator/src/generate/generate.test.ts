@@ -2,6 +2,7 @@ import { describe, expect, it } from 'bun:test';
 import { convert } from '../convert';
 import { hextimate } from '../index';
 import { parse } from '../parse';
+import { minimal } from '../presets/minimal';
 import type { ColorInput } from '../types';
 import { calculateContrast } from './utils';
 
@@ -69,8 +70,10 @@ describe('contrast: all variants meet AAA with foreground', () => {
 describe('contrast: added variants still meet AAA with foreground', () => {
 	for (const color of TEST_COLORS) {
 		for (const theme of THEME_TYPES) {
-			it(`${color} – ${theme} (beyond strong + between)`, () => {
+			it(`${color} – ${theme} (side + beyond + between)`, () => {
 				const result = hextimate(color)
+					.addVariant('strong', { side: 'strong' })
+					.addVariant('weak', { side: 'weak' })
 					.addVariant('stronger', { beyond: 'strong' })
 					.addVariant('weaker', { beyond: 'weak' })
 					.addVariant('mid', { between: ['DEFAULT', 'strong'] })
@@ -100,14 +103,12 @@ describe('contrast: added variants still meet AAA with foreground', () => {
 
 // ──────────────────────────────────────────────
 // 3. Strong is closer to foreground than weak (perceptual ordering)
-//    Strong moves toward the foreground, weak moves away. We verify
-//    this by comparing OKLCH lightness distances to the foreground.
 // ──────────────────────────────────────────────
 describe('lightness ordering: strong has more contrast with base than weak', () => {
 	for (const color of TEST_COLORS) {
 		for (const theme of THEME_TYPES) {
 			it(`${color} – ${theme}`, () => {
-				const builder = hextimate(color);
+				const builder = hextimate(color).preset(minimal);
 				const result = builder.format({ as: 'object', colors: 'hex' });
 				const palette = result[theme] as Record<string, string>;
 				const roleScales = groupByRole(palette);
@@ -226,6 +227,7 @@ describe('addRole: values do not change with input color', () => {
 describe('addVariant: applies to roles, not tokens', () => {
 	it('new variant appears on every role', () => {
 		const result = hextimate('#ff6600')
+			.addVariant('strong', { side: 'strong' })
 			.addVariant('stronger', { beyond: 'strong' })
 			.format({ as: 'object', colors: 'hex' });
 
@@ -241,6 +243,7 @@ describe('addVariant: applies to roles, not tokens', () => {
 	it('new variant does NOT appear on standalone tokens', () => {
 		const result = hextimate('#ff6600')
 			.addToken('surface', '#fafafa')
+			.addVariant('strong', { side: 'strong' })
 			.addVariant('stronger', { beyond: 'strong' })
 			.format({ as: 'object', colors: 'hex' });
 
@@ -260,10 +263,9 @@ describe('minContrastRatio', () => {
 	it('"AA" enforces 4.5 contrast with foreground', () => {
 		for (const color of TEST_COLORS) {
 			for (const theme of THEME_TYPES) {
-				const result = hextimate(color, { minContrastRatio: 'AA' }).format({
-					as: 'object',
-					colors: 'hex',
-				});
+				const result = hextimate(color, { minContrastRatio: 'AA' })
+					.preset(minimal)
+					.format({ as: 'object', colors: 'hex' });
 				const palette = result[theme] as Record<string, string>;
 				const roleScales = groupByRole(palette);
 
@@ -288,10 +290,9 @@ describe('minContrastRatio', () => {
 	it('numeric value is respected', () => {
 		for (const color of TEST_COLORS) {
 			for (const theme of THEME_TYPES) {
-				const result = hextimate(color, { minContrastRatio: 3 }).format({
-					as: 'object',
-					colors: 'hex',
-				});
+				const result = hextimate(color, { minContrastRatio: 3 })
+					.preset(minimal)
+					.format({ as: 'object', colors: 'hex' });
 				const palette = result[theme] as Record<string, string>;
 				const roleScales = groupByRole(palette);
 
@@ -314,10 +315,9 @@ describe('minContrastRatio', () => {
 	});
 
 	it('defaults to AAA (7) when omitted', () => {
-		const result = hextimate('#ff1414').format({
-			as: 'object',
-			colors: 'hex',
-		});
+		const result = hextimate('#ff1414')
+			.preset(minimal)
+			.format({ as: 'object', colors: 'hex' });
 		const palette = result.light as Record<string, string>;
 		const roleScales = groupByRole(palette);
 
@@ -348,10 +348,9 @@ describe('hueShift: all variants still meet AAA with foreground', () => {
 		for (const theme of THEME_TYPES) {
 			for (const shift of HUE_SHIFTS) {
 				it(`${color} – ${theme} – hueShift: ${shift}`, () => {
-					const result = hextimate(color, { hueShift: shift }).format({
-						as: 'object',
-						colors: 'hex',
-					});
+					const result = hextimate(color, { hueShift: shift })
+						.preset(minimal)
+						.format({ as: 'object', colors: 'hex' });
 					const palette = result[theme] as Record<string, string>;
 					const roleScales = groupByRole(palette);
 
@@ -379,10 +378,9 @@ describe('hueShift: negative values flip direction', () => {
 	for (const color of TEST_COLORS) {
 		for (const theme of THEME_TYPES) {
 			it(`${color} – ${theme} – hueShift: -10`, () => {
-				const result = hextimate(color, { hueShift: -10 }).format({
-					as: 'object',
-					colors: 'hex',
-				});
+				const result = hextimate(color, { hueShift: -10 })
+					.preset(minimal)
+					.format({ as: 'object', colors: 'hex' });
 				const palette = result[theme] as Record<string, string>;
 				const roleScales = groupByRole(palette);
 
@@ -413,6 +411,8 @@ describe('hueShift: added variants still meet AAA', () => {
 			for (const shift of HUE_SHIFTS) {
 				it(`${color} – ${theme} – hueShift: ${shift} (beyond + between)`, () => {
 					const result = hextimate(color, { hueShift: shift })
+						.addVariant('strong', { side: 'strong' })
+						.addVariant('weak', { side: 'weak' })
 						.addVariant('stronger', { beyond: 'strong' })
 						.addVariant('weaker', { beyond: 'weak' })
 						.addVariant('mid', { between: ['DEFAULT', 'strong'] })
@@ -443,10 +443,9 @@ describe('hueShift: added variants still meet AAA', () => {
 
 describe('hueShift: hue actually shifts between variants', () => {
 	it('strong and weak have different hues from DEFAULT when hueShift > 0', () => {
-		const result = hextimate('#6366f1', { hueShift: 10 }).format({
-			as: 'object',
-			colors: 'oklch',
-		});
+		const result = hextimate('#6366f1', { hueShift: 10 })
+			.preset(minimal)
+			.format({ as: 'object', colors: 'oklch' });
 
 		for (const theme of THEME_TYPES) {
 			const palette = result[theme] as Record<string, string>;
@@ -472,10 +471,9 @@ describe('hueShift: hue actually shifts between variants', () => {
 	});
 
 	it('hueShift: 0 keeps all variants at the same hue', () => {
-		const result = hextimate('#6366f1', { hueShift: 0 }).format({
-			as: 'object',
-			colors: 'oklch',
-		});
+		const result = hextimate('#6366f1', { hueShift: 0 })
+			.preset(minimal)
+			.format({ as: 'object', colors: 'oklch' });
 
 		for (const theme of THEME_TYPES) {
 			const palette = result[theme] as Record<string, string>;
@@ -498,11 +496,10 @@ describe('hueShift: hue actually shifts between variants', () => {
 
 describe('hueShift: clamping to 360/(n+1)', () => {
 	it('extreme hueShift is clamped so palette stays bounded', () => {
-		// With 2 default variants (strong, weak), max = 360/3 = 120
-		const result = hextimate('#6366f1', { hueShift: 999 }).format({
-			as: 'object',
-			colors: 'oklch',
-		});
+		// With 2 variants (strong, weak), max = 360/3 = 120
+		const result = hextimate('#6366f1', { hueShift: 999 })
+			.preset(minimal)
+			.format({ as: 'object', colors: 'oklch' });
 
 		for (const theme of THEME_TYPES) {
 			const palette = result[theme] as Record<string, string>;
@@ -525,6 +522,8 @@ describe('hueShift: clamping to 360/(n+1)', () => {
 	it('clamping adjusts when more variants are added', () => {
 		// When weaker is added (4 total variants), weak side uses max = 360/5 = 72
 		const result = hextimate('#6366f1', { hueShift: 200 })
+			.addVariant('strong', { side: 'strong' })
+			.addVariant('weak', { side: 'weak' })
 			.addVariant('stronger', { beyond: 'strong' })
 			.addVariant('weaker', { beyond: 'weak' })
 			.format({ as: 'object', colors: 'oklch' });
@@ -584,7 +583,7 @@ describe('addToken: error paths', () => {
 });
 
 // ──────────────────────────────────────────────
-// 9. addVariant: invalid between references
+// 10. addVariant: invalid between references
 // ──────────────────────────────────────────────
 describe('addVariant: invalid between references', () => {
 	it('throws when a between variant references a missing variant', () => {
@@ -597,11 +596,34 @@ describe('addVariant: invalid between references', () => {
 });
 
 // ──────────────────────────────────────────────
-// 10. End-to-end pipeline shape
+// 11. End-to-end pipeline shape
 // ──────────────────────────────────────────────
 describe('end-to-end: output shape', () => {
-	it('produces expected top-level roles by default', () => {
+	it('produces expected top-level roles by default (DEFAULT + foreground only)', () => {
 		const result = hextimate('#6366f1').format({ as: 'object', colors: 'hex' });
+
+		for (const theme of ['light', 'dark'] as const) {
+			const tokens = result[theme] as Record<string, string>;
+			for (const role of [
+				'accent',
+				'base',
+				'positive',
+				'negative',
+				'warning',
+			]) {
+				expect(tokens[role]).toMatch(/^#[0-9a-f]{6}$/);
+				expect(tokens[`${role}-foreground`]).toMatch(/^#[0-9a-f]{6}$/);
+			}
+			// No strong/weak by default
+			expect(tokens['accent-strong']).toBeUndefined();
+			expect(tokens['accent-weak']).toBeUndefined();
+		}
+	});
+
+	it('minimal preset adds strong and weak', () => {
+		const result = hextimate('#6366f1')
+			.preset(minimal)
+			.format({ as: 'object', colors: 'hex' });
 
 		for (const theme of ['light', 'dark'] as const) {
 			const tokens = result[theme] as Record<string, string>;
@@ -630,7 +652,7 @@ describe('end-to-end: output shape', () => {
 });
 
 // ──────────────────────────────────────────────
-// 11. baseHueShift
+// 12. baseHueShift
 // ──────────────────────────────────────────────
 describe('baseHueShift: rotates base hue relative to accent', () => {
 	it('180 shifts base hue ~180° from accent', () => {
@@ -699,10 +721,9 @@ describe('baseHueShift: rotates base hue relative to accent', () => {
 		for (const shift of shifts) {
 			for (const color of TEST_COLORS) {
 				for (const theme of THEME_TYPES) {
-					const result = hextimate(color, { baseHueShift: shift }).format({
-						as: 'object',
-						colors: 'hex',
-					});
+					const result = hextimate(color, { baseHueShift: shift })
+						.preset(minimal)
+						.format({ as: 'object', colors: 'hex' });
 					const palette = result[theme] as Record<string, string>;
 					const roleScales = groupByRole(palette);
 

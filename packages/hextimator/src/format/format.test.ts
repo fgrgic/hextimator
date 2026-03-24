@@ -29,8 +29,6 @@ describe('format() — default (no options)', () => {
 
 	it('includes non-DEFAULT variants as role-variant keys', () => {
 		const result = format(palette) as Record<string, string>;
-		expect(result['base-strong']).toBeDefined();
-		expect(result['base-weak']).toBeDefined();
 		expect(result['base-foreground']).toBeDefined();
 	});
 });
@@ -41,10 +39,10 @@ describe('format() — css', () => {
 		expect(Object.keys(result).every((k) => k.startsWith('--'))).toBe(true);
 	});
 
-	it('includes --base and --base-strong', () => {
+	it('includes --base and --base-foreground', () => {
 		const result = format(palette, { as: 'css' }) as Record<string, string>;
 		expect(result['--base']).toBeDefined();
-		expect(result['--base-strong']).toBeDefined();
+		expect(result['--base-foreground']).toBeDefined();
 	});
 });
 
@@ -63,7 +61,7 @@ describe('format() — tailwind', () => {
 		>;
 		expect(typeof result.base).toBe('object');
 		expect(result.base.DEFAULT).toBeDefined();
-		expect(result.base.strong).toBeDefined();
+		expect(result.base.foreground).toBeDefined();
 	});
 
 	it('groups all five roles at the top level', () => {
@@ -89,10 +87,10 @@ describe('format() — json', () => {
 		expect(() => JSON.parse(result)).not.toThrow();
 	});
 
-	it('contains base and base-strong keys', () => {
+	it('contains base and base-foreground keys', () => {
 		const result = JSON.parse(format(palette, { as: 'json' }) as string);
 		expect(result.base).toBeDefined();
-		expect(result['base-strong']).toBeDefined();
+		expect(result['base-foreground']).toBeDefined();
 	});
 });
 
@@ -102,8 +100,8 @@ describe('format() — options', () => {
 			string,
 			string
 		>;
-		expect(result.base_strong).toBeDefined();
-		expect(result['base-strong']).toBeUndefined();
+		expect(result.base_foreground).toBeDefined();
+		expect(result['base-foreground']).toBeUndefined();
 	});
 
 	it('respects roleNames overrides', () => {
@@ -116,10 +114,10 @@ describe('format() — options', () => {
 
 	it('respects variantNames overrides', () => {
 		const result = format(palette, {
-			variantNames: { strong: 'dark' },
+			variantNames: { foreground: 'fg' },
 		}) as Record<string, string>;
-		expect(result['base-dark']).toBeDefined();
-		expect(result['base-strong']).toBeUndefined();
+		expect(result['base-fg']).toBeDefined();
+		expect(result['base-foreground']).toBeUndefined();
 	});
 
 	it('respects colors: rgb', () => {

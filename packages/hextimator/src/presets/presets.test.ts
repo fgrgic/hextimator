@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 import { hextimate } from '../index';
+import { minimal } from './minimal';
 import { shadcn } from './shadcn';
 import type { HextimatePreset } from './types';
 
-describe('preset', () => {
+describe('shadcn preset', () => {
 	test('applies format defaults from preset', () => {
 		const theme = hextimate('#6366F1').preset(shadcn).format();
 
@@ -83,7 +84,7 @@ describe('preset', () => {
 		expect(lightKeys).not.toContain('--warning');
 	});
 
-test('fork preserves preset', () => {
+	test('fork preserves preset', () => {
 		const builder = hextimate('#6366F1').preset(shadcn);
 		const forked = builder.fork('#ff6600');
 		const theme = forked.format();
@@ -145,6 +146,42 @@ test('fork preserves preset', () => {
 		expect(lightKeys).toContain('--primary');
 	});
 
+	test('preset values are independent across themes', () => {
+		const theme = hextimate('#6366F1').preset(shadcn).format();
+
+		const lightBorder = (theme.light as Record<string, string>)['--border'];
+		const darkBorder = (theme.dark as Record<string, string>)['--border'];
+
+		// Border should be different in light vs dark
+		expect(lightBorder).not.toBe(darkBorder);
+	});
+});
+
+describe('minimal preset', () => {
+	test('adds strong and weak variants', () => {
+		const theme = hextimate('#6366F1')
+			.preset(minimal)
+			.format({ as: 'object', colors: 'hex' });
+		const keys = Object.keys(theme.light);
+
+		for (const role of ['accent', 'base', 'positive', 'negative', 'warning']) {
+			expect(keys).toContain(`${role}-strong`);
+			expect(keys).toContain(`${role}-weak`);
+		}
+	});
+
+	test('fork preserves minimal preset', () => {
+		const builder = hextimate('#6366F1').preset(minimal);
+		const forked = builder.fork('#ff6600');
+		const theme = forked.format({ as: 'object', colors: 'hex' });
+		const keys = Object.keys(theme.light);
+
+		expect(keys).toContain('accent-strong');
+		expect(keys).toContain('accent-weak');
+	});
+});
+
+describe('custom presets', () => {
 	test('custom preset with roles', () => {
 		const custom: HextimatePreset = {
 			roles: [{ name: 'cta', color: '#ee2244' }],
@@ -155,29 +192,20 @@ test('fork preserves preset', () => {
 		const lightKeys = Object.keys(theme.light);
 
 		expect(lightKeys).toContain('--cta');
-		expect(lightKeys).toContain('--cta-strong');
-		expect(lightKeys).toContain('--cta-weak');
 		expect(lightKeys).toContain('--cta-foreground');
 	});
 
 	test('custom preset with variants', () => {
 		const custom: HextimatePreset = {
-			variants: [{ name: 'hover', placement: { beyond: 'strong' } }],
+			variants: [
+				{ name: 'strong', placement: { side: 'strong' } },
+				{ name: 'hover', placement: { beyond: 'strong' } },
+			],
 			format: { as: 'object' },
 		};
 
 		const theme = hextimate('#6366F1').preset(custom).format();
 		expect(theme.light).toHaveProperty('accent-hover');
 		expect(theme.light).toHaveProperty('base-hover');
-	});
-
-	test('preset values are independent across themes', () => {
-		const theme = hextimate('#6366F1').preset(shadcn).format();
-
-		const lightBorder = (theme.light as Record<string, string>)['--border'];
-		const darkBorder = (theme.dark as Record<string, string>)['--border'];
-
-		// Border should be different in light vs dark
-		expect(lightBorder).not.toBe(darkBorder);
 	});
 });

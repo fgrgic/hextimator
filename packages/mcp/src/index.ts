@@ -45,9 +45,7 @@ const generatePaletteShape = {
 	separator: z
 		.string()
 		.optional()
-		.describe(
-			'Separator between role and variant in token keys (default: -)',
-		),
+		.describe('Separator between role and variant in token keys (default: -)'),
 	baseColor: z
 		.string()
 		.optional()

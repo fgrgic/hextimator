@@ -44,7 +44,7 @@ function App() {
 			// minContrastRatio: 'AA',
 			// baseMaxChroma: 0.03,
 			invertDarkModeBaseAccent: true,
-		}).preset(presets.shadcn);
+		}).preset(presets.minimal);
 		// .light({ maxChroma: 0.1, lightness: 0.5 })
 		// .dark({ maxChroma: 0.1 });
 		// .addRole('banner', '#ff006e')

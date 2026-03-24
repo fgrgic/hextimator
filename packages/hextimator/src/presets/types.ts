@@ -15,7 +15,7 @@ import type { ColorInput, HextimateFormatOptions } from '../types';
  *   .format();
  */
 export interface HextimatePreset {
-	/** Extra roles to add to the palette (each generates DEFAULT, strong, weak, foreground variants). */
+	/** Extra roles to add to the palette (each generates DEFAULT and foreground variants). */
 	roles?: Array<{ name: string; color: ColorInput }>;
 
 	/** Extra variants to add across all roles. */

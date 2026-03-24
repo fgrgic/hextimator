@@ -35,10 +35,12 @@ export interface HextimateResult<F = FormatResult> {
  * Where to place a new variant relative to existing ones.
  * - `{ beyond: "strong" }` — one step past the named variant
  * - `{ between: ["DEFAULT", "weak"] }` — midpoint between two variants
+ * - `{ side: "strong" }` — add to the strong (more contrast) or weak (less contrast) side
  */
 export type VariantPlacement =
 	| { beyond: string }
-	| { between: [string, string] };
+	| { between: [string, string] }
+	| { side: 'strong' | 'weak' };
 
 /**
  * A token derived from an existing role+variant, with optional lightness/chroma offsets.
@@ -89,8 +91,8 @@ export class HextimatePaletteBuilder {
 		name: string;
 		value: TokenValue;
 	}> = [];
-	private readonly weakSideVariants: string[] = ['weak'];
-	private readonly strongSideVariants: string[] = ['strong'];
+	private readonly weakSideVariants: string[] = [];
+	private readonly strongSideVariants: string[] = [];
 	private readonly betweenVariants: Array<{
 		name: string;
 		refs: [string, string];
@@ -98,12 +100,18 @@ export class HextimatePaletteBuilder {
 	private lightThemeAdjustments?: ThemeAdjustments;
 	private darkThemeAdjustments?: ThemeAdjustments;
 	private presetFormatDefaults?: HextimateFormatOptions;
+	/** Precomputed strong/weak values stripped from scales, keyed by "light:role" or "dark:role". */
+	private readonly precomputedVariants = new Map<
+		string,
+		Record<string, ColorInput>
+	>();
 
 	constructor(color: Color, options?: HextimateGenerationOptions) {
 		this.inputColor = color;
 		this.options = options ?? {};
 		this.lightPalette = generate(color, 'light', options);
 		this.darkPalette = generate(color, 'dark', options);
+		this.stripAndStoreVariants();
 	}
 
 	/**
@@ -123,14 +131,14 @@ export class HextimatePaletteBuilder {
 	}
 
 	/**
+	 * Adds a variant to all roles.
 	 *
-	 * Adds a variant to all roles, either "beyond" an existing variant or "between" two existing variants.
+	 * - `{ side: 'strong' }` — adds to the strong (more contrast) or weak (less contrast) side
+	 * - `{ beyond: 'strong' }` — one step past an existing variant
+	 * - `{ between: ['DEFAULT', 'strong'] }` — midpoint between two existing variants
 	 *
-	 * e.g. `addVariant('placeholder', { beyond: 'weak' })` adds a "placeholder" variant that is "weaker" than "weak" across all roles and themes.
-	 * `addVariant('highlight', { between: ['DEFAULT', 'strong'] })` adds a "highlight" variant that is exactly between "DEFAULT" and "strong" across all roles and themes.
-	 *
-	 * @param name Variant name (e.g. "placeholder", "highlight")
-	 * @param placement Placement of the variant, either `{ beyond: 'weak' }` or `{ between: ['DEFAULT', 'strong'] }`
+	 * @param name Variant name (e.g. "strong", "hover", "highlight")
+	 * @param placement Where to place the variant
 	 */
 	addVariant(name: string, placement: VariantPlacement): this {
 		this.operations.push({ method: 'addVariant', args: [name, placement] });
@@ -411,22 +419,75 @@ export class HextimatePaletteBuilder {
 		const parsedColor = parse(color);
 		const opts = this.resolvedOptions();
 
-		this.lightPalette[name] = expandColorToScale(parsedColor, 'light', {
+		const scaleOpts = {
 			light: opts.light,
 			dark: opts.dark,
 			minContrastRatio: opts.minContrastRatio,
-			hueShift: opts.hueShift,
-		});
-		this.darkPalette[name] = expandColorToScale(parsedColor, 'dark', {
-			light: opts.light,
-			dark: opts.dark,
-			minContrastRatio: opts.minContrastRatio,
-			hueShift: opts.hueShift,
-		});
+		};
+
+		this.lightPalette[name] = expandColorToScale(
+			parsedColor,
+			'light',
+			scaleOpts,
+		);
+		this.darkPalette[name] = expandColorToScale(parsedColor, 'dark', scaleOpts);
+
+		// Apply existing side variants to the new role.
+		for (const sideVariants of [
+			this.strongSideVariants,
+			this.weakSideVariants,
+		]) {
+			if (sideVariants.length === 0) continue;
+			for (const variantName of sideVariants) {
+				for (const palette of [this.lightPalette, this.darkPalette]) {
+					palette[name][variantName] = {
+						...convert(parse(palette[name].DEFAULT), 'oklch'),
+					};
+				}
+			}
+			this.redistributeAllScales(sideVariants);
+		}
+
+		// Apply existing between variants to the new role.
+		for (const bv of this.betweenVariants) {
+			for (const palette of [this.lightPalette, this.darkPalette]) {
+				const scale = palette[name];
+				scale[bv.name] = this.computeBetweenVariant(
+					scale,
+					bv.refs[0],
+					bv.refs[1],
+				);
+			}
+		}
 	}
 
 	private applyVariant(name: string, placement: VariantPlacement): void {
-		if ('beyond' in placement) {
+		if ('side' in placement) {
+			const sideVariants =
+				placement.side === 'strong'
+					? this.strongSideVariants
+					: this.weakSideVariants;
+			const otherSide =
+				placement.side === 'strong'
+					? this.weakSideVariants
+					: this.strongSideVariants;
+
+			// Set initial position at DEFAULT — redistributeAllScales will place it properly.
+			for (const palette of [this.lightPalette, this.darkPalette]) {
+				for (const role of Object.keys(palette)) {
+					const scale = palette[role];
+					scale[name] = { ...convert(parse(scale.DEFAULT), 'oklch') };
+				}
+			}
+
+			sideVariants.push(name);
+			this.redistributeAllScales(sideVariants);
+			// Re-clamp the other side too, since totalVariants changed.
+			if (otherSide.length > 0) {
+				this.redistributeAllScales(otherSide);
+			}
+			this.recomputeBetweenVariants();
+		} else if ('beyond' in placement) {
 			const edge = placement.beyond;
 
 			for (const palette of [this.lightPalette, this.darkPalette]) {

@@ -48,8 +48,6 @@ export function simulatePalette(
 		const scale = palette[role];
 		const newScale: HextimatePalette[string] = {
 			DEFAULT: scale.DEFAULT,
-			strong: scale.strong,
-			weak: scale.weak,
 			foreground: scale.foreground,
 		};
 
