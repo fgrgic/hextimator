@@ -34,7 +34,7 @@
 	"bin": {
 		"hextimator": "./dist/cli.mjs"
 	},
-	"author": "ditherbug",
+	"author": "fgrgic",
 	"main": "dist/index.js",
 	"module": "dist/index.mjs",
 	"types": "dist/index.d.ts",

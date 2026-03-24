@@ -1,0 +1,45 @@
+{
+	"name": "@hextimator/mcp",
+	"version": "0.0.1",
+	"description": "MCP server for hextimator — lets AI agents generate perceptually uniform color palettes as a tool.",
+	"keywords": [
+		"mcp",
+		"model-context-protocol",
+		"hextimator",
+		"color",
+		"palette",
+		"ai-tools"
+	],
+	"homepage": "https://github.com/fgrgic/hextimator#readme",
+	"bugs": {
+		"url": "https://github.com/fgrgic/hextimator/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/fgrgic/hextimator.git",
+		"directory": "packages/mcp"
+	},
+	"license": "MIT",
+	"author": "fgrgic",
+	"type": "module",
+	"main": "dist/index.js",
+	"bin": {
+		"hextimator-mcp": "./dist/index.js"
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsup",
+		"dev": "tsup --watch"
+	},
+	"dependencies": {
+		"@modelcontextprotocol/sdk": "^1.12.1",
+		"hextimator": "workspace:*",
+		"zod": "^3.25.67"
+	},
+	"devDependencies": {
+		"tsup": "^8.0.0",
+		"typescript": "^5.0.0"
+	}
+}
