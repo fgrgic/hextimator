@@ -21,6 +21,7 @@ export type {
 	ThemeAdjustments,
 } from './types';
 
+/** Thrown when `hextimate()` fails to parse or generate a palette from the given input. */
 class HextimateError extends Error {
 	constructor(
 		public readonly input: ColorInput,

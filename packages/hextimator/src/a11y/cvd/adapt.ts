@@ -67,6 +67,21 @@ export function daltonize(
 	];
 }
 
+/**
+ * Daltonize a color for a specific type of color vision deficiency (CVD).
+ *
+ * Daltonization attempts to preserve the appearance of the color by redistributing the error from the CVD simulation into the channels that the person can still perceive.
+ *
+ * Note that daltonization is not a perfect solution and may not work well for all colors or all types of CVD.
+ * It is intended as a tool for improving accessibility,
+ * but should be used with caution and tested with real users whenever possible.
+ *
+ *
+ * @param color The color to daltonize.
+ * @param type The type of color vision deficiency to daltonize for (e.g. "protanopia", "deuteranopia", "tritanopia", "achromatopsia").
+ * @param severity The severity of the color vision deficiency to daltonize for, on a scale from 0 (no deficiency) to 1 (complete deficiency). Default is 1.
+ * @returns The daltonized color in OKLCH color space.
+ */
 export function daltonizeColor(
 	color: Color,
 	type: CVDType,
@@ -87,6 +102,21 @@ export function daltonizeColor(
 	);
 }
 
+/**
+ *
+ * Daltonize a palette for a specific type of color vision deficiency (CVD).
+ *
+ * This applies the daltonization process to each color in the palette, attempting to preserve the appearance
+ * of the colors for someone with the specified type and severity of CVD.
+ *
+ * Note that daltonization is not a perfect solution and may not work well for all colors or all types of CVD.
+ * It is intended as a tool for improving accessibility, but should be used with caution and tested with real users whenever possible.
+ *
+ * @param palette The palette to daltonize, in the same format as the output of `hextimate()`.
+ * @param type The type of color vision deficiency to daltonize for (e.g. "protanopia", "deuteranopia", "tritanopia", "achromatopsia").
+ * @param severity The severity of the color vision deficiency to daltonize for, on a scale from 0 (no deficiency) to 1 (complete deficiency). Default is 1.
+ * @returns The daltonized palette, in the same format as the input, but with each color daltonized for the specified type and severity of CVD.
+ */
 export function adaptPalette(
 	palette: HextimatePalette,
 	type: CVDType,
