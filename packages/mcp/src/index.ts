@@ -14,6 +14,94 @@ const server = new McpServer({
 	version: '0.0.1',
 });
 
+const generatePaletteSchema = z.object({
+	color: z
+		.string()
+		.describe(
+			'Input color — hex (#ff6600), CSS function (rgb(255,102,0)), or named color',
+		),
+	format: z
+		.enum(['object', 'css', 'tailwind', 'tailwind-css', 'scss', 'json'])
+		.optional()
+		.describe('Output format (default: object)'),
+	colors: z
+		.enum([
+			'hex',
+			'rgb',
+			'rgb-raw',
+			'hsl',
+			'hsl-raw',
+			'oklch',
+			'oklch-raw',
+			'p3',
+			'p3-raw',
+		])
+		.optional()
+		.describe('Color value serialization (default: hex)'),
+	theme: z
+		.enum(['light', 'dark', 'both'])
+		.optional()
+		.describe('Which theme(s) to return (default: both)'),
+	separator: z
+		.string()
+		.optional()
+		.describe(
+			'Separator between role and variant in token keys (default: -)',
+		),
+	baseColor: z
+		.string()
+		.optional()
+		.describe('Override base/neutral color instead of auto-deriving'),
+	baseHueShift: z
+		.number()
+		.optional()
+		.describe(
+			'Rotate base hue relative to accent (degrees). 180 = complementary',
+		),
+	hueShift: z
+		.number()
+		.optional()
+		.describe('Per-variant hue rotation (degrees)'),
+	minContrastRatio: z
+		.string()
+		.optional()
+		.describe(
+			'WCAG contrast target: "AAA" (default, 7:1), "AA" (4.5:1), or a number',
+		),
+	lightLightness: z
+		.number()
+		.optional()
+		.describe('Light theme lightness 0-1 (default: 0.7)'),
+	darkLightness: z
+		.number()
+		.optional()
+		.describe('Dark theme lightness 0-1 (default: 0.6)'),
+	roles: z
+		.string()
+		.optional()
+		.describe(
+			'Custom roles as comma-separated "name=color" pairs (e.g. "cta=#ee2244,sidebar=#3a86ff")',
+		),
+	variants: z
+		.string()
+		.optional()
+		.describe(
+			'Custom variants as comma-separated specs: "name:beyond:edge" or "name:between:a+b" (e.g. "hover:beyond:strong,subtle:between:DEFAULT+weak")',
+		),
+	roleNames: z
+		.string()
+		.optional()
+		.describe(
+			'Rename roles in output as JSON (e.g. \'{"accent":"brand","base":"surface"}\')',
+		),
+	variantNames: z
+		.string()
+		.optional()
+		.describe(
+			'Rename variants in output as JSON (e.g. \'{"strong":"primary","foreground":"text"}\')',
+		),
+});
+
 server.registerTool(
 	'generate_palette',
 	{
@@ -25,93 +113,7 @@ Returns color tokens in the requested format. Default palette has 5 roles (base,
 Roles: use --role to add custom color roles (e.g. "cta=#ff0066"). Each gets its own full scale.
 Variants: use --variant to add lightness steps (e.g. "hover:beyond:strong" or "subtle:between:DEFAULT,weak").
 Renaming: use roleNames/variantNames as JSON to rename output keys (e.g. '{"accent":"brand"}').`,
-		inputSchema: {
-			color: z
-				.string()
-				.describe(
-					'Input color — hex (#ff6600), CSS function (rgb(255,102,0)), or named color',
-				),
-			format: z
-				.enum(['object', 'css', 'tailwind', 'tailwind-css', 'scss', 'json'])
-				.optional()
-				.describe('Output format (default: object)'),
-			colors: z
-				.enum([
-					'hex',
-					'rgb',
-					'rgb-raw',
-					'hsl',
-					'hsl-raw',
-					'oklch',
-					'oklch-raw',
-					'p3',
-					'p3-raw',
-				])
-				.optional()
-				.describe('Color value serialization (default: hex)'),
-			theme: z
-				.enum(['light', 'dark', 'both'])
-				.optional()
-				.describe('Which theme(s) to return (default: both)'),
-			separator: z
-				.string()
-				.optional()
-				.describe(
-					'Separator between role and variant in token keys (default: -)',
-				),
-			baseColor: z
-				.string()
-				.optional()
-				.describe('Override base/neutral color instead of auto-deriving'),
-			baseHueShift: z
-				.number()
-				.optional()
-				.describe(
-					'Rotate base hue relative to accent (degrees). 180 = complementary',
-				),
-			hueShift: z
-				.number()
-				.optional()
-				.describe('Per-variant hue rotation (degrees)'),
-			minContrastRatio: z
-				.string()
-				.optional()
-				.describe(
-					'WCAG contrast target: "AAA" (default, 7:1), "AA" (4.5:1), or a number',
-				),
-			lightLightness: z
-				.number()
-				.optional()
-				.describe('Light theme lightness 0-1 (default: 0.7)'),
-			darkLightness: z
-				.number()
-				.optional()
-				.describe('Dark theme lightness 0-1 (default: 0.6)'),
-			roles: z
-				.string()
-				.optional()
-				.describe(
-					'Custom roles as comma-separated "name=color" pairs (e.g. "cta=#ee2244,sidebar=#3a86ff")',
-				),
-			variants: z
-				.string()
-				.optional()
-				.describe(
-					'Custom variants as comma-separated specs: "name:beyond:edge" or "name:between:a+b" (e.g. "hover:beyond:strong,subtle:between:DEFAULT+weak")',
-				),
-			roleNames: z
-				.string()
-				.optional()
-				.describe(
-					'Rename roles in output as JSON (e.g. \'{"accent":"brand","base":"surface"}\')',
-				),
-			variantNames: z
-				.string()
-				.optional()
-				.describe(
-					'Rename variants in output as JSON (e.g. \'{"strong":"primary","foreground":"text"}\')',
-				),
-		},
+		inputSchema: generatePaletteSchema,
 	},
 	async ({
 		color,
@@ -209,19 +211,21 @@ Renaming: use roleNames/variantNames as JSON to rename output keys (e.g. '{"acce
 	},
 );
 
+const parseColorSchema = z.object({
+	color: z
+		.string()
+		.describe(
+			'Color to parse — hex (#ff6600), CSS function (rgb(255,102,0)), etc.',
+		),
+});
+
 server.registerTool(
 	'parse_color',
 	{
 		title: 'Parse Color',
 		description:
 			'Parse any color input (hex, RGB, HSL, CSS function, tuple, numeric) into a normalized Color object with its color space and components.',
-		inputSchema: {
-			color: z
-				.string()
-				.describe(
-					'Color to parse — hex (#ff6600), CSS function (rgb(255,102,0)), etc.',
-				),
-		},
+		inputSchema: parseColorSchema,
 	},
 	async ({ color }) => {
 		const parsed = parseColor(color);
@@ -236,20 +240,22 @@ server.registerTool(
 	},
 );
 
+const convertColorSchema = z.object({
+	color: z
+		.string()
+		.describe('Color to convert (any supported input format)'),
+	to: z
+		.enum(['srgb', 'hsl', 'oklch', 'oklab', 'linear-rgb', 'display-p3'])
+		.describe('Target color space'),
+});
+
 server.registerTool(
 	'convert_color',
 	{
 		title: 'Convert Color',
 		description:
 			'Convert a color from one color space to another. Supports sRGB, HSL, OKLCH, OKLab, Linear RGB, and Display P3.',
-		inputSchema: {
-			color: z
-				.string()
-				.describe('Color to convert (any supported input format)'),
-			to: z
-				.enum(['srgb', 'hsl', 'oklch', 'oklab', 'linear-rgb', 'display-p3'])
-				.describe('Target color space'),
-		},
+		inputSchema: convertColorSchema,
 	},
 	async ({ color, to }) => {
 		const parsed = parseColor(color);
