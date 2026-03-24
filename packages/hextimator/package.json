@@ -1,7 +1,7 @@
 {
 	"name": "hextimator",
 	"version": "0.0.1",
-	"description": "color palette creator",
+	"description": "Generate perceptually uniform color palettes with light/dark themes and WCAG contrast guarantees from a single brand color. Outputs CSS vars, Tailwind, SCSS, or JSON.",
 	"keywords": [
 		"color",
 		"palette",
@@ -9,7 +9,18 @@
 		"creator",
 		"oklch",
 		"rgb",
-		"rgb2oklch"
+		"rgb2oklch",
+		"theme",
+		"design-tokens",
+		"dark-mode",
+		"wcag",
+		"accessibility",
+		"contrast",
+		"brand-color",
+		"css-variables",
+		"tailwind-theme",
+		"runtime-theming",
+		"multi-tenant"
 	],
 	"homepage": "https://github.com/fgrgic/hextimator#readme",
 	"bugs": {
@@ -42,7 +53,8 @@
 	},
 	"files": [
 		"dist",
-		"tailwind.css"
+		"tailwind.css",
+		"llms.txt"
 	],
 	"scripts": {
 		"build": "tsup",
