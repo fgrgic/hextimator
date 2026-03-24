@@ -1,6 +1,6 @@
 import { adaptPalette, type CVDType, simulatePalette } from './a11y';
 import { convert } from './convert';
-import type { FormatResult } from './format';
+import type { FlatTokenMap, FormatResult, NestedTokenMap } from './format';
 import { format } from './format';
 import { serializeColor } from './format/serializeColor';
 import type { TokenEntry } from './format/types';
@@ -24,26 +24,53 @@ import type {
 	ThemeAdjustments,
 } from './types';
 
-export interface HextimateResult {
-	light: FormatResult;
-	dark: FormatResult;
+/** The result of formatting a palette, containing both light and dark theme tokens. */
+export interface HextimateResult<F = FormatResult> {
+	light: F;
+	dark: F;
 }
 
+/**
+ * Where to place a new variant relative to existing ones.
+ * - `{ beyond: "strong" }` — one step past the named variant
+ * - `{ between: ["DEFAULT", "weak"] }` — midpoint between two variants
+ */
 export type VariantPlacement =
 	| { beyond: string }
 	| { between: [string, string] };
 
+/**
+ * A token derived from an existing role+variant, with optional lightness/chroma offsets.
+ *
+ * @example
+ * { from: "base.weak", lightness: -0.05 }
+ */
 export interface DerivedToken {
 	from: string;
 	lightness?: number;
 	chroma?: number;
 }
 
+/**
+ * Value for a standalone token: a raw color, a derived reference, or per-theme values.
+ *
+ * @example
+ * "#FF6600"
+ * { from: "accent", lightness: +0.1 }
+ * { light: { from: "base.weak", lightness: -0.05 }, dark: { from: "base.weak", lightness: +0.05 } }
+ */
 export type TokenValue =
 	| ColorInput
 	| DerivedToken
 	| { light: DerivedToken | ColorInput; dark: DerivedToken | ColorInput };
 
+/**
+ * Palette builder.
+ *
+ * Supports adding roles, variants, and standalone tokens, as well as simulating and adapting for CVD.
+ * All operations are recorded and replayed in order on fork, ensuring consistent results.
+ * The internal palette is stored in a raw form with OKLCH color objects, allowing for precise adjustments and transformations.
+ */
 export class HextimatePaletteBuilder {
 	private lightPalette: HextimatePalette;
 	private darkPalette: HextimatePalette;
@@ -76,6 +103,16 @@ export class HextimatePaletteBuilder {
 		this.darkPalette = generate(color, 'dark', options);
 	}
 
+	/**
+	 * Adds a custom role with given name and color.
+	 * The color is expanded into a full scale and added to both light and dark palettes.
+	 *
+	 * e.g. `addRole('cta', '#ff0066')` adds a "cta" role with the specified hue as the base,
+	 * generating appropriate variants (`cta-strong`, `cta-weak`, `cta-foreground`) for light and dark themes.
+	 *
+	 * @param name Role name (e.g. "cta", "banner")
+	 * @param color Base color for the role, its hue will be expanded into a full scale (e.g. "#ff0066")
+	 */
 	addRole(name: string, color: ColorInput): this {
 		this.operations.push({ method: 'addRole', args: [name, color] });
 		const parsedColor = parse(color);
@@ -97,6 +134,16 @@ export class HextimatePaletteBuilder {
 		return this;
 	}
 
+	/**
+	 *
+	 * Adds a variant to all roles, either "beyond" an existing variant or "between" two existing variants.
+	 *
+	 * e.g. `addVariant('placeholder', { beyond: 'weak' })` adds a "placeholder" variant that is "weaker" than "weak" across all roles and themes.
+	 * `addVariant('highlight', { between: ['DEFAULT', 'strong'] })` adds a "highlight" variant that is exactly between "DEFAULT" and "strong" across all roles and themes.
+	 *
+	 * @param name Variant name (e.g. "placeholder", "highlight")
+	 * @param placement Placement of the variant, either `{ beyond: 'weak' }` or `{ between: ['DEFAULT', 'strong'] }`
+	 */
 	addVariant(name: string, placement: VariantPlacement): this {
 		this.operations.push({ method: 'addVariant', args: [name, placement] });
 		if ('beyond' in placement) {
@@ -133,12 +180,33 @@ export class HextimatePaletteBuilder {
 		return this;
 	}
 
+	/**
+	 * Adds a standalone/one-off token that doesn't fit the role+variant structure.
+	 * The value can be a direct color, a derived token based on an existing role+variant, or an object specifying different values for light and dark themes.
+	 *
+	 * e.g. `addToken('brand', '#3a86ff')` adds a "brand" token with the specified color in both themes.
+	 * `addToken('brand', { light: '#3a86ff', dark: '#ff0066' })` adds a "brand" token with different colors in light and dark themes.
+	 *
+	 * @param name Token name (e.g. "brand", "logo")
+	 * @param value Token value, which can be an exact color, or derived from an existing role+variant.
+	 */
 	addToken(name: string, value: TokenValue): this {
 		this.operations.push({ method: 'addToken', args: [name, value] });
 		this.standaloneTokens.push({ name, value });
 		return this;
 	}
 
+	/**
+	 *
+	 * Simulates how the palette would look for a given type and severity of CVD.
+	 * This is a destructive operation that permanently alters the palette, but can be useful for testing and previewing.
+	 *
+	 * It should not be used to generate the final output for users with CVD. For that, use `adaptFor` instead.
+	 *
+	 * e.g. `simulate('deuteranopia', 0.5)` simulates moderate deuteranopia, allowing you to see how the colors would appear to users with that condition.
+	 * @param type Type of CVD to simulate (e.g. "protanopia", "deuteranopia", "tritanopia")
+	 * @param severity Severity of the CVD simulation, from 0 (no effect) to 1 (full simulation). Defaults to 1 for a complete simulation.
+	 */
 	simulate(type: CVDType, severity = 1): this {
 		this.operations.push({ method: 'simulate', args: [type, severity] });
 		this.lightPalette = simulatePalette(this.lightPalette, type, severity);
@@ -146,6 +214,25 @@ export class HextimatePaletteBuilder {
 		return this;
 	}
 
+	/**
+	 * Adapts the palette for a given type and severity of CVD,
+	 * altering the colors to improve accessibility while maintaining as much of the original intent as possible.
+	 *
+	 * To preview how the original palette would appear to users with CVD, use `simulate`.
+	 *
+	 * A typical use case would be to generate a normal palette, then fork it and adapt the fork for CVD.
+	 * Then you can also preview by chaining `adaptFor` and `simulate`
+	 *
+	 * e.g.
+	 * ```ts
+	 * const normalTheme = hextimate('#ff6600');
+	 * const cvdTheme = normalTheme.fork().adaptFor('deuteranopia');
+	 * const simulatedCVD = normalTheme.fork().simulate('deuteranopia');
+	 * ````
+	 *
+	 * @param type Type of CVD to adapt for (e.g. "protanopia", "deuteranopia", "tritanopia")
+	 * @param severity Severity of the CVD adaptation, from 0 (no change) to 1 (full adaptation). Defaults to 1 for a complete adaptation.
+	 */
 	adaptFor(type: CVDType, severity = 1): this {
 		this.operations.push({ method: 'adaptFor', args: [type, severity] });
 		this.lightPalette = adaptPalette(this.lightPalette, type, severity);
@@ -153,18 +240,44 @@ export class HextimatePaletteBuilder {
 		return this;
 	}
 
+	/**
+	 * Light theme overrides.
+	 *
+	 * e.g. `light({ lightness: 0.8, maxChroma: 0.2 })` increases the overall lightness and chroma of the light theme, making it more vibrant and bright.
+	 *
+	 * @param adjustments Adjustments to apply to the light theme, which can include lightness and maxChroma.
+	 */
 	light(adjustments: ThemeAdjustments): this {
 		this.lightThemeAdjustments = adjustments;
 		this.regenerate();
 		return this;
 	}
 
+	/**
+	 * Dark theme overrides.
+	 *
+	 * e.g. `dark({ lightness: 0.5, maxChroma: 0.1 })` decreases the overall lightness and chroma of the dark theme, making it more muted and suitable for low-light environments.
+	 *
+	 * @param adjustments Adjustments to apply to the dark theme, which can include lightness and maxChroma.
+	 */
 	dark(adjustments: ThemeAdjustments): this {
 		this.darkThemeAdjustments = adjustments;
 		this.regenerate();
 		return this;
 	}
 
+	/**
+	 * Creates a new builder instance with the same operations history, allowing you to generate a related palette with a different base color or options.
+	 *
+	 * e.g. `fork('#ff6677')` creates a new builder with the same
+	 * roles, variants, tokens, and adjustments, but based on a different input color.
+	 *
+	 * `fork({ light: { lightness: 0.8 } })` creates a new builder with the same color but different light theme adjustments.
+	 *
+	 * @param colorOrOptions Either a new base color for the palette, or an object with new generation options to override (e.g. light/dark adjustments, hue shift, contrast ratio).
+	 * @param maybeOptions If the first argument is a color, this can be an optional second argument with generation options to override.
+	 * @returns A new builder instance with the same operations history but different base color and/or options.
+	 */
 	fork(
 		colorOrOptions?: ColorInput | Partial<HextimateGenerationOptions>,
 		maybeOptions?: Partial<HextimateGenerationOptions>,
@@ -185,18 +298,15 @@ export class HextimatePaletteBuilder {
 			!Array.isArray(colorOrOptions) &&
 			!('space' in colorOrOptions)
 		) {
-			// fork(options) — override options only, keep same color
 			newColor = this.inputColor;
 			newOptions = {
 				...this.options,
 				...colorOrOptions,
 			} as HextimateGenerationOptions;
 		} else if (colorOrOptions !== undefined) {
-			// fork(color) — new color, same options
 			newColor = parse(colorOrOptions as ColorInput);
 			newOptions = { ...this.options } as HextimateGenerationOptions;
 		} else {
-			// fork() — plain clone
 			newColor = this.inputColor;
 			newOptions = { ...this.options } as HextimateGenerationOptions;
 		}
@@ -228,6 +338,25 @@ export class HextimatePaletteBuilder {
 
 		return builder;
 	}
+
+	/**
+	 * Serializes the palette into the chosen output format.
+	 *
+	 * @param options Format options controlling output shape (`as`), color serialization (`colors`), role/variant renaming, and separator.
+	 */
+	format(
+		options: HextimateFormatOptions & { as: 'tailwind' },
+	): HextimateResult<NestedTokenMap>;
+
+	format(
+		options: HextimateFormatOptions & { as: 'json' | 'tailwind-css' },
+	): HextimateResult<string>;
+
+	format(
+		options: HextimateFormatOptions & { as: 'object' | 'css' | 'scss' },
+	): HextimateResult<FlatTokenMap>;
+
+	format(options?: HextimateFormatOptions): HextimateResult;
 
 	format(options?: HextimateFormatOptions): HextimateResult {
 		const colorFormat = options?.colors ?? 'hex';

@@ -24,6 +24,16 @@ type DarkModeStrategy =
 	| { type: 'media' }
 	| false;
 
+/**
+ * Options for the `useHextimator` hook, which generates a color palette and injects CSS variables based on a given color and configuration.
+ * - `generation`: Options for how the palette is generated (e.g., light/dark settings, contrast requirements).
+ * - `format`: Options for how the generated palette is formatted (e.g., output format).
+ * - `configure`: A callback to further customize the palette builder before formatting.
+ * - `darkMode`: Strategy for handling dark mode variants in CSS variable injection.
+ * - `cssPrefix`: A prefix to apply to all generated CSS variable names.
+ * - `target`: An optional ref to a specific DOM element where CSS variables should be injected instead of the document root.
+ *
+ */
 export interface UseHextimatorOptions {
 	generation?: HextimateGenerationOptions;
 	format?: Omit<HextimateFormatOptions, 'as'>;
@@ -117,6 +127,23 @@ function useStableOptions(options?: UseHextimatorOptions) {
 	return ref.current;
 }
 
+/**
+ * Generates a color palette based on the provided color and options,
+ * and injects CSS variables into the document for use in styling.
+ * The palette is regenerated whenever the input color or relevant options change.
+ *
+ * Example usage:
+ * ```tsx
+ * const palette = useHextimator('#ff6600', {
+ *   generation: { minContrastRatio: 'AA' },
+ *   darkMode: { type: 'class', className: 'dark' },
+ *   cssPrefix: '--myapp-',
+ * });
+ * ```
+ *
+ * @param color - The base color to generate the palette from.
+ * @param options - Configuration options for palette generation, formatting, and CSS variable injection.
+ */
 export function useHextimator(color: string, options?: UseHextimatorOptions) {
 	const stable = useStableOptions(options);
 	const configure = options?.configure;
@@ -163,6 +190,16 @@ export function useHextimator(color: string, options?: UseHextimatorOptions) {
 
 // --- Provider ---
 
+/**
+ * Props for the `HextimatorProvider` component, which manages the state of a Hextimator-generated color palette and injects corresponding CSS variables into the document.
+ * - `defaultColor`: The initial base color to generate the palette from.
+ * - `generation`: Initial options for how the palette is generated (e.g., light/dark settings, contrast requirements).
+ * - `format`: Initial options for how the generated palette is formatted (e.g., output format).
+ * - `configure`: An initial callback to further customize the palette builder before formatting.
+ * - `darkMode`: Strategy for handling dark mode variants in CSS variable injection.
+ * - `cssPrefix`: A prefix to apply to all generated CSS variable names.
+ * - `target`: An optional ref to a specific DOM element where CSS variables should be injected instead of the document root.
+ */
 export interface HextimatorProviderProps {
 	defaultColor: string;
 	generation?: HextimateGenerationOptions;
@@ -187,6 +224,25 @@ interface HextimatorContextValue {
 
 const HextimatorContext = createContext<HextimatorContextValue | null>(null);
 
+/**
+ *
+ * A React context provider that manages the state of
+ * a Hextimator-generated color palette and injects corresponding CSS variables into the document.
+ * It allows child components to access and update the
+ * base color, generation options, and configuration callback, automatically
+ * regenerating the palette and updating CSS variables as needed.
+
+ * The Provider accepts props for the default color, generation options, formatting options,
+ * dark mode strategy, CSS variable prefix, and an optional target element for CSS variable injection.
+ * It uses the `useHextimator` hook to generate the palette and handles the injection of CSS variables based on the current state.
+ *
+ * Example usage:
+ * ```tsx
+ * <HextimatorProvider defaultColor="#ff6600" generation={{ minContrastRatio: 'AA' }} darkMode={{ type: 'class', className: 'dark' }} cssPrefix="--myapp-">
+ *  <App />
+ * </HextimatorProvider>
+ * ```
+ */
 export function HextimatorProvider({
 	children,
 	defaultColor,
@@ -239,6 +295,18 @@ export function HextimatorProvider({
 	);
 }
 
+/**
+ * A custom React hook that provides access to the current Hextimator palette and related state from the nearest `HextimatorProvider` in the component tree.
+ * It returns an object containing the current base color, generation options, configuration callback, and the generated palette.
+ * If used outside of a `HextimatorProvider`, it throws an error to indicate that the context is not available.
+ *
+ * Example usage:
+ * ```tsx
+ * const { color, setColor, generation, setGeneration, configure, setConfigure, palette } = useHextimatorTheme();
+ * ```
+ *
+ * @returns An object with the current Hextimator state and palette.
+ */
 export function useHextimatorTheme(): HextimatorContextValue {
 	const ctx = useContext(HextimatorContext);
 	if (!ctx) {

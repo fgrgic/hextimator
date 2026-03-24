@@ -96,7 +96,23 @@ const conversions = {
 	'hsl->display-p3': chain(hslToSrgb, srgbToDisplayP3),
 } as Record<string, ConvertFn>;
 
-/** Convert a Color to a target color space. */
+/**
+ *
+ * Convert a Color to a target color space.
+ *
+ * This function supports conversion between any two color spaces
+ * for which a conversion path is defined in the `conversions` table.
+ * If a direct conversion is not available, it will attempt to find
+ * a path through intermediate color spaces.
+ *
+ * If no path exists, an error is thrown.
+ *
+ * @param color The input color, in any supported color space.
+ * @param to The target color space to convert to.
+ * @returns The converted color, in the target color space.
+ *
+ * @throws If the conversion is not supported (e.g. if there is no defined conversion path between the input and target color spaces).
+ */
 export function convert<S extends ColorSpace>(
 	color: Color,
 	to: S,

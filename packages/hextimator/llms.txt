@@ -1,0 +1,223 @@
+# hextimator
+
+> Generate perceptually uniform color palettes with light/dark themes and WCAG contrast guarantees from a single brand color. Outputs CSS variables, Tailwind tokens, SCSS variables, JSON, or plain objects. Designed for runtime use in multi-tenant apps.
+
+## Install
+
+```bash
+npm install hextimator
+```
+
+## Quick start
+
+```typescript
+import { hextimate } from "hextimator";
+
+// Minimal: one color in, full theme out
+const theme = hextimate("#6A5ACD").format();
+// → { light: { accent: "#6a5acd", "accent-strong": "...", ... }, dark: { ... } }
+
+// With format options
+const css = hextimate("#6A5ACD").format({ as: "css", colors: "oklch" });
+// → { light: { "--accent": "oklch(...)", ... }, dark: { ... } }
+```
+
+## API
+
+### `hextimate(color, options?)`
+
+Creates a palette builder from any color input.
+
+- `color`: `string` (hex, CSS function), `[r, g, b]` tuple, `number` (0xFF6666), or a `Color` object
+- `options`: `HextimateGenerationOptions` (see below)
+- Returns: `HextimatePaletteBuilder` (chainable)
+- Throws: `HextimateError` on invalid input
+
+### Builder methods (all return `this`, chainable)
+
+| Method | Description |
+|---|---|
+| `.addRole(name, color)` | Add a new color role with DEFAULT, strong, weak, foreground variants |
+| `.addVariant(name, placement)` | Add a lightness step to every role. `placement`: `{ beyond: "strong" }`, `{ beyond: "weak" }`, or `{ between: ["DEFAULT", "weak"] }` |
+| `.addToken(name, value)` | Add a standalone derived token. `value`: a color, `{ from: "role.variant", lightness?, chroma? }`, or `{ light: ..., dark: ... }` |
+| `.light({ lightness?, maxChroma? })` | Override light theme adjustments |
+| `.dark({ lightness?, maxChroma? })` | Override dark theme adjustments |
+| `.simulate(cvdType, severity?)` | Simulate color vision deficiency. Types: `protanopia`, `deuteranopia`, `tritanopia`, `achromatopsia` |
+| `.adaptFor(cvdType, severity?)` | Optimize palette for a CVD type |
+| `.fork(color?, options?)` | Clone builder with optional new color/options. Original unchanged |
+| `.format(options?)` | Output the palette (see format options) |
+
+### `.format(options?)` → `{ light: FormatResult, dark: FormatResult }`
+
+| Option | Values | Default |
+|---|---|---|
+| `as` | `"object"`, `"css"`, `"tailwind"`, `"tailwind-css"`, `"scss"`, `"json"` | `"object"` |
+| `colors` | `"hex"`, `"rgb"`, `"rgb-raw"`, `"hsl"`, `"hsl-raw"`, `"oklch"`, `"oklch-raw"`, `"p3"`, `"p3-raw"` | `"hex"` |
+| `roleNames` | `Record<string, string>` — rename roles in output keys | built-in names |
+| `variantNames` | `Record<string, string>` — rename variant suffixes | built-in names |
+| `separator` | `string` — between role and variant in keys | `"-"` |
+
+Output shape depends on `as`:
+- `"object"` → `Record<string, string>` flat map: `{ accent: "#...", "accent-strong": "#..." }`
+- `"css"` → `Record<string, string>` flat map: `{ "--accent": "#...", "--accent-strong": "#..." }`
+- `"tailwind"` → nested map: `{ accent: { DEFAULT: "#...", strong: "#..." } }`
+- `"tailwind-css"` → string: `@theme { --color-accent: #...; }`
+- `"scss"` → `Record<string, string>` flat map: `{ "$accent": "#...", "$accent-strong": "#..." }`
+- `"json"` → JSON string
+
+### Generation options
+
+| Option | Type | Default | Description |
+|---|---|---|---|
+| `baseColor` | color input | auto-derived | Override base/neutral baseline color |
+| `baseHueShift` | degrees | `0` | Rotate base hue relative to accent. Ignored if `baseColor` set |
+| `semanticColors` | `{ positive?, negative?, warning? }` | auto | Override semantic colors |
+| `semanticColorRanges` | `{ positive?: [start,end], ... }` | greens, reds, ambers | Hue ranges for semantic detection |
+| `baseMaxChroma` | number | `0.01` | Max chroma for base colors |
+| `foregroundMaxChrome` | number | `0.01` | Max chroma for foreground colors |
+| `light` | `{ lightness?, maxChroma? }` | `{ lightness: 0.7 }` | Light theme adjustments |
+| `dark` | `{ lightness?, maxChroma? }` | `{ lightness: 0.6 }` | Dark theme adjustments |
+| `minContrastRatio` | `"AAA"`, `"AA"`, or number | `"AAA"` | WCAG contrast target (AAA=7, AA=4.5) |
+| `hueShift` | degrees | `0` | Per-variant hue rotation |
+| `invertDarkModeBaseAccent` | boolean | `false` | Swap base/accent hues in dark mode (requires baseColor) |
+
+### Default palette structure
+
+Every palette includes 5 roles × 4 variants = 20 tokens:
+
+- Roles: `base`, `accent`, `positive`, `negative`, `warning`
+- Variants: `DEFAULT` (no suffix), `strong`, `weak`, `foreground`
+
+Token keys: `accent`, `accent-strong`, `accent-weak`, `accent-foreground`, `base`, `base-strong`, ...
+
+### Utility exports
+
+```typescript
+import { parseColor, convertColor } from "hextimator";
+
+const color = parseColor("rgb(255, 102, 102)");  // → Color object (sRGB)
+const oklch = convertColor(color, "oklch");       // → OKLCH object
+```
+
+Also exported: `daltonizeColor(color, cvdType, severity?)`, `simulateColor(color, cvdType, severity?)`.
+
+### Color input formats
+
+All of these are valid:
+
+```typescript
+hextimate("#FF6666");            // hex string
+hextimate("FF6666");             // hex without #
+hextimate("rgb(255, 102, 102)"); // CSS function
+hextimate("hsl(0, 100%, 70%)"); // CSS HSL
+hextimate([255, 102, 102]);      // RGB tuple
+hextimate(0xff6666);             // numeric hex
+```
+
+Alpha is always ignored (forced to 1) to preserve contrast guarantees.
+
+## CLI
+
+```bash
+npx hextimator <color> [options]
+```
+
+| Flag | Description | Default |
+|---|---|---|
+| `-f, --format` | `css`, `object`, `tailwind`, `tailwind-css`, `scss`, `json` | `css` |
+| `-c, --colors` | `hex`, `rgb`, `rgb-raw`, `hsl`, `hsl-raw`, `oklch`, `oklch-raw`, `p3`, `p3-raw` | `hex` |
+| `-t, --theme` | `light`, `dark`, `both` | `both` |
+| `--base-color` | Override base color | — |
+| `--base-hue-shift` | Degrees | `0` |
+| `--hue-shift` | Per-variant hue shift | `0` |
+| `--min-contrast` | `AAA`, `AA`, or number | `AAA` |
+| `--role <name>=<color>` | Add custom role (repeatable) | — |
+| `--variant <spec>` | Add variant: `name:beyond:edge` or `name:between:a,b` (repeatable) | — |
+| `-o, --output <path>` | Write to file instead of stdout | stdout |
+
+```bash
+# Example: generate JSON palette
+npx hextimator "#6A5ACD" --format json --colors oklch
+
+# Example: with custom roles
+npx hextimator "#6A5ACD" --format css --role cta=#EE2244 --role sidebar=#3a86ff
+```
+
+## React
+
+```typescript
+import { useHextimator } from "hextimator/react";
+
+function App() {
+  useHextimator("#6A5ACD");
+  return <div className="bg-accent text-accent-foreground">Themed!</div>;
+}
+```
+
+Dark mode strategies: `{ type: "media" }` (default), `{ type: "class" }`, `{ type: "data" }`, or `false`.
+
+Options: `generation`, `format`, `configure` (access builder), `darkMode`, `cssPrefix`, `target` (ref for scoped theming).
+
+Provider for app-wide theming:
+
+```typescript
+import { HextimatorProvider, useHextimatorTheme } from "hextimator/react";
+
+// Wrap app
+<HextimatorProvider defaultColor="#6A5ACD">
+  <App />
+</HextimatorProvider>
+
+// In children
+const { color, setColor, palette } = useHextimatorTheme();
+```
+
+## Tailwind CSS v4
+
+```css
+@import "tailwindcss";
+@import "hextimator/tailwind.css";
+```
+
+This registers all 20 built-in tokens as Tailwind utilities (`bg-accent`, `text-base-foreground`, etc.).
+
+## Common recipes
+
+### shadcn/ui theme
+
+```typescript
+hextimate("#6366F1")
+  .addRole("muted", "#94A3B8")
+  .addRole("card", "#F8FAFC")
+  .addToken("border", {
+    light: { from: "base.weak", lightness: -0.08 },
+    dark: { from: "base.weak", lightness: +0.08 },
+  })
+  .addToken("ring", { from: "accent" })
+  .format({
+    as: "css",
+    colors: "oklch",
+    roleNames: { base: "background", accent: "primary", positive: "success", negative: "destructive" },
+  });
+```
+
+### Multi-tenant with `.fork()`
+
+```typescript
+const base = hextimate("#52FE8C", { baseColor: "#FEBA5D" })
+  .addRole("banner", "#ff006e")
+  .addVariant("hover", { beyond: "strong" });
+
+const tenantA = base.fork("#ff6677").format({ as: "css" });
+const tenantB = base.fork("#3a86ff").format({ as: "css" });
+```
+
+## Optional
+
+- [Extending the palette](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/extending-the-palette.md): addRole, addVariant, addToken in depth
+- [Customization reference](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md): all generation and format options
+- [Multiple themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md): .fork() and dynamic theming
+- [Color vision deficiency](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/color-vision-deficiency.md): simulate and adaptFor
+- [React docs](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/react.md): hook, provider, dark mode strategies
+- [Tailwind CSS v4](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/tailwind.md): setup and custom tokens
+- [Real-world examples](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/examples.md): shadcn/ui, Stripe, Slack configs

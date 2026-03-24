@@ -1,3 +1,4 @@
+/** A color in the sRGB color space. */
 export interface RGB {
 	readonly space: 'srgb';
 	readonly r: number; // 0-255
@@ -6,6 +7,7 @@ export interface RGB {
 	readonly alpha: number; // 0-1
 }
 
+/** A color in the HSL color space. */
 export interface HSL {
 	readonly space: 'hsl';
 	readonly h: number; // 0-360
@@ -14,6 +16,7 @@ export interface HSL {
 	readonly alpha: number;
 }
 
+/** A color in the OKLCH color space. */
 export interface OKLCH {
 	readonly space: 'oklch';
 	readonly l: number; // 0-1
@@ -22,6 +25,7 @@ export interface OKLCH {
 	readonly alpha: number;
 }
 
+/** A color in the OKLab color space. */
 export interface OKLab {
 	readonly space: 'oklab';
 	readonly l: number; // 0-1
@@ -30,6 +34,7 @@ export interface OKLab {
 	readonly alpha: number;
 }
 
+/** A color in the linear RGB color space. */
 export interface LinearRGB {
 	readonly space: 'linear-rgb';
 	readonly r: number; // 0-1
@@ -38,6 +43,7 @@ export interface LinearRGB {
 	readonly alpha: number;
 }
 
+/** A color in the Display P3 color space (wide gamut). */
 export interface DisplayP3 {
 	readonly space: 'display-p3';
 	readonly r: number; // 0-1
@@ -46,12 +52,16 @@ export interface DisplayP3 {
 	readonly alpha: number;
 }
 
+/** A color in any supported color space. */
 export type Color = RGB | HSL | OKLCH | OKLab | LinearRGB | DisplayP3;
 
+/** A color in a specific color space, strongly typed. */
 export type ColorInSpace<S extends Color['space']> = Extract<
 	Color,
 	{ space: S }
 >;
+
+/** The name of a color space, e.g. "srgb", "hsl", "oklch". */
 export type ColorSpace = Color['space'];
 
 /** "FF6666", "#FF6666", "0xFF6666", "#F66" with optional alpha. */
@@ -63,6 +73,15 @@ export type CSSColorString = string;
 /** Loose tuple: [255, 102, 102], [255, 102, 102, 0.5] */
 export type ColorTuple = readonly [number, number, number, number?];
 
+/**
+ * Any supported color input: hex string, CSS function string, RGB tuple, numeric hex, or a parsed `Color` object.
+ *
+ * @example
+ * "#FF6666"
+ * "rgb(255, 102, 102)"
+ * [255, 102, 102]
+ * 0xFF6666
+ */
 export type ColorInput =
 	| HexString
 	| CSSColorString
@@ -295,6 +314,7 @@ export interface HextimateFormatOptions {
 export type HextimateOptions = HextimateGenerationOptions &
 	HextimateFormatOptions;
 
+/** How color values are serialized in the output (e.g. "hex", "rgb", "oklch", "hsl", "p3", and their "-raw" variants). */
 export type ColorFormat =
 	| 'hex'
 	| 'hsl'
