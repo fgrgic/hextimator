@@ -1,5 +1,5 @@
 import type { HextimateResult } from 'hextimator';
-import { hextimate } from 'hextimator';
+import { hextimate, presets } from 'hextimator';
 import { useState } from 'react';
 import './App.css';
 
@@ -46,6 +46,7 @@ function App() {
 			baseHueShift: 180,
 			invertDarkModeBaseAccent: true,
 		})
+			.preset(presets.shadcn)
 			.light({ maxChroma: 0.1, lightness: 0.5 })
 			.dark({ maxChroma: 0.1 });
 		// .addRole('banner', '#ff006e')

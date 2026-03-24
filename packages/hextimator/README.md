@@ -20,6 +20,34 @@ import { hextimate } from "hextimator";
 const theme = hextimate("#6A5ACD").format();
 ```
 
+### With a preset
+
+Presets configure hextimator for a specific framework in one call:
+
+```typescript
+import { hextimate, presets } from "hextimator";
+
+// shadcn/ui — generates --background, --primary, --destructive, etc.
+const theme = hextimate("#6366F1")
+  .preset(presets.shadcn)
+  .format();
+
+// Framework-agnostic — clean names like --background, --primary, --success
+const theme = hextimate("#3a86ff")
+  .preset(presets.minimal)
+  .format();
+```
+
+Presets set sensible defaults but you can override anything in `.format()`:
+
+```typescript
+const theme = hextimate("#6366F1")
+  .preset(presets.shadcn)
+  .format({ colors: "hsl-raw" }); // older shadcn format
+```
+
+See [Presets](docs/presets.md) for the full list and how to create your own.
+
 ## Two-step API: generate, then format
 
 hextimator separates **palette generation** (color math) from **formatting** (output shape). This lets you extend the palette before choosing how to serialize it.
@@ -90,6 +118,7 @@ const oklch = convertColor(color, "oklch");
 - [Multiple themes](docs/multiple-themes.md) — dynamic theming and `.fork()`
 - [Customization](docs/customization.md) — generation and format options reference
 - [Color vision deficiency](docs/color-vision-deficiency.md) — simulate and adapt for CVD
+- [Presets](docs/presets.md) — drop-in configs for shadcn/ui, or create your own
 - [React](docs/react.md) — `useHextimator` hook, provider, dark mode strategies
 - [Tailwind CSS v4](docs/tailwind.md) — setup and usage with Tailwind
 - [Real-world examples](docs/examples.md) — shadcn/ui, Stripe, Slack configurations

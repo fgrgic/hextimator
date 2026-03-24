@@ -2,42 +2,22 @@
 
 ## shadcn/ui theme
 
+Use the built-in preset — see [Presets](presets.md) for details and customization options.
+
+```typescript
+import { hextimate, presets } from "hextimator";
+
+const theme = hextimate("#6366F1")
+  .preset(presets.shadcn)
+  .format();
+```
+
+For older shadcn versions, add "hsl-raw" colors:
+
 ```typescript
 const theme = hextimate("#6366F1")
-  .addRole("muted", "#94A3B8")
-  .addRole("card", "#F8FAFC")
-  .addRole("popover", "#F8FAFC")
-  .addToken("border", {
-    light: { from: "base.weak", lightness: -0.08 },
-    dark: { from: "base.weak", lightness: +0.08 },
-  })
-  .addToken("input", {
-    light: { from: "base.weak", lightness: -0.1 },
-    dark: { from: "base.weak", lightness: +0.1 },
-  })
-  .addToken("ring", { from: "accent" })
-  .format({
-    as: "css",
-    colors: "oklch",
-    roleNames: {
-      base: "background",
-      accent: "primary",
-      positive: "success",
-      negative: "destructive",
-      warning: "warning",
-      muted: "muted",
-      card: "card",
-      popover: "popover",
-    },
-    variantNames: {
-      foreground: "foreground",
-    },
-  });
-
-// Output keys (light & dark):
-// --background, --background-foreground, --primary, --primary-foreground,
-// --success, --destructive, --warning, --muted, --card, --popover,
-// --border, --input, --ring, + strong/weak variants for each role
+  .preset(presets.shadcn)
+  .format({ colors: "hsl-raw" });
 ```
 
 ## Stripe-style payment UI

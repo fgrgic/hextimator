@@ -1,11 +1,18 @@
 import { writeFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 import { hextimate } from './index';
+import * as presets from './presets';
+import type { HextimatePreset } from './presets/types';
 import type {
 	ColorFormat,
 	HextimateFormatOptions,
 	HextimateGenerationOptions,
 } from './types';
+
+const AVAILABLE_PRESETS: Record<string, HextimatePreset> = {
+	shadcn: presets.shadcn,
+	minimal: presets.minimal,
+};
 
 const HELP = `
 hextimator <color> [options]
@@ -14,6 +21,10 @@ Generate a perceptually uniform color palette from a single color.
 
 Arguments:
   color                       Input color (quote hex values: '#ff6600')
+
+Presets:
+  -p, --preset <name>         Apply a preset: shadcn | minimal
+                              Preset format defaults can be overridden with -f, -c, etc.
 
 Format options:
   -f, --format <type>         css | object | tailwind | tailwind-css | scss | json  (default: css)
@@ -47,6 +58,8 @@ Examples:
   hextimator '#ff6600'
   hextimator '#ff6600' --format tailwind-css --colors oklch
   hextimator '#3366cc' --format json --theme light
+  hextimator '#6366F1' --preset shadcn
+  hextimator '#6366F1' --preset shadcn --colors hsl-raw
   hextimator '#22aa44' --role cta=#ee2244 --variant hover:beyond:strong -o theme.css
 `.trim();
 
@@ -54,10 +67,11 @@ function run(): void {
 	const { values, positionals } = parseArgs({
 		allowPositionals: true,
 		options: {
-			format: { type: 'string', short: 'f', default: 'css' },
-			colors: { type: 'string', short: 'c', default: 'hex' },
+			preset: { type: 'string', short: 'p' },
+			format: { type: 'string', short: 'f' },
+			colors: { type: 'string', short: 'c' },
 			theme: { type: 'string', short: 't', default: 'both' },
-			separator: { type: 'string', default: '-' },
+			separator: { type: 'string' },
 			'base-color': { type: 'string' },
 			'base-hue-shift': { type: 'string' },
 			'hue-shift': { type: 'string' },
@@ -131,6 +145,17 @@ function run(): void {
 
 	const builder = hextimate(color, generationOptions);
 
+	if (values.preset) {
+		const preset = AVAILABLE_PRESETS[values.preset];
+		if (!preset) {
+			console.error(
+				`Error: unknown preset "${values.preset}". Available: ${Object.keys(AVAILABLE_PRESETS).join(', ')}`,
+			);
+			process.exit(1);
+		}
+		builder.preset(preset);
+	}
+
 	if (values.role) {
 		for (const r of values.role) {
 			const eq = r.indexOf('=');
@@ -174,11 +199,23 @@ function run(): void {
 		}
 	}
 
-	const formatOptions: HextimateFormatOptions = {
-		as: values.format as HextimateFormatOptions['as'],
-		colors: values.colors as ColorFormat,
-		separator: values.separator,
-	};
+	const hasPreset = !!values.preset;
+	const formatOptions: HextimateFormatOptions = {};
+	if (values.format) {
+		formatOptions.as = values.format as HextimateFormatOptions['as'];
+	} else if (!hasPreset) {
+		formatOptions.as = 'css';
+	}
+	if (values.colors) {
+		formatOptions.colors = values.colors as ColorFormat;
+	} else if (!hasPreset) {
+		formatOptions.colors = 'hex';
+	}
+	if (values.separator) {
+		formatOptions.separator = values.separator;
+	} else if (!hasPreset) {
+		formatOptions.separator = '-';
+	}
 
 	const result = builder.format(formatOptions);
 	const themeFilter = values.theme as string;

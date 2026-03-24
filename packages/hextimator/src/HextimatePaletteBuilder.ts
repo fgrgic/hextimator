@@ -15,6 +15,7 @@ import {
 	wrapHue,
 } from './generate/utils';
 import { parse } from './parse';
+import type { HextimatePreset } from './presets/types';
 import type {
 	Color,
 	ColorInput,
@@ -82,6 +83,7 @@ export class HextimatePaletteBuilder {
 		| { method: 'addToken'; args: [string, TokenValue] }
 		| { method: 'simulate'; args: [CVDType, number] }
 		| { method: 'adaptFor'; args: [CVDType, number] }
+		| { method: 'preset'; args: [HextimatePreset] }
 	> = [];
 	private readonly standaloneTokens: Array<{
 		name: string;
@@ -95,6 +97,7 @@ export class HextimatePaletteBuilder {
 	}> = [];
 	private lightThemeAdjustments?: ThemeAdjustments;
 	private darkThemeAdjustments?: ThemeAdjustments;
+	private presetFormatDefaults?: HextimateFormatOptions;
 
 	constructor(color: Color, options?: HextimateGenerationOptions) {
 		this.inputColor = color;
@@ -115,22 +118,7 @@ export class HextimatePaletteBuilder {
 	 */
 	addRole(name: string, color: ColorInput): this {
 		this.operations.push({ method: 'addRole', args: [name, color] });
-		const parsedColor = parse(color);
-		const opts = this.resolvedOptions();
-
-		this.lightPalette[name] = expandColorToScale(parsedColor, 'light', {
-			light: opts.light,
-			dark: opts.dark,
-			minContrastRatio: opts.minContrastRatio,
-			hueShift: opts.hueShift,
-		});
-		this.darkPalette[name] = expandColorToScale(parsedColor, 'dark', {
-			light: opts.light,
-			dark: opts.dark,
-			minContrastRatio: opts.minContrastRatio,
-			hueShift: opts.hueShift,
-		});
-
+		this.applyRole(name, color);
 		return this;
 	}
 
@@ -146,37 +134,7 @@ export class HextimatePaletteBuilder {
 	 */
 	addVariant(name: string, placement: VariantPlacement): this {
 		this.operations.push({ method: 'addVariant', args: [name, placement] });
-		if ('beyond' in placement) {
-			const edge = placement.beyond;
-
-			for (const palette of [this.lightPalette, this.darkPalette]) {
-				for (const role of Object.keys(palette)) {
-					const scale = palette[role];
-					scale[name] = this.computeBeyondVariant(scale, edge);
-				}
-			}
-
-			const sideVariants = this.getSideVariantsFor(edge);
-			if (sideVariants) {
-				sideVariants.push(name);
-				this.redistributeAllScales(sideVariants);
-				this.recomputeBetweenVariants();
-			}
-		} else {
-			this.betweenVariants.push({ name, refs: placement.between });
-
-			for (const palette of [this.lightPalette, this.darkPalette]) {
-				for (const role of Object.keys(palette)) {
-					const scale = palette[role];
-					scale[name] = this.computeBetweenVariant(
-						scale,
-						placement.between[0],
-						placement.between[1],
-					);
-				}
-			}
-		}
-
+		this.applyVariant(name, placement);
 		return this;
 	}
 
@@ -192,7 +150,57 @@ export class HextimatePaletteBuilder {
 	 */
 	addToken(name: string, value: TokenValue): this {
 		this.operations.push({ method: 'addToken', args: [name, value] });
-		this.standaloneTokens.push({ name, value });
+		this.applyToken(name, value);
+		return this;
+	}
+
+	/**
+	 * Applies a preset that configures roles, tokens, and format defaults
+	 * for a specific framework or convention (e.g. shadcn/ui).
+	 *
+	 * Preset format defaults are used as a base in `.format()` — any options
+	 * you pass to `.format()` will override the preset's defaults.
+	 *
+	 * @example
+	 * import { hextimate, presets } from 'hextimator';
+	 *
+	 * const theme = hextimate('#6366F1')
+	 *   .preset(presets.shadcn)
+	 *   .format();
+	 *
+	 * // Override preset's color format:
+	 * const theme = hextimate('#6366F1')
+	 *   .preset(presets.shadcn)
+	 *   .format({ colors: 'hsl-raw' });
+	 */
+	preset(preset: HextimatePreset): this {
+		this.operations.push({ method: 'preset', args: [preset] });
+
+		for (const role of preset.roles ?? []) {
+			this.applyRole(role.name, role.color);
+		}
+		for (const variant of preset.variants ?? []) {
+			this.applyVariant(variant.name, variant.placement);
+		}
+		for (const token of preset.tokens ?? []) {
+			this.applyToken(token.name, token.value);
+		}
+
+		if (preset.format) {
+			this.presetFormatDefaults = {
+				...this.presetFormatDefaults,
+				...preset.format,
+				roleNames: {
+					...this.presetFormatDefaults?.roleNames,
+					...preset.format.roleNames,
+				},
+				variantNames: {
+					...this.presetFormatDefaults?.variantNames,
+					...preset.format.variantNames,
+				},
+			};
+		}
+
 		return this;
 	}
 
@@ -333,6 +341,9 @@ export class HextimatePaletteBuilder {
 				case 'adaptFor':
 					builder.adaptFor(...op.args);
 					break;
+				case 'preset':
+					builder.preset(...op.args);
+					break;
 			}
 		}
 
@@ -341,6 +352,9 @@ export class HextimatePaletteBuilder {
 
 	/**
 	 * Serializes the palette into the chosen output format.
+	 *
+	 * When a preset has been applied, its format options are used as defaults.
+	 * Any options passed here override the preset's defaults.
 	 *
 	 * @param options Format options controlling output shape (`as`), color serialization (`colors`), role/variant renaming, and separator.
 	 */
@@ -359,7 +373,22 @@ export class HextimatePaletteBuilder {
 	format(options?: HextimateFormatOptions): HextimateResult;
 
 	format(options?: HextimateFormatOptions): HextimateResult {
-		const colorFormat = options?.colors ?? 'hex';
+		const mergedOptions = this.presetFormatDefaults
+			? {
+					...this.presetFormatDefaults,
+					...options,
+					roleNames: {
+						...this.presetFormatDefaults.roleNames,
+						...options?.roleNames,
+					},
+					variantNames: {
+						...this.presetFormatDefaults.variantNames,
+						...options?.variantNames,
+					},
+				}
+			: options;
+
+		const colorFormat = mergedOptions?.colors ?? 'hex';
 
 		const lightTokens = this.resolveStandaloneTokens(
 			'light',
@@ -373,9 +402,64 @@ export class HextimatePaletteBuilder {
 		);
 
 		return {
-			light: format(this.lightPalette, options, lightTokens),
-			dark: format(this.darkPalette, options, darkTokens),
+			light: format(this.lightPalette, mergedOptions, lightTokens),
+			dark: format(this.darkPalette, mergedOptions, darkTokens),
 		};
+	}
+
+	private applyRole(name: string, color: ColorInput): void {
+		const parsedColor = parse(color);
+		const opts = this.resolvedOptions();
+
+		this.lightPalette[name] = expandColorToScale(parsedColor, 'light', {
+			light: opts.light,
+			dark: opts.dark,
+			minContrastRatio: opts.minContrastRatio,
+			hueShift: opts.hueShift,
+		});
+		this.darkPalette[name] = expandColorToScale(parsedColor, 'dark', {
+			light: opts.light,
+			dark: opts.dark,
+			minContrastRatio: opts.minContrastRatio,
+			hueShift: opts.hueShift,
+		});
+	}
+
+	private applyVariant(name: string, placement: VariantPlacement): void {
+		if ('beyond' in placement) {
+			const edge = placement.beyond;
+
+			for (const palette of [this.lightPalette, this.darkPalette]) {
+				for (const role of Object.keys(palette)) {
+					const scale = palette[role];
+					scale[name] = this.computeBeyondVariant(scale, edge);
+				}
+			}
+
+			const sideVariants = this.getSideVariantsFor(edge);
+			if (sideVariants) {
+				sideVariants.push(name);
+				this.redistributeAllScales(sideVariants);
+				this.recomputeBetweenVariants();
+			}
+		} else {
+			this.betweenVariants.push({ name, refs: placement.between });
+
+			for (const palette of [this.lightPalette, this.darkPalette]) {
+				for (const role of Object.keys(palette)) {
+					const scale = palette[role];
+					scale[name] = this.computeBetweenVariant(
+						scale,
+						placement.between[0],
+						placement.between[1],
+					);
+				}
+			}
+		}
+	}
+
+	private applyToken(name: string, value: TokenValue): void {
+		this.standaloneTokens.push({ name, value });
 	}
 
 	private resolveStandaloneTokens(
@@ -685,6 +769,9 @@ export class HextimatePaletteBuilder {
 					break;
 				case 'adaptFor':
 					rebuilt.adaptFor(...op.args);
+					break;
+				case 'preset':
+					rebuilt.preset(...op.args);
 					break;
 			}
 		}

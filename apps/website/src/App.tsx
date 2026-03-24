@@ -1,4 +1,3 @@
-import { useHextimatorTheme } from 'hextimator/react';
 import './App.css';
 import { Hero } from './components';
 
