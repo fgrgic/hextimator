@@ -14,7 +14,7 @@ const server = new McpServer({
 	version: '0.0.1',
 });
 
-const generatePaletteSchema = z.object({
+const generatePaletteShape = {
 	color: z
 		.string()
 		.describe(
@@ -100,7 +100,9 @@ const generatePaletteSchema = z.object({
 		.describe(
 			'Rename variants in output as JSON (e.g. \'{"strong":"primary","foreground":"text"}\')',
 		),
-});
+};
+
+type GeneratePaletteArgs = z.infer<z.ZodObject<typeof generatePaletteShape>>;
 
 server.registerTool(
 	'generate_palette',
@@ -113,25 +115,26 @@ Returns color tokens in the requested format. Default palette has 5 roles (base,
 Roles: use --role to add custom color roles (e.g. "cta=#ff0066"). Each gets its own full scale.
 Variants: use --variant to add lightness steps (e.g. "hover:beyond:strong" or "subtle:between:DEFAULT,weak").
 Renaming: use roleNames/variantNames as JSON to rename output keys (e.g. '{"accent":"brand"}').`,
-		inputSchema: generatePaletteSchema,
+		inputSchema: generatePaletteShape,
 	},
-	async ({
-		color,
-		format,
-		colors,
-		theme,
-		separator,
-		baseColor,
-		baseHueShift,
-		hueShift,
-		minContrastRatio,
-		lightLightness,
-		darkLightness,
-		roles,
-		variants,
-		roleNames,
-		variantNames,
-	}) => {
+	async (args: GeneratePaletteArgs) => {
+		const {
+			color,
+			format,
+			colors,
+			theme,
+			separator,
+			baseColor,
+			baseHueShift,
+			hueShift,
+			minContrastRatio,
+			lightLightness,
+			darkLightness,
+			roles,
+			variants,
+			roleNames,
+			variantNames,
+		} = args;
 		const generationOptions: HextimateGenerationOptions = {};
 
 		if (baseColor) generationOptions.baseColor = baseColor;
@@ -211,21 +214,19 @@ Renaming: use roleNames/variantNames as JSON to rename output keys (e.g. '{"acce
 	},
 );
 
-const parseColorSchema = z.object({
-	color: z
-		.string()
-		.describe(
-			'Color to parse — hex (#ff6600), CSS function (rgb(255,102,0)), etc.',
-		),
-});
-
 server.registerTool(
 	'parse_color',
 	{
 		title: 'Parse Color',
 		description:
 			'Parse any color input (hex, RGB, HSL, CSS function, tuple, numeric) into a normalized Color object with its color space and components.',
-		inputSchema: parseColorSchema,
+		inputSchema: {
+			color: z
+				.string()
+				.describe(
+					'Color to parse — hex (#ff6600), CSS function (rgb(255,102,0)), etc.',
+				),
+		},
 	},
 	async ({ color }) => {
 		const parsed = parseColor(color);
@@ -240,22 +241,20 @@ server.registerTool(
 	},
 );
 
-const convertColorSchema = z.object({
-	color: z
-		.string()
-		.describe('Color to convert (any supported input format)'),
-	to: z
-		.enum(['srgb', 'hsl', 'oklch', 'oklab', 'linear-rgb', 'display-p3'])
-		.describe('Target color space'),
-});
-
 server.registerTool(
 	'convert_color',
 	{
 		title: 'Convert Color',
 		description:
 			'Convert a color from one color space to another. Supports sRGB, HSL, OKLCH, OKLab, Linear RGB, and Display P3.',
-		inputSchema: convertColorSchema,
+		inputSchema: {
+			color: z
+				.string()
+				.describe('Color to convert (any supported input format)'),
+			to: z
+				.enum(['srgb', 'hsl', 'oklch', 'oklab', 'linear-rgb', 'display-p3'])
+				.describe('Target color space'),
+		},
 	},
 	async ({ color, to }) => {
 		const parsed = parseColor(color);
