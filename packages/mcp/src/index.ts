@@ -7,105 +7,58 @@ import {
 	hextimate,
 	parseColor,
 } from 'hextimator';
-import { type ZodType, z } from 'zod';
+import { z } from 'zod';
 
 const server = new McpServer({
 	name: 'hextimator',
 	version: '0.0.1',
 });
 
-// Wrapping in `as ZodType<T>` cuts Zod's deep recursive inference that
-// causes "Type instantiation is excessively deep" with complex schemas.
-
-const formatEnum = z
-	.enum(['object', 'css', 'tailwind', 'tailwind-css', 'scss', 'json'])
-	.default('object')
-	.describe('Output format') as ZodType<
-	'object' | 'css' | 'tailwind' | 'tailwind-css' | 'scss' | 'json'
->;
-
-const colorsEnum = z
-	.enum([
-		'hex',
-		'rgb',
-		'rgb-raw',
-		'hsl',
-		'hsl-raw',
-		'oklch',
-		'oklch-raw',
-		'p3',
-		'p3-raw',
-	])
-	.default('hex')
-	.describe('Color value serialization') as ZodType<
-	| 'hex'
-	| 'rgb'
-	| 'rgb-raw'
-	| 'hsl'
-	| 'hsl-raw'
-	| 'oklch'
-	| 'oklch-raw'
-	| 'p3'
-	| 'p3-raw'
->;
-
-const themeEnum = z
-	.enum(['light', 'dark', 'both'])
-	.default('both')
-	.describe('Which theme(s) to return') as ZodType<'light' | 'dark' | 'both'>;
-
-const colorSpaceEnum = z
-	.enum(['srgb', 'hsl', 'oklch', 'oklab', 'linear-rgb', 'display-p3'])
-	.describe('Target color space') as ZodType<
-	'srgb' | 'hsl' | 'oklch' | 'oklab' | 'linear-rgb' | 'display-p3'
->;
-
-interface PaletteInput {
-	color: string;
-	format: 'object' | 'css' | 'tailwind' | 'tailwind-css' | 'scss' | 'json';
-	colors:
-		| 'hex'
-		| 'rgb'
-		| 'rgb-raw'
-		| 'hsl'
-		| 'hsl-raw'
-		| 'oklch'
-		| 'oklch-raw'
-		| 'p3'
-		| 'p3-raw';
-	theme: 'light' | 'dark' | 'both';
-	separator: string;
-	baseColor?: string;
-	baseHueShift?: number;
-	hueShift?: number;
-	minContrastRatio: 'AAA' | 'AA' | number;
-	lightLightness?: number;
-	darkLightness?: number;
-	roles?: Array<{ name: string; color: string }>;
-	variants?: Array<{ name: string; type: 'beyond' | 'between'; ref: string }>;
-	roleNames?: Record<string, string>;
-	variantNames?: Record<string, string>;
-}
-
 server.registerTool(
 	'generate_palette',
 	{
 		title: 'Generate Color Palette',
-		description:
-			'Generate a perceptually uniform color palette with light and dark themes from a single brand/accent color. Returns color tokens in the requested format.',
+		description: `Generate a perceptually uniform color palette with light and dark themes from a single brand/accent color.
+
+Returns color tokens in the requested format. Default palette has 5 roles (base, accent, positive, negative, warning) × 4 variants (DEFAULT, strong, weak, foreground) = 20 tokens.
+
+Roles: use --role to add custom color roles (e.g. "cta=#ff0066"). Each gets its own full scale.
+Variants: use --variant to add lightness steps (e.g. "hover:beyond:strong" or "subtle:between:DEFAULT,weak").
+Renaming: use roleNames/variantNames as JSON to rename output keys (e.g. '{"accent":"brand"}').`,
 		inputSchema: {
 			color: z
 				.string()
 				.describe(
 					'Input color — hex (#ff6600), CSS function (rgb(255,102,0)), or named color',
 				),
-			format: formatEnum,
-			colors: colorsEnum,
-			theme: themeEnum,
+			format: z
+				.enum(['object', 'css', 'tailwind', 'tailwind-css', 'scss', 'json'])
+				.optional()
+				.describe('Output format (default: object)'),
+			colors: z
+				.enum([
+					'hex',
+					'rgb',
+					'rgb-raw',
+					'hsl',
+					'hsl-raw',
+					'oklch',
+					'oklch-raw',
+					'p3',
+					'p3-raw',
+				])
+				.optional()
+				.describe('Color value serialization (default: hex)'),
+			theme: z
+				.enum(['light', 'dark', 'both'])
+				.optional()
+				.describe('Which theme(s) to return (default: both)'),
 			separator: z
 				.string()
-				.default('-')
-				.describe('Separator between role and variant in token keys'),
+				.optional()
+				.describe(
+					'Separator between role and variant in token keys (default: -)',
+				),
 			baseColor: z
 				.string()
 				.optional()
@@ -121,98 +74,75 @@ server.registerTool(
 				.optional()
 				.describe('Per-variant hue rotation (degrees)'),
 			minContrastRatio: z
-				.union([z.enum(['AAA', 'AA']), z.number()])
-				.default('AAA')
+				.string()
+				.optional()
 				.describe(
-					'WCAG contrast target. AAA=7, AA=4.5, or a number',
-				) as ZodType<'AAA' | 'AA' | number>,
+					'WCAG contrast target: "AAA" (default, 7:1), "AA" (4.5:1), or a number',
+				),
 			lightLightness: z
 				.number()
-				.min(0)
-				.max(1)
 				.optional()
-				.describe('Light theme lightness (0-1, default 0.7)'),
+				.describe('Light theme lightness 0-1 (default: 0.7)'),
 			darkLightness: z
 				.number()
-				.min(0)
-				.max(1)
 				.optional()
-				.describe('Dark theme lightness (0-1, default 0.6)'),
+				.describe('Dark theme lightness 0-1 (default: 0.6)'),
 			roles: z
-				.array(
-					z.object({
-						name: z.string().describe('Role name (e.g. "cta", "sidebar")'),
-						color: z.string().describe('Base color for the role'),
-					}),
-				)
+				.string()
 				.optional()
-				.describe('Additional color roles beyond the built-in 5') as ZodType<
-				Array<{ name: string; color: string }> | undefined
-			>,
+				.describe(
+					'Custom roles as comma-separated "name=color" pairs (e.g. "cta=#ee2244,sidebar=#3a86ff")',
+				),
 			variants: z
-				.array(
-					z.object({
-						name: z.string().describe('Variant name (e.g. "hover", "subtle")'),
-						type: z.enum(['beyond', 'between']),
-						ref: z
-							.string()
-							.describe(
-								'For beyond: edge variant name. For between: "a,b" comma-separated pair',
-							),
-					}),
-				)
+				.string()
 				.optional()
 				.describe(
-					'Additional lightness variants beyond the built-in 4',
-				) as ZodType<
-				| Array<{
-						name: string;
-						type: 'beyond' | 'between';
-						ref: string;
-				  }>
-				| undefined
-			>,
+					'Custom variants as comma-separated specs: "name:beyond:edge" or "name:between:a+b" (e.g. "hover:beyond:strong,subtle:between:DEFAULT+weak")',
+				),
 			roleNames: z
-				.record(z.string(), z.string())
+				.string()
 				.optional()
 				.describe(
-					'Rename roles in output (e.g. { accent: "brand", base: "surface" })',
-				) as ZodType<Record<string, string> | undefined>,
+					'Rename roles in output as JSON (e.g. \'{"accent":"brand","base":"surface"}\')',
+				),
 			variantNames: z
-				.record(z.string(), z.string())
+				.string()
 				.optional()
 				.describe(
-					'Rename variants in output (e.g. { strong: "primary", foreground: "text" })',
-				) as ZodType<Record<string, string> | undefined>,
+					'Rename variants in output as JSON (e.g. \'{"strong":"primary","foreground":"text"}\')',
+				),
 		},
 	},
-	async (input: PaletteInput) => {
-		const {
-			color,
-			format,
-			colors,
-			theme,
-			separator,
-			baseColor,
-			baseHueShift,
-			hueShift,
-			minContrastRatio,
-			lightLightness,
-			darkLightness,
-			roles,
-			variants,
-			roleNames,
-			variantNames,
-		} = input;
-
+	async ({
+		color,
+		format,
+		colors,
+		theme,
+		separator,
+		baseColor,
+		baseHueShift,
+		hueShift,
+		minContrastRatio,
+		lightLightness,
+		darkLightness,
+		roles,
+		variants,
+		roleNames,
+		variantNames,
+	}) => {
 		const generationOptions: HextimateGenerationOptions = {};
 
 		if (baseColor) generationOptions.baseColor = baseColor;
 		if (baseHueShift !== undefined)
 			generationOptions.baseHueShift = baseHueShift;
 		if (hueShift !== undefined) generationOptions.hueShift = hueShift;
-		if (minContrastRatio !== undefined)
-			generationOptions.minContrastRatio = minContrastRatio;
+		if (minContrastRatio !== undefined) {
+			if (minContrastRatio === 'AAA' || minContrastRatio === 'AA') {
+				generationOptions.minContrastRatio = minContrastRatio;
+			} else {
+				generationOptions.minContrastRatio = Number(minContrastRatio);
+			}
+		}
 		if (lightLightness !== undefined)
 			generationOptions.light = { lightness: lightLightness };
 		if (darkLightness !== undefined)
@@ -221,35 +151,48 @@ server.registerTool(
 		const builder = hextimate(color, generationOptions);
 
 		if (roles) {
-			for (const { name, color: roleColor } of roles) {
-				builder.addRole(name, roleColor);
+			for (const pair of roles.split(',')) {
+				const eq = pair.indexOf('=');
+				if (eq !== -1) {
+					builder.addRole(pair.slice(0, eq).trim(), pair.slice(eq + 1).trim());
+				}
 			}
 		}
 
 		if (variants) {
-			for (const { name, type, ref } of variants) {
-				if (type === 'beyond') {
-					builder.addVariant(name, { beyond: ref });
-				} else {
-					const [a, b] = ref.split(',');
-					builder.addVariant(name, { between: [a, b] });
+			for (const spec of variants.split(',')) {
+				const parts = spec.trim().split(':');
+				if (parts.length >= 3) {
+					const [name, type, ref] = parts;
+					if (type === 'beyond') {
+						builder.addVariant(name, { beyond: ref });
+					} else if (type === 'between') {
+						const [a, b] = ref.split('+');
+						builder.addVariant(name, { between: [a, b] });
+					}
 				}
 			}
 		}
 
 		const formatOptions: HextimateFormatOptions = {
-			as: format,
-			colors,
-			separator,
-			roleNames,
-			variantNames,
+			as: format ?? 'object',
+			colors: colors ?? 'hex',
+			separator: separator ?? '-',
 		};
 
+		if (roleNames) {
+			formatOptions.roleNames = JSON.parse(roleNames);
+		}
+		if (variantNames) {
+			formatOptions.variantNames = JSON.parse(variantNames);
+		}
+
 		const result = builder.format(formatOptions);
+		const themeFilter = theme ?? 'both';
 
 		let output: unknown;
-		if (theme === 'light') output = result.light;
-		else if (theme === 'dark') output = result.dark;
+		if (themeFilter === 'light') output = result.light;
+		else if (themeFilter === 'dark') output = result.dark;
 		else output = result;
 
 		return {
@@ -303,7 +246,9 @@ server.registerTool(
 			color: z
 				.string()
 				.describe('Color to convert (any supported input format)'),
-			to: colorSpaceEnum,
+			to: z
+				.enum(['srgb', 'hsl', 'oklch', 'oklab', 'linear-rgb', 'display-p3'])
+				.describe('Target color space'),
 		},
 	},
 	async ({ color, to }) => {
