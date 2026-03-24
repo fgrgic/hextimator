@@ -41,14 +41,12 @@ function App() {
 
 	try {
 		const theme = hextimate(input, {
-			minContrastRatio: 'AA',
-			baseMaxChroma: 0.03,
-			baseHueShift: 180,
+			// minContrastRatio: 'AA',
+			// baseMaxChroma: 0.03,
 			invertDarkModeBaseAccent: true,
-		})
-			.preset(presets.shadcn)
-			.light({ maxChroma: 0.1, lightness: 0.5 })
-			.dark({ maxChroma: 0.1 });
+		}).preset(presets.shadcn);
+		// .light({ maxChroma: 0.1, lightness: 0.5 })
+		// .dark({ maxChroma: 0.1 });
 		// .addRole('banner', '#ff006e')
 		// .addRole('moonpay', 'bb00ff')
 		// .addVariant('placeholder', { beyond: 'weak' })
