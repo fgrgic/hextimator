@@ -2,7 +2,7 @@
 
 <p align="center">
     <picture>
-        <img src="https://raw.githubusercontent.com/openclaw/openclaw/main/docs/assets/openclaw-logo-text.svg" alt="OpenClaw" width="500">
+        <img src="https://raw.githubusercontent.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/assets/gh-cover.webp" alt="OpenClaw" width="500">
     </picture>
 </p>
 
