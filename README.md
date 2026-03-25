@@ -1,5 +1,11 @@
 # hextimator
 
+<p align="center">
+    <picture>
+        <img src="https://raw.githubusercontent.com/openclaw/openclaw/main/docs/assets/openclaw-logo-text.svg" alt="OpenClaw" width="500">
+    </picture>
+</p>
+
 One brand color in, full accessible theme out.
 
 - Input: any single color. Output: complete light + dark theme with accessibility guarantees (AAA contrast by default).
