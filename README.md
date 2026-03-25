@@ -2,7 +2,7 @@
 
 <p align="center">
     <picture>
-        <img src="https://raw.githubusercontent.com/fgrgic/hextimator/main/packages/hextimator/docs/assets/gh-cover.webp" alt="hextimator" width="500">
+        <img src="./packages/hextimator/docs/assets/gh-cover.webp" alt="hextimator" width="500">
     </picture>
 </p>
 
