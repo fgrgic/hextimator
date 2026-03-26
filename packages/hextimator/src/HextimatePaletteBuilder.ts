@@ -176,6 +176,21 @@ export class HextimatePaletteBuilder {
 	preset(preset: HextimatePreset): this {
 		this.operations.push({ method: 'preset', args: [preset] });
 
+		if (preset.generation) {
+			const userOptions = { ...this.options };
+			Object.assign(this.options, preset.generation, userOptions);
+			this.lightPalette = generate(
+				this.inputColor,
+				'light',
+				this.resolvedOptions(),
+			);
+			this.darkPalette = generate(
+				this.inputColor,
+				'dark',
+				this.resolvedOptions(),
+			);
+		}
+
 		for (const role of preset.roles ?? []) {
 			this.applyRole(role.name, role.color);
 		}

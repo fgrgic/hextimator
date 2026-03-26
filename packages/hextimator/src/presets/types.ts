@@ -1,5 +1,9 @@
 import type { TokenValue, VariantPlacement } from '../HextimatePaletteBuilder';
-import type { ColorInput, HextimateFormatOptions } from '../types';
+import type {
+	ColorInput,
+	HextimateFormatOptions,
+	HextimateGenerationOptions,
+} from '../types';
 
 /**
  * A reusable preset that configures the palette builder with
@@ -15,6 +19,9 @@ import type { ColorInput, HextimateFormatOptions } from '../types';
  *   .format();
  */
 export interface HextimatePreset {
+	/** Generation options (contrast, hue shifts, lightness, chroma). Applied before roles/variants/tokens. */
+	generation?: HextimateGenerationOptions;
+
 	/** Extra roles to add to the palette (each generates DEFAULT, strong, weak, foreground variants). */
 	roles?: Array<{ name: string; color: ColorInput }>;
 
