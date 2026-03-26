@@ -39,11 +39,12 @@ Creates a palette builder from any color input.
 |---|---|
 | `.addRole(name, color)` | Add a new color role with DEFAULT, strong, weak, foreground variants |
 | `.addVariant(name, placement)` | Add a lightness step to every role. `placement`: `{ beyond: "strong" }`, `{ beyond: "weak" }`, or `{ between: ["DEFAULT", "weak"] }` |
-| `.addToken(name, value)` | Add a standalone derived token. `value`: a color, `{ from: "role.variant", lightness?, chroma? }`, or `{ light: ..., dark: ... }` |
+| `.addToken(name, value)` | Add a standalone derived token. `value`: a color, `{ from: "role.variant", lightness?, chroma? }`, or `{ light: ..., dark: ... }` for per-theme values |
+| `.preset(preset)` | Apply a framework preset (e.g. `presets.shadcn`). Preset format defaults are overridden by `.format()` options |
 | `.light({ lightness?, maxChroma? })` | Override light theme adjustments |
 | `.dark({ lightness?, maxChroma? })` | Override dark theme adjustments |
 | `.simulate(cvdType, severity?)` | Simulate color vision deficiency. Types: `protanopia`, `deuteranopia`, `tritanopia`, `achromatopsia` |
-| `.adaptFor(cvdType, severity?)` | Optimize palette for a CVD type |
+| `.adaptFor(cvdType, severity?)` | Optimize palette for a CVD type (use instead of simulate for actual accessibility) |
 | `.fork(color?, options?)` | Clone builder with optional new color/options. Original unchanged |
 | `.format(options?)` | Output the palette (see format options) |
 
@@ -71,15 +72,15 @@ Output shape depends on `as`:
 |---|---|---|---|
 | `baseColor` | color input | auto-derived | Override base/neutral baseline color |
 | `baseHueShift` | degrees | `0` | Rotate base hue relative to accent. Ignored if `baseColor` set |
-| `semanticColors` | `{ positive?, negative?, warning? }` | auto | Override semantic colors |
+| `invertDarkModeBaseAccent` | boolean | `false` | Swap base/accent hues in dark mode. Useful when the accent should become the background in dark mode. Requires `baseColor` |
+| `semanticColors` | `{ positive?, negative?, warning? }` | auto | Override semantic colors (green/red/amber) |
 | `semanticColorRanges` | `{ positive?: [start,end], ... }` | greens, reds, ambers | Hue ranges for semantic detection |
 | `baseMaxChroma` | number | `0.01` | Max chroma for base colors |
-| `foregroundMaxChrome` | number | `0.01` | Max chroma for foreground colors |
+| `foregroundMaxChroma` | number | `0.01` | Max chroma for foreground colors |
 | `light` | `{ lightness?, maxChroma? }` | `{ lightness: 0.7 }` | Light theme adjustments |
 | `dark` | `{ lightness?, maxChroma? }` | `{ lightness: 0.6 }` | Dark theme adjustments |
 | `minContrastRatio` | `"AAA"`, `"AA"`, or number | `"AAA"` | WCAG contrast target (AAA=7, AA=4.5) |
 | `hueShift` | degrees | `0` | Per-variant hue rotation |
-| `invertDarkModeBaseAccent` | boolean | `false` | Swap base/accent hues in dark mode (requires baseColor) |
 
 ### Default palette structure
 
@@ -89,6 +90,35 @@ Every palette includes 5 roles × 4 variants = 20 tokens:
 - Variants: `DEFAULT` (no suffix), `strong`, `weak`, `foreground`
 
 Token keys: `accent`, `accent-strong`, `accent-weak`, `accent-foreground`, `base`, `base-strong`, ...
+
+### Presets
+
+```typescript
+import { hextimate, presets } from "hextimator";
+
+const theme = hextimate("#6366F1")
+  .preset(presets.shadcn)
+  .format();
+
+// Override preset defaults:
+const theme = hextimate("#6366F1")
+  .preset(presets.shadcn)
+  .format({ colors: "hsl-raw" });
+```
+
+The shadcn preset adds tokens like foreground, card, popover, secondary, muted, border, input, ring, and renames roles (base→background, accent→primary, negative→destructive, positive→success).
+
+### Standalone tokens with per-theme values
+
+```typescript
+hextimate("#6366F1")
+  .addToken("border", {
+    light: { from: "base.weak", lightness: -0.08 },
+    dark: { from: "base.weak", lightness: +0.08 },
+  })
+  .addToken("ring", { from: "accent" })
+  .format({ as: "css" });
+```
 
 ### Utility exports
 
@@ -127,20 +157,46 @@ npx hextimator <color> [options]
 | `-f, --format` | `css`, `object`, `tailwind`, `tailwind-css`, `scss`, `json` | `css` |
 | `-c, --colors` | `hex`, `rgb`, `rgb-raw`, `hsl`, `hsl-raw`, `oklch`, `oklch-raw`, `p3`, `p3-raw` | `hex` |
 | `-t, --theme` | `light`, `dark`, `both` | `both` |
+| `-p, --preset` | Apply preset (e.g. `shadcn`) | — |
 | `--base-color` | Override base color | — |
 | `--base-hue-shift` | Degrees | `0` |
 | `--hue-shift` | Per-variant hue shift | `0` |
+| `--base-max-chroma` | Max chroma for base | `0.01` |
+| `--fg-max-chroma` | Max chroma for foreground | `0.01` |
+| `--light-lightness` | Light theme lightness 0-1 | `0.7` |
+| `--light-max-chroma` | Light theme max chroma | — |
+| `--dark-lightness` | Dark theme lightness 0-1 | `0.6` |
+| `--dark-max-chroma` | Dark theme max chroma | — |
 | `--min-contrast` | `AAA`, `AA`, or number | `AAA` |
+| `--invert-dark` | Swap base/accent hues in dark mode (requires --base-color) | — |
+| `--positive` | Override positive/success color | auto |
+| `--negative` | Override negative/error color | auto |
+| `--warning` | Override warning color | auto |
+| `--simulate` | Simulate CVD: `protanopia`, `deuteranopia`, `tritanopia`, `achromatopsia` | — |
+| `--adapt` | Adapt palette for CVD type | — |
+| `--cvd-severity` | CVD severity 0-1 | `1` |
 | `--role <name>=<color>` | Add custom role (repeatable) | — |
 | `--variant <spec>` | Add variant: `name:beyond:edge` or `name:between:a,b` (repeatable) | — |
 | `-o, --output <path>` | Write to file instead of stdout | stdout |
 
 ```bash
-# Example: generate JSON palette
-npx hextimator "#6A5ACD" --format json --colors oklch
+# Generate CSS palette
+npx hextimator "#6A5ACD" --format css --colors oklch
 
-# Example: with custom roles
-npx hextimator "#6A5ACD" --format css --role cta=#EE2244 --role sidebar=#3a86ff
+# shadcn/ui preset
+npx hextimator "#6366F1" --preset shadcn
+
+# Invert base/accent in dark mode
+npx hextimator "#6A5ACD" --base-color "#FEBA5D" --invert-dark
+
+# Custom roles and variants
+npx hextimator "#22aa44" --role cta=#ee2244 --variant hover:beyond:strong -o theme.css
+
+# Simulate color blindness
+npx hextimator "#ff6600" --simulate deuteranopia
+
+# Adapt for color blindness
+npx hextimator "#ff6600" --adapt deuteranopia --cvd-severity 0.8
 ```
 
 ## React
@@ -168,7 +224,7 @@ import { HextimatorProvider, useHextimatorTheme } from "hextimator/react";
   <App />
 </HextimatorProvider>
 
-// In children
+// In children — setColor triggers re-generation
 const { color, setColor, palette } = useHextimatorTheme();
 ```
 
@@ -183,22 +239,25 @@ This registers all 20 built-in tokens as Tailwind utilities (`bg-accent`, `text-
 
 ## Common recipes
 
+### Inverted dark mode (accent as background)
+
+```typescript
+const theme = hextimate("#52FE8C", {
+  baseColor: "#FEBA5D",
+  invertDarkModeBaseAccent: true,
+}).format({ as: "css" });
+// Dark mode uses the accent hue as background, base hue as accent
+```
+
 ### shadcn/ui theme
 
 ```typescript
+import { hextimate, presets } from "hextimator";
+
 hextimate("#6366F1")
-  .addRole("muted", "#94A3B8")
-  .addRole("card", "#F8FAFC")
-  .addToken("border", {
-    light: { from: "base.weak", lightness: -0.08 },
-    dark: { from: "base.weak", lightness: +0.08 },
-  })
-  .addToken("ring", { from: "accent" })
-  .format({
-    as: "css",
-    colors: "oklch",
-    roleNames: { base: "background", accent: "primary", positive: "success", negative: "destructive" },
-  });
+  .preset(presets.shadcn)
+  .format();
+// Generates all shadcn/ui tokens with proper naming
 ```
 
 ### Multi-tenant with `.fork()`
@@ -210,6 +269,14 @@ const base = hextimate("#52FE8C", { baseColor: "#FEBA5D" })
 
 const tenantA = base.fork("#ff6677").format({ as: "css" });
 const tenantB = base.fork("#3a86ff").format({ as: "css" });
+```
+
+### Color vision deficiency
+
+```typescript
+const normalTheme = hextimate("#ff6600");
+const adaptedTheme = normalTheme.fork().adaptFor("deuteranopia");
+const preview = normalTheme.fork().simulate("deuteranopia");
 ```
 
 ## Optional

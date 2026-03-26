@@ -42,6 +42,17 @@ Generation options:
       --dark-lightness <n>    Dark theme lightness 0-1             (default: 0.6)
       --dark-max-chroma <n>   Dark theme max chroma
       --min-contrast <value>  AAA | AA | <number>                  (default: AAA)
+      --invert-dark           Swap base/accent hues in dark mode   (requires --base-color)
+
+Semantic colors:
+      --positive <color>      Override positive/success color      (default: auto green)
+      --negative <color>      Override negative/error color        (default: auto red)
+      --warning <color>       Override warning color               (default: auto amber)
+
+CVD (color vision deficiency):
+      --simulate <type>       Simulate CVD: protanopia | deuteranopia | tritanopia | achromatopsia
+      --adapt <type>          Adapt palette for CVD type
+      --cvd-severity <n>      CVD severity 0-1                     (default: 1)
 
 Roles & variants (repeatable):
       --role <name>=<color>   Add a custom role
@@ -60,6 +71,9 @@ Examples:
   hextimator '#6366F1' --preset shadcn
   hextimator '#6366F1' --preset shadcn --colors hsl-raw
   hextimator '#22aa44' --role cta=#ee2244 --variant hover:beyond:strong -o theme.css
+  hextimator '#6A5ACD' --base-color '#FEBA5D' --invert-dark
+  hextimator '#ff6600' --simulate deuteranopia
+  hextimator '#ff6600' --adapt deuteranopia --cvd-severity 0.8
 `.trim();
 
 function run(): void {
@@ -81,6 +95,13 @@ function run(): void {
 			'dark-lightness': { type: 'string' },
 			'dark-max-chroma': { type: 'string' },
 			'min-contrast': { type: 'string' },
+			'invert-dark': { type: 'boolean' },
+			positive: { type: 'string' },
+			negative: { type: 'string' },
+			warning: { type: 'string' },
+			simulate: { type: 'string' },
+			adapt: { type: 'string' },
+			'cvd-severity': { type: 'string' },
 			role: { type: 'string', multiple: true },
 			variant: { type: 'string', multiple: true },
 			output: { type: 'string', short: 'o' },
@@ -115,7 +136,7 @@ function run(): void {
 	if (values['base-max-chroma'])
 		generationOptions.baseMaxChroma = Number(values['base-max-chroma']);
 	if (values['fg-max-chroma'])
-		generationOptions.foregroundMaxChrome = Number(values['fg-max-chroma']);
+		generationOptions.foregroundMaxChroma = Number(values['fg-max-chroma']);
 
 	if (values['light-lightness'] || values['light-max-chroma']) {
 		generationOptions.light = {};
@@ -140,6 +161,18 @@ function run(): void {
 		} else {
 			generationOptions.minContrastRatio = Number(mc);
 		}
+	}
+
+	if (values['invert-dark']) {
+		generationOptions.invertDarkModeBaseAccent = true;
+	}
+
+	const semanticColors: HextimateGenerationOptions['semanticColors'] = {};
+	if (values.positive) semanticColors.positive = values.positive;
+	if (values.negative) semanticColors.negative = values.negative;
+	if (values.warning) semanticColors.warning = values.warning;
+	if (Object.keys(semanticColors).length > 0) {
+		generationOptions.semanticColors = semanticColors;
 	}
 
 	const builder = hextimate(color, generationOptions);
@@ -196,6 +229,24 @@ function run(): void {
 				process.exit(1);
 			}
 		}
+	}
+
+	const cvdSeverity = values['cvd-severity']
+		? Number(values['cvd-severity'])
+		: 1;
+
+	if (values.simulate) {
+		builder.simulate(
+			values.simulate as 'protanopia' | 'deuteranopia' | 'tritanopia' | 'achromatopsia',
+			cvdSeverity,
+		);
+	}
+
+	if (values.adapt) {
+		builder.adaptFor(
+			values.adapt as 'protanopia' | 'deuteranopia' | 'tritanopia' | 'achromatopsia',
+			cvdSeverity,
+		);
 	}
 
 	const hasPreset = !!values.preset;
