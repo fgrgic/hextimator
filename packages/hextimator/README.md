@@ -46,7 +46,7 @@ const theme = hextimate("#6366F1")
   .format({ colors: "hsl-raw" }); // older shadcn format
 ```
 
-See [Presets](docs/presets.md) for the full list and how to create your own.
+See [Presets](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/presets.md) for the full list and how to create your own.
 
 ## Two-step API: generate, then format
 
@@ -114,14 +114,14 @@ const oklch = convertColor(color, "oklch");
 
 ## Documentation
 
-- [Extending the palette](docs/extending-the-palette.md) — `addRole`, `addVariant`, `addToken`
-- [Multiple themes](docs/multiple-themes.md) — dynamic theming and `.fork()`
-- [Customization](docs/customization.md) — generation and format options reference
-- [Color vision deficiency](docs/color-vision-deficiency.md) — simulate and adapt for CVD
-- [Presets](docs/presets.md) — drop-in configs for shadcn/ui, or create your own
-- [React](docs/react.md) — `useHextimator` hook, provider, dark mode strategies
-- [Tailwind CSS v4](docs/tailwind.md) — setup and usage with Tailwind
-- [Real-world examples](docs/examples.md) — shadcn/ui, Stripe, Slack configurations
+- [Extending the palette](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/extending-the-palette.md) — `addRole`, `addVariant`, `addToken`
+- [Multiple themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md) — dynamic theming and `.fork()`
+- [Customization](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md) — generation and format options reference
+- [Color vision deficiency](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/color-vision-deficiency.md) — simulate and adapt for CVD
+- [Presets](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/presets.md) — drop-in configs for shadcn/ui, or create your own
+- [React](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/react.md) — `useHextimator` hook, provider, dark mode strategies
+- [Tailwind CSS v4](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/tailwind.md) — setup and usage with Tailwind
+- [Real-world examples](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/examples.md) — shadcn/ui, Stripe, Slack configurations
 
 ## Contributing
 

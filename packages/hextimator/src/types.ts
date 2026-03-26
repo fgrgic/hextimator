@@ -195,7 +195,7 @@ export interface HextimateGenerationOptions {
 	 *
 	 * Default: 0.01.
 	 */
-	foregroundMaxChrome?: number;
+	foregroundMaxChroma?: number;
 
 	/**
 	 * Per-theme adjustments for the light theme.
