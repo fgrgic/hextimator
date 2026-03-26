@@ -68,16 +68,16 @@ function App() {
 
 	try {
 		const theme = hextimate(input, {
-			minContrastRatio: 'AA',
-			baseMaxChroma: 0.03,
-			baseHueShift: 180,
-			invertDarkModeBaseAccent: true,
+			// minContrastRatio: 'AAA',
+			// baseMaxChroma: 0.03,
+			// baseHueShift: 180,
+			// invertDarkModeBaseAccent: true,
 		})
-			// .preset(presets.shadcn)
-			.light({ maxChroma: 0.1, lightness: 0.5 })
-			.dark({ maxChroma: 0.1 });
+			.preset(presets.demo)
+			.light({ maxChroma: 0.1, lightness: 0.8 })
+			.dark({ maxChroma: 0.3, lightness: 0.2 });
 		// .addRole('banner', '#ff006e')
-		// .addRole('moonpay', 'bb00ff')
+		// .addRole('moonpay', 'bb00ff');
 		// .addVariant('placeholder', { beyond: 'weak' })
 		// .addVariant('intense', { beyond: 'strong' })
 		// .addToken('brand', '#3a86ff');
