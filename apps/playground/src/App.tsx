@@ -3,6 +3,29 @@ import { hextimate, presets } from 'hextimator';
 import { useState } from 'react';
 import './App.css';
 
+function tokensToText(tokens: Record<string, string>): string {
+	return Object.entries(tokens)
+		.map(([name, value]) => `${name}: ${value};`)
+		.join('\n');
+}
+
+function CopyButton({ text }: { text: string }) {
+	const [copied, setCopied] = useState(false);
+
+	const handleCopy = () => {
+		navigator.clipboard.writeText(text).then(() => {
+			setCopied(true);
+			setTimeout(() => setCopied(false), 1500);
+		});
+	};
+
+	return (
+		<button type="button" className="copy-btn" onClick={handleCopy}>
+			{copied ? 'Copied!' : 'Copy'}
+		</button>
+	);
+}
+
 function ColorGrid({ tokens }: { tokens: Record<string, string> }) {
 	return (
 		<div className="color-grid">
@@ -23,10 +46,14 @@ function PalettePreview({ result }: { result: HextimateResult }) {
 			{(['light', 'dark'] as const).map((mode) => {
 				const tokens = result[mode];
 				if (typeof tokens === 'string' || tokens === null) return null;
+				const tokenMap = tokens as Record<string, string>;
 				return (
 					<section key={mode} className={`palette-section palette-${mode}`}>
-						<h2>{mode}</h2>
-						<ColorGrid tokens={tokens as Record<string, string>} />
+						<div className="palette-header">
+							<h2>{mode}</h2>
+							<CopyButton text={tokensToText(tokenMap)} />
+						</div>
+						<ColorGrid tokens={tokenMap} />
 					</section>
 				);
 			})}
@@ -41,12 +68,14 @@ function App() {
 
 	try {
 		const theme = hextimate(input, {
-			// minContrastRatio: 'AA',
-			// baseMaxChroma: 0.03,
+			minContrastRatio: 'AA',
+			baseMaxChroma: 0.03,
+			baseHueShift: 180,
 			invertDarkModeBaseAccent: true,
-		}).preset(presets.shadcn);
-		// .light({ maxChroma: 0.1, lightness: 0.5 })
-		// .dark({ maxChroma: 0.1 });
+		})
+			// .preset(presets.shadcn)
+			.light({ maxChroma: 0.1, lightness: 0.5 })
+			.dark({ maxChroma: 0.1 });
 		// .addRole('banner', '#ff006e')
 		// .addRole('moonpay', 'bb00ff')
 		// .addVariant('placeholder', { beyond: 'weak' })
