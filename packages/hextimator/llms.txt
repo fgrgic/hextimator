@@ -158,6 +158,7 @@ npx hextimator <color> [options]
 | `-c, --colors` | `hex`, `rgb`, `rgb-raw`, `hsl`, `hsl-raw`, `oklch`, `oklch-raw`, `p3`, `p3-raw` | `hex` |
 | `-t, --theme` | `light`, `dark`, `both` | `both` |
 | `-p, --preset` | Apply preset (e.g. `shadcn`) | — |
+| `--separator` | Token separator between role and variant | `-` |
 | `--base-color` | Override base color | — |
 | `--base-hue-shift` | Degrees | `0` |
 | `--hue-shift` | Per-variant hue shift | `0` |
