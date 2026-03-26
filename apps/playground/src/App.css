@@ -70,12 +70,35 @@ h1 {
 	color: #f5f5f5;
 }
 
+.palette-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 1rem;
+}
+
 .palette-section h2 {
-	margin: 0 0 1rem;
+	margin: 0;
 	font-size: 0.85rem;
 	text-transform: uppercase;
 	letter-spacing: 0.08em;
 	opacity: 0.6;
+}
+
+.copy-btn {
+	font-size: 0.75rem;
+	padding: 0.25rem 0.6rem;
+	border: 1px solid rgba(128, 128, 128, 0.4);
+	border-radius: 6px;
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+	opacity: 0.6;
+	transition: opacity 0.15s;
+}
+
+.copy-btn:hover {
+	opacity: 1;
 }
 
 /* color grid */
