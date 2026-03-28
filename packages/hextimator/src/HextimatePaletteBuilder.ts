@@ -145,6 +145,9 @@ export class HextimatePaletteBuilder {
 	 * e.g. `addToken('brand', '#3a86ff')` adds a "brand" token with the specified color in both themes.
 	 * `addToken('brand', { light: '#3a86ff', dark: '#ff0066' })` adds a "brand" token with different colors in light and dark themes.
 	 *
+	 * It can also be used to override specific tokens after generation.
+	 * `addToken('base-strong', '#ff0066')` overrides the automatically generated "base-strong" variant with a custom color.
+	 *
 	 * @param name Token name (e.g. "brand", "logo")
 	 * @param value Token value, which can be an exact color, or derived from an existing role+variant.
 	 */
