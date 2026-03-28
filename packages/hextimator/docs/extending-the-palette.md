@@ -59,3 +59,13 @@ When light and dark themes need different directions:
   dark: { from: "base.weak", lightness: +0.05 },
 })
 ```
+
+### Overriding generated tokens
+
+The `addTokan` can be used to override any generated token from the palette as well:
+
+```typescript
+hextimate("#6A5ACD")
+  .addToken("base-strong", ""#fafafa"") // overrides the generated --base-strong at formatting time
+  .format({ as: "css" });
+```

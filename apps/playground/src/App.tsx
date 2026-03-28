@@ -73,9 +73,10 @@ function App() {
 			// baseHueShift: 180,
 			// invertDarkModeBaseAccent: true,
 		})
-			.preset(presets.demo)
+			// .preset(presets.demo)
 			.light({ maxChroma: 0.1, lightness: 0.8 })
 			.dark({ maxChroma: 0.3, lightness: 0.2 });
+		// .addToken('base-strong', '#ff0000'); // overrides generated base.strong
 		// .addRole('banner', '#ff006e')
 		// .addRole('moonpay', 'bb00ff');
 		// .addVariant('placeholder', { beyond: 'weak' })
@@ -83,6 +84,8 @@ function App() {
 		// .addToken('brand', '#3a86ff');
 
 		// const themeFork = theme.fork('#ff6677').addRole('forked', '#00ffbb');
+		//
+		console.log({ theme });
 
 		result = theme.format({
 			as: 'object',
