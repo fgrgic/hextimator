@@ -25,7 +25,7 @@ export function NavBar() {
 
 			<button
 				type="button"
-				className="text-foreground cursor-pointer md:hidden"
+				className="text-base-foreground cursor-pointer md:hidden"
 				onClick={() => setOpen((v) => !v)}
 				aria-label={open ? 'Close menu' : 'Open menu'}
 			>

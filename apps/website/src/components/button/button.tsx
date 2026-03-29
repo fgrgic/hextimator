@@ -8,7 +8,7 @@ const buttonVariants = cva(
 			variant: {
 				primary: 'pl-4 pr-2 py-2 bg-accent text-accent-foreground min-w-32',
 				secondary: 'px-4 py-2 bg-secondary text-secondary-foreground',
-				ghost: 'px-2 py-0 bg-transparent text-foreground text-sm',
+				ghost: 'px-2 py-0 bg-transparent text-base-foreground text-sm',
 			},
 		},
 		defaultVariants: {
