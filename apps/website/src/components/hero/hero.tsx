@@ -57,9 +57,9 @@ export function Hero() {
 				</span>
 				<LongArrowRightDown className="size-4" strokeWidth={1} />
 			</div>
+			<h1 className="sr-only">One color in. Whole theme out</h1>
 			<div className="flex flex-col items-center">
 				<div className="flex flex-row gap-1 font-light text-3xl">
-					<span className="sr-only">One color in.</span>
 					<span aria-hidden>One</span>
 					<ColorInput
 						color={input}
@@ -69,7 +69,6 @@ export function Hero() {
 					<span aria-hidden>in.</span>
 				</div>
 				<div className="flex flex-row gap-1 font-light text-3xl">
-					<span className="sr-only">Whole theme out.</span>
 					<span aria-hidden>Whole</span>
 					<span aria-hidden>theme</span>
 					<span aria-hidden>out.</span>
