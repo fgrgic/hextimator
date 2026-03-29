@@ -34,10 +34,13 @@ export function Hero() {
 
 	const [showHint, setShowHint] = useState(true);
 
-	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+	const handleFocus = () => {
 		stop();
-		setShowHint(false);
+	};
+
+	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		applyValue(e.target.value);
+		setShowHint(false);
 	};
 
 	return (
@@ -58,7 +61,11 @@ export function Hero() {
 				<div className="flex flex-row gap-1 font-light text-3xl">
 					<span className="sr-only">One color in.</span>
 					<span aria-hidden>One</span>
-					<ColorInput color={input} onColorChange={handleInputChange} />
+					<ColorInput
+						color={input}
+						onColorChange={handleInputChange}
+						onFocus={handleFocus}
+					/>
 					<span aria-hidden>in.</span>
 				</div>
 				<div className="flex flex-row gap-1 font-light text-3xl">
