@@ -1,12 +1,12 @@
-import { HextimatorIcon } from '../icons';
+import type { ComponentPropsWithRef } from 'react';
+import { HextimatorIcon } from '../../icons';
 
-export function ColorInput({
-	color,
-	onColorChange,
-}: {
+type ColorInputProps = ComponentPropsWithRef<'input'> & {
 	color: string;
 	onColorChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-}) {
+};
+
+export function ColorInput({ color, onColorChange, ...rest }: ColorInputProps) {
 	return (
 		<div className="flex bg-base-weak font-extrabold rounded-sm px-1 gap-1">
 			<HextimatorIcon className="my-1" />
@@ -23,6 +23,7 @@ export function ColorInput({
 					onChange={onColorChange}
 					className="col-start-1 row-start-1 focus:outline-none w-0 min-w-full  underline"
 					spellCheck={false}
+					{...rest}
 				/>
 			</div>
 		</div>

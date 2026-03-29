@@ -1,24 +1,40 @@
 import { parseColor } from 'hextimator';
 import { useHextimatorTheme } from 'hextimator/react';
 import { NavArrowRight } from 'iconoir-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Button } from '../button';
-import { ColorInput } from '../color-input';
+import { ColorInput } from './color-input';
+import { useColorCycler } from './use-color-cycler';
+
+function tryApplyColor(value: string, setColor: (c: string) => void) {
+	try {
+		const color = parseColor(value);
+		if (color) {
+			setColor(value);
+		}
+	} catch {
+		// partial input, do nothing
+	}
+}
 
 export function Hero() {
-	const [input, setInput] = useState('ff6677');
-	const { setColor } = useHextimatorTheme();
+	const { color: currentColor, setColor } = useHextimatorTheme();
+	const [initialColor] = useState(currentColor);
+	const [input, setInput] = useState('');
+
+	const applyValue = useCallback(
+		(value: string, updateTheme = true) => {
+			setInput(value);
+			if (updateTheme) tryApplyColor(value, setColor);
+		},
+		[setColor],
+	);
+
+	const { stop } = useColorCycler(applyValue, initialColor);
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setInput(e.target.value);
-		try {
-			const color = parseColor(e.target.value);
-			if (color) {
-				setColor(e.target.value);
-			}
-		} catch {
-			// expected for partial color input
-		}
+		stop();
+		applyValue(e.target.value);
 	};
 
 	return (
