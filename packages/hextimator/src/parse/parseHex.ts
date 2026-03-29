@@ -3,7 +3,7 @@ import type { RGB } from '../types';
 const HEX_PATTERNS = {
 	prefixed: /^#([0-9a-f]{3,8})$/, // e.g. #FF6666
 	numeric: /^0x([0-9a-f]{6}|[0-9a-f]{8})$/, // e.g. 0xFF6666
-	bare: /^([0-9a-f]{6}|[0-9a-f]{8})$/, // e.g. FF6666
+	bare: /^([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/, // e.g. F66, FF6666
 };
 
 function parseHexDigits(hex: string): RGB | null {

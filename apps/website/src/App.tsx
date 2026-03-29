@@ -3,7 +3,7 @@ import { Hero } from './components';
 
 function App() {
 	return (
-		<div className="bg-accent text-base-foreground min-h-3/5">
+		<div>
 			<Hero />
 		</div>
 	);
