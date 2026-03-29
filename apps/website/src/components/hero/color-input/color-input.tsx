@@ -21,7 +21,8 @@ export function ColorInput({ color, onColorChange, ...rest }: ColorInputProps) {
 					type="text"
 					value={color}
 					onChange={onColorChange}
-					className="col-start-1 row-start-1 focus:outline-none w-0 min-w-full  underline"
+					className="col-start-1 row-start-1 focus:outline-none w-0 min-w-full underline"
+					maxLength={6}
 					spellCheck={false}
 					{...rest}
 				/>
