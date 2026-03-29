@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { generateRandomColor } from '../../utils';
 
 const TYPE_DELAY = 100;
 const DELETE_DELAY = 60;
-const PAUSE_FULL = 1800;
+const PAUSE_FULL = 2000;
 const PAUSE_EMPTY = 400;
 
 export function useColorCycler(
@@ -11,6 +11,7 @@ export function useColorCycler(
 	initialColor: string,
 ) {
 	const [isActive, setIsActive] = useState(true);
+	const onUpdateRef = useRef(onUpdate);
 
 	useEffect(() => {
 		if (!isActive) return;
@@ -18,25 +19,27 @@ export function useColorCycler(
 		let timeout: ReturnType<typeof setTimeout>;
 		let cancelled = false;
 		let isFirst = true;
+		let previousColor = initialColor;
 
 		async function delay(ms: number) {
-			return new Promise<void>((resolve) => {
-				timeout = setTimeout(() => {
-					if (!cancelled) resolve();
-				}, ms);
+			return new Promise<void>((resolve, reject) => {
+				if (cancelled) return reject('cancelled');
+				timeout = setTimeout(resolve, ms);
 			});
 		}
 
 		async function cycle() {
 			while (!cancelled) {
-				const target = isFirst ? initialColor : generateRandomColor();
+				const target = isFirst
+					? initialColor
+					: generateRandomColor(previousColor);
+				previousColor = target;
 
 				// Type phase
 				for (let i = 1; i <= target.length; i++) {
 					if (cancelled) return;
-					// First cycle: theme is already applied, no update needed
 					const shouldUpdate = !isFirst && i === target.length;
-					onUpdate(target.slice(0, i), shouldUpdate);
+					onUpdateRef.current(target.slice(0, i), shouldUpdate);
 					await delay(TYPE_DELAY);
 				}
 
@@ -47,7 +50,7 @@ export function useColorCycler(
 				// Delete phase
 				for (let i = target.length - 1; i >= 0; i--) {
 					if (cancelled) return;
-					onUpdate(target.slice(0, i), false);
+					onUpdateRef.current(target.slice(0, i), false);
 					await delay(DELETE_DELAY);
 				}
 
@@ -61,7 +64,7 @@ export function useColorCycler(
 			cancelled = true;
 			clearTimeout(timeout);
 		};
-	}, [isActive, onUpdate, initialColor]);
+	}, [isActive, initialColor]);
 
 	const stop = useCallback(() => setIsActive(false), []);
 

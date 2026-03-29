@@ -18,7 +18,7 @@ export function NavBar() {
 	const [open, setOpen] = useState(false);
 
 	return (
-		<nav className="relative flex items-center justify-between px-6 py-4">
+		<nav className="relative flex items-center justify-between px-6 py-4 text-base-foreground">
 			<HextimatorLogo scale={0.6} />
 
 			<div className="hidden items-center gap-2 md:flex">{navLinks}</div>
