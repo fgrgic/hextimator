@@ -1,7 +1,7 @@
 import { parseColor } from 'hextimator';
 import { useHextimatorTheme } from 'hextimator/react';
-import { LongArrowRightDown, NavArrowRight } from 'iconoir-react';
-import { useCallback, useEffect, useState } from 'react';
+import { LongArrowRightDown, NavArrowRight, Star } from 'iconoir-react';
+import { useCallback, useState } from 'react';
 import { Button } from '../button';
 import { ColorInput } from './color-input';
 import { useColorCycler } from './use-color-cycler';
@@ -46,7 +46,7 @@ export function Hero() {
 	return (
 		<section className="relative mt-12 flex flex-col items-center text-center bg-base text-base-foreground min-h-3/5 p-6 gap-2">
 			<div
-				className="absolute -top-2 left-1/2 -translate-x-1/2 -ml-12 flex items-end gap-0.5 -rotate-3 pointer-events-none"
+				className="absolute -top-1 left-1/2 -translate-x-1/2 -ml-12 flex items-end gap-0.5 -rotate-3 pointer-events-none"
 				style={{
 					opacity: showHint ? 0.6 : 0,
 					transition: 'opacity 500ms ease-in-out',
@@ -85,6 +85,8 @@ export function Hero() {
 					href="https://github.com/fgrgic/hextimator"
 					target="_blank"
 					rel="noopener noreferrer"
+					className="flex-row-reverse justify-center items-end gap-1"
+					icon={() => <Star width="0.8rem" strokeWidth={2} />}
 				>
 					Star us on GitHub
 				</Button>

@@ -1,21 +1,18 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import type { ComponentPropsWithRef, ComponentType, SVGProps } from 'react';
 
-const buttonVariants = cva(
-	'flex justify-between items-center rounded-md cursor-pointer',
-	{
-		variants: {
-			variant: {
-				primary: 'pl-4 pr-2 py-2 bg-accent text-accent-foreground min-w-32',
-				secondary: 'px-4 py-2 bg-secondary text-secondary-foreground',
-				ghost: 'px-2 py-0 bg-transparent text-base-foreground text-sm',
-			},
-		},
-		defaultVariants: {
-			variant: 'primary',
+const buttonVariants = cva('flex items-center rounded-md cursor-pointer', {
+	variants: {
+		variant: {
+			primary: 'px-4 py-2 bg-accent text-accent-foreground min-w-32',
+			secondary: 'px-4 py-2 bg-secondary text-secondary-foreground',
+			ghost: 'px-2 py-0 bg-transparent text-base-foreground text-sm',
 		},
 	},
-);
+	defaultVariants: {
+		variant: 'primary',
+	},
+});
 
 type SharedProps = VariantProps<typeof buttonVariants> & {
 	icon?: ComponentType<SVGProps<SVGSVGElement>>;
@@ -37,7 +34,13 @@ export function Button({
 	href,
 	...props
 }: ButtonProps) {
-	const classes = buttonVariants({ variant, className });
+	const classes = buttonVariants({
+		variant,
+		className:
+			`${Icon ? 'justify-between pr-2' : 'justify-center'} ${className ?? ''}`.trim() ||
+			undefined,
+	});
+
 	const children = (
 		<>
 			{props.children}
