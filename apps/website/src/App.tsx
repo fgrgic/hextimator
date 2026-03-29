@@ -1,9 +1,10 @@
 import './App.css';
-import { Hero } from './components';
+import { Hero, NavBar } from './components';
 
 function App() {
 	return (
 		<div>
+			<NavBar />
 			<Hero />
 		</div>
 	);

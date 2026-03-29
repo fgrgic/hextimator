@@ -1,2 +1,1 @@
-export { Hero } from './hero';
 export { NavBar } from './nav-bar';

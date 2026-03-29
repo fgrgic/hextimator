@@ -11,25 +11,30 @@ export function Hero() {
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		setInput(e.target.value);
-		const color = parseColor(e.target.value);
-
-		if (!color) return null;
-
-		setColor(e.target.value);
+		try {
+			const color = parseColor(e.target.value);
+			if (color) {
+				setColor(e.target.value);
+			}
+		} catch {
+			// expected for partial color input
+		}
 	};
 
 	return (
 		<section className="mt-12 flex flex-col items-center text-center bg-base text-base-foreground min-h-3/5 p-6 gap-2">
 			<div className="flex flex-col items-center">
 				<div className="flex flex-row gap-1 font-light text-3xl">
-					<span>One</span>
+					<span className="sr-only">One color in.</span>
+					<span aria-hidden>One</span>
 					<ColorInput color={input} onColorChange={handleInputChange} />
-					<span>in.</span>
+					<span aria-hidden>in.</span>
 				</div>
 				<div className="flex flex-row gap-1 font-light text-3xl">
-					<span>Whole</span>
-					<span>theme</span>
-					<span>out.</span>
+					<span className="sr-only">Whole theme out.</span>
+					<span aria-hidden>Whole</span>
+					<span aria-hidden>theme</span>
+					<span aria-hidden>out.</span>
 				</div>
 			</div>
 			<p className="text-sm font-light max-w-xs">
