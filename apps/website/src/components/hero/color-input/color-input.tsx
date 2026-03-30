@@ -22,7 +22,7 @@ export function ColorInput({ color, onColorChange, ...rest }: ColorInputProps) {
 					value={color}
 					onChange={onColorChange}
 					aria-label="Hex color code"
-					className="col-start-1 row-start-1 focus:outline-none w-0 min-w-full underline"
+					className="text-base-foreground col-start-1 row-start-1 focus:outline-none w-0 min-w-full underline"
 					maxLength={6}
 					spellCheck={false}
 					{...rest}
