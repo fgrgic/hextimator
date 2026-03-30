@@ -121,6 +121,28 @@ export interface ThemeAdjustments {
 	 * Colors with higher chroma will be clamped to this value.
 	 */
 	maxChroma?: number;
+
+	/**
+	 * Minimum WCAG contrast ratio for this theme.
+	 * Overrides the global `minContrastRatio` for this theme only.
+	 *
+	 * - `"AAA"` → 7
+	 * - `"AA"` → 4.5
+	 * - any number → exact ratio
+	 */
+	minContrastRatio?: 'AAA' | 'AA' | number;
+
+	/**
+	 * Maximum chroma for the baseline colors (base, strong, weak) in this theme.
+	 * Overrides the global `baseMaxChroma` for this theme only.
+	 */
+	baseMaxChroma?: number;
+
+	/**
+	 * Maximum chroma for foreground colors in this theme.
+	 * Overrides the global `foregroundMaxChroma` for this theme only.
+	 */
+	foregroundMaxChroma?: number;
 }
 
 /**

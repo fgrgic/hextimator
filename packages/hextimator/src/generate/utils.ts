@@ -69,14 +69,21 @@ export function expandColorToScale(
 		minContrastRatio: minContrastRatioOption,
 		foregroundLValueDark = FOREGROUND_DARK_L_VALUE,
 		foregroundLValueLight = FOREGROUND_LIGHT_L_VALUE,
-		foregroundMaxChroma = FOREGROUND_MAX_CHROMA,
+		foregroundMaxChroma: foregroundMaxChromaOption = FOREGROUND_MAX_CHROMA,
 		strongDeltaDark,
 		strongDeltaLight,
 		weakDeltaDark,
 		weakDeltaLight,
 	} = options ?? {};
 
-	const minContrast = resolveContrastRatio(minContrastRatioOption);
+	const themeAdjustments =
+		themeType === 'light' ? options?.light : options?.dark;
+	const foregroundMaxChroma =
+		themeAdjustments?.foregroundMaxChroma ?? foregroundMaxChromaOption;
+
+	const minContrast = resolveContrastRatio(
+		themeAdjustments?.minContrastRatio ?? minContrastRatioOption,
+	);
 	const contrastTarget = minContrast + CONTRAST_MARGIN;
 
 	const hasExplicitDeltas =

@@ -364,6 +364,79 @@ describe('HextimatePaletteBuilder: light() / dark()', () => {
 		);
 		expect(result.light.cta).toBeDefined();
 	});
+
+	it('per-theme minContrastRatio override affects only that theme', () => {
+		const global = formatObject(
+			hextimate('#ff6600', { minContrastRatio: 'AAA' }),
+		);
+		const overridden = formatObject(
+			hextimate('#ff6600', {
+				minContrastRatio: 'AAA',
+				light: { minContrastRatio: 'AA' },
+			}),
+		);
+		// Light theme should differ (relaxed contrast)
+		expect(overridden.light.accent).not.toBe(global.light.accent);
+		// Dark theme unchanged (still AAA)
+		expect(overridden.dark.accent).toBe(global.dark.accent);
+	});
+
+	it('per-theme baseMaxChroma override affects only that theme', () => {
+		const normal = formatObject(hextimate('#ff6600'));
+		const adjusted = formatObject(
+			hextimate('#ff6600', {
+				dark: { baseMaxChroma: 0.06 },
+			}),
+		);
+		// Dark base colors should be more chromatic
+		expect(adjusted.dark.base).not.toBe(normal.dark.base);
+		// Light base colors unchanged
+		expect(adjusted.light.base).toBe(normal.light.base);
+	});
+
+	it('per-theme foregroundMaxChroma override affects only that theme', () => {
+		const normal = formatObject(hextimate('#ff6600'));
+		const adjusted = formatObject(
+			hextimate('#ff6600', {
+				light: { foregroundMaxChroma: 0.08 },
+			}),
+		);
+		expect(adjusted.light['accent-foreground']).not.toBe(
+			normal.light['accent-foreground'],
+		);
+		expect(adjusted.dark['accent-foreground']).toBe(
+			normal.dark['accent-foreground'],
+		);
+	});
+
+	it('per-theme overrides via .light()/.dark() methods work the same', () => {
+		const viaOptions = formatObject(
+			hextimate('#ff6600', {
+				dark: { baseMaxChroma: 0.06 },
+			}),
+		);
+		const viaMethod = formatObject(
+			hextimate('#ff6600').dark({ baseMaxChroma: 0.06 }),
+		);
+		expect(viaMethod.dark.base).toBe(viaOptions.dark.base);
+		expect(viaMethod.light.base).toBe(viaOptions.light.base);
+	});
+
+	it('per-theme override takes precedence over global value', () => {
+		const globalOnly = formatObject(
+			hextimate('#ff6600', { baseMaxChroma: 0.06 }),
+		);
+		const withOverride = formatObject(
+			hextimate('#ff6600', {
+				baseMaxChroma: 0.06,
+				light: { baseMaxChroma: 0.01 },
+			}),
+		);
+		// Light uses override (0.01), so differs from global-only (0.06)
+		expect(withOverride.light.base).not.toBe(globalOnly.light.base);
+		// Dark uses global (0.06), so matches
+		expect(withOverride.dark.base).toBe(globalOnly.dark.base);
+	});
 });
 
 // ──────────────────────────────────────────────
