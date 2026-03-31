@@ -13,14 +13,17 @@ export function useColorCycler(
 	const [isActive, setIsActive] = useState(true);
 	const onUpdateRef = useRef(onUpdate);
 	const shouldStopAfterCurrentRef = useRef(false);
+	const resumeColorRef = useRef<string | null>(null);
 
 	useEffect(() => {
 		if (!isActive) return;
 
 		let timeout: ReturnType<typeof setTimeout>;
 		let cancelled = false;
-		let isFirst = true;
-		let previousColor = initialColor;
+		const resumeFrom = resumeColorRef.current;
+		resumeColorRef.current = null;
+		let isFirst = !resumeFrom;
+		let previousColor = resumeFrom ?? initialColor;
 
 		async function delay(ms: number) {
 			return new Promise<void>((resolve, reject) => {
@@ -79,9 +82,15 @@ export function useColorCycler(
 
 	const stop = useCallback(() => setIsActive(false), []);
 
+	const restart = useCallback((fromColor?: string) => {
+		shouldStopAfterCurrentRef.current = false;
+		resumeColorRef.current = fromColor ?? null;
+		setIsActive(true);
+	}, []);
+
 	const stopAfterCurrent = useCallback(() => {
 		shouldStopAfterCurrentRef.current = true;
 	}, []);
 
-	return { isActive, stop, stopAfterCurrent };
+	return { isActive, stop, restart, stopAfterCurrent };
 }

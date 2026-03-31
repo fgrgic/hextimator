@@ -1,4 +1,4 @@
-import type { ComponentPropsWithRef } from 'react';
+import { forwardRef, type ComponentPropsWithRef } from 'react';
 import { HextimatorIcon } from '../../icons';
 
 type ColorInputProps = ComponentPropsWithRef<'input'> & {
@@ -6,9 +6,13 @@ type ColorInputProps = ComponentPropsWithRef<'input'> & {
 	onColorChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 };
 
-export function ColorInput({ color, onColorChange, ...rest }: ColorInputProps) {
-	return (
-		<div className="flex bg-base-weak font-extrabold rounded-sm px-1 gap-1">
+export const ColorInput = forwardRef<HTMLDivElement, ColorInputProps>(
+	function ColorInput({ color, onColorChange, ...rest }, ref) {
+		return (
+			<div
+				ref={ref}
+				className="flex bg-base-weak font-extrabold rounded-sm px-1 gap-1"
+			>
 			<HextimatorIcon className="my-2" scale={1.2} />
 			<div className="inline-grid">
 				<span
@@ -29,5 +33,6 @@ export function ColorInput({ color, onColorChange, ...rest }: ColorInputProps) {
 				/>
 			</div>
 		</div>
-	);
-}
+		);
+	},
+);

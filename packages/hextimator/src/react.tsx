@@ -222,10 +222,7 @@ function useOsPrefersDark(): boolean {
 	);
 }
 
-function applyModeToDOM(
-	mode: ResolvedMode | null,
-	darkMode: DarkModeStrategy,
-) {
+function applyModeToDOM(mode: ResolvedMode | null, darkMode: DarkModeStrategy) {
 	if (typeof document === 'undefined') return;
 	if (darkMode === false || darkMode.type === 'media') return;
 

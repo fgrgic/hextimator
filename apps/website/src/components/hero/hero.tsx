@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Button } from '../button';
 import { registerColorCyclerStop } from './color-cycler-signal';
 import { ColorInput } from './color-input';
+import { ColorPicker } from './color-picker';
 import { useColorCycler } from './use-color-cycler';
 
 function tryApplyColor(value: string, setColor: (c: string) => void) {
@@ -22,6 +23,7 @@ export function Hero() {
 	const { color: currentColor, setColor } = useHextimatorTheme();
 	const [initialColor] = useState(currentColor);
 	const [input, setInput] = useState('');
+	const [pickerOpen, setPickerOpen] = useState(false);
 
 	const applyValue = useCallback(
 		(value: string, updateTheme = true) => {
@@ -31,7 +33,10 @@ export function Hero() {
 		[setColor],
 	);
 
-	const { stop, stopAfterCurrent } = useColorCycler(applyValue, initialColor);
+	const { isActive, stop, restart, stopAfterCurrent } = useColorCycler(
+		applyValue,
+		initialColor,
+	);
 
 	useEffect(() => {
 		registerColorCyclerStop(stopAfterCurrent);
@@ -41,11 +46,26 @@ export function Hero() {
 
 	const handleFocus = () => {
 		stop();
+		setPickerOpen(true);
 	};
 
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		applyValue(e.target.value);
 		setShowHint(false);
+	};
+
+	const handlePickerSelect = useCallback(
+		(hex: string) => {
+			applyValue(hex);
+			setShowHint(false);
+		},
+		[applyValue],
+	);
+
+	const handleResume = () => {
+		setPickerOpen(false);
+		setShowHint(true);
+		restart(input);
 	};
 
 	return (
@@ -54,11 +74,11 @@ export function Hero() {
 				className="absolute -top-1 left-1/2 -translate-x-1/2 -ml-12 flex items-end gap-0.5 -rotate-3 pointer-events-none"
 				style={{
 					opacity: showHint ? 0.6 : 0,
-					transition: 'opacity 500ms ease-in-out',
+					transition: 'opacity 300ms ease-in-out',
 				}}
 			>
 				<span className="text-xs italic text-base-foreground whitespace-nowrap">
-					type in any hex color
+					pick any hex color
 				</span>
 				<LongArrowRightDown className="size-4" strokeWidth={1} />
 			</div>
@@ -66,11 +86,20 @@ export function Hero() {
 			<div className="flex flex-col items-center">
 				<div className="flex flex-row gap-1 font-light text-4xl">
 					<span aria-hidden>One</span>
-					<ColorInput
+					<ColorPicker
+						open={pickerOpen}
+						onOpenChange={setPickerOpen}
 						color={input}
-						onColorChange={handleInputChange}
-						onFocus={handleFocus}
-					/>
+						onColorSelect={handlePickerSelect}
+						showResume={!isActive}
+						onResume={handleResume}
+					>
+						<ColorInput
+							color={input}
+							onColorChange={handleInputChange}
+							onFocus={handleFocus}
+						/>
+					</ColorPicker>
 					<span aria-hidden>in.</span>
 				</div>
 				<div className="flex flex-row gap-1 font-light text-4xl">

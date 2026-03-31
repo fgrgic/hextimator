@@ -83,7 +83,7 @@ describe('preset', () => {
 		expect(lightKeys).not.toContain('--warning');
 	});
 
-test('fork preserves preset', () => {
+	test('fork preserves preset', () => {
 		const builder = hextimate('#6366F1').preset(shadcn);
 		const forked = builder.fork('#ff6600');
 		const theme = forked.format();

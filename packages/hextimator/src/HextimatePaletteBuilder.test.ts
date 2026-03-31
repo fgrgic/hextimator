@@ -98,7 +98,7 @@ describe('HextimatePaletteBuilder: format()', () => {
 	it('tailwind-css format returns a string', () => {
 		const result = hextimate('#ff6600').format({ as: 'tailwind-css' });
 		expect(typeof result.light).toBe('string');
-		expect((result.light as string)).toContain('@theme');
+		expect(result.light as string).toContain('@theme');
 	});
 
 	it('hex color format outputs hex values', () => {
@@ -188,9 +188,7 @@ describe('HextimatePaletteBuilder: addRole()', () => {
 
 	it('multiple roles can be added', () => {
 		const result = formatObject(
-			hextimate('#ff6600')
-				.addRole('cta', '#ee2244')
-				.addRole('info', '#3366cc'),
+			hextimate('#ff6600').addRole('cta', '#ee2244').addRole('info', '#3366cc'),
 		);
 		const keys = lightKeys(result);
 		expect(keys).toContain('cta');
@@ -358,9 +356,7 @@ describe('HextimatePaletteBuilder: light() / dark()', () => {
 
 	it('adjustments are preserved when operations are added after', () => {
 		const result = formatObject(
-			hextimate('#ff6600')
-				.light({ lightness: 0.8 })
-				.addRole('cta', '#ee2244'),
+			hextimate('#ff6600').light({ lightness: 0.8 }).addRole('cta', '#ee2244'),
 		);
 		expect(result.light.cta).toBeDefined();
 	});
@@ -537,9 +533,7 @@ describe('HextimatePaletteBuilder: simulate() / adaptFor()', () => {
 
 	it('adaptFor changes palette colors', () => {
 		const normal = formatObject(hextimate('#ff6600'));
-		const adapted = formatObject(
-			hextimate('#ff6600').adaptFor('deuteranopia'),
-		);
+		const adapted = formatObject(hextimate('#ff6600').adaptFor('deuteranopia'));
 		expect(adapted.light.accent).not.toBe(normal.light.accent);
 	});
 
