@@ -1,55 +1,10 @@
 import { useHextimatorTheme } from 'hextimator/react';
+import { RefreshDouble, Shuffle } from 'iconoir-react';
 import { useRef } from 'react';
+import { Button } from '../../button';
 import { stopColorCycler } from '../../hero/color-cycler-signal';
+import { RangeSlider } from '../../slider';
 import { InteractiveCard } from '../interactive-card';
-
-function RangeSlider({
-	label,
-	value,
-	min,
-	max,
-	step,
-	onChange,
-	onInteract,
-	unit,
-	alwaysShowSign = false,
-}: {
-	label: string;
-	value: number;
-	min: number;
-	max: number;
-	step: number;
-	onChange: (value: number) => void;
-	onInteract?: () => void;
-	unit?: string;
-	alwaysShowSign?: boolean;
-}) {
-	const percent = ((value - min) / (max - min)) * 100;
-	return (
-		<label className="flex flex-col gap-1">
-			<span className="text-xs">
-				{label}: {alwaysShowSign && value >= 0 ? '+' : ''}
-				{value}
-				{unit}
-			</span>
-			<input
-				className="w-full appearance-none h-1.5
-				  rounded-full cursor-pointer
-				  accent-(--color-accent)"
-				style={{
-					background: `linear-gradient(to right, var(--color-base-weak) ${percent}%, var(--color-base) ${percent}%)`,
-				}}
-				type="range"
-				min={min}
-				max={max}
-				step={step}
-				value={value}
-				onPointerDown={onInteract}
-				onChange={(e) => onChange(Number(e.target.value))}
-			/>
-		</label>
-	);
-}
 
 const DEFAULT_LIGHT_LIGHTNESS = 0.7;
 const DEFAULT_DARK_LIGHTNESS = 0.6;
@@ -79,7 +34,7 @@ export function ThemePreferences() {
 	};
 
 	return (
-		<InteractiveCard className="gap-4">
+		<InteractiveCard>
 			<h3>Adjust theme</h3>
 
 			<RangeSlider
@@ -125,6 +80,53 @@ export function ThemePreferences() {
 				onInteract={handleInteract}
 				onChange={(v) => setGeneration({ ...generation, baseMaxChroma: v })}
 			/>
+
+			<Button
+				icon={Shuffle}
+				onClick={() => {
+					handleInteract();
+					const lightness = Math.round((Math.random() * 0.4 - 0.2) * 20) / 20;
+					const hueShift = Math.round(Math.random() * 36) * 10;
+					const chroma = Math.round(Math.random() * 15) / 100;
+					setGeneration({
+						...generation,
+						light: {
+							...generation?.light,
+							lightness: DEFAULT_LIGHT_LIGHTNESS + lightness,
+						},
+						dark: {
+							...generation?.dark,
+							lightness: DEFAULT_DARK_LIGHTNESS + lightness,
+						},
+						baseHueShift: hueShift,
+						baseMaxChroma: chroma,
+					});
+				}}
+			>
+				Randomize
+			</Button>
+			<Button
+				variant="ghost"
+				icon={RefreshDouble}
+				onClick={() => {
+					handleInteract();
+					setGeneration({
+						...generation,
+						light: {
+							...generation?.light,
+							lightness: DEFAULT_LIGHT_LIGHTNESS,
+						},
+						dark: {
+							...generation?.dark,
+							lightness: DEFAULT_DARK_LIGHTNESS,
+						},
+						baseHueShift: 0,
+						baseMaxChroma: 0.01,
+					});
+				}}
+			>
+				Reset to defaults
+			</Button>
 		</InteractiveCard>
 	);
 }

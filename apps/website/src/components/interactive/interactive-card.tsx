@@ -18,7 +18,7 @@ export function InteractiveCard(props: ComponentPropsWithRef<'div'>) {
 				} as React.CSSProperties
 			}
 			className={cn(
-				'flex flex-col flex-1 bg-base-strong rounded-xl border border-(--color-base-weak) pb-6 pt-4 px-4 mt-8 -mx-2 md:mt-0 md:mx-auto text-base-foreground max-w-sm gap-4',
+				'flex flex-col flex-1 bg-base-strong rounded-xl border border-(--color-base-weak) pb-6 pt-4 px-4 mt-8 -mx-2 md:mx-0 md:mt-0 text-base-foreground gap-6',
 				'rotate-(--card-rotation)',
 				props.className,
 			)}

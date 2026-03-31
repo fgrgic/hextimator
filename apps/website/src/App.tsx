@@ -1,5 +1,11 @@
 import './App.css';
-import { Hero, NavBar, Section, ThemePreferences } from './components';
+import {
+	Accessibility,
+	Hero,
+	NavBar,
+	Section,
+	ThemePreferences,
+} from './components';
 
 function App() {
 	return (
@@ -14,25 +20,18 @@ function App() {
 				>
 					<ThemePreferences />
 				</Section>
-				<Section
+				{/*<Section
 					title="Make dark/light mode adjustments"
 					description="Adjust specifics on how the light and dark themes are generated, like lightness or chroma, to make them fit your design better."
 					reversed
 				>
-					{/* TODO */}
-				</Section>
+				</Section>*/}
 				<Section
-					title="Guaranteed contrast ratio"
-					description="By default every foreground has a AAA contrast ratio to its background color"
-				>
-					{/* TODO */}
-				</Section>
-				<Section
-					title="Color blindness support"
-					description="Export variants of your theme with adjusted colors to be more distinguishable for different types of color blindness."
+					title="Built in accessibility"
+					description="Guaranteed contrast ratios between all backgrounds and foregrounds, and color blindness adjustments to make sure your theme is inclusive and accessible to everyone."
 					reversed
 				>
-					{/* TODO */}
+					<Accessibility />
 				</Section>
 				<Section
 					title="AI ready"
