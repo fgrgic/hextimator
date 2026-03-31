@@ -27,7 +27,7 @@ function App() {
 				>
 				</Section>*/}
 				<Section
-					title="Built in accessibility"
+					title="Accessibility built-in"
 					description="Guaranteed contrast ratios between all backgrounds and foregrounds, and color blindness adjustments to make sure your theme is inclusive and accessible to everyone."
 					reversed
 				>
