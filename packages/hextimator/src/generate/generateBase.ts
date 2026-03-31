@@ -59,5 +59,8 @@ export function generateBase(
 		weakDeltaLight: WEAK_DELTA_LIGHT,
 		minContrastRatio: options?.minContrastRatio,
 		hueShift: options?.hueShift,
+		foregroundMaxChroma: options?.foregroundMaxChroma,
+		light: options?.light,
+		dark: options?.dark,
 	});
 }

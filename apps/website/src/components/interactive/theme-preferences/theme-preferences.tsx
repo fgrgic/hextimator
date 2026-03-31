@@ -7,6 +7,8 @@ function RangeSlider({
 	max,
 	step,
 	onChange,
+	unit,
+	alwaysShowSign = false,
 }: {
 	label: string;
 	value: number;
@@ -14,12 +16,16 @@ function RangeSlider({
 	max: number;
 	step: number;
 	onChange: (value: number) => void;
+	unit?: string;
+	alwaysShowSign?: boolean;
 }) {
 	const percent = ((value - min) / (max - min)) * 100;
 	return (
 		<label className="flex flex-col gap-1">
 			<span className="text-xs">
-				{label}: {value}
+				{label}: {alwaysShowSign && value >= 0 ? '+' : ''}
+				{value}
+				{unit}
 			</span>
 			<input
 				className="w-full appearance-none h-1.5
@@ -39,123 +45,69 @@ function RangeSlider({
 	);
 }
 
-function Checkbox({
-	label,
-	checked,
-	onChange,
-}: {
-	label: string;
-	checked: boolean;
-	onChange: (checked: boolean) => void;
-}) {
-	return (
-		<label className="flex items-center gap-2 text-xs cursor-pointer">
-			<input
-				type="checkbox"
-				className="accent-(--color-accent)"
-				checked={checked}
-				onChange={(e) => onChange(e.target.checked)}
-			/>
-			{label}
-		</label>
-	);
-}
+const DEFAULT_LIGHT_LIGHTNESS = 0.7;
+const DEFAULT_DARK_LIGHTNESS = 0.6;
 
-function SegmentedControl({
-	value,
-	options,
-	onChange,
-}: {
-	value: string;
-	options: { label: string; value: string }[];
-	onChange: (value: string) => void;
-}) {
-	return (
-		<div className="flex rounded-lg bg-base p-0.5 text-xs">
-			{options.map((opt) => (
-				<button
-					key={opt.value}
-					type="button"
-					className={`flex-1 rounded-md px-3 py-1 cursor-pointer transition-colors ${
-						value === opt.value
-							? 'bg-base-weak font-bold'
-							: 'hover:bg-base-weak/50'
-					}`}
-					onClick={() => onChange(opt.value)}
-				>
-					{opt.label}
-				</button>
-			))}
-		</div>
-	);
+function getLightnessOffset(
+	generation: ReturnType<typeof useHextimatorTheme>['generation'],
+): number {
+	const lightDelta =
+		(generation?.light?.lightness ?? DEFAULT_LIGHT_LIGHTNESS) -
+		DEFAULT_LIGHT_LIGHTNESS;
+	const darkDelta =
+		(generation?.dark?.lightness ?? DEFAULT_DARK_LIGHTNESS) -
+		DEFAULT_DARK_LIGHTNESS;
+	return Math.round(((lightDelta + darkDelta) / 2) * 100) / 100;
 }
 
 export function ThemePreferences() {
-	const { generation, setGeneration, mode, setMode } = useHextimatorTheme();
-	const defaults = {
-		light: { lightness: 0.7, maxChroma: 0.15 },
-		dark: { lightness: 0.6, maxChroma: 0.15 },
-	};
-	const current = generation?.[mode];
+	const { generation, setGeneration } = useHextimatorTheme();
+	const lightnessOffset = getLightnessOffset(generation);
 
 	return (
-		<div className="flex flex-col flex-1 bg-base-strong rounded-xl border border-(--color-base-weak) p-4 mt-4 md:mt-0 md:mx-12 text-base-foreground max-w-sm gap-3">
+		<div className="flex flex-col flex-1 bg-base-strong rounded-xl border border-(--color-base-weak) p-4 mt-4 md:mt-0 md:mx-12 text-base-foreground max-w-sm gap-4 rotate-[0.5deg]">
 			<h3>Adjust theme</h3>
 
 			<RangeSlider
-				label="Base hue shift"
+				label="Lightness"
+				value={lightnessOffset}
+				min={-0.2}
+				max={0.2}
+				step={0.05}
+				alwaysShowSign
+				onChange={(v) =>
+					setGeneration({
+						...generation,
+						light: {
+							...generation?.light,
+							lightness: DEFAULT_LIGHT_LIGHTNESS + v,
+						},
+						dark: {
+							...generation?.dark,
+							lightness: DEFAULT_DARK_LIGHTNESS + v,
+						},
+					})
+				}
+			/>
+
+			<RangeSlider
+				label="Background hue shift"
 				value={generation?.baseHueShift ?? 0}
 				min={0}
 				max={360}
 				step={10}
+				unit="°"
 				onChange={(v) => setGeneration({ ...generation, baseHueShift: v })}
 			/>
 
-			<SegmentedControl
-				value={mode}
-				options={[
-					{ label: 'Light', value: 'light' },
-					{ label: 'Dark', value: 'dark' },
-				]}
-				onChange={(v) => setMode(v as 'light' | 'dark')}
-			/>
-
 			<RangeSlider
-				label="Lightness"
-				value={current?.lightness ?? defaults[mode].lightness}
+				label="Background max chroma"
+				value={generation?.baseMaxChroma ?? 0.01}
 				min={0}
-				max={1}
-				step={0.05}
-				onChange={(v) =>
-					setGeneration({
-						...generation,
-						[mode]: { ...current, lightness: v },
-					})
-				}
-			/>
-			<RangeSlider
-				label="Max chroma"
-				value={current?.maxChroma ?? defaults[mode].maxChroma}
-				min={0}
-				max={0.4}
+				max={0.15}
 				step={0.01}
-				onChange={(v) =>
-					setGeneration({
-						...generation,
-						[mode]: { ...current, maxChroma: v },
-					})
-				}
+				onChange={(v) => setGeneration({ ...generation, baseMaxChroma: v })}
 			/>
-
-			{mode === 'dark' && (
-				<Checkbox
-					label="Invert base/accent in dark mode"
-					checked={generation?.invertDarkModeBaseAccent ?? false}
-					onChange={(v) =>
-						setGeneration({ ...generation, invertDarkModeBaseAccent: v })
-					}
-				/>
-			)}
 		</div>
 	);
 }
