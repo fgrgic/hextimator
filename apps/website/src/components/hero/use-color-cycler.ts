@@ -12,6 +12,7 @@ export function useColorCycler(
 ) {
 	const [isActive, setIsActive] = useState(true);
 	const onUpdateRef = useRef(onUpdate);
+	const shouldStopAfterCurrentRef = useRef(false);
 
 	useEffect(() => {
 		if (!isActive) return;
@@ -45,7 +46,17 @@ export function useColorCycler(
 
 				isFirst = false;
 
+				if (shouldStopAfterCurrentRef.current) {
+					setIsActive(false);
+					return;
+				}
+
 				await delay(PAUSE_FULL);
+
+				if (shouldStopAfterCurrentRef.current) {
+					setIsActive(false);
+					return;
+				}
 
 				// Delete phase
 				for (let i = target.length - 1; i >= 0; i--) {
@@ -68,5 +79,9 @@ export function useColorCycler(
 
 	const stop = useCallback(() => setIsActive(false), []);
 
-	return { isActive, stop };
+	const stopAfterCurrent = useCallback(() => {
+		shouldStopAfterCurrentRef.current = true;
+	}, []);
+
+	return { isActive, stop, stopAfterCurrent };
 }

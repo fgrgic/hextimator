@@ -1,4 +1,6 @@
 import { useHextimatorTheme } from 'hextimator/react';
+import { useRef } from 'react';
+import { stopColorCycler } from '../../hero/color-cycler-signal';
 
 function RangeSlider({
 	label,
@@ -7,6 +9,7 @@ function RangeSlider({
 	max,
 	step,
 	onChange,
+	onInteract,
 	unit,
 	alwaysShowSign = false,
 }: {
@@ -16,6 +19,7 @@ function RangeSlider({
 	max: number;
 	step: number;
 	onChange: (value: number) => void;
+	onInteract?: () => void;
 	unit?: string;
 	alwaysShowSign?: boolean;
 }) {
@@ -39,6 +43,7 @@ function RangeSlider({
 				max={max}
 				step={step}
 				value={value}
+				onPointerDown={onInteract}
 				onChange={(e) => onChange(Number(e.target.value))}
 			/>
 		</label>
@@ -63,6 +68,14 @@ function getLightnessOffset(
 export function ThemePreferences() {
 	const { generation, setGeneration } = useHextimatorTheme();
 	const lightnessOffset = getLightnessOffset(generation);
+	const hasStopped = useRef(false);
+
+	const handleInteract = () => {
+		if (!hasStopped.current) {
+			stopColorCycler();
+			hasStopped.current = true;
+		}
+	};
 
 	return (
 		<div className="flex flex-col flex-1 bg-base-strong rounded-xl border border-(--color-base-weak) p-4 mt-4 md:mt-0 md:mx-12 text-base-foreground max-w-sm gap-4 rotate-[0.5deg]">
@@ -75,6 +88,7 @@ export function ThemePreferences() {
 				max={0.2}
 				step={0.05}
 				alwaysShowSign
+				onInteract={handleInteract}
 				onChange={(v) =>
 					setGeneration({
 						...generation,
@@ -97,6 +111,7 @@ export function ThemePreferences() {
 				max={360}
 				step={10}
 				unit="°"
+				onInteract={handleInteract}
 				onChange={(v) => setGeneration({ ...generation, baseHueShift: v })}
 			/>
 
@@ -106,6 +121,7 @@ export function ThemePreferences() {
 				min={0}
 				max={0.15}
 				step={0.01}
+				onInteract={handleInteract}
 				onChange={(v) => setGeneration({ ...generation, baseMaxChroma: v })}
 			/>
 		</div>

@@ -1,9 +1,10 @@
 import { parseColor } from 'hextimator';
 import { useHextimatorTheme } from 'hextimator/react';
 import { LongArrowRightDown, NavArrowRight, Star } from 'iconoir-react';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '../button';
 import { ColorInput } from './color-input';
+import { registerColorCyclerStop } from './color-cycler-signal';
 import { useColorCycler } from './use-color-cycler';
 
 function tryApplyColor(value: string, setColor: (c: string) => void) {
@@ -30,7 +31,11 @@ export function Hero() {
 		[setColor],
 	);
 
-	const { stop } = useColorCycler(applyValue, initialColor);
+	const { stop, stopAfterCurrent } = useColorCycler(applyValue, initialColor);
+
+	useEffect(() => {
+		registerColorCyclerStop(stopAfterCurrent);
+	}, [stopAfterCurrent]);
 
 	const [showHint, setShowHint] = useState(true);
 
