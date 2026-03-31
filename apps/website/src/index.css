@@ -26,6 +26,14 @@
 		box-shadow 0.3s ease-in-out;
 }
 
+:root {
+	/* Prevent flash of unstyled borders/backgrounds before HextimatorProvider mounts */
+	--base: transparent;
+	--base-strong: transparent;
+	--base-weak: transparent;
+	--base-foreground: transparent;
+}
+
 body {
 	background-color: var(--color-base);
 }

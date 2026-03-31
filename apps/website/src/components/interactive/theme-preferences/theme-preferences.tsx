@@ -79,7 +79,7 @@ export function ThemePreferences() {
 	};
 
 	return (
-		<InteractiveCard className="gap-4 rotate-[0.5deg]">
+		<InteractiveCard className="gap-4">
 			<h3>Adjust theme</h3>
 
 			<RangeSlider

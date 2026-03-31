@@ -10,6 +10,7 @@ function App() {
 				<Section
 					title="Build your own preset"
 					description="Tweak how to generate the rest of the colors, and see the theme update on runtime."
+					id="theme-preferences"
 				>
 					<ThemePreferences />
 				</Section>
