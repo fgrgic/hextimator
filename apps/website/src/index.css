@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import "hextimator/tailwind.css";
 
+@theme {
+	--font-mono: "picomono", monospace;
+}
+
 @layer base {
 	h1 {
 		font-weight: 800;

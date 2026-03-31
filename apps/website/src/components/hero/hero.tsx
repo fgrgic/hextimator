@@ -77,7 +77,7 @@ export function Hero() {
 					transition: 'opacity 300ms ease-in-out',
 				}}
 			>
-				<span className="text-xs italic text-base-foreground whitespace-nowrap">
+				<span className="text-xs text-base-foreground whitespace-nowrap font-mono">
 					pick any hex color
 				</span>
 				<LongArrowRightDown className="size-4" strokeWidth={1} />
