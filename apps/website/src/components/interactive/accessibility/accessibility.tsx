@@ -1,7 +1,7 @@
 import type { CVDType } from 'hextimator';
 import { useHextimatorTheme } from 'hextimator/react';
-import { RefreshDouble } from 'iconoir-react';
-import { RadioGroup } from 'radix-ui';
+import { NavArrowDown, RefreshDouble } from 'iconoir-react';
+import { Select } from 'radix-ui';
 import { useCallback, useRef, useState } from 'react';
 import { Button } from '../../button';
 import { stopColorCycler } from '../../hero/color-cycler-signal';
@@ -27,8 +27,8 @@ function contrastBadge(ratio: number): { label: string; className: string } {
 			className: 'bg-warning text-warning-foreground',
 		};
 	return {
-		label: 'Fail',
-		className: 'bg-negative text-negative-foreground',
+		label: 'No Guarantee',
+		className: 'bg-transparent text-negative-foreground',
 	};
 }
 
@@ -103,7 +103,7 @@ export function Accessibility() {
 				label="Min contrast"
 				value={contrastRatio}
 				min={1}
-				max={21}
+				max={14}
 				step={0.5}
 				onChange={handleContrastChange}
 				onInteract={handleInteract}
@@ -118,46 +118,43 @@ export function Accessibility() {
 			/>
 
 			<div className="flex flex-col gap-1.5">
-				<span className="text-xs">Adapt for color blindness</span>
-				<RadioGroup.Root
+				<span className="text-sm">Adapt for color blindness</span>
+				<Select.Root
 					value={cvdType}
 					onValueChange={(value) => {
 						handleInteract();
 						handleCvdChange(value as CVDType | 'none');
 					}}
-					className="flex flex-col gap-0.5 rounded-lg bg-base p-1"
 				>
-					{[{ value: 'none' as const, label: 'None' }, ...CVD_OPTIONS].map(
-						(opt) => (
-							<RadioGroup.Item
-								key={opt.value}
-								value={opt.value}
-								className="flex items-center justify-between gap-2 text-xs px-2 py-1.5 rounded cursor-pointer hover:bg-base-strong"
-							>
-								{opt.label}
-								<span className="w-3.5 h-3.5 rounded-full border border-(--color-base-foreground) flex items-center justify-center">
-									<RadioGroup.Indicator className="block w-1.5 h-1.5 rounded-full bg-base-foreground" />
-								</span>
-							</RadioGroup.Item>
-						),
-					)}
-				</RadioGroup.Root>
-
-				{cvdType !== 'none' && (
-					<label className="flex items-center gap-1.5 text-xs cursor-pointer">
-						<input
-							type="checkbox"
-							className="accent-(--color-accent)"
-							checked={simulatePreview}
-							onChange={(e) => {
-								handleInteract();
-								setSimulatePreview(e.target.checked);
-								applyAccessibility(contrastRatio, cvdType, e.target.checked);
-							}}
-						/>
-						Preview for normal vision
-					</label>
-				)}
+					<Select.Trigger className="flex items-center justify-between gap-2 text-xs px-2 py-1.5 rounded-lg bg-base cursor-pointer hover:bg-base-strong">
+						<Select.Value />
+						<Select.Icon className="text-base-foreground">
+							<NavArrowDown width="12" height="12" />
+						</Select.Icon>
+					</Select.Trigger>
+					<Select.Portal>
+						<Select.Content
+							className="rounded-lg bg-base p-1 shadow-lg border border-base-strong z-50"
+							position="popper"
+							sideOffset={4}
+						>
+							<Select.Viewport>
+								{[
+									{ value: 'none' as const, label: 'None' },
+									...CVD_OPTIONS,
+								].map((opt) => (
+									<Select.Item
+										key={opt.value}
+										value={opt.value}
+										className="flex items-center gap-2 text-xs px-2 py-1.5 rounded cursor-pointer hover:bg-base-strong outline-none data-highlighted:bg-base-strong"
+									>
+										<Select.ItemText>{opt.label}</Select.ItemText>
+									</Select.Item>
+								))}
+							</Select.Viewport>
+						</Select.Content>
+					</Select.Portal>
+				</Select.Root>
 			</div>
 
 			<Button variant="ghost" onClick={handleReset} icon={RefreshDouble}>

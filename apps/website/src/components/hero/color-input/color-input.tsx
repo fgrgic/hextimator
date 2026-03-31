@@ -9,7 +9,7 @@ type ColorInputProps = ComponentPropsWithRef<'input'> & {
 export function ColorInput({ color, onColorChange, ...rest }: ColorInputProps) {
 	return (
 		<div className="flex bg-base-weak font-extrabold rounded-sm px-1 gap-1">
-			<HextimatorIcon className="my-1" />
+			<HextimatorIcon className="my-2" scale={1.2} />
 			<div className="inline-grid">
 				<span
 					aria-hidden="true"

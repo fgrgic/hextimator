@@ -1,10 +1,17 @@
 import type { SVGProps } from 'react';
 
-export function HextimatorIcon(props: SVGProps<SVGSVGElement>) {
+type HextimatorIconProps = SVGProps<SVGSVGElement> & {
+	scale?: number;
+};
+
+export function HextimatorIcon(props: HextimatorIconProps) {
+	const width = props.scale ? props.scale * 24 : props.width || 24;
+	const height = props.scale ? props.scale * 24 : props.height || 24;
+
 	return (
 		<svg
-			width="24"
-			height="24"
+			width={width}
+			height={height}
 			viewBox="0 0 24 24"
 			fill="none"
 			xmlns="http://www.w3.org/2000/svg"

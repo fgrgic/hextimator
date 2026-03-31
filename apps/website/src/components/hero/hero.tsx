@@ -3,8 +3,8 @@ import { useHextimatorTheme } from 'hextimator/react';
 import { LongArrowRightDown, NavArrowRight, Star } from 'iconoir-react';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '../button';
-import { ColorInput } from './color-input';
 import { registerColorCyclerStop } from './color-cycler-signal';
+import { ColorInput } from './color-input';
 import { useColorCycler } from './use-color-cycler';
 
 function tryApplyColor(value: string, setColor: (c: string) => void) {
@@ -64,7 +64,7 @@ export function Hero() {
 			</div>
 			<h1 className="sr-only">One color in. Whole theme out</h1>
 			<div className="flex flex-col items-center">
-				<div className="flex flex-row gap-1 font-light text-3xl">
+				<div className="flex flex-row gap-1 font-light text-4xl">
 					<span aria-hidden>One</span>
 					<ColorInput
 						color={input}
@@ -73,7 +73,7 @@ export function Hero() {
 					/>
 					<span aria-hidden>in.</span>
 				</div>
-				<div className="flex flex-row gap-1 font-light text-3xl">
+				<div className="flex flex-row gap-1 font-light text-4xl">
 					<span aria-hidden>Whole</span>
 					<span aria-hidden>theme</span>
 					<span aria-hidden>out.</span>
