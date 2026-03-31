@@ -1,6 +1,7 @@
 import { useHextimatorTheme } from 'hextimator/react';
 import { useRef } from 'react';
 import { stopColorCycler } from '../../hero/color-cycler-signal';
+import { InteractiveCard } from '../interactive-card';
 
 function RangeSlider({
 	label,
@@ -78,7 +79,7 @@ export function ThemePreferences() {
 	};
 
 	return (
-		<div className="flex flex-col flex-1 bg-base-strong rounded-xl border border-(--color-base-weak) p-4 mt-4 md:mt-0 md:mx-12 text-base-foreground max-w-sm gap-4 rotate-[0.5deg]">
+		<InteractiveCard className="gap-4 rotate-[0.5deg]">
 			<h3>Adjust theme</h3>
 
 			<RangeSlider
@@ -124,6 +125,6 @@ export function ThemePreferences() {
 				onInteract={handleInteract}
 				onChange={(v) => setGeneration({ ...generation, baseMaxChroma: v })}
 			/>
-		</div>
+		</InteractiveCard>
 	);
 }
