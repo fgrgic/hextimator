@@ -270,7 +270,7 @@ export interface HextimatorProviderProps {
 	target?: React.RefObject<HTMLElement | null>;
 }
 
-interface HextimatorContextValue {
+export interface HextimatorContextValue {
 	color: string;
 	setColor: (color: string) => void;
 	mode: ResolvedMode;
@@ -377,16 +377,27 @@ export function HextimatorProvider({
 }
 
 /**
- * A custom React hook that provides access to the current Hextimator palette and related state from the nearest `HextimatorProvider` in the component tree.
- * It returns an object containing the current base color, generation options, configuration callback, and the generated palette.
- * If used outside of a `HextimatorProvider`, it throws an error to indicate that the context is not available.
+ * Provides access to the current Hextimator palette and theme state from the nearest `HextimatorProvider`.
  *
- * Example usage:
+ * Returned properties:
+ * - `color` / `setColor` — the current base color.
+ * - `mode` — the resolved color mode (`'light'` or `'dark'`), accounting for OS preference when set to `'system'`.
+ * - `modePreference` — the raw preference (`'light'`, `'dark'`, or `'system'`).
+ * - `setMode` — update the mode preference. Pass `'system'` to follow the OS.
+ * - `generation` / `setGeneration` — palette generation options.
+ * - `configure` / `setConfigure` — builder configuration callback.
+ * - `palette` — the generated `HextimateResult`.
+ *
+ * @example
  * ```tsx
- * const { color, setColor, generation, setGeneration, configure, setConfigure, palette } = useHextimatorTheme();
+ * const { mode, setMode } = useHextimatorTheme();
+ *
+ * <button onClick={() => setMode(mode === 'dark' ? 'light' : 'dark')}>
+ *   Toggle dark mode
+ * </button>
  * ```
  *
- * @returns An object with the current Hextimator state and palette.
+ * @throws If used outside of a `HextimatorProvider`.
  */
 export function useHextimatorTheme(): HextimatorContextValue {
 	const ctx = useContext(HextimatorContext);
