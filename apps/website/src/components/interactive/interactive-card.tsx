@@ -1,8 +1,12 @@
 import { type ComponentPropsWithRef, useState } from 'react';
 import { cn } from '../../utils/cn';
 
-export function InteractiveCard(props: ComponentPropsWithRef<'div'>) {
+export function InteractiveCard({
+	rotate,
+	...props
+}: ComponentPropsWithRef<'div'> & { rotate?: boolean }) {
 	const [rotation] = useState(() => {
+		if (!rotate) return 0;
 		const sign = Math.random() < 0.5 ? -1 : 1;
 		const value = Math.round((Math.random() * 0.4 + 0.4) * 10) / 10;
 		return sign * value;

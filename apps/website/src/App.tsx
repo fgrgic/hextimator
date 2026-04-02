@@ -13,9 +13,9 @@ function App() {
 	return (
 		<div>
 			<NavBar />
-			<main className="flex flex-col">
+			<main className="flex flex-col gap-16 md:gap-32 mt-12 mb-24">
 				<Hero />
-				<div className="flex flex-col gap-16 self-center">
+				<div className="flex flex-col md:gap-16 self-center" id="features">
 					<Section
 						title="Build your own preset"
 						description="Tweak how to generate the rest of the colors, and see the theme update on runtime."

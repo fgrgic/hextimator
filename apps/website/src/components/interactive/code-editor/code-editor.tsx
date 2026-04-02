@@ -1,7 +1,7 @@
 import { useHextimatorTheme } from 'hextimator/react';
-import { NavArrowDown } from 'iconoir-react';
+import { Check, Copy, NavArrowDown, RefreshDouble } from 'iconoir-react';
 import { Select } from 'radix-ui';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { InteractiveCard } from '../interactive-card';
 import { ScopedThemePreview } from './scoped-theme-preview';
 import { type ColorFormat, useCodeEval } from './use-code-eval';
@@ -12,9 +12,6 @@ const DEFAULT_CODE = `hextimate(color)
   // .addRole('cta', '#ff006e')
   // .addVariant('muted', { beyond: 'weak' })
   // .addToken('ring', { from: 'accent' })
-
-
-
   `;
 
 const COLOR_FORMATS: ColorFormat[] = [
@@ -69,6 +66,47 @@ function OutputContent({
 	);
 }
 
+function CopyButton({ getText }: { getText: () => string }) {
+	const [copied, setCopied] = useState(false);
+	const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+
+	const copy = useCallback(() => {
+		navigator.clipboard.writeText(getText()).then(() => {
+			setCopied(true);
+			clearTimeout(timeoutRef.current);
+			timeoutRef.current = setTimeout(() => setCopied(false), 2000);
+		});
+	}, [getText]);
+
+	return (
+		<button
+			type="button"
+			onClick={copy}
+			className="cursor-pointer text-base-foreground hover:text-base-foreground/70 transition-colors"
+			aria-label="Copy to clipboard"
+		>
+			{copied ? (
+				<Check width="1rem" className="text-positive" strokeWidth={2} />
+			) : (
+				<Copy width="1rem" strokeWidth={2} />
+			)}
+		</button>
+	);
+}
+
+function ResetButton({ onClick }: { onClick: () => void }) {
+	return (
+		<button
+			type="button"
+			onClick={onClick}
+			className="cursor-pointer text-base-foreground hover:text-base-foreground/70 transition-colors"
+			aria-label="Reset code"
+		>
+			<RefreshDouble width=".8rem" strokeWidth={2} />
+		</button>
+	);
+}
+
 function TabButton({
 	active,
 	onClick,
@@ -94,9 +132,11 @@ function TabButton({
 }
 
 export function CodeEditor() {
-	const { color } = useHextimatorTheme();
+	const { color, mode } = useHextimatorTheme();
 	const [code, setCode] = useState(DEFAULT_CODE);
-	const [outputMode, setOutputMode] = useState<'light' | 'dark'>('light');
+	const [outputMode, setOutputMode] = useState<'light' | 'dark'>(
+		mode || 'light',
+	);
 	const [colorFormat, setColorFormat] = useState<ColorFormat>('hex');
 
 	const { object, css, error } = useCodeEval(code, color, colorFormat);
@@ -105,10 +145,19 @@ export function CodeEditor() {
 		setCode(value);
 	}, []);
 
-	const { containerRef } = useCodeMirror({
+	const { containerRef, viewRef } = useCodeMirror({
 		initialValue: DEFAULT_CODE,
 		onChange: handleChange,
 	});
+
+	const resetCode = useCallback(() => {
+		const view = viewRef.current;
+		if (view) {
+			view.dispatch({
+				changes: { from: 0, to: view.state.doc.length, insert: DEFAULT_CODE },
+			});
+		}
+	}, [viewRef]);
 
 	const cssTokens = css
 		? (css[outputMode] as unknown as Record<string, string>)
@@ -118,19 +167,25 @@ export function CodeEditor() {
 		<>
 			{cssTokens && <ScopedThemePreview tokens={cssTokens} className="mb-8" />}
 
-			<InteractiveCard className="p-0! gap-0! overflow-hidden rotate-0!">
+			<InteractiveCard rotate-false className="p-0! gap-0! overflow-hidden">
 				<div className="flex flex-col md:flex-row">
 					{/* Code editor pane */}
 					<div className="flex flex-col flex-1 min-w-0 md:min-h-80">
-						<div className="flex items-center gap-2 px-3 py-2 border-b border-base-weak">
-							<div className="flex gap-1.5">
-								<span className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
-								<span className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
-								<span className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
+						<div className="flex items-center justify-between px-3 py-2 border-b border-base-weak">
+							<div className="flex items-center gap-2">
+								<div className="flex gap-1.5">
+									<span className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
+									<span className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
+									<span className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
+								</div>
+								<span className="text-xs text-base-foreground/50 font-mono">
+									theme.ts
+								</span>
 							</div>
-							<span className="text-xs text-base-foreground/50 font-mono">
-								theme.ts
-							</span>
+							<div className="flex  gap-2">
+								<CopyButton getText={() => code} />
+								<ResetButton onClick={resetCode} />
+							</div>
 						</div>
 						<div ref={containerRef} className="flex-1 overflow-auto min-h-45" />
 						{error && (
@@ -154,38 +209,45 @@ export function CodeEditor() {
 									</TabButton>
 								))}
 							</div>
-							<Select.Root
-								value={colorFormat}
-								onValueChange={(value) => setColorFormat(value as ColorFormat)}
-							>
-								<Select.Trigger className="flex items-center gap-1 text-xs font-mono px-1.5 py-0.5 rounded-sm bg-transparent text-base-foreground/50 cursor-pointer hover:text-base-foreground/70 border border-base-weak">
-									<Select.Value />
-									<Select.Icon>
-										<NavArrowDown width="10" height="10" />
-									</Select.Icon>
-								</Select.Trigger>
-								<Select.Portal>
-									<Select.Content
-										className="rounded-lg bg-base p-1 shadow-lg border border-base-strong z-50"
-										position="popper"
-										sideOffset={4}
-									>
-										<Select.Viewport>
-											{COLOR_FORMATS.map((f) => (
-												<Select.Item
-													key={f}
-													value={f}
-													className="flex items-center text-base-foreground gap-2 text-xs font-mono px-2 py-1.5 rounded cursor-pointer hover:bg-base-strong outline-none data-highlighted:bg-base-strong"
-												>
-													<Select.ItemText className="font-mono">
-														{f}
-													</Select.ItemText>
-												</Select.Item>
-											))}
-										</Select.Viewport>
-									</Select.Content>
-								</Select.Portal>
-							</Select.Root>
+							<div className="flex gap-2">
+								<Select.Root
+									value={colorFormat}
+									onValueChange={(value) =>
+										setColorFormat(value as ColorFormat)
+									}
+								>
+									<Select.Trigger className="flex items-center gap-1 text-xs font-mono px-1.5 py-0.5 rounded-sm bg-transparent text-base-foreground/50 cursor-pointer hover:text-base-foreground/70 border border-base-weak">
+										<Select.Value />
+										<Select.Icon>
+											<NavArrowDown width="10" height="10" />
+										</Select.Icon>
+									</Select.Trigger>
+									<Select.Portal>
+										<Select.Content
+											className="rounded-lg bg-base p-1 shadow-lg border border-base-strong z-50 font-mono"
+											position="popper"
+											sideOffset={4}
+										>
+											<Select.Viewport>
+												{COLOR_FORMATS.map((f) => (
+													<Select.Item
+														key={f}
+														value={f}
+														className="flex items-center text-base-foreground gap-2 text-xs font-mono px-2 py-1.5 rounded cursor-pointer hover:bg-base-strong outline-none data-highlighted:bg-base-strong"
+													>
+														<Select.ItemText>{f}</Select.ItemText>
+													</Select.Item>
+												))}
+											</Select.Viewport>
+										</Select.Content>
+									</Select.Portal>
+								</Select.Root>
+								<CopyButton
+									getText={() =>
+										object ? formatObject(object[outputMode], 0) : ''
+									}
+								/>
+							</div>
 						</div>
 						<div className="flex-1 overflow-auto p-3">
 							<OutputContent objectResult={object} outputMode={outputMode} />

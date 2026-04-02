@@ -1,3 +1,4 @@
+import { toggleComment } from '@codemirror/commands';
 import { javascript } from '@codemirror/lang-javascript';
 import { EditorState } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
@@ -9,11 +10,17 @@ type UseCodeMirrorOptions = {
 	onChange: (value: string) => void;
 };
 
-export function useCodeMirror({ initialValue, onChange }: UseCodeMirrorOptions) {
+export function useCodeMirror({
+	initialValue,
+	onChange,
+}: UseCodeMirrorOptions) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const viewRef = useRef<EditorView | null>(null);
 	const onChangeRef = useRef(onChange);
-	onChangeRef.current = onChange;
+
+	useEffect(() => {
+		onChangeRef.current = onChange;
+	});
 
 	useEffect(() => {
 		if (!containerRef.current) return;
@@ -46,6 +53,10 @@ export function useCodeMirror({ initialValue, onChange }: UseCodeMirrorOptions) 
 					{ dark: true },
 				),
 				keymap.of([
+					{
+						key: 'Mod-/',
+						run: toggleComment,
+					},
 					{
 						key: 'Tab',
 						run: (view) => {

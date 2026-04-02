@@ -38,6 +38,10 @@
 	--base-foreground: transparent;
 }
 
+html {
+	scroll-behavior: smooth;
+}
+
 body {
 	background-color: var(--color-base);
 }
