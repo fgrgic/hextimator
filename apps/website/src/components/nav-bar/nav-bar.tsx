@@ -1,7 +1,30 @@
-import { Menu, Xmark } from 'iconoir-react';
+import { useHextimatorTheme } from 'hextimator/react';
+import { HalfMoon, Menu, SunLight, Xmark } from 'iconoir-react';
+import { Switch } from 'radix-ui';
 import { useState } from 'react';
 import { Button } from '../button';
 import { HextimatorLogo } from '../hextimator-logo';
+
+function DarkModeSwitch() {
+	const { mode, setMode } = useHextimatorTheme();
+	const isDark = mode === 'dark';
+
+	return (
+		<Switch.Root
+			checked={isDark}
+			onCheckedChange={(checked) => setMode(checked ? 'dark' : 'light')}
+			className="relative h-6 w-11 cursor-pointer rounded-full bg-base-strong transition-colors data-[state=checked]:bg-accent"
+		>
+			<Switch.Thumb className="flex h-5 w-5 translate-x-0.5 items-center justify-center rounded-full bg-base-foreground transition-transform data-[state=checked]:translate-x-[1.375rem]">
+				{isDark ? (
+					<HalfMoon width="0.75rem" className="text-base" />
+				) : (
+					<SunLight width="0.75rem" className="text-base" />
+				)}
+			</Switch.Thumb>
+		</Switch.Root>
+	);
+}
 
 const navLinks = (
 	<>
@@ -21,18 +44,23 @@ export function NavBar() {
 		<nav className="relative z-10 flex items-center justify-between px-6 py-4 text-base-foreground">
 			<HextimatorLogo scale={0.6} />
 
-			<div className="hidden items-center gap-2 md:flex">{navLinks}</div>
+			<div className="hidden items-center gap-4 md:flex">
+				<DarkModeSwitch />
+				{navLinks}
+			</div>
 
-			<button
-				type="button"
-				className="text-base-foreground cursor-pointer md:hidden"
-				onClick={() => setOpen((v) => !v)}
-				aria-label={open ? 'Close menu' : 'Open menu'}
-			>
-				{open ? <Xmark width="1.5rem" /> : <Menu width="1.5rem" />}
-			</button>
+			<div className="flex items-center gap-3 md:hidden">
+				<DarkModeSwitch />
+				<button
+					type="button"
+					className="text-base-foreground cursor-pointer"
+					onClick={() => setOpen((v) => !v)}
+					aria-label={open ? 'Close menu' : 'Open menu'}
+				>
+					{open ? <Xmark width="1.5rem" /> : <Menu width="1.5rem" />}
+				</button>
+			</div>
 
-			{/*hamburger menu*/}
 			{open && (
 				<>
 					<button
