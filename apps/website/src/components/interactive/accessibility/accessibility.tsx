@@ -146,7 +146,7 @@ export function Accessibility() {
 									<Select.Item
 										key={opt.value}
 										value={opt.value}
-										className="flex items-center gap-2 text-xs px-2 py-1.5 rounded cursor-pointer hover:bg-base-strong outline-none data-highlighted:bg-base-strong"
+										className="flex items-center text-base-foreground gap-2 text-xs px-2 py-1.5 rounded cursor-pointer hover:bg-base-strong outline-none data-highlighted:bg-base-strong"
 									>
 										<Select.ItemText>{opt.label}</Select.ItemText>
 									</Select.Item>

@@ -3,6 +3,7 @@ import { useHextimatorTheme } from 'hextimator/react';
 import { LongArrowRightDown, NavArrowRight, Star } from 'iconoir-react';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '../button';
+import { ThemePreview } from '../theme-preview';
 import { registerColorCyclerStop } from './color-cycler-signal';
 import { ColorInput } from './color-input';
 import { ColorPicker } from './color-picker';
@@ -69,7 +70,7 @@ export function Hero() {
 	};
 
 	return (
-		<section className="relative mt-20 flex flex-col items-center text-center text-base-foreground min-h-3/5 p-6 gap-2">
+		<section className="relative mt-20 flex flex-col items-center text-center text-base-foreground min-h-3/5 p-6 gap-2 ">
 			<div
 				className="absolute -top-1 left-1/2 -translate-x-1/2 -ml-12 flex items-end gap-0.5 -rotate-3 pointer-events-none"
 				style={{
@@ -77,7 +78,7 @@ export function Hero() {
 					transition: 'opacity 300ms ease-in-out',
 				}}
 			>
-				<span className="text-xs text-base-foreground whitespace-nowrap font-mono">
+				<span className="text-xs italic text-base-foreground whitespace-nowrap">
 					pick any hex color
 				</span>
 				<LongArrowRightDown className="size-4" strokeWidth={1} />
@@ -124,6 +125,9 @@ export function Hero() {
 				>
 					Star us on GitHub
 				</Button>
+			</div>
+			<div className="flex w-full justify-center mt-14 mb-4">
+				<ThemePreview />
 			</div>
 		</section>
 	);
