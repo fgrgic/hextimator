@@ -75,8 +75,8 @@ export function ThemePreferences() {
 				label="Background max chroma"
 				value={generation?.baseMaxChroma ?? 0.01}
 				min={0}
-				max={0.15}
-				step={0.01}
+				max={0.1}
+				step={0.005}
 				onInteract={handleInteract}
 				onChange={(v) => setGeneration({ ...generation, baseMaxChroma: v })}
 			/>

@@ -15,23 +15,6 @@ const CVD_OPTIONS: { value: CVDType; label: string }[] = [
 	{ value: 'achromatopsia', label: 'Achromatopsia (monochromacy)' },
 ];
 
-function contrastBadge(ratio: number): { label: string; className: string } {
-	if (ratio >= 7)
-		return {
-			label: 'AAA',
-			className: 'bg-positive text-positive-foreground',
-		};
-	if (ratio >= 4.5)
-		return {
-			label: 'AA',
-			className: 'bg-warning text-warning-foreground',
-		};
-	return {
-		label: 'No Guarantee',
-		className: 'bg-transparent text-negative-foreground',
-	};
-}
-
 export function Accessibility() {
 	const { generation, setGeneration, setConfigure } = useHextimatorTheme();
 
@@ -102,19 +85,19 @@ export function Accessibility() {
 			<RangeSlider
 				label="Min contrast"
 				value={contrastRatio}
+				valueClassName={
+					contrastRatio >= 7
+						? 'bg-positive text-positive-foreground'
+						: contrastRatio >= 4.5
+							? 'bg-warning text-warning-foreground'
+							: ''
+				}
 				min={1}
 				max={14}
 				step={0.5}
 				onChange={handleContrastChange}
 				onInteract={handleInteract}
 				unit=":1"
-				badge={
-					<span
-						className={`font-medium text-xs px-1.5 py-0.5 rounded-sm ${contrastBadge(contrastRatio).className}`}
-					>
-						{contrastBadge(contrastRatio).label}
-					</span>
-				}
 			/>
 
 			<div className="flex flex-col gap-1.5">

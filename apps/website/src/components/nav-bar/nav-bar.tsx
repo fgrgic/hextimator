@@ -13,9 +13,15 @@ function DarkModeSwitch() {
 		<Switch.Root
 			checked={isDark}
 			onCheckedChange={(checked) => setMode(checked ? 'dark' : 'light')}
-			className="relative h-6 w-11 cursor-pointer rounded-full bg-base-weak transition-colors data-[state=checked]:bg-accent-weak"
+			className="relative h-6 w-11 cursor-pointer rounded-full bg-base-weak transition-colors hover:bg-accent"
 		>
-			<Switch.Thumb className="flex h-5 w-5 translate-x-0.5 items-center justify-center rounded-full bg-base-foreground transition-transform data-[state=checked]:translate-x-[1.375rem]">
+			<Switch.Thumb
+				className="flex h-5 w-5 items-center justify-center rounded-full bg-base-foreground"
+				style={{
+					translate: isDark ? '1.375rem' : '0.125rem',
+					transition: 'translate 200ms ease-out',
+				}}
+			>
 				{isDark ? (
 					<HalfMoon width="0.75rem" className="text-base" />
 				) : (

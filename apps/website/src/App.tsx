@@ -1,11 +1,13 @@
 import './App.css';
 import {
 	Accessibility,
+	CodeSnippet,
 	Hero,
 	NavBar,
 	Section,
 	ThemePreferences,
 } from './components';
+import { AIReady } from './components/interactive/ai-ready';
 
 function App() {
 	return (
@@ -35,9 +37,9 @@ function App() {
 				</Section>
 				<Section
 					title="AI ready"
-					description="embedded cli tool to generate themes outside of the browser"
+					description="Agents can use the CLI to generate themes. Hextimator also includes an llms.txt out of the box."
 				>
-					{/* TODO */}
+					<AIReady />
 				</Section>
 				<Section
 					title="Try it out"

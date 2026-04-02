@@ -14,10 +14,10 @@ export function Slider({
 			)}
 			{...props}
 		>
-			<SliderPrimitive.Track className="relative h-1 w-full grow overflow-hidden rounded-full bg-base">
+			<SliderPrimitive.Track className="relative h-1 w-full grow overflow-hidden rounded-full bg-base cursor-pointer">
 				<SliderPrimitive.Range className="absolute h-full bg-base-weak" />
 			</SliderPrimitive.Track>
-			<SliderPrimitive.Thumb className="block size-3 shrink-0 rounded-full bg-base-foreground ring-base-foreground/30 transition-shadow select-none hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3" />
+			<SliderPrimitive.Thumb className="block size-3 shrink-0 rounded-full bg-base-foreground ring-base-foreground/30 transition-shadow select-none hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3 cursor-pointer" />
 		</SliderPrimitive.Root>
 	);
 }
@@ -33,6 +33,7 @@ export function RangeSlider({
 	unit,
 	alwaysShowSign = false,
 	badge,
+	valueClassName,
 }: {
 	label: string;
 	value: number;
@@ -44,13 +45,19 @@ export function RangeSlider({
 	unit?: string;
 	alwaysShowSign?: boolean;
 	badge?: ReactNode;
+	valueClassName?: string;
 }) {
 	return (
 		<div className="flex flex-col gap-2">
 			<div className="flex items-center justify-between">
 				<span className="text-sm">
 					{label}:
-					<span className="bg-base ml-2 rounded-sm px-1 font-bold">
+					<span
+						className={cn(
+							'bg-base ml-2 rounded-sm px-1 font-bold',
+							valueClassName,
+						)}
+					>
 						{alwaysShowSign && value >= 0 ? '+' : ''}
 						{value}
 						{unit}

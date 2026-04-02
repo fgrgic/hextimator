@@ -20,6 +20,10 @@ function getForegroundToken(token: string) {
 	return `${prefix}${getRole(token)}${FOREGROUND_SUFFIX}`;
 }
 
+function stripToken(token: string) {
+	return token.replace(/^--/, '');
+}
+
 export function ThemePreview({
 	defaultActive = null,
 	...props
@@ -29,15 +33,22 @@ export function ThemePreview({
 
 	const tokens = palette[mode] as Record<string, string>;
 
-	const entries = Object.entries(tokens).filter(([key]) => {
-		if (key.endsWith(FOREGROUND_SUFFIX)) return false;
-		if (key === '--brand-exact') return false;
-		const role = getRole(key);
-		const variant = getVariant(key);
-		// For semantic roles, only show the default variant
-		if (SEMANTIC_ROLES.has(role) && variant !== null) return false;
-		return true;
-	});
+	const ROLE_ORDER = ['accent', 'base', 'positive', 'negative', 'warning'];
+
+	const entries = Object.entries(tokens)
+		.filter(([key]) => {
+			if (key.endsWith(FOREGROUND_SUFFIX)) return false;
+			if (key === '--brand-exact') return false;
+			const role = getRole(key);
+			const variant = getVariant(key);
+			if (SEMANTIC_ROLES.has(role) && variant !== null) return false;
+			return true;
+		})
+		.sort(([a], [b]) => {
+			const ra = ROLE_ORDER.indexOf(getRole(a));
+			const rb = ROLE_ORDER.indexOf(getRole(b));
+			return (ra === -1 ? 99 : ra) - (rb === -1 ? 99 : rb);
+		});
 
 	return (
 		<div
@@ -45,14 +56,8 @@ export function ThemePreview({
 			className={`flex flex-row h-12 rounded-lg overflow-hidden w-full max-w-lg border border-base-weak shadow-xs ${props.className ?? ''}`}
 		>
 			{entries.map(([token, color]) => {
-				const role = getRole(token);
-				const isSemantic = SEMANTIC_ROLES.has(role);
 				const isActive = active === token;
 				const fgToken = getForegroundToken(token);
-
-				const variant = getVariant(token);
-				const isDefault = variant === null;
-				const baseFlex = isDefault && !isSemantic ? 1 : 0.5;
 
 				return (
 					<button
@@ -61,9 +66,9 @@ export function ThemePreview({
 						className="relative border-none cursor-pointer p-0 overflow-hidden"
 						style={{
 							backgroundColor: `var(${token})`,
-							flex: isActive ? 4 : baseFlex,
+							flex: isActive ? 4 : 1,
 							transition:
-								'flex 200ms ease-out, background-color 0.3s ease-in-out, color 0.3s ease-in-out',
+								'flex 300ms ease-out, background-color 0.3s ease-in-out, color 0.3s ease-in-out',
 						}}
 						onPointerEnter={() => setActive(token)}
 						onPointerLeave={() => setActive(defaultActive)}
@@ -72,13 +77,13 @@ export function ThemePreview({
 					>
 						{isActive && (
 							<div
-								className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 text-center px-1"
+								className="absolute inset-0 flex flex-col items-start justify-end gap-0.5 text-center px-2.5 pb-1"
 								style={{ color: `var(${fgToken})` }}
 							>
-								<span className="text-xs font-medium leading-tight whitespace-nowrap">
-									{token}
+								<span className="text-xs leading-tight whitespace-nowrap">
+									{stripToken(token)}
 								</span>
-								<span className="text-xs 0 leading-tight whitespace-nowrap">
+								<span className="text-xs font-light leading-tight whitespace-nowrap">
 									{color}
 								</span>
 							</div>
