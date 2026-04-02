@@ -41,3 +41,8 @@
 body {
 	background-color: var(--color-base);
 }
+
+.cm-editor,
+.cm-editor * {
+	font-family: "picomono", monospace !important;
+}

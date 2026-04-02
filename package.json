@@ -1,10 +1,14 @@
 {
 	"name": "hextimator-monorepo",
+	"devDependencies": {
+		"@biomejs/biome": "2.4.8",
+		"@codemirror/lang-javascript": "^6.2.5",
+		"@codemirror/state": "^6.6.0",
+		"@codemirror/theme-one-dark": "^6.1.3",
+		"@codemirror/view": "^6.41.0",
+		"codemirror": "^6.0.2"
+	},
 	"private": true,
-	"workspaces": [
-		"packages/*",
-		"apps/*"
-	],
 	"scripts": {
 		"format": "biome format --write .",
 		"lint": "biome lint .",
@@ -12,7 +16,8 @@
 		"dev:playground": "bun run --filter hextimator dev & bun run --filter playground dev",
 		"dev:website": "bun run --filter hextimator dev & bun run --filter website dev"
 	},
-	"devDependencies": {
-		"@biomejs/biome": "2.4.8"
-	}
+	"workspaces": [
+		"packages/*",
+		"apps/*"
+	]
 }

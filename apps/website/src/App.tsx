@@ -1,7 +1,7 @@
 import './App.css';
 import {
 	Accessibility,
-	CodeSnippet,
+	CodeEditor,
 	Hero,
 	NavBar,
 	Section,
@@ -44,9 +44,9 @@ function App() {
 				<Section
 					title="Try it out"
 					description="This is the theme you generated so far. Play around with the code to see how the output changes, and use it as a base for your projects!"
-					reversed
+					stacked
 				>
-					{/* TODO */}
+					<CodeEditor />
 				</Section>
 			</main>
 		</div>

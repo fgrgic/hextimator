@@ -5,6 +5,7 @@ type SectionProps = ComponentPropsWithRef<'div'> & {
 	title: string;
 	description: string;
 	reversed?: boolean;
+	stacked?: boolean;
 };
 
 export function Section({
@@ -12,7 +13,20 @@ export function Section({
 	description,
 	children,
 	reversed,
+	stacked,
 }: SectionProps) {
+	if (stacked) {
+		return (
+			<div className="flex flex-col mt-16 mb-8 px-6 text-base-foreground mx-auto max-w-5xl gap-6">
+				<div className="flex flex-col max-w-xl">
+					<h2>{title}</h2>
+					<p className="text font-light">{description}</p>
+				</div>
+				<div className="w-full">{children}</div>
+			</div>
+		);
+	}
+
 	return (
 		<div
 			className={cn(
