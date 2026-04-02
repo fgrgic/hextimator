@@ -13,7 +13,7 @@ function DarkModeSwitch() {
 		<Switch.Root
 			checked={isDark}
 			onCheckedChange={(checked) => setMode(checked ? 'dark' : 'light')}
-			className="relative h-6 w-11 cursor-pointer rounded-full bg-base-strong transition-colors data-[state=checked]:bg-accent"
+			className="relative h-6 w-11 cursor-pointer rounded-full bg-base-weak transition-colors data-[state=checked]:bg-accent-weak"
 		>
 			<Switch.Thumb className="flex h-5 w-5 translate-x-0.5 items-center justify-center rounded-full bg-base-foreground transition-transform data-[state=checked]:translate-x-[1.375rem]">
 				{isDark ? (

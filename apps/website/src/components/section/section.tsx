@@ -16,7 +16,7 @@ export function Section({
 	return (
 		<div
 			className={cn(
-				'flex flex-col md:flex-row md:justify-center mt-12 mb-8 px-6 text-base-foreground mx-auto max-w-5xl md:gap-6',
+				'flex flex-col md:flex-row md:justify-center mt-16 mb-8 px-6 text-base-foreground mx-auto max-w-5xl md:gap-6',
 				reversed && 'md:flex-row-reverse',
 			)}
 		>

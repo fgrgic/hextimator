@@ -31,6 +31,7 @@ export function ThemePreview({
 
 	const entries = Object.entries(tokens).filter(([key]) => {
 		if (key.endsWith(FOREGROUND_SUFFIX)) return false;
+		if (key === '--brand-exact') return false;
 		const role = getRole(key);
 		const variant = getVariant(key);
 		// For semantic roles, only show the default variant
@@ -41,7 +42,7 @@ export function ThemePreview({
 	return (
 		<div
 			{...props}
-			className={`flex flex-row h-12 rounded-lg overflow-hidden w-full max-w-lg border border-base-weak ${props.className ?? ''}`}
+			className={`flex flex-row h-12 rounded-lg overflow-hidden w-full max-w-lg border border-base-weak shadow-xs ${props.className ?? ''}`}
 		>
 			{entries.map(([token, color]) => {
 				const role = getRole(token);
@@ -51,7 +52,7 @@ export function ThemePreview({
 
 				const variant = getVariant(token);
 				const isDefault = variant === null;
-				const baseFlex = isDefault && !isSemantic ? 1 : 0.6;
+				const baseFlex = isDefault && !isSemantic ? 1 : 0.5;
 
 				return (
 					<button

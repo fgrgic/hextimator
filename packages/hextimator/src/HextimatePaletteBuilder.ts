@@ -104,6 +104,7 @@ export class HextimatePaletteBuilder {
 		this.options = options ?? {};
 		this.lightPalette = generate(color, 'light', options);
 		this.darkPalette = generate(color, 'dark', options);
+		this.applyToken('brand-exact', color);
 	}
 
 	/**
