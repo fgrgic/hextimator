@@ -52,7 +52,7 @@ export function CodeSnippet({
 							key={tab.label}
 							type="button"
 							onClick={() => setActiveTab(i)}
-							className={`cursor-pointer rounded-t-sm px-3 py-1.5 text-xs transition-colors ${
+							className={`cursor-pointer rounded-t-sm px-3 py-1.5 font-mono transition-colors ${
 								i === activeTab
 									? 'bg-base-weak text-base-foreground'
 									: 'text-base-foreground hover:bg-base'
@@ -65,7 +65,7 @@ export function CodeSnippet({
 			)}
 			<div
 				className={cn(
-					'group flex items-center gap-3 px-4 py-2.5 font-mono text-sm bg-base-weak text-base-foreground',
+					'group flex items-center gap-3 px-4 py-2.5 font-mono text-lg bg-base-weak text-base-foreground',
 					tabs && activeTab === 0 ? 'rounded-sm rounded-tl-none' : 'rounded-sm',
 				)}
 			>

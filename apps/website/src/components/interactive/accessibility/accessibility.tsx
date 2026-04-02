@@ -117,7 +117,7 @@ export function Accessibility() {
 					</Select.Trigger>
 					<Select.Portal>
 						<Select.Content
-							className="rounded-lg bg-base p-1 shadow-lg border border-base-strong z-50"
+							className="rounded-lg bg-base p-1 shadow-lg border border-base-strong z-50 min-w-(--radix-select-trigger-width)"
 							position="popper"
 							sideOffset={4}
 						>

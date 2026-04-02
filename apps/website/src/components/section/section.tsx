@@ -17,7 +17,7 @@ export function Section({
 }: SectionProps) {
 	if (stacked) {
 		return (
-			<div className="flex flex-col mt-16 mb-8 px-6 text-base-foreground mx-auto max-w-5xl gap-6">
+			<div className="flex flex-col mt-16 mb-8 px-6 text-base-foreground max-w-5xl gap-6 ">
 				<div className="flex flex-col max-w-xl">
 					<h2>{title}</h2>
 					<p className="text font-light">{description}</p>
@@ -30,15 +30,15 @@ export function Section({
 	return (
 		<div
 			className={cn(
-				'flex flex-col md:flex-row md:justify-center mt-16 mb-8 px-6 text-base-foreground mx-auto max-w-5xl md:gap-8',
+				'flex flex-col items-stretch mt-16 mb-8 px-6 text-base-foreground md:flex-row max-w-5xl md:gap-8',
 				reversed && 'md:flex-row-reverse',
 			)}
 		>
-			<div className="flex flex-col flex-1 justify-center max-w-md">
+			<div className="flex flex-col flex-1 justify-center">
 				<h2>{title}</h2>
 				<p className="text font-light">{description}</p>
 			</div>
-			<div className="flex flex-1 justify-start max-w-md">{children}</div>
+			<div className="flex flex-1">{children}</div>
 		</div>
 	);
 }

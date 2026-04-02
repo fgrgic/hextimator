@@ -1,14 +1,17 @@
+import { useHextimatorTheme } from 'hextimator/react';
 import { CodeSnippet } from '../../code-snippet';
 import { InteractiveCard } from '../interactive-card';
 
 export function AIReady() {
+	const { color } = useHextimatorTheme();
+
 	return (
 		<InteractiveCard className="p-3">
 			<CodeSnippet
 				tabs={[
-					{ label: 'basic', prefix: '❯', code: 'npx hextimate "#ff6677"' },
-					{ label: 'bunx', prefix: '❯', code: 'bunx hextimate "#ff6677"' },
-					{ label: 'pnpx', prefix: '❯', code: 'pnpx hextimate "#ff6677"' },
+					{ label: 'basic', prefix: '❯', code: `npx hextimate #${color}` },
+					{ label: 'bunx', prefix: '❯', code: `bunx hextimate #${color}` },
+					{ label: 'pnpx', prefix: '❯', code: `pnpx hextimate #${color}` },
 				]}
 			/>
 		</InteractiveCard>
