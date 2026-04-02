@@ -29,17 +29,17 @@ function App() {
 				>
 				</Section>*/}
 				<Section
-					title="Accessibility built-in"
-					description="Guaranteed contrast ratios between all backgrounds and foregrounds, and color blindness adjustments to make sure your theme is inclusive and accessible to everyone."
-					reversed
-				>
-					<Accessibility />
-				</Section>
-				<Section
 					title="AI ready"
 					description="Agents can use the CLI to generate themes. Hextimator also includes an llms.txt out of the box."
+					reversed
 				>
 					<AIReady />
+				</Section>
+				<Section
+					title="Accessibility built-in"
+					description="Guaranteed contrast ratios between all backgrounds and foregrounds, and color blindness adjustments to make sure your theme is inclusive and accessible to everyone."
+				>
+					<Accessibility />
 				</Section>
 				<Section
 					title="Try it out"
