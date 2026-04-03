@@ -15,7 +15,7 @@ export function GetStarted() {
 				]}
 			/>
 			<div className="flex flex-col gap-2">
-				<h3>Using tailwind?</h3>
+				<h3>Using tailwind</h3>
 				<CodeSnippet code="@import 'hextimator/tailwind.css';" />
 			</div>
 			<Button

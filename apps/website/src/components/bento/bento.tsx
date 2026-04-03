@@ -1,12 +1,13 @@
-import type { ComponentPropsWithRef, ReactNode } from 'react';
+import { type ComponentPropsWithRef, type ReactNode, useState } from 'react';
 import { cn } from '../../utils/cn';
 
 type BentoCardProps = ComponentPropsWithRef<'div'> & {
 	title: string;
-	description: string;
+	description?: ReactNode;
 	icon?: ReactNode;
 	visual?: ReactNode;
 	span?: 'default' | 'wide' | 'tall' | 'large';
+	rotate?: boolean;
 };
 
 const spanClasses = {
@@ -23,29 +24,43 @@ export function BentoCard({
 	visual,
 	span = 'default',
 	children,
+	rotate = false,
 	...rest
 }: BentoCardProps) {
+	const [rotation] = useState(() => {
+		if (!rotate) return 0;
+		const sign = Math.random() < 0.5 ? -1 : 1;
+		const value = Math.round((Math.random() * 0.4 + 0.4) * 10) / 10;
+		return sign * value;
+	});
 	return (
 		<div
 			{...rest}
+			style={
+				{
+					'--card-rotation': `${rotation}deg`,
+					...rest.style,
+				} as React.CSSProperties
+			}
 			className={cn(
-				'group relative flex flex-col gap-4 rounded-xl border border-base-weak bg-base-strong hover:border-base hover:shadow-lg p-6 -mx-2 md:mx-0 text-base-foreground overflow-hidden',
+				'group relative flex flex-col gap-4 rounded-xl border border-base-weak bg-base-strong hover:border-base hover:shadow-lg p-6 -mx-2 md:mx-0 text-base-foreground overflow-hidden hover:[transform:rotate(var(--card-rotation))]',
 				spanClasses[span],
 				rest.className,
 			)}
 		>
-			{visual ? (
-				visual
-			) : (
-				icon && (
-					<div className="flex items-center justify-center w-10 h-10 rounded-lg bg-accent text-accent-foreground">
-						{icon}
-					</div>
-				)
+			{icon && (
+				<div className="flex items-center justify-center w-10 h-10 rounded-lg bg-accent text-accent-foreground">
+					{icon}
+				</div>
 			)}
+			{visual}
 			<div className="flex flex-col gap-1">
 				<h3 className="text-lg">{title}</h3>
-				<p className="text-sm font-light opacity-80">{description}</p>
+				{description && typeof description === 'string' ? (
+					<p className="text-sm font-light opacity-80">{description}</p>
+				) : (
+					description
+				)}
 			</div>
 			{children && <div className="flex-1">{children}</div>}
 		</div>

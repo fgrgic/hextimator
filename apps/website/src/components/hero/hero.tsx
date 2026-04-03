@@ -1,7 +1,7 @@
 import { parseColor } from 'hextimator';
 import { useHextimatorTheme } from 'hextimator/react';
 import { LongArrowRightDown, NavArrowRight, Star } from 'iconoir-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '../button';
 import { registerColorCyclerStop } from './color-cycler-signal';
 import { ColorInput } from './color-input';
@@ -25,10 +25,17 @@ export function Hero() {
 	const [input, setInput] = useState('');
 	const [pickerOpen, setPickerOpen] = useState(false);
 
+	const themeTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
 	const applyValue = useCallback(
 		(value: string, updateTheme = true) => {
 			setInput(value);
-			if (updateTheme) tryApplyColor(value, setColor);
+			if (updateTheme) {
+				clearTimeout(themeTimeout.current);
+				themeTimeout.current = setTimeout(
+					() => tryApplyColor(value, setColor),
+					30,
+				);
+			}
 		},
 		[setColor],
 	);

@@ -1,5 +1,7 @@
-import { CodeBrackets, CubeReplaceFace, Flash, Palette } from 'iconoir-react';
+import { ControlSlider, Flash, Palette } from 'iconoir-react';
+import { CodeBrackets, GitFork, HalfMoon } from 'iconoir-react/regular';
 import { BentoCard, BentoGrid } from '../../bento';
+import { CodeSnippet } from '../../code-snippet';
 
 function HueGradient() {
 	return (
@@ -13,9 +15,18 @@ function HueGradient() {
 	);
 }
 
+const COLOR_FORMATS_SNIPPET = `.format({
+  as: 'json'
+  colors: 'oklch'
+  variants: {
+    strong: 'secondary',
+    weak: 'tertiary',
+  }
+})`;
+
 export function OtherFeatures() {
 	return (
-		<BentoGrid>
+		<BentoGrid className="md:-mx-2">
 			<BentoCard
 				span="wide"
 				title="Perceptually uniform"
@@ -25,23 +36,42 @@ export function OtherFeatures() {
 			<BentoCard
 				title="Runtime theming"
 				description="Generate branded themes on the fly. Perfect for B2B2C apps with per-tenant branding."
-				icon={<Flash className="w-5 h-5" />}
-			/>
-			<BentoCard
-				title="Any format"
-				description="CSS custom properties, Tailwind, SCSS, JSON, or plain objects — output what you need."
-				icon={<CodeBrackets className="w-5 h-5" />}
+				icon={<Flash />}
 			/>
 			<BentoCard
 				title="Semantic scales"
 				description="Positive, negative, and warning scales generated automatically from a single color."
-				icon={<Palette className="w-5 h-5" />}
+				icon={<Palette />}
 			/>
 			<BentoCard
-				title="Framework agnostic"
-				description="Works anywhere JavaScript runs. First-class React hook included, with dark mode support out of the box."
-				icon={<CubeReplaceFace className="w-5 h-5" />}
+				title="Per-mode adjustments"
+				description="Make global adjustments for both dark and light mode, or modify each mode individually."
+				icon={<HalfMoon />}
 			/>
+			<BentoCard
+				span="tall"
+				title="Output what you need"
+				icon={<CodeBrackets />}
+				description={
+					<div className="flex flex-col gap-2">
+						<p className="font-light text-sm">
+							Output theme format that you need, and remap default names to fit
+							your app's theme.
+						</p>
+						<CodeSnippet code={COLOR_FORMATS_SNIPPET} />
+					</div>
+				}
+			/>
+			<BentoCard
+				title="Fork themes"
+				description="Create different versions of the theme — more accessible version, or a more muted one."
+				icon={<GitFork />}
+			></BentoCard>
+			<BentoCard
+				title="Build presets"
+				description="Hextimator includes presets for popular tools such as shadcn. Build your own presets for tools you use."
+				icon={<ControlSlider />}
+			></BentoCard>
 		</BentoGrid>
 	);
 }

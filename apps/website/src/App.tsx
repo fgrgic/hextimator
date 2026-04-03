@@ -20,8 +20,8 @@ function App() {
 			<NavBar />
 			<main className="flex flex-col items-center gap-16 md:gap-0 mt-12 mb-24">
 				<Hero />
-				<div className="flex flex-col items-stretch md:gap-8" id="features">
-					<div className="flex w-full justify-center mt-14">
+				<div className="flex flex-col items-stretch gap-8" id="features">
+					<div className="flex w-full justify-center my-14 px-4">
 						<ThemePreview />
 					</div>
 					<Section
