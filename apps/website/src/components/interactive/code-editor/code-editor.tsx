@@ -16,7 +16,7 @@ export function CodeEditor() {
 		<PlaygroundEditor
 			defaultCode={DEFAULT_CODE}
 			color={color}
-			className="overflow-hidden bg-base-strong border border-base-weak"
+			className="bg-base-strong border border-base-weak"
 			outputClassName="max-h-75 md:max-h-80"
 		/>
 	);
