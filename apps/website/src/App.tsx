@@ -24,7 +24,7 @@ function App() {
 					className="flex flex-col items-stretch gap-8 md:gap-16"
 					id="features"
 				>
-					<div className="flex w-full justify-center my-14 px-4">
+					<div className="flex w-full justify-center mt-20 mb-14 px-4">
 						<ThemePreview />
 					</div>
 					<Section

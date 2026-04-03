@@ -26,13 +26,15 @@
 	}
 }
 
-* {
-	transition:
-		background-color 0.3s ease-in-out,
-		color 0.3s ease-in-out,
-		border-color 0.3s ease-in-out,
-		box-shadow 0.3s ease-in-out,
-		transform 0.2s ease-out;
+@layer base {
+	* {
+		transition:
+			background-color 0.3s ease-in-out,
+			color 0.3s ease-in-out,
+			border-color 0.3s ease-in-out,
+			box-shadow 0.3s ease-in-out,
+			transform 0.2s ease-out;
+	}
 }
 
 [data-radix-popper-content-wrapper] {
