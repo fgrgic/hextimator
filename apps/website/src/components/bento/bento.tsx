@@ -5,6 +5,7 @@ type BentoCardProps = ComponentPropsWithRef<'div'> & {
 	title: string;
 	description: string;
 	icon?: ReactNode;
+	visual?: ReactNode;
 	span?: 'default' | 'wide' | 'tall' | 'large';
 };
 
@@ -19,6 +20,7 @@ export function BentoCard({
 	title,
 	description,
 	icon,
+	visual,
 	span = 'default',
 	children,
 	...rest
@@ -32,10 +34,14 @@ export function BentoCard({
 				rest.className,
 			)}
 		>
-			{icon && (
-				<div className="flex items-center justify-center w-10 h-10 rounded-lg bg-accent text-accent-foreground">
-					{icon}
-				</div>
+			{visual ? (
+				visual
+			) : (
+				icon && (
+					<div className="flex items-center justify-center w-10 h-10 rounded-lg bg-accent text-accent-foreground">
+						{icon}
+					</div>
+				)
 			)}
 			<div className="flex flex-col gap-1">
 				<h3 className="text-lg">{title}</h3>

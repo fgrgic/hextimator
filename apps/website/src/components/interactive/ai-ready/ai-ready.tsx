@@ -11,7 +11,7 @@ export function AIReady() {
 				tabs={[
 					{ label: 'npx', prefix: '❯', code: `npx hextimate #${color}` },
 					{ label: 'bunx', prefix: '❯', code: `bunx hextimate #${color}` },
-					{ label: 'pnpx', prefix: '❯', code: `pnpx hextimate #v${color}` },
+					{ label: 'pnpx', prefix: '❯', code: `pnpx hextimate #${color}` },
 				]}
 			/>
 		</InteractiveCard>

@@ -1,11 +1,17 @@
-import {
-	CodeBrackets,
-	ColorFilter,
-	CubeReplaceFace,
-	Flash,
-	Palette,
-} from 'iconoir-react';
+import { CodeBrackets, CubeReplaceFace, Flash, Palette } from 'iconoir-react';
 import { BentoCard, BentoGrid } from '../../bento';
+
+function HueGradient() {
+	return (
+		<div
+			className="w-full h-10 rounded-lg"
+			style={{
+				background:
+					'linear-gradient(to right, oklch(0.8 0.15 0), oklch(0.8 0.15 60), oklch(0.8 0.15 120), oklch(0.8 0.15 180), oklch(0.8 0.15 240), oklch(0.8 0.15 300), oklch(0.8 0.15 360))',
+			}}
+		/>
+	);
+}
 
 export function OtherFeatures() {
 	return (
@@ -13,8 +19,8 @@ export function OtherFeatures() {
 			<BentoCard
 				span="wide"
 				title="Perceptually uniform"
-				description="Built on OKLCH — every palette has consistent perceived contrast, no matter the input hue."
-				icon={<ColorFilter className="w-5 h-5" />}
+				description="Built on OKLCH. Once the theming preset is defined, any theme built on that preset will have consistent perceived contrast, no matter the hue!"
+				visual={<HueGradient />}
 			/>
 			<BentoCard
 				title="Runtime theming"
