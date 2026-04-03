@@ -175,7 +175,7 @@ export function ColorPicker({
 							onClick={onResume}
 						>
 							<PlaySolid width="0.6rem" />
-							Continue with random colors
+							Continue generating random colors
 						</button>
 					)}
 					<Popover.Arrow className="fill-base-strong" />

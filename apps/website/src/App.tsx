@@ -18,9 +18,12 @@ function App() {
 	return (
 		<div>
 			<NavBar />
-			<main className="flex flex-col items-center gap-16 md:gap-0 mt-12 mb-24">
+			<main className="flex flex-col items-center md:gap-0 mt-12 mb-24">
 				<Hero />
-				<div className="flex flex-col items-stretch gap-8" id="features">
+				<div
+					className="flex flex-col items-stretch gap-8 md:gap-16"
+					id="features"
+				>
 					<div className="flex w-full justify-center my-14 px-4">
 						<ThemePreview />
 					</div>
@@ -61,7 +64,7 @@ function App() {
 					</Section>
 					<Section
 						title="Get started"
-						description="Add hextimator to your project"
+						description="Add hextimator to your project, and start building your theme!"
 					>
 						<GetStarted />
 					</Section>
