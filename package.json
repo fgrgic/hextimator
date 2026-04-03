@@ -13,8 +13,8 @@
 		"format": "biome format --write .",
 		"lint": "biome lint .",
 		"check": "biome check --write .",
-		"dev:playground": "bun run --filter hextimator dev & bun run --filter playground dev",
-		"dev:website": "bun run --filter hextimator dev & bun run --filter website dev"
+		"dev:playground": "bun run --filter hextimator dev & bun run --filter '@hextimator/playground' dev & bun run --filter playground dev",
+		"dev:website": "bun run --filter hextimator dev & bun run --filter '@hextimator/playground' dev & bun run --filter website dev"
 	},
 	"workspaces": [
 		"packages/*",

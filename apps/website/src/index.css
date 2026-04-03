@@ -5,6 +5,10 @@
 	--font-mono: "picomono", monospace;
 }
 
+:root {
+	--hxp-font-mono: "picomono", monospace;
+}
+
 @layer base {
 	h1 {
 		font-weight: 800;
