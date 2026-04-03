@@ -174,9 +174,9 @@ export function CodeEditor() {
 						<div className="flex items-center justify-between px-3 py-2 border-b border-base-weak">
 							<div className="flex items-center gap-2">
 								<div className="flex gap-1.5">
-									<span className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
-									<span className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
-									<span className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
+									<span className="w-2.5 h-2.5 rounded-full bg-base-weak hover:bg-[#ff5f57]" />
+									<span className="w-2.5 h-2.5 rounded-full bg-base-weak hover:bg-[#28c840]" />
+									<span className="w-2.5 h-2.5 rounded-full bg-base-weak  hover:bg-[#febc2e]" />
 								</div>
 								<span className="text-xs text-base-foreground/50 font-mono">
 									theme.ts
