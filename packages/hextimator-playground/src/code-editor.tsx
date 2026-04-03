@@ -49,7 +49,12 @@ function CopyButton({ getText }: { getText: () => string }) {
 	}, [getText]);
 
 	return (
-		<button type="button" className="hxp-icon-btn" onClick={copy} aria-label="Copy">
+		<button
+			type="button"
+			className="hxp-icon-btn"
+			onClick={copy}
+			aria-label="Copy"
+		>
 			{copied ? (
 				<Check width="1rem" strokeWidth={2} style={{ color: '#4ade80' }} />
 			) : (
@@ -66,7 +71,12 @@ export interface CodeEditorProps {
 	outputClassName?: string;
 }
 
-export function CodeEditor({ defaultCode, color, className, outputClassName }: CodeEditorProps) {
+export function CodeEditor({
+	defaultCode,
+	color,
+	className,
+	outputClassName,
+}: CodeEditorProps) {
 	const [code, setCode] = useState(defaultCode);
 	const [outputMode, setOutputMode] = useState<'light' | 'dark'>('light');
 	const [colorFormat, setColorFormat] = useState<ColorFormat>('hex');
@@ -140,7 +150,10 @@ export function CodeEditor({ defaultCode, color, className, outputClassName }: C
 							value={colorFormat}
 							onValueChange={(v) => setColorFormat(v as ColorFormat)}
 						>
-							<Select.Trigger className="hxp-format-trigger">
+							<Select.Trigger
+								className="hxp-format-trigger"
+								aria-label="Select color format"
+							>
 								<Select.Value />
 								<Select.Icon>
 									<NavArrowDown width="10" height="10" />
@@ -154,7 +167,11 @@ export function CodeEditor({ defaultCode, color, className, outputClassName }: C
 								>
 									<Select.Viewport>
 										{COLOR_FORMATS.map((f) => (
-											<Select.Item key={f} value={f} className="hxp-format-item">
+											<Select.Item
+												key={f}
+												value={f}
+												className="hxp-format-item"
+											>
 												<Select.ItemText>{f}</Select.ItemText>
 											</Select.Item>
 										))}
@@ -171,11 +188,7 @@ export function CodeEditor({ defaultCode, color, className, outputClassName }: C
 				</div>
 				<div className="hxp-output-scroll">
 					{object ? (
-						<TokenList
-							object={object}
-							css={css}
-							outputMode={outputMode}
-						/>
+						<TokenList object={object} css={css} outputMode={outputMode} />
 					) : (
 						<span className="hxp-output-placeholder">Evaluating...</span>
 					)}

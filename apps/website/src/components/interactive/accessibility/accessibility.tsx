@@ -98,6 +98,7 @@ export function Accessibility() {
 				onChange={handleContrastChange}
 				onInteract={handleInteract}
 				unit=":1"
+				aria-label="Minimum contrast ratio for generated colors"
 			/>
 
 			<div className="flex flex-col gap-1.5">
@@ -109,7 +110,10 @@ export function Accessibility() {
 						handleCvdChange(value as CVDType | 'none');
 					}}
 				>
-					<Select.Trigger className="flex items-center justify-between gap-2 text-xs px-2 py-1.5 rounded-lg bg-base cursor-pointer hover:bg-base-strong">
+					<Select.Trigger
+						className="flex items-center justify-between gap-2 text-xs px-2 py-1.5 rounded-lg bg-base cursor-pointer hover:bg-base-strong"
+						aria-label="Color blindness simulation options"
+					>
 						<Select.Value />
 						<Select.Icon className="text-base-foreground">
 							<NavArrowDown width="12" height="12" />

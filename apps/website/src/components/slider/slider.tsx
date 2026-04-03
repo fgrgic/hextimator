@@ -17,7 +17,10 @@ export function Slider({
 			<SliderPrimitive.Track className="relative h-1 w-full grow overflow-hidden rounded-full bg-base cursor-pointer">
 				<SliderPrimitive.Range className="absolute h-full bg-base-weak" />
 			</SliderPrimitive.Track>
-			<SliderPrimitive.Thumb className="block size-3 shrink-0 rounded-full bg-base-foreground ring-base-foreground/30 transition-shadow select-none hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3 cursor-pointer" />
+			<SliderPrimitive.Thumb
+				aria-label={props['aria-label'] ?? 'slider thumb'}
+				className="block size-3 shrink-0 rounded-full bg-base-foreground ring-base-foreground/30 transition-shadow select-none hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3 cursor-pointer"
+			/>
 		</SliderPrimitive.Root>
 	);
 }

@@ -74,6 +74,7 @@ export function ThemePreview({
 						onPointerLeave={() => setActive(defaultActive)}
 						onFocus={() => setActive(token)}
 						onBlur={() => setActive(defaultActive)}
+						aria-label={`${stripToken(token)}: ${color}`}
 					>
 						{isActive && (
 							<div

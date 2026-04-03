@@ -14,6 +14,7 @@ function DarkModeSwitch() {
 			checked={isDark}
 			onCheckedChange={(checked) => setMode(checked ? 'dark' : 'light')}
 			className="relative h-6 w-11 cursor-pointer rounded-full bg-base-weak transition-colors hover:bg-accent"
+			aria-label="Toggle dark mode"
 		>
 			<Switch.Thumb
 				className="flex h-5 w-5 items-center justify-center rounded-full bg-base-foreground"

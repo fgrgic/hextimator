@@ -39,6 +39,7 @@ export function ThemePreferences() {
 
 			<RangeSlider
 				label="Lightness"
+				aria-label="Overall lightness adjustment for both light and dark themes"
 				value={lightnessOffset}
 				min={-0.2}
 				max={0.2}
@@ -62,6 +63,7 @@ export function ThemePreferences() {
 
 			<RangeSlider
 				label="Background hue shift"
+				aria-label="Hue shift applied to the background colors of both light and dark themes"
 				value={generation?.baseHueShift ?? 0}
 				min={0}
 				max={360}
@@ -73,6 +75,7 @@ export function ThemePreferences() {
 
 			<RangeSlider
 				label="Background max chroma"
+				aria-label="Maximum chroma allowed for background colors in both light and dark themes"
 				value={generation?.baseMaxChroma ?? 0.01}
 				min={0}
 				max={0.1}

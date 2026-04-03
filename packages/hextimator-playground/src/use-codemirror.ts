@@ -1,5 +1,4 @@
-import { autocompletion } from '@codemirror/autocomplete';
-import { closeBrackets } from '@codemirror/autocomplete';
+import { autocompletion, closeBrackets } from '@codemirror/autocomplete';
 import { toggleComment } from '@codemirror/commands';
 import { javascript } from '@codemirror/lang-javascript';
 import { EditorState } from '@codemirror/state';
@@ -44,6 +43,9 @@ export function useCodeMirror({
 					if (update.docChanged) {
 						onChangeRef.current(update.state.doc.toString());
 					}
+				}),
+				EditorView.contentAttributes.of({
+					'aria-label': 'Code editor',
 				}),
 				EditorView.theme(
 					{
