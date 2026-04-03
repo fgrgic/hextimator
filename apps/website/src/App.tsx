@@ -4,6 +4,7 @@ import {
 	Accessibility,
 	AIReady,
 	CodeEditor,
+	Footer,
 	Hero,
 	NavBar,
 	OtherFeatures,
@@ -59,6 +60,7 @@ function App() {
 					</Section>
 				</div>
 			</main>
+			<Footer />
 		</div>
 	);
 }

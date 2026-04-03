@@ -3,7 +3,6 @@ import { useHextimatorTheme } from 'hextimator/react';
 import { LongArrowRightDown, NavArrowRight, Star } from 'iconoir-react';
 import { useCallback, useEffect, useState } from 'react';
 import { Button } from '../button';
-import { ThemePreview } from '../theme-preview';
 import { registerColorCyclerStop } from './color-cycler-signal';
 import { ColorInput } from './color-input';
 import { ColorPicker } from './color-picker';
