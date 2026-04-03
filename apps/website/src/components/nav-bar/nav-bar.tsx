@@ -35,10 +35,25 @@ function DarkModeSwitch() {
 
 const navLinks = (
 	<>
-		<Button href="#features" variant="ghost">
+		<Button
+			href="#features"
+			variant="ghost"
+			className="hover:bg-base-weak py-1"
+		>
 			Features
 		</Button>
-		<Button href="https://github.com/fgrgic/hextimator" variant="ghost">
+		<Button
+			href="#playground"
+			variant="ghost"
+			className="hover:bg-base-weak py-1"
+		>
+			Playground
+		</Button>
+		<Button
+			href="https://github.com/fgrgic/hextimator"
+			variant="ghost"
+			className="hover:bg-base-weak py-1"
+		>
 			Docs
 		</Button>
 	</>
@@ -49,11 +64,12 @@ export function NavBar() {
 
 	return (
 		<nav className="relative z-10 flex items-center justify-between px-6 py-4 text-base-foreground">
-			<HextimatorLogo scale={0.6} />
-
-			<div className="hidden items-center gap-4 md:flex">
+			<div className="md:min-w-3xs">
+				<HextimatorLogo scale={0.5} />
+			</div>
+			<div className="hidden md:flex flex-row gap-4">{navLinks}</div>
+			<div className="hidden items-center justify-end gap-4 md:flex md:min-w-3xs">
 				<DarkModeSwitch />
-				{navLinks}
 			</div>
 
 			<div className="flex items-center gap-3 md:hidden">

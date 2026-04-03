@@ -115,7 +115,6 @@ export function CodeEditor({
 						<span className="hxp-pane-title">theme.ts</span>
 					</div>
 					<div className="hxp-pane-actions">
-						<CopyButton getText={() => code} />
 						<button
 							type="button"
 							className="hxp-icon-btn"
@@ -124,6 +123,7 @@ export function CodeEditor({
 						>
 							<RefreshDouble width=".8rem" strokeWidth={2} />
 						</button>
+						<CopyButton getText={() => code} />
 					</div>
 				</div>
 				<div ref={containerRef} className="hxp-codemirror-container" />

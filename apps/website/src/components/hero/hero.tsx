@@ -50,6 +50,11 @@ export function Hero() {
 		setPickerOpen(true);
 	};
 
+	const handleGetStarted = () => {
+		stop();
+		setPickerOpen(true);
+	};
+
 	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		applyValue(e.target.value);
 		setShowHint(false);
@@ -70,7 +75,7 @@ export function Hero() {
 	};
 
 	return (
-		<section className="relative my-20 flex flex-col items-center text-center text-base-foreground min-h-3/5 p-6 gap-2 ">
+		<section className="relative mt-20 flex flex-col items-center text-center text-base-foreground min-h-3/5 p-6 gap-2 ">
 			<div
 				className="absolute -top-1 left-1/2 -translate-x-1/2 -ml-12 flex items-end gap-0.5 -rotate-3 pointer-events-none"
 				style={{
@@ -114,7 +119,9 @@ export function Hero() {
 				guarantees.
 			</p>
 			<div className="flex flex-col gap-2 mt-4">
-				<Button icon={NavArrowRight}>Get started</Button>
+				<Button icon={NavArrowRight} onClick={handleGetStarted}>
+					Get started
+				</Button>
 				<Button
 					variant="ghost"
 					href="https://github.com/fgrgic/hextimator"

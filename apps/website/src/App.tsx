@@ -13,7 +13,7 @@ function App() {
 	return (
 		<div>
 			<NavBar />
-			<main className="flex flex-col gap-16 md:gap-32 mt-12 mb-24">
+			<main className="flex flex-col gap-16 md:gap-0 mt-12 mb-24">
 				<Hero />
 				<div className="flex flex-col md:gap-16 self-center" id="features">
 					<Section
@@ -40,6 +40,7 @@ function App() {
 						title="Try it out"
 						description="Play around with the code to see how the output changes, and use it as a base for your projects!"
 						stacked
+						id="playground"
 					>
 						<CodeEditor />
 					</Section>

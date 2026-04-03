@@ -65,7 +65,7 @@ export function CodeSnippet({
 			)}
 			<div
 				className={cn(
-					'group flex items-center gap-3 px-4 py-2.5 font-mono text-lg bg-base-weak text-base-foreground',
+					'group flex items-center gap-3 px-4 py-2.5 font-mono bg-base-weak text-base-foreground',
 					tabs && activeTab === 0 ? 'rounded-sm rounded-tl-none' : 'rounded-sm',
 				)}
 			>
