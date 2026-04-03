@@ -168,9 +168,9 @@ export function CodeEditor() {
 			{cssTokens && <ScopedThemePreview tokens={cssTokens} className="mb-8" />}
 
 			<InteractiveCard rotate-false className="p-0! gap-0! overflow-hidden">
-				<div className="flex flex-col md:flex-row">
+				<div className="flex flex-col md:flex-row items-stretch">
 					{/* Code editor pane */}
-					<div className="flex flex-col flex-1 min-w-0 md:min-h-80">
+					<div className="flex flex-col flex-1 min-w-0">
 						<div className="flex items-center justify-between px-3 py-2 border-b border-base-weak">
 							<div className="flex items-center gap-2">
 								<div className="flex gap-1.5">
@@ -187,7 +187,7 @@ export function CodeEditor() {
 								<ResetButton onClick={resetCode} />
 							</div>
 						</div>
-						<div ref={containerRef} className="flex-1 overflow-auto min-h-45" />
+						<div ref={containerRef} className="flex-1" />
 						{error && (
 							<div className="px-3 py-2 text-xs font-mono text-negative border-t border-base-weak bg-negative/5 break-all">
 								{error}
@@ -196,7 +196,7 @@ export function CodeEditor() {
 					</div>
 
 					{/* Output pane */}
-					<div className="flex flex-col flex-1 min-w-0 border-t md:border-t-0 md:border-l border-base-weak max-h-[300px] md:max-h-[320px]">
+					<div className="flex flex-col flex-1 min-w-0 border-t md:border-t-0 md:border-l border-base-weak max-h-75 md:max-h-80">
 						<div className="flex items-center justify-between px-3 py-2 border-b border-base-weak gap-2">
 							<div className="flex gap-1">
 								{(['light', 'dark'] as const).map((m) => (
