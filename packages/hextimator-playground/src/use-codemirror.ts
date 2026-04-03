@@ -10,11 +10,13 @@ import { hextimatorCompletions } from './completions';
 type UseCodeMirrorOptions = {
 	initialValue: string;
 	onChange: (value: string) => void;
+	fontSize?: number | string;
 };
 
 export function useCodeMirror({
 	initialValue,
 	onChange,
+	fontSize = 14,
 }: UseCodeMirrorOptions) {
 	const containerRef = useRef<HTMLDivElement>(null);
 	const viewRef = useRef<EditorView | null>(null);
@@ -50,14 +52,19 @@ export function useCodeMirror({
 				EditorView.theme(
 					{
 						'&': {
-							fontSize: '13px',
+							fontSize: typeof fontSize === 'number' ? `${fontSize}px` : fontSize,
 							height: '100%',
 						},
 						'.cm-content': {
-							padding: '12px 0',
+							padding: '0.75em 0',
 						},
 						'.cm-gutters': {
 							border: 'none',
+							paddingRight: '0.5em',
+						},
+						'.cm-lineNumbers .cm-gutterElement': {
+							paddingLeft: '0.75em',
+							paddingRight: '0.5em',
 						},
 					},
 					{ dark: true },
@@ -94,7 +101,7 @@ export function useCodeMirror({
 			view.destroy();
 			viewRef.current = null;
 		};
-	}, [initialValue]);
+	}, [initialValue, fontSize]);
 
 	return { containerRef, viewRef };
 }

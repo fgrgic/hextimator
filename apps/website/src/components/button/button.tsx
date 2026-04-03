@@ -10,7 +10,7 @@ const buttonVariants = cva(
 					'px-4 py-2 bg-accent text-accent-foreground min-w-32 hover:bg-accent-weak',
 				secondary: 'px-4 py-2 bg-secondary text-secondary-foreground',
 				ghost:
-					'flex-row-reverse px-2 py-0 bg-transparent text-base-foreground text-xs justify-center',
+					'flex-row-reverse px-2 py-0 bg-transparent text-base-foreground text-sm justify-center',
 			},
 		},
 		defaultVariants: {

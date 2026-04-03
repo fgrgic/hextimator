@@ -51,8 +51,15 @@ export function Hero() {
 
 	const [showHint, setShowHint] = useState(true);
 
-	const handleFocus = () => {
+	const handleClick = () => {
 		stop();
+		setPickerOpen(true);
+	};
+
+	const handleFocus = () => {
+		// Only open picker on focus if cycler is already stopped
+		// (prevents Safari's spurious focus events during value updates)
+		if (isActive) return;
 		setPickerOpen(true);
 	};
 
@@ -106,11 +113,13 @@ export function Hero() {
 						showResume={!isActive}
 						onResume={handleResume}
 					>
-						<ColorInput
-							color={input}
-							onColorChange={handleInputChange}
-							onFocus={handleFocus}
-						/>
+					<ColorInput
+						color={input}
+						onColorChange={handleInputChange}
+						onFocus={handleFocus}
+						onClick={handleClick}
+						cycling={isActive}
+					/>
 					</ColorPicker>
 					<span aria-hidden>in.</span>
 				</div>
