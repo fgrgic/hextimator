@@ -11,6 +11,7 @@ import {
 	Section,
 	ThemePreferences,
 } from './components';
+import { GetStarted } from './components/interactive/get-started';
 import { ThemePreview } from './components/theme-preview';
 
 function App() {
@@ -57,6 +58,12 @@ function App() {
 						id="playground"
 					>
 						<CodeEditor />
+					</Section>
+					<Section
+						title="Get started"
+						description="Add hextimator to your project"
+					>
+						<GetStarted />
 					</Section>
 				</div>
 			</main>

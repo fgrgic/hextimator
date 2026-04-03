@@ -448,6 +448,9 @@ export class HextimatePaletteBuilder {
 		if ('beyond' in placement) {
 			const edge = placement.beyond;
 
+			// Place beyond the current edge, then redistribute. If the
+			// expanded position would violate the contrast ratio, clamp to
+			// the contrast boundary instead.
 			for (const palette of [this.lightPalette, this.darkPalette]) {
 				for (const role of Object.keys(palette)) {
 					const scale = palette[role];
@@ -610,15 +613,35 @@ export class HextimatePaletteBuilder {
 				const defaultOKLCH = convert(parse(scale.DEFAULT), 'oklch');
 				const foregroundOKLCH = convert(parse(scale.foreground), 'oklch');
 
+				// Determine sideDirection per-role by observing where existing
+			// variants on this side actually sit relative to DEFAULT.
+			// This is necessary because base colors move opposite to accent
+			// colors (base weak = darker in light mode, accent weak = lighter).
+			const existingVariant = sideVariants.find((v) => scale[v]);
+			let sideDirection: number;
+			if (existingVariant) {
+				const existingL = convert(parse(scale[existingVariant]), 'oklch').l;
+				sideDirection = Math.sign(existingL - defaultOKLCH.l) || (themeType === 'light' ? 1 : -1);
+			} else {
 				const contrastDirection = themeType === 'light' ? -1 : 1;
-				const sideDirection = isStrongSide
+				sideDirection = isStrongSide
 					? contrastDirection
 					: -contrastDirection;
+			}
 
-				const foregroundDirection = Math.sign(
+			const foregroundDirection = Math.sign(
 					foregroundOKLCH.l - defaultOKLCH.l,
 				);
 				const isTowardForeground = sideDirection === foregroundDirection;
+
+				// Find the outermost variant's current distance from DEFAULT.
+				let outermostDelta = 0;
+				for (const v of sideVariants) {
+					if (!scale[v]) continue;
+					const vL = convert(parse(scale[v]), 'oklch').l;
+					const d = Math.abs(vL - defaultOKLCH.l);
+					if (d > outermostDelta) outermostDelta = d;
+				}
 
 				let maxDelta: number;
 				if (isTowardForeground) {
@@ -627,11 +650,18 @@ export class HextimatePaletteBuilder {
 						parse(scale.foreground),
 						contrastTarget,
 					);
-					maxDelta =
+					const boundaryDelta =
 						boundaryL !== null ? Math.abs(defaultOKLCH.l - boundaryL) : 0;
+					// Use the outermost variant's position, but clamp to the
+					// contrast boundary so the edge always satisfies contrast.
+					maxDelta = Math.min(outermostDelta, boundaryDelta);
 				} else {
 					const gamutBound = sideDirection > 0 ? 1 : 0;
-					maxDelta = Math.min(Math.abs(gamutBound - defaultOKLCH.l), 0.2);
+					const boundaryDelta = Math.min(
+						Math.abs(gamutBound - defaultOKLCH.l),
+						0.2,
+					);
+					maxDelta = Math.min(outermostDelta, boundaryDelta);
 				}
 
 				this.redistributeVariants(
@@ -646,6 +676,7 @@ export class HextimatePaletteBuilder {
 			}
 		}
 	}
+
 
 	/**
 	 * Distributes variants evenly between DEFAULT and the lightness boundary.
