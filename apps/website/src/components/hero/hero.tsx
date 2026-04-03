@@ -133,9 +133,6 @@ export function Hero() {
 					Star us on GitHub
 				</Button>
 			</div>
-			<div className="flex w-full justify-center mt-14 mb-4">
-				<ThemePreview />
-			</div>
 		</section>
 	);
 }
