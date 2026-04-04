@@ -1,4 +1,8 @@
-import type { TokenValue, VariantPlacement } from '../HextimatePaletteBuilder';
+import type {
+	DerivedToken,
+	TokenValue,
+	VariantPlacement,
+} from '../HextimatePaletteBuilder';
 import type {
 	ColorInput,
 	HextimateFormatOptions,
@@ -23,7 +27,7 @@ export interface HextimatePreset {
 	generation?: HextimateGenerationOptions;
 
 	/** Extra roles to add to the palette (each generates DEFAULT, strong, weak, foreground variants). */
-	roles?: Array<{ name: string; color: ColorInput }>;
+	roles?: Array<{ name: string; color: ColorInput | DerivedToken }>;
 
 	/** Extra variants to add across all roles. */
 	variants?: Array<{ name: string; placement: VariantPlacement }>;

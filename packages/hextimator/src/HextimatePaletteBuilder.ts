@@ -88,7 +88,7 @@ export class HextimatePaletteBuilder {
 	private readonly inputColor: Color;
 	private readonly options: Partial<HextimateGenerationOptions>;
 	private readonly operations: Array<
-		| { method: 'addRole'; args: [string, ColorInput] }
+		| { method: 'addRole'; args: [string, ColorInput | DerivedToken] }
 		| { method: 'addVariant'; args: [string, VariantPlacement] }
 		| { method: 'addToken'; args: [string, TokenValue] }
 		| { method: 'simulate'; args: [CVDType, number] }
@@ -119,13 +119,15 @@ export class HextimatePaletteBuilder {
 	 * Adds a custom role with given name and color.
 	 * The color is expanded into a full scale and added to both light and dark palettes.
 	 *
-	 * e.g. `addRole('cta', '#ff0066')` adds a "cta" role with the specified hue as the base,
-	 * generating appropriate variants (`cta-strong`, `cta-weak`, `cta-foreground`) for light and dark themes.
+	 * The color can be a direct color value or a derived token referencing an existing role.
+	 *
+	 * e.g. `addRole('cta', '#ff0066')` adds a "cta" role with the specified hue as the base.
+	 * `addRole('cta', { from: 'accent', hue: 180 })` adds a "cta" role with a complementary hue to accent.
 	 *
 	 * @param name Role name (e.g. "cta", "banner")
-	 * @param color Base color for the role, its hue will be expanded into a full scale (e.g. "#ff0066")
+	 * @param color Base color or derived token for the role
 	 */
-	addRole(name: string, color: ColorInput): this {
+	addRole(name: string, color: ColorInput | DerivedToken): this {
 		this.operations.push({ method: 'addRole', args: [name, color] });
 		this.applyRole(name, color);
 		return this;
@@ -404,8 +406,10 @@ export class HextimatePaletteBuilder {
 		};
 	}
 
-	private applyRole(name: string, color: ColorInput): void {
-		const parsedColor = parse(color);
+	private applyRole(name: string, color: ColorInput | DerivedToken): void {
+		const parsedColor = this.isDerivedToken(color)
+			? this.resolveDerivedToken(color, this.lightPalette, 'light')
+			: parse(color);
 		const opts = this.resolvedOptions();
 
 		this.lightPalette[name] = expandColorToScale(parsedColor, 'light', {
