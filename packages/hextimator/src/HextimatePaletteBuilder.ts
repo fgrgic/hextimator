@@ -113,6 +113,15 @@ export class HextimatePaletteBuilder {
 		this.lightPalette = generate(color, 'light', options);
 		this.darkPalette = generate(color, 'dark', options);
 		this.applyToken('brand-exact', color);
+
+		const colorOKLCH = convert(color, 'oklch');
+		const lightFg = { ...colorOKLCH, l: 0.97, c: Math.min(colorOKLCH.c, 0.01) };
+		const darkFg = { ...colorOKLCH, l: 0.1, c: Math.min(colorOKLCH.c, 0.01) };
+		const brandForeground =
+			calculateContrast(color, lightFg) >= calculateContrast(color, darkFg)
+				? lightFg
+				: darkFg;
+		this.applyToken('brand-exact-foreground', brandForeground);
 	}
 
 	/**
