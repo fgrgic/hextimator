@@ -24,26 +24,11 @@ import type { HextimatePreset } from './types';
  * const theme = createTheme({ palette: palette.light });
  */
 export const mui: HextimatePreset = {
-	roles: [{ name: 'info', color: '#0288d1' }],
+	roles: [
+		{ name: 'info', color: '#0288d1' },
+		{ name: 'secondary', color: { from: 'accent', hue: 180 } },
+	],
 	tokens: [
-		// secondary — desaturated version of primary
-		{
-			name: 'secondary-main',
-			value: { from: 'accent', chroma: -0.06 },
-		},
-		{
-			name: 'secondary-light',
-			value: { from: 'accent.weak', chroma: -0.06 },
-		},
-		{
-			name: 'secondary-dark',
-			value: { from: 'accent.strong', chroma: -0.06 },
-		},
-		{
-			name: 'secondary-contrastText',
-			value: { from: 'accent.foreground' },
-		},
-
 		// background
 		{ name: 'background-default', value: { from: 'base' } },
 		{
