@@ -1,5 +1,5 @@
 import { useHextimatorTheme } from 'hextimator/react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { ThemePreviewProps } from './theme-preview.types';
 
 const FOREGROUND_SUFFIX = '-foreground';
@@ -30,6 +30,7 @@ export function ThemePreview({
 }: ThemePreviewProps) {
 	const { palette, mode } = useHextimatorTheme();
 	const [active, setActive] = useState<string | null>(defaultActive);
+	const isTouch = useRef(false);
 
 	const tokens = palette[mode] as Record<string, string>;
 
@@ -70,8 +71,20 @@ export function ThemePreview({
 							transition:
 								'flex 300ms ease-out, background-color 0.3s ease-in-out, color 0.3s ease-in-out',
 						}}
-						onPointerEnter={() => setActive(token)}
-						onPointerLeave={() => setActive(defaultActive)}
+						onPointerDown={(e) => {
+							if (e.pointerType === 'touch') isTouch.current = true;
+						}}
+						onPointerEnter={() => {
+							if (!isTouch.current) setActive(token);
+						}}
+						onPointerLeave={() => {
+							if (!isTouch.current) setActive(defaultActive);
+						}}
+						onClick={() => {
+							if (isTouch.current) {
+								setActive((prev) => (prev === token ? defaultActive : token));
+							}
+						}}
 						onFocus={() => setActive(token)}
 						onBlur={() => setActive(defaultActive)}
 						aria-label={`${stripToken(token)}: ${color}`}
