@@ -44,11 +44,13 @@ export type VariantPlacement =
  *
  * @example
  * { from: "base.weak", lightness: -0.05 }
+ * { from: "accent", hue: -20 }
  */
 export interface DerivedToken {
 	from: string;
 	lightness?: number;
 	chroma?: number;
+	hue?: number;
 }
 
 /**
@@ -557,6 +559,7 @@ export class HextimatePaletteBuilder {
 			...oklch,
 			l: Math.max(0, Math.min(1, oklch.l + (token.lightness ?? 0))),
 			c: Math.max(0, oklch.c + (token.chroma ?? 0)),
+			h: wrapHue(oklch.h + (token.hue ?? 0)),
 		};
 	}
 
