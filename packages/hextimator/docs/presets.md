@@ -82,11 +82,10 @@ hextimate("#6366F1")
 Presets compose with `addRole`, `addVariant`, `addToken`, and all other builder methods:
 
 ```typescript
-const theme = hextimate("#6366F1")
+const theme = hextimate("#6366F1", { light: { lightness: 0.8 } })
   .preset(presets.shadcn)
   .addRole("cta", "#ee2244")
   .addToken("sidebar-background", { from: "base.weak" })
-  .light({ lightness: 0.8 })
   .format();
 ```
 

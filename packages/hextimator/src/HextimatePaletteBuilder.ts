@@ -22,7 +22,6 @@ import type {
 	HextimateFormatOptions,
 	HextimateGenerationOptions,
 	OKLCH,
-	ThemeAdjustments,
 } from './types';
 
 /** The result of formatting a palette, containing both light and dark theme tokens. */
@@ -95,8 +94,6 @@ export class HextimatePaletteBuilder {
 		name: string;
 		refs: [string, string];
 	}> = [];
-	private lightThemeAdjustments?: ThemeAdjustments;
-	private darkThemeAdjustments?: ThemeAdjustments;
 	private presetFormatDefaults?: HextimateFormatOptions;
 
 	constructor(color: Color, options?: HextimateGenerationOptions) {
@@ -268,32 +265,6 @@ export class HextimatePaletteBuilder {
 	}
 
 	/**
-	 * Light theme overrides.
-	 *
-	 * e.g. `light({ lightness: 0.8, maxChroma: 0.2 })` increases the overall lightness and chroma of the light theme, making it more vibrant and bright.
-	 *
-	 * @param adjustments Adjustments to apply to the light theme, which can include lightness and maxChroma.
-	 */
-	light(adjustments: ThemeAdjustments): this {
-		this.lightThemeAdjustments = adjustments;
-		this.regenerate();
-		return this;
-	}
-
-	/**
-	 * Dark theme overrides.
-	 *
-	 * e.g. `dark({ lightness: 0.5, maxChroma: 0.1 })` decreases the overall lightness and chroma of the dark theme, making it more muted and suitable for low-light environments.
-	 *
-	 * @param adjustments Adjustments to apply to the dark theme, which can include lightness and maxChroma.
-	 */
-	dark(adjustments: ThemeAdjustments): this {
-		this.darkThemeAdjustments = adjustments;
-		this.regenerate();
-		return this;
-	}
-
-	/**
 	 * Creates a new builder instance with the same operations history, allowing you to generate a related palette with a different base color or options.
 	 *
 	 * e.g. `fork('#ff6677')` creates a new builder with the same
@@ -339,9 +310,6 @@ export class HextimatePaletteBuilder {
 		}
 
 		const builder = new HextimatePaletteBuilder(newColor, newOptions);
-
-		if (this.lightThemeAdjustments) builder.light(this.lightThemeAdjustments);
-		if (this.darkThemeAdjustments) builder.dark(this.darkThemeAdjustments);
 
 		for (const op of this.operations) {
 			switch (op.method) {
@@ -614,22 +582,22 @@ export class HextimatePaletteBuilder {
 				const foregroundOKLCH = convert(parse(scale.foreground), 'oklch');
 
 				// Determine sideDirection per-role by observing where existing
-			// variants on this side actually sit relative to DEFAULT.
-			// This is necessary because base colors move opposite to accent
-			// colors (base weak = darker in light mode, accent weak = lighter).
-			const existingVariant = sideVariants.find((v) => scale[v]);
-			let sideDirection: number;
-			if (existingVariant) {
-				const existingL = convert(parse(scale[existingVariant]), 'oklch').l;
-				sideDirection = Math.sign(existingL - defaultOKLCH.l) || (themeType === 'light' ? 1 : -1);
-			} else {
-				const contrastDirection = themeType === 'light' ? -1 : 1;
-				sideDirection = isStrongSide
-					? contrastDirection
-					: -contrastDirection;
-			}
+				// variants on this side actually sit relative to DEFAULT.
+				// This is necessary because base colors move opposite to accent
+				// colors (base weak = darker in light mode, accent weak = lighter).
+				const existingVariant = sideVariants.find((v) => scale[v]);
+				let sideDirection: number;
+				if (existingVariant) {
+					const existingL = convert(parse(scale[existingVariant]), 'oklch').l;
+					sideDirection =
+						Math.sign(existingL - defaultOKLCH.l) ||
+						(themeType === 'light' ? 1 : -1);
+				} else {
+					const contrastDirection = themeType === 'light' ? -1 : 1;
+					sideDirection = isStrongSide ? contrastDirection : -contrastDirection;
+				}
 
-			const foregroundDirection = Math.sign(
+				const foregroundDirection = Math.sign(
 					foregroundOKLCH.l - defaultOKLCH.l,
 				);
 				const isTowardForeground = sideDirection === foregroundDirection;
@@ -676,7 +644,6 @@ export class HextimatePaletteBuilder {
 			}
 		}
 	}
-
 
 	/**
 	 * Distributes variants evenly between DEFAULT and the lightness boundary.
@@ -791,11 +758,7 @@ export class HextimatePaletteBuilder {
 	}
 
 	private resolvedOptions(): HextimateGenerationOptions {
-		return {
-			...this.options,
-			light: { ...this.options.light, ...this.lightThemeAdjustments },
-			dark: { ...this.options.dark, ...this.darkThemeAdjustments },
-		} as HextimateGenerationOptions;
+		return { ...this.options } as HextimateGenerationOptions;
 	}
 
 	private regenerate(): void {

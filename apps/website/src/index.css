@@ -2,94 +2,89 @@
 @import "hextimator/tailwind.css";
 
 @theme {
-  --font-mono: "picomono", monospace;
+	--font-mono: "picomono", monospace;
 }
 
 :root {
-  --hxp-font-mono: "picomono", monospace;
+	--hxp-font-mono: "picomono", monospace;
 }
 
 @layer base {
-  h1 {
-    font-weight: 800;
-    font-size: 2rem;
-  }
+	h1 {
+		font-weight: 800;
+		font-size: 2rem;
+	}
 
-  h2 {
-    font-weight: bold;
-    font-size: 1.5rem;
-  }
+	h2 {
+		font-weight: bold;
+		font-size: 1.5rem;
+	}
 
-  h3 {
-    font-weight: bold;
-    font-size: 1.25rem;
-  }
+	h3 {
+		font-weight: bold;
+		font-size: 1.25rem;
+	}
 }
 
 @layer base {
-  * {
-    transition:
-      background-color 0.3s ease-in-out,
-      color 0.3s ease-in-out,
-      border-color 0.3s ease-in-out,
-      box-shadow 0.3s ease-in-out,
-      transform 0.2s ease-out;
-  }
+	* {
+		transition:
+			background-color 0.3s ease-in-out,
+			color 0.3s ease-in-out,
+			border-color 0.3s ease-in-out,
+			box-shadow 0.3s ease-in-out,
+			transform 0.2s ease-out;
+	}
 }
 
 [data-radix-popper-content-wrapper] {
-  transition-property: none !important;
+	transition-property: none !important;
 }
 
 [data-radix-popper-content-wrapper] [data-state="open"] {
-  animation: fade-in 0.2s ease-out;
+	animation: fade-in 0.2s ease-out;
 }
 
 [data-radix-popper-content-wrapper] [data-state="closed"] {
-  animation: fade-out 0.15s ease-in;
+	animation: fade-out 0.15s ease-in;
 }
 
 @keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
 }
 
 @keyframes fade-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
+	from {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+	}
 }
 
 :root {
-  /* Prevent flash of unstyled borders/backgrounds before HextimatorProvider mounts */
-  --base: transparent;
-  --base-strong: transparent;
-  --base-weak: transparent;
-  --base-foreground: transparent;
+	/* Prevent flash of unstyled borders/backgrounds before HextimatorProvider mounts */
+	--base: transparent;
+	--base-strong: transparent;
+	--base-weak: transparent;
+	--base-foreground: transparent;
 }
 
 html {
-  scroll-behavior: smooth;
-}
-
-@media (min-width: 1024px) {
-  html {
-    font-size: 24px;
-  }
+	scroll-behavior: smooth;
+	font-size: 24px;
 }
 
 body {
-  background-color: var(--color-base);
+	background-color: var(--color-base);
 }
 
 .cm-editor,
 .cm-editor * {
-  font-family: "picomono", monospace !important;
+	font-family: "picomono", monospace !important;
 }

@@ -41,8 +41,6 @@ Creates a palette builder from any color input.
 | `.addVariant(name, placement)` | Add a lightness step to every role. `placement`: `{ beyond: "strong" }`, `{ beyond: "weak" }`, or `{ between: ["DEFAULT", "weak"] }` |
 | `.addToken(name, value)` | Add a standalone derived token. `value`: a color, `{ from: "role.variant", lightness?, chroma? }`, or `{ light: ..., dark: ... }` for per-theme values |
 | `.preset(preset)` | Apply a framework preset (e.g. `presets.shadcn`). Preset format defaults are overridden by `.format()` options |
-| `.light({ lightness?, maxChroma? })` | Override light theme adjustments |
-| `.dark({ lightness?, maxChroma? })` | Override dark theme adjustments |
 | `.simulate(cvdType, severity?)` | Simulate color vision deficiency. Types: `protanopia`, `deuteranopia`, `tritanopia`, `achromatopsia` |
 | `.adaptFor(cvdType, severity?)` | Optimize palette for a CVD type (use instead of simulate for actual accessibility) |
 | `.fork(color?, options?)` | Clone builder with optional new color/options. Original unchanged |

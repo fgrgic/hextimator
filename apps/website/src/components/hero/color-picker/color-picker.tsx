@@ -2,7 +2,7 @@ import { PlaySolid } from 'iconoir-react';
 import { Popover } from 'radix-ui';
 import { type ReactNode, useCallback, useRef, useState } from 'react';
 
-const PICKER_WIDTH = 280;
+const PICKER_WIDTH = 350;
 const PICKER_HEIGHT = 160;
 const LIGHTNESS = 0.5;
 
@@ -135,7 +135,7 @@ export function ColorPicker({
 			</Popover.Anchor>
 			<Popover.Portal>
 				<Popover.Content
-					className="rounded-xl bg-base-weak p-3 shadow-lg border border-base-strong z-50 flex flex-col gap-2"
+					className="rounded-xl bg-base-weak p-2 shadow-lg border border-base-strong z-50 flex flex-col gap-2 w-min"
 					sideOffset={8}
 					onOpenAutoFocus={(e) => e.preventDefault()}
 					onFocusOutside={(e) => e.preventDefault()}
@@ -175,7 +175,7 @@ export function ColorPicker({
 							onClick={onResume}
 						>
 							<PlaySolid width="0.6rem" />
-							Continue generating random colors
+							Continue with random colors
 						</button>
 					)}
 					<Popover.Arrow className="fill-base-strong" />

@@ -120,10 +120,9 @@ describe('preset', () => {
 		expect(lightKeys).toContain('--foreground');
 	});
 
-	test('regenerate preserves preset (via light/dark adjustments)', () => {
-		const theme = hextimate('#6366F1')
+	test('regenerate preserves preset (via light/dark options)', () => {
+		const theme = hextimate('#6366F1', { light: { lightness: 0.8 } })
 			.preset(shadcn)
-			.light({ lightness: 0.8 })
 			.format();
 
 		expect(theme.light).toHaveProperty('--primary');
