@@ -4,7 +4,10 @@ import { HextimatorLogo } from '../hextimator-logo';
 const navigation = [
 	{ label: 'Features', href: '#features' },
 	{ label: 'Playground', href: '#playground' },
-	{ label: 'Docs', href: 'https://github.com/fgrgic/hextimator' },
+	{
+		label: 'Docs',
+		href: 'https://github.com/fgrgic/hextimator/packages/hextimator',
+	},
 ];
 
 const resources = [
