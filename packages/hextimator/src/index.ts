@@ -24,7 +24,7 @@ export type {
 } from './types';
 
 /** Thrown when `hextimate()` fails to parse or generate a palette from the given input. */
-class HextimateError extends Error {
+export class HextimateError extends Error {
 	constructor(
 		public readonly input: ColorInput,
 		message?: string,

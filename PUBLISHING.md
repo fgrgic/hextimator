@@ -4,14 +4,19 @@ Only `packages/hextimator` gets published — not the repo root. The root is a p
 
 ## What gets published
 
-The `"files"` field in `packages/hextimator/package.json` controls this. Only the `dist/` folder is included:
+The `"files"` field in `packages/hextimator/package.json` controls this. The package is ESM-only.
 
 ```
 dist/
-  index.js      ← CommonJS build
-  index.mjs     ← ESM build
-  index.d.ts    ← TypeScript types
-  index.d.mts   ← TypeScript types (ESM)
+  index.js      ← main entry (ESM)
+  react.js      ← hextimator/react entry (ESM)
+  cli.js        ← CLI (npx hextimator / npx hextimate)
+  chunk-*.js    ← shared code chunk
+  *.d.ts        ← TypeScript declarations
+tailwind.css    ← hextimator/tailwind.css entry
+llms.txt        ← LLM-oriented API reference
+LICENSE.md
+README.md
 ```
 
 Source files (`src/`), dev config, and tests are excluded automatically.

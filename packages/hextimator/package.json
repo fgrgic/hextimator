@@ -1,6 +1,6 @@
 {
 	"name": "hextimator",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"description": "Generate perceptually uniform color palettes with light/dark themes and WCAG contrast guarantees from a single brand color. Outputs CSS vars, Tailwind, SCSS, or JSON.",
 	"keywords": [
 		"color",
@@ -22,7 +22,7 @@
 		"runtime-theming",
 		"multi-tenant"
 	],
-	"homepage": "https://github.com/fgrgic/hextimator#readme",
+	"homepage": "https://hextimator.com",
 	"bugs": {
 		"url": "https://github.com/fgrgic/hextimator/issues"
 	},
@@ -31,31 +31,33 @@
 		"url": "git+https://github.com/fgrgic/hextimator.git"
 	},
 	"license": "MIT",
+	"engines": {
+		"node": ">=18.3.0"
+	},
 	"bin": {
-		"hextimator": "./dist/cli.mjs",
-		"hextimate": "./dist/cli.mjs"
+		"hextimator": "./dist/cli.js",
+		"hextimate": "./dist/cli.js"
 	},
 	"author": "fgrgic",
-	"main": "dist/index.js",
-	"module": "dist/index.mjs",
+	"type": "module",
+	"module": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
-			"import": "./dist/index.mjs",
-			"require": "./dist/index.js"
+			"import": "./dist/index.js"
 		},
 		"./react": {
 			"types": "./dist/react.d.ts",
-			"import": "./dist/react.mjs",
-			"require": "./dist/react.js"
+			"import": "./dist/react.js"
 		},
 		"./tailwind.css": "./tailwind.css"
 	},
 	"files": [
 		"dist",
 		"tailwind.css",
-		"llms.txt"
+		"llms.txt",
+		"CHANGELOG.md"
 	],
 	"scripts": {
 		"build": "tsup",

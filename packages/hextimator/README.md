@@ -1,5 +1,11 @@
 # hextimator
 
+<p align="center">
+    <picture>
+        <img src="https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/assets/gh-cover.webp?raw=true" alt="hextimator" width="500">
+    </picture>
+</p>
+
 One brand color in, full accessible theme out.
 
 - Input: any single color. Output: complete light + dark theme with accessibility guarantees (AAA contrast by default).
@@ -8,8 +14,16 @@ One brand color in, full accessible theme out.
 
 ## Installation
 
+Add to your project:
+
 ```bash
-npm install hextimator
+npm i hextimator
+```
+
+Or quickly get a one-off theme:
+
+```bash
+npx hextimator "#ff6677"
 ```
 
 ## Quick start
@@ -30,11 +44,6 @@ import { hextimate, presets } from "hextimator";
 // shadcn/ui — generates --background, --primary, --destructive, etc.
 const theme = hextimate("#6366F1")
   .preset(presets.shadcn)
-  .format();
-
-// Framework-agnostic — clean names like --background, --primary, --success
-const theme = hextimate("#3a86ff")
-  .preset(presets.minimal)
   .format();
 ```
 
@@ -115,10 +124,10 @@ const oklch = convertColor(color, "oklch");
 ## Documentation
 
 - [Extending the palette](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/extending-the-palette.md) — `addRole`, `addVariant`, `addToken`
+- [Presets](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/presets.md) — drop-in configs for shadcn/ui, or create your own
 - [Multiple themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md) — dynamic theming and `.fork()`
 - [Customization](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md) — generation and format options reference
 - [Color vision deficiency](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/color-vision-deficiency.md) — simulate and adapt for CVD
-- [Presets](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/presets.md) — drop-in configs for shadcn/ui, or create your own
 - [React](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/react.md) — `useHextimator` hook, provider, dark mode strategies
 - [Tailwind CSS v4](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/tailwind.md) — setup and usage with Tailwind
 - [Real-world examples](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/examples.md) — shadcn/ui, Stripe, Slack configurations
