@@ -92,12 +92,20 @@
         "vite": "^7.3.1",
       },
     },
+    "packages/hextimate": {
+      "name": "hextimate",
+      "version": "0.1.0",
+      "bin": "cli.js",
+      "dependencies": {
+        "hextimator": "^0.1.0",
+      },
+    },
     "packages/hextimator": {
       "name": "hextimator",
-      "version": "0.0.1",
+      "version": "0.1.0",
       "bin": {
-        "hextimator": "./dist/cli.mjs",
-        "hextimate": "./dist/cli.mjs",
+        "hextimator": "./dist/cli.js",
+        "hextimate": "./dist/cli.js",
       },
       "devDependencies": {
         "@types/react": "^19.2.7",
@@ -697,6 +705,8 @@
     "hermes-estree": ["hermes-estree@0.25.1", "", {}, "sha512-0wUoCcLp+5Ev5pDW2OriHC2MJCbwLwuRx+gAqMTOkGKJJiBCLjtrvy4PWUGn6MIVefecRpzoOZ/UV6iGdOr+Cw=="],
 
     "hermes-parser": ["hermes-parser@0.25.1", "", { "dependencies": { "hermes-estree": "0.25.1" } }, "sha512-6pEjquH3rqaI6cYAXYPcz9MS4rY6R4ngRgrgfDshRptUZIc3lw0MCIJIGDj9++mfySOuPTHB4nrSW99BCvOPIA=="],
+
+    "hextimate": ["hextimate@workspace:packages/hextimate"],
 
     "hextimator": ["hextimator@workspace:packages/hextimator"],
 
