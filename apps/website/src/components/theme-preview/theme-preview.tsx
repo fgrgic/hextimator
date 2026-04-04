@@ -1,5 +1,5 @@
 import { useHextimatorTheme } from 'hextimator/react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ThemePreviewProps } from './theme-preview.types';
 
 const FOREGROUND_SUFFIX = '-foreground';
@@ -30,6 +30,24 @@ export function ThemePreview({
 }: ThemePreviewProps) {
 	const { palette, mode } = useHextimatorTheme();
 	const [active, setActive] = useState<string | null>(defaultActive);
+	const [clicked, setClicked] = useState<string | null>(null);
+	const containerRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		if (!clicked) return;
+		function handleClickOutside(e: PointerEvent) {
+			if (
+				containerRef.current &&
+				!containerRef.current.contains(e.target as Node)
+			) {
+				setClicked(null);
+				setActive(defaultActive);
+			}
+		}
+		document.addEventListener('pointerdown', handleClickOutside);
+		return () =>
+			document.removeEventListener('pointerdown', handleClickOutside);
+	}, [clicked, defaultActive]);
 
 	const tokens = palette[mode] as Record<string, string>;
 
@@ -53,6 +71,7 @@ export function ThemePreview({
 	return (
 		<div
 			{...props}
+			ref={containerRef}
 			className={`flex flex-row h-12 rounded-lg overflow-hidden w-full max-w-lg border border-base-weak shadow-xs ${props.className ?? ''}`}
 		>
 			{entries.map(([token, color]) => {
@@ -71,9 +90,16 @@ export function ThemePreview({
 								'flex 300ms ease-out, background-color 0.3s ease-in-out, color 0.3s ease-in-out',
 						}}
 						onPointerEnter={() => setActive(token)}
-						onPointerLeave={() => setActive(defaultActive)}
-						onFocus={() => setActive(token)}
-						onBlur={() => setActive(defaultActive)}
+						onPointerLeave={() => setActive(clicked ?? defaultActive)}
+						onClick={() => {
+							if (clicked === token) {
+								setClicked(null);
+								setActive(defaultActive);
+							} else {
+								setClicked(token);
+								setActive(token);
+							}
+						}}
 						aria-label={`${stripToken(token)}: ${color}`}
 					>
 						{isActive && (

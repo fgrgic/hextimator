@@ -27,13 +27,24 @@
 }
 
 @layer base {
-	* {
+	body,
+	nav,
+	main,
+	section,
+	header,
+	footer,
+	a,
+	button,
+	input,
+	svg,
+	[class*="bg-"],
+	[class*="text-"],
+	[class*="border-"] {
 		transition:
 			background-color 0.3s ease-in-out,
 			color 0.3s ease-in-out,
 			border-color 0.3s ease-in-out,
-			box-shadow 0.3s ease-in-out,
-			transform 0.2s ease-out;
+			box-shadow 0.3s ease-in-out;
 	}
 }
 
@@ -78,6 +89,8 @@
 html {
 	scroll-behavior: smooth;
 	font-size: 20px;
+	overflow-x: hidden;
+	overscroll-behavior-x: none;
 }
 
 body {

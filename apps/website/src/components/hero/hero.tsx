@@ -88,7 +88,7 @@ export function Hero() {
 	};
 
 	return (
-		<section className="relative mt-20 flex flex-col items-center text-center text-base-foreground min-h-3/5 pt-6 px-6 gap-2 ">
+		<section className="relative mt-12 md:mt-20 flex flex-col items-center text-center text-base-foreground min-h-3/5 pt-6 px-6 gap-2 ">
 			<div
 				className="absolute -top-1 left-1/2 -translate-x-1/2 -ml-12 flex items-end gap-0.5 -rotate-3 pointer-events-none"
 				style={{
@@ -113,13 +113,13 @@ export function Hero() {
 						showResume={!isActive}
 						onResume={handleResume}
 					>
-					<ColorInput
-						color={input}
-						onColorChange={handleInputChange}
-						onFocus={handleFocus}
-						onClick={handleClick}
-						cycling={isActive}
-					/>
+						<ColorInput
+							color={input}
+							onColorChange={handleInputChange}
+							onFocus={handleFocus}
+							onClick={handleClick}
+							cycling={isActive}
+						/>
 					</ColorPicker>
 					<span aria-hidden>in.</span>
 				</div>

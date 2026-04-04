@@ -12,11 +12,13 @@ import {
 	ThemePreferences,
 } from './components';
 import { GetStarted } from './components/interactive/get-started';
+import { ThemeColorMeta } from './components/theme-color-meta';
 import { ThemePreview } from './components/theme-preview';
 
 function App() {
 	return (
 		<div>
+			<ThemeColorMeta />
 			<NavBar />
 			<main className="flex flex-col items-center md:gap-0 mt-12 mb-24">
 				<Hero />
