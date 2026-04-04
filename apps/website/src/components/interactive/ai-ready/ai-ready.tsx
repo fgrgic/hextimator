@@ -9,9 +9,9 @@ export function AIReady() {
 		<InteractiveCard className="p-3">
 			<CodeSnippet
 				tabs={[
-					{ label: 'npx', prefix: '❯', code: `npx hextimate #${color}` },
-					{ label: 'bunx', prefix: '❯', code: `bunx hextimate #${color}` },
-					{ label: 'pnpx', prefix: '❯', code: `pnpx hextimate #${color}` },
+					{ label: 'npx', prefix: '❯', code: `npx hextimate "#${color}"` },
+					{ label: 'bunx', prefix: '❯', code: `bunx hextimate "#${color}"` },
+					{ label: 'pnpx', prefix: '❯', code: `pnpx hextimate "#${color}"` },
 				]}
 			/>
 		</InteractiveCard>

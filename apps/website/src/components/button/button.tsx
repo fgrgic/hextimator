@@ -12,7 +12,7 @@ const buttonVariants = cva(
 				ghost:
 					'flex-row-reverse px-2 py-0 bg-transparent text-base-foreground text-sm justify-center',
 				navigation:
-					'flex-row px-2 py-1 bg-transparent text-base-foreground text-sm justify-center hover:bg-base-weak',
+					'flex-row px-2 py-1 bg-transparent text-base-foreground text-sm justify-center hover:bg-base-weak whitespace-nowrap',
 			},
 		},
 		defaultVariants: {
@@ -53,16 +53,15 @@ export function Button({
 		<>
 			{props.children}
 			{Icon && (
-				<Icon
-					width={iconSize}
-					height={iconSize}
-					strokeWidth={2}
-					className={cn(
-						variant === 'ghost' ? '-translate-y-px' : undefined,
-						iconProps?.className,
-					)}
-					{...iconProps}
-				/>
+				<span className="shrink-0 inline-flex">
+					<Icon
+						width={iconSize}
+						height={iconSize}
+						strokeWidth={2}
+						className={iconProps?.className}
+						{...iconProps}
+					/>
+				</span>
 			)}
 		</>
 	);

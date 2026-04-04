@@ -14,45 +14,29 @@ const theme = hextimate("#6366F1")
 
 ### `shadcn`
 
-Drop-in for [shadcn/ui](https://ui.shadcn.com) projects. Generates all the CSS variables shadcn components expect:
+Drop-in for [shadcn/ui](https://ui.shadcn.com). Generates `--background`, `--foreground`, `--primary`, `--secondary`, `--muted`, `--accent`, `--destructive`, `--success`, `--card`, `--popover`, `--border`, `--input`, `--ring`, `--chart-1`–`--chart-5`, plus `-foreground` counterparts. Also includes hextimator's bonus scale variants (`--primary-strong`, `--primary-weak`, etc.).
 
-| shadcn variable | Source |
-|---|---|
-| `--background` | base color |
-| `--foreground` | base foreground |
-| `--primary` / `--primary-foreground` | accent color |
-| `--secondary` / `--secondary-foreground` | base strong variant |
-| `--muted` / `--muted-foreground` | base strong variant (dimmer foreground) |
-| `--accent` / `--accent-foreground` | base strong variant (hover states) |
-| `--destructive` / `--destructive-foreground` | negative color |
-| `--success` / `--success-foreground` | positive color |
-| `--card` / `--card-foreground` | same as background |
-| `--popover` / `--popover-foreground` | same as background |
-| `--border` | derived from base (lightness offset) |
-| `--input` | derived from base (lightness offset) |
-| `--ring` | accent color |
+**Defaults**: `as: "css"`, `colors: "oklch"`. For older shadcn setups using HSL, override with `.format({ colors: "hsl-raw" })`.
 
-You also get bonus scale variants (`--primary-strong`, `--primary-weak`, `--background-strong`, etc.) that you can use beyond what shadcn requires.
+### `mui`
 
-**Defaults**: `as: "css"`, `colors: "oklch"` (shadcn v2). For older shadcn with HSL, override the color format:
+Matches [MUI's](https://mui.com) theme structure. Generates `primary`, `secondary`, `error`, `warning`, `info`, `success` — each with `main`, `light`, `dark`, and `contrastText` variants. Also generates `background` (`default`, `paper`), `text` (`primary`, `secondary`, `disabled`), `divider`, and `action` tokens.
+
+**Defaults**: `as: "object"`, `colors: "hex"`, `separator: "-"`. Use directly with `createTheme()`:
 
 ```typescript
-const theme = hextimate("#6366F1")
-  .preset(presets.shadcn)
-  .format({ colors: "hsl-raw" });
+import { createTheme } from "@mui/material/styles";
+
+const palette = hextimate("#6366F1")
+  .preset(presets.mui)
+  .format();
+
+const theme = createTheme({ palette: palette.light });
 ```
 
-### `minimal`
+### `demo`
 
-Framework-agnostic preset with clean, readable CSS variable names. Good starting point when you're not using a component library.
-
-| Variable | Source |
-|---|---|
-| `--background` / `--background-foreground` | base color |
-| `--foreground` | base foreground (standalone) |
-| `--primary` / `--primary-foreground` | accent color |
-| `--success` / `--danger` / `--warning` | semantic colors |
-| `--border` | derived from base |
+Reference preset that exercises every `HextimatePreset` capability: generation options, extra roles (`cta`, `info`), extra variants (`muted`, `vivid`), standalone tokens (`surface`, `border`, `ring`), and format defaults. Use it as a starting point when building your own presets.
 
 **Defaults**: `as: "css"`, `colors: "hex"`.
 
@@ -103,7 +87,7 @@ Use `--preset` (or `-p`) from the command line:
 ```bash
 hextimator '#6366F1' --preset shadcn
 hextimator '#6366F1' --preset shadcn --colors hsl-raw
-hextimator '#6366F1' --preset minimal -o theme.css
+hextimator '#6366F1' --preset mui --format object
 ```
 
 When a preset is active, its format defaults apply unless you explicitly override them with `--format`, `--colors`, or `--separator`.
@@ -116,17 +100,22 @@ A preset is a plain object — you can create your own:
 import type { HextimatePreset } from "hextimator";
 
 const myPreset: HextimatePreset = {
-  // Add extra roles (each gets DEFAULT, strong, weak, foreground)
+  // Generation options (contrast, hue shifts, lightness, chroma)
+  generation: {
+    minContrastRatio: "AA",
+    baseHueShift: 180,
+  },
+
+  // Extra roles (each gets DEFAULT, strong, weak, foreground)
   roles: [
     { name: "cta", color: "#ee2244" },
   ],
 
-  // Add standalone tokens
+  // Standalone tokens
   tokens: [
     { name: "foreground", value: { from: "base.foreground" } },
     { name: "border", value: {
-      light: { from: "base", lightness: -0.08 },
-      dark: { from: "base", lightness: +0.08 },
+      from: "base", emphasis: 0.1,
     }},
   ],
 
@@ -150,7 +139,8 @@ The `HextimatePreset` interface:
 
 ```typescript
 interface HextimatePreset {
-  roles?: Array<{ name: string; color: ColorInput }>;
+  generation?: HextimateGenerationOptions;
+  roles?: Array<{ name: string; color: ColorInput | DerivedToken }>;
   variants?: Array<{ name: string; placement: VariantPlacement }>;
   tokens?: Array<{ name: string; value: TokenValue }>;
   format?: HextimateFormatOptions;
