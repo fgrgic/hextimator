@@ -17,15 +17,15 @@ Extend the scale depth across all roles at once.
 
 ```typescript
 hextimate("#6A5ACD")
-  .addVariant("hover", { beyond: "strong" })
+  .addVariant("hover", { from: "strong" })
   .addVariant("subtle", { between: ["DEFAULT", "weak"] })
   .format({ as: "tailwind" });
 // Every role now has: DEFAULT, strong, weak, foreground, hover, subtle
 ```
 
-- `{ beyond: "strong" }` — one step past strong (stronger)
-- `{ beyond: "weak" }` — one step past weak (weaker)
-- `{ beyond: "hover" }` — chain them: go past a custom variant
+- `{ from: "strong" }` — one step past strong (stronger)
+- `{ from: "weak" }` — one step past weak (weaker)
+- `{ from: "hover" }` — chain them: go past a custom variant
 - `{ between: ["DEFAULT", "weak"] }` — midpoint between two variants
 
 ## `addToken` — add standalone derived tokens

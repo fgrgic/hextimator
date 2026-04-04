@@ -53,7 +53,7 @@ describe('HextimatePaletteBuilder: construction', () => {
 	it('all methods return this for chaining', () => {
 		const builder = hextimate('#ff6600');
 		expect(builder.addRole('cta', '#ee2244')).toBe(builder);
-		expect(builder.addVariant('hover', { beyond: 'strong' })).toBe(builder);
+		expect(builder.addVariant('hover', { from: 'strong' })).toBe(builder);
 		expect(builder.addToken('brand', '#000')).toBe(builder);
 		expect(builder.simulate('deuteranopia')).toBe(builder);
 		expect(builder.adaptFor('protanopia')).toBe(builder);
@@ -196,9 +196,9 @@ describe('HextimatePaletteBuilder: addRole()', () => {
 // 4. addVariant
 // ──────────────────────────────────────────────
 describe('HextimatePaletteBuilder: addVariant()', () => {
-	it('beyond variant appears on all roles', () => {
+	it('from-variant appears on all roles', () => {
 		const result = formatObject(
-			hextimate('#ff6600').addVariant('hover', { beyond: 'strong' }),
+			hextimate('#ff6600').addVariant('hover', { from: 'strong' }),
 		);
 		const keys = lightKeys(result);
 		for (const role of ['accent', 'base', 'positive', 'negative', 'warning']) {
@@ -243,7 +243,7 @@ describe('HextimatePaletteBuilder: addVariant()', () => {
 		const result = formatObject(
 			hextimate('#ff6600')
 				.addRole('cta', '#ee2244')
-				.addVariant('hover', { beyond: 'strong' }),
+				.addVariant('hover', { from: 'strong' }),
 		);
 		expect(lightKeys(result)).toContain('cta-hover');
 	});
@@ -352,7 +352,10 @@ describe('HextimatePaletteBuilder: light / dark options', () => {
 
 	it('adjustments work alongside addRole', () => {
 		const result = formatObject(
-			hextimate('#ff6600', { light: { lightness: 0.8 } }).addRole('cta', '#ee2244'),
+			hextimate('#ff6600', { light: { lightness: 0.8 } }).addRole(
+				'cta',
+				'#ee2244',
+			),
 		);
 		expect(result.light.cta).toBeDefined();
 	});
@@ -444,7 +447,7 @@ describe('HextimatePaletteBuilder: fork()', () => {
 
 	it('fork preserves addVariant operations', () => {
 		const builder = hextimate('#ff6600').addVariant('hover', {
-			beyond: 'strong',
+			from: 'strong',
 		});
 		const forked = builder.fork('#0000ff');
 		expect(lightKeys(formatObject(forked))).toContain('accent-hover');
@@ -551,7 +554,7 @@ describe('HextimatePaletteBuilder: simulate() / adaptFor()', () => {
 describe('HextimatePaletteBuilder: preset()', () => {
 	const customPreset: HextimatePreset = {
 		roles: [{ name: 'info', color: '#3366cc' }],
-		variants: [{ name: 'hover', placement: { beyond: 'strong' } }],
+		variants: [{ name: 'hover', placement: { from: 'strong' } }],
 		tokens: [{ name: 'ring', value: { from: 'accent', lightness: 0.1 } }],
 		format: {
 			as: 'css',
@@ -626,7 +629,7 @@ describe('HextimatePaletteBuilder: complex chaining', () => {
 		const result = formatObject(
 			hextimate('#ff6600')
 				.addRole('cta', '#ee2244')
-				.addVariant('hover', { beyond: 'strong' })
+				.addVariant('hover', { from: 'strong' })
 				.addToken('ring', { from: 'cta.hover' }),
 		);
 		const keys = lightKeys(result);
@@ -660,9 +663,12 @@ describe('HextimatePaletteBuilder: complex chaining', () => {
 
 	it('theme adjustments + roles + variants', () => {
 		const result = formatObject(
-			hextimate('#ff6600', { light: { lightness: 0.75 }, dark: { lightness: 0.55 } })
+			hextimate('#ff6600', {
+				light: { lightness: 0.75 },
+				dark: { lightness: 0.55 },
+			})
 				.addRole('cta', '#ee2244')
-				.addVariant('hover', { beyond: 'strong' }),
+				.addVariant('hover', { from: 'strong' }),
 		);
 		expect(lightKeys(result)).toContain('cta-hover');
 	});
@@ -672,7 +678,7 @@ describe('HextimatePaletteBuilder: complex chaining', () => {
 		const forked = base
 			.fork('#0000ff')
 			.addRole('info', '#3366cc')
-			.addVariant('hover', { beyond: 'strong' });
+			.addVariant('hover', { from: 'strong' });
 
 		const baseResult = formatObject(base);
 		const forkResult = formatObject(forked);
@@ -707,7 +713,7 @@ describe('HextimatePaletteBuilder: determinism', () => {
 	it('format can be called multiple times with same result', () => {
 		const builder = hextimate('#ff6600')
 			.addRole('cta', '#ee2244')
-			.addVariant('hover', { beyond: 'strong' });
+			.addVariant('hover', { from: 'strong' });
 		const first = formatObject(builder);
 		const second = formatObject(builder);
 		expect(first).toEqual(second);

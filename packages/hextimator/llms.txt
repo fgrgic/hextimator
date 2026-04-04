@@ -38,8 +38,8 @@ Creates a palette builder from any color input.
 | Method | Description |
 |---|---|
 | `.addRole(name, color)` | Add a new color role with DEFAULT, strong, weak, foreground variants |
-| `.addVariant(name, placement)` | Add a lightness step to every role. `placement`: `{ beyond: "strong" }`, `{ beyond: "weak" }`, or `{ between: ["DEFAULT", "weak"] }` |
-| `.addToken(name, value)` | Add a standalone derived token. `value`: a color, `{ from: "role.variant", lightness?, chroma? }`, or `{ light: ..., dark: ... }` for per-theme values |
+| `.addVariant(name, placement)` | Add a lightness step to every role. `placement`: `{ from: "strong" }`, `{ from: "weak" }`, or `{ between: ["DEFAULT", "weak"] }` |
+| `.addToken(name, value)` | Add a standalone derived token. `value`: a color, `{ from: "role.variant", emphasis?, lightness?, chroma?, hue? }`, or `{ light: ..., dark: ... }` for per-theme values. `emphasis` is theme-aware (positive = more contrast, negative = softer) |
 | `.preset(preset)` | Apply a framework preset (e.g. `presets.shadcn`). Preset format defaults are overridden by `.format()` options |
 | `.simulate(cvdType, severity?)` | Simulate color vision deficiency. Types: `protanopia`, `deuteranopia`, `tritanopia`, `achromatopsia` |
 | `.adaptFor(cvdType, severity?)` | Optimize palette for a CVD type (use instead of simulate for actual accessibility) |
@@ -175,7 +175,7 @@ npx hextimator <color> [options]
 | `--adapt` | Adapt palette for CVD type | — |
 | `--cvd-severity` | CVD severity 0-1 | `1` |
 | `--role <name>=<color>` | Add custom role (repeatable) | — |
-| `--variant <spec>` | Add variant: `name:beyond:edge` or `name:between:a,b` (repeatable) | — |
+| `--variant <spec>` | Add variant: `name:from:edge` or `name:between:a,b` (repeatable) | — |
 | `-o, --output <path>` | Write to file instead of stdout | stdout |
 
 ```bash
@@ -189,7 +189,7 @@ npx hextimator "#6366F1" --preset shadcn
 npx hextimator "#6A5ACD" --base-color "#FEBA5D" --invert-dark
 
 # Custom roles and variants
-npx hextimator "#22aa44" --role cta=#ee2244 --variant hover:beyond:strong -o theme.css
+npx hextimator "#22aa44" --role cta=#ee2244 --variant hover:from:strong -o theme.css
 
 # Simulate color blindness
 npx hextimator "#ff6600" --simulate deuteranopia
@@ -264,7 +264,7 @@ hextimate("#6366F1")
 ```typescript
 const base = hextimate("#52FE8C", { baseColor: "#FEBA5D" })
   .addRole("banner", "#ff006e")
-  .addVariant("hover", { beyond: "strong" });
+  .addVariant("hover", { from: "strong" });
 
 const tenantA = base.fork("#ff6677").format({ as: "css" });
 const tenantB = base.fork("#3a86ff").format({ as: "css" });

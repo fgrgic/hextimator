@@ -9,7 +9,13 @@ export default defineConfig({
 		rollupOptions: {
 			output: {
 				manualChunks: {
-					editor: ['codemirror', '@codemirror/view', '@codemirror/state', '@codemirror/lang-javascript', '@codemirror/theme-one-dark'],
+					editor: [
+						'codemirror',
+						'@codemirror/view',
+						'@codemirror/state',
+						'@codemirror/lang-javascript',
+						'@codemirror/theme-one-dark',
+					],
 					ui: ['radix-ui', 'iconoir-react'],
 				},
 			},

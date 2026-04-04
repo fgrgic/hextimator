@@ -14,8 +14,8 @@ const INITIAL_COLOR = getColorFromURL();
 const DEFAULT_CODE = `hextimate('${INITIAL_COLOR}')
   // .preset(presets.shadcn)
   // .addRole('cta', '#ff006e')
-  // .addVariant('muted', { beyond: 'weak' })
-  // .addToken('ring', { from: 'accent' })
+  // .addVariant('muted', { from: 'weak' })
+  // .addToken('ring', { from: 'accent', emphasis: -0.2 })
   `;
 
 function App() {
@@ -24,10 +24,7 @@ function App() {
 			<div className="top-bar">
 				<HextimatorLogo scale={0.6} />
 			</div>
-			<CodeEditor
-				defaultCode={DEFAULT_CODE}
-				color={INITIAL_COLOR}
-			/>
+			<CodeEditor defaultCode={DEFAULT_CODE} color={INITIAL_COLOR} />
 		</div>
 	);
 }

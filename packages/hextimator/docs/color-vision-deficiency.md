@@ -36,7 +36,7 @@ You can also chain them with other builder methods:
 ```typescript
 const theme = hextimate("#3a86ff", { minContrastRatio: "AAA" })
   .addRole("banner", "#ff006e")
-  .addVariant("intense", { beyond: "strong" })
+  .addVariant("intense", { from: "strong" })
   .adaptFor("deuteranopia")
   .format({ as: "css", colors: "hex" });
 ```

@@ -31,8 +31,8 @@ const base = hextimate("#52FE8C", {
 })
   .addRole("banner", "#ff006e")
   .addRole("sidebar", "bb00ff")
-  .addVariant("hover", { beyond: "strong" })
-  .addVariant("subtle", { beyond: "weak" })
+  .addVariant("hover", { from: "strong" })
+  .addVariant("subtle", { from: "weak" })
   .addToken("brand", "#3a86ff");
 ```
 
