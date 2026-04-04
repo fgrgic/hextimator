@@ -12,6 +12,8 @@ One brand color in, full accessible theme out.
 - Works at runtime — built for multi-tenant apps that need per-brand themes on the fly.
 - Perceptually uniform (OKLCH) — blue and yellow palettes look equally balanced, unlike HSL-based generators.
 
+**[hextimator.com](https://hextimator.com)** — landing page with a playground.
+
 ## Installation
 
 Add to your project:
