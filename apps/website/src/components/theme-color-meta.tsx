@@ -8,15 +8,12 @@ export function ThemeColorMeta() {
 
 	useEffect(() => {
 		if (!base) return;
-		let meta = document.querySelector<HTMLMetaElement>(
-			'meta[name="theme-color"]',
-		);
-		if (!meta) {
-			meta = document.createElement('meta');
-			meta.name = 'theme-color';
-			document.head.appendChild(meta);
-		}
+		const existing = document.querySelector('meta[name="theme-color"]');
+		if (existing) existing.remove();
+		const meta = document.createElement('meta');
+		meta.name = 'theme-color';
 		meta.content = base;
+		document.head.appendChild(meta);
 	}, [base]);
 
 	return null;
