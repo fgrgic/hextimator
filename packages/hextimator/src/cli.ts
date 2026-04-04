@@ -237,14 +237,22 @@ function run(): void {
 
 	if (values.simulate) {
 		builder.simulate(
-			values.simulate as 'protanopia' | 'deuteranopia' | 'tritanopia' | 'achromatopsia',
+			values.simulate as
+				| 'protanopia'
+				| 'deuteranopia'
+				| 'tritanopia'
+				| 'achromatopsia',
 			cvdSeverity,
 		);
 	}
 
 	if (values.adapt) {
 		builder.adaptFor(
-			values.adapt as 'protanopia' | 'deuteranopia' | 'tritanopia' | 'achromatopsia',
+			values.adapt as
+				| 'protanopia'
+				| 'deuteranopia'
+				| 'tritanopia'
+				| 'achromatopsia',
 			cvdSeverity,
 		);
 	}

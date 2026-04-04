@@ -28,8 +28,6 @@ describe('HextimatePaletteBuilder: construction', () => {
 		expect(builder.addToken).toBeFunction();
 		expect(builder.format).toBeFunction();
 		expect(builder.fork).toBeFunction();
-		expect(builder.light).toBeFunction();
-		expect(builder.dark).toBeFunction();
 		expect(builder.simulate).toBeFunction();
 		expect(builder.adaptFor).toBeFunction();
 		expect(builder.preset).toBeFunction();
@@ -57,8 +55,6 @@ describe('HextimatePaletteBuilder: construction', () => {
 		expect(builder.addRole('cta', '#ee2244')).toBe(builder);
 		expect(builder.addVariant('hover', { beyond: 'strong' })).toBe(builder);
 		expect(builder.addToken('brand', '#000')).toBe(builder);
-		expect(builder.light({ lightness: 0.8 })).toBe(builder);
-		expect(builder.dark({ lightness: 0.5 })).toBe(builder);
 		expect(builder.simulate('deuteranopia')).toBe(builder);
 		expect(builder.adaptFor('protanopia')).toBe(builder);
 	});
@@ -98,7 +94,7 @@ describe('HextimatePaletteBuilder: format()', () => {
 	it('tailwind-css format returns a string', () => {
 		const result = hextimate('#ff6600').format({ as: 'tailwind-css' });
 		expect(typeof result.light).toBe('string');
-		expect((result.light as string)).toContain('@theme');
+		expect(result.light as string).toContain('@theme');
 	});
 
 	it('hex color format outputs hex values', () => {
@@ -188,9 +184,7 @@ describe('HextimatePaletteBuilder: addRole()', () => {
 
 	it('multiple roles can be added', () => {
 		const result = formatObject(
-			hextimate('#ff6600')
-				.addRole('cta', '#ee2244')
-				.addRole('info', '#3366cc'),
+			hextimate('#ff6600').addRole('cta', '#ee2244').addRole('info', '#3366cc'),
 		);
 		const keys = lightKeys(result);
 		expect(keys).toContain('cta');
@@ -312,13 +306,13 @@ describe('HextimatePaletteBuilder: addToken()', () => {
 });
 
 // ──────────────────────────────────────────────
-// 6. light() / dark() theme adjustments
+// 6. light / dark theme adjustments (via options)
 // ──────────────────────────────────────────────
-describe('HextimatePaletteBuilder: light() / dark()', () => {
+describe('HextimatePaletteBuilder: light / dark options', () => {
 	it('light adjustments change light theme output', () => {
 		const normal = formatObject(hextimate('#ff6600'));
 		const adjusted = formatObject(
-			hextimate('#ff6600').light({ lightness: 0.8 }),
+			hextimate('#ff6600', { light: { lightness: 0.8 } }),
 		);
 		expect(adjusted.light.accent).not.toBe(normal.light.accent);
 	});
@@ -326,7 +320,7 @@ describe('HextimatePaletteBuilder: light() / dark()', () => {
 	it('light adjustments do not change dark theme', () => {
 		const normal = formatObject(hextimate('#ff6600'));
 		const adjusted = formatObject(
-			hextimate('#ff6600').light({ lightness: 0.8 }),
+			hextimate('#ff6600', { light: { lightness: 0.8 } }),
 		);
 		expect(adjusted.dark.accent).toBe(normal.dark.accent);
 	});
@@ -334,7 +328,7 @@ describe('HextimatePaletteBuilder: light() / dark()', () => {
 	it('dark adjustments change dark theme output', () => {
 		const normal = formatObject(hextimate('#ff6600'));
 		const adjusted = formatObject(
-			hextimate('#ff6600').dark({ lightness: 0.5 }),
+			hextimate('#ff6600', { dark: { lightness: 0.5 } }),
 		);
 		expect(adjusted.dark.accent).not.toBe(normal.dark.accent);
 	});
@@ -342,7 +336,7 @@ describe('HextimatePaletteBuilder: light() / dark()', () => {
 	it('dark adjustments do not change light theme', () => {
 		const normal = formatObject(hextimate('#ff6600'));
 		const adjusted = formatObject(
-			hextimate('#ff6600').dark({ lightness: 0.5 }),
+			hextimate('#ff6600', { dark: { lightness: 0.5 } }),
 		);
 		expect(adjusted.light.accent).toBe(normal.light.accent);
 	});
@@ -350,19 +344,77 @@ describe('HextimatePaletteBuilder: light() / dark()', () => {
 	it('maxChroma adjustment affects output', () => {
 		const normal = formatObject(hextimate('#ff6600'));
 		const adjusted = formatObject(
-			hextimate('#ff6600').light({ maxChroma: 0.05 }),
+			hextimate('#ff6600', { light: { maxChroma: 0.05 } }),
 		);
 		// With heavily clamped chroma, the color should be different
 		expect(adjusted.light.accent).not.toBe(normal.light.accent);
 	});
 
-	it('adjustments are preserved when operations are added after', () => {
+	it('adjustments work alongside addRole', () => {
 		const result = formatObject(
-			hextimate('#ff6600')
-				.light({ lightness: 0.8 })
-				.addRole('cta', '#ee2244'),
+			hextimate('#ff6600', { light: { lightness: 0.8 } }).addRole('cta', '#ee2244'),
 		);
 		expect(result.light.cta).toBeDefined();
+	});
+
+	it('per-theme minContrastRatio override affects only that theme', () => {
+		const global = formatObject(
+			hextimate('#ff6600', { minContrastRatio: 'AAA' }),
+		);
+		const overridden = formatObject(
+			hextimate('#ff6600', {
+				minContrastRatio: 'AAA',
+				light: { minContrastRatio: 'AA' },
+			}),
+		);
+		// Light theme should differ (relaxed contrast)
+		expect(overridden.light.accent).not.toBe(global.light.accent);
+		// Dark theme unchanged (still AAA)
+		expect(overridden.dark.accent).toBe(global.dark.accent);
+	});
+
+	it('per-theme baseMaxChroma override affects only that theme', () => {
+		const normal = formatObject(hextimate('#ff6600'));
+		const adjusted = formatObject(
+			hextimate('#ff6600', {
+				dark: { baseMaxChroma: 0.06 },
+			}),
+		);
+		// Dark base colors should be more chromatic
+		expect(adjusted.dark.base).not.toBe(normal.dark.base);
+		// Light base colors unchanged
+		expect(adjusted.light.base).toBe(normal.light.base);
+	});
+
+	it('per-theme foregroundMaxChroma override affects only that theme', () => {
+		const normal = formatObject(hextimate('#ff6600'));
+		const adjusted = formatObject(
+			hextimate('#ff6600', {
+				light: { foregroundMaxChroma: 0.08 },
+			}),
+		);
+		expect(adjusted.light['accent-foreground']).not.toBe(
+			normal.light['accent-foreground'],
+		);
+		expect(adjusted.dark['accent-foreground']).toBe(
+			normal.dark['accent-foreground'],
+		);
+	});
+
+	it('per-theme override takes precedence over global value', () => {
+		const globalOnly = formatObject(
+			hextimate('#ff6600', { baseMaxChroma: 0.06 }),
+		);
+		const withOverride = formatObject(
+			hextimate('#ff6600', {
+				baseMaxChroma: 0.06,
+				light: { baseMaxChroma: 0.01 },
+			}),
+		);
+		// Light uses override (0.01), so differs from global-only (0.06)
+		expect(withOverride.light.base).not.toBe(globalOnly.light.base);
+		// Dark uses global (0.06), so matches
+		expect(withOverride.dark.base).toBe(globalOnly.dark.base);
 	});
 });
 
@@ -404,8 +456,8 @@ describe('HextimatePaletteBuilder: fork()', () => {
 		expect(formatObject(forked).light.brand).toBeDefined();
 	});
 
-	it('fork preserves theme adjustments', () => {
-		const builder = hextimate('#ff6600').light({ lightness: 0.8 });
+	it('fork preserves theme adjustments from options', () => {
+		const builder = hextimate('#ff6600', { light: { lightness: 0.8 } });
 		const normal = formatObject(hextimate('#ff6600'));
 		const forked = formatObject(builder.fork());
 		// Forked should have light adjustments, different from unadjusted
@@ -464,9 +516,7 @@ describe('HextimatePaletteBuilder: simulate() / adaptFor()', () => {
 
 	it('adaptFor changes palette colors', () => {
 		const normal = formatObject(hextimate('#ff6600'));
-		const adapted = formatObject(
-			hextimate('#ff6600').adaptFor('deuteranopia'),
-		);
+		const adapted = formatObject(hextimate('#ff6600').adaptFor('deuteranopia'));
 		expect(adapted.light.accent).not.toBe(normal.light.accent);
 	});
 
@@ -587,9 +637,7 @@ describe('HextimatePaletteBuilder: complex chaining', () => {
 
 	it('theme adjustments + roles + variants', () => {
 		const result = formatObject(
-			hextimate('#ff6600')
-				.light({ lightness: 0.75 })
-				.dark({ lightness: 0.55 })
+			hextimate('#ff6600', { light: { lightness: 0.75 }, dark: { lightness: 0.55 } })
 				.addRole('cta', '#ee2244')
 				.addVariant('hover', { beyond: 'strong' }),
 		);

@@ -1,131 +1,34 @@
-import type { HextimateResult } from 'hextimator';
-import { hextimate, presets } from 'hextimator';
-import { useState } from 'react';
+import { CodeEditor } from '@hextimator/playground';
+import '@hextimator/playground/style.css';
+import { HextimatorLogo } from './hextimator-logo';
 import './App.css';
 
-function tokensToText(tokens: Record<string, string>): string {
-	return Object.entries(tokens)
-		.map(([name, value]) => `${name}: ${value};`)
-		.join('\n');
+function getColorFromURL(): string {
+	const path = window.location.pathname.replace(/^\//, '');
+	if (/^[0-9a-fA-F]{3,8}$/.test(path)) return `#${path}`;
+	return '#3a86ff';
 }
 
-function CopyButton({ text }: { text: string }) {
-	const [copied, setCopied] = useState(false);
+const INITIAL_COLOR = getColorFromURL();
 
-	const handleCopy = () => {
-		navigator.clipboard.writeText(text).then(() => {
-			setCopied(true);
-			setTimeout(() => setCopied(false), 1500);
-		});
-	};
-
-	return (
-		<button type="button" className="copy-btn" onClick={handleCopy}>
-			{copied ? 'Copied!' : 'Copy'}
-		</button>
-	);
-}
-
-function ColorGrid({ tokens }: { tokens: Record<string, string> }) {
-	return (
-		<div className="color-grid">
-			{Object.entries(tokens).map(([name, value]) => (
-				<div key={name} className="color-row">
-					<div className="color-swatch" style={{ background: value }} />
-					<span className="color-name">{name}</span>
-					<code className="color-value">{value}</code>
-				</div>
-			))}
-		</div>
-	);
-}
-
-function PalettePreview({ result }: { result: HextimateResult }) {
-	return (
-		<div className="palette-preview">
-			{(['light', 'dark'] as const).map((mode) => {
-				const tokens = result[mode];
-				if (typeof tokens === 'string' || tokens === null) return null;
-				const tokenMap = tokens as Record<string, string>;
-				return (
-					<section key={mode} className={`palette-section palette-${mode}`}>
-						<div className="palette-header">
-							<h2>{mode}</h2>
-							<CopyButton text={tokensToText(tokenMap)} />
-						</div>
-						<ColorGrid tokens={tokenMap} />
-					</section>
-				);
-			})}
-		</div>
-	);
-}
+const DEFAULT_CODE = `hextimate('${INITIAL_COLOR}')
+  // .preset(presets.shadcn)
+  // .addRole('cta', '#ff006e')
+  // .addVariant('muted', { beyond: 'weak' })
+  // .addToken('ring', { from: 'accent' })
+  `;
 
 function App() {
-	const [input, setInput] = useState('#3a86ff');
-	let result: HextimateResult | null = null;
-	let error = '';
-
-	try {
-		const theme = hextimate(input, {
-			// minContrastRatio: 'AAA',
-			// baseMaxChroma: 0.03,
-			// baseHueShift: 180,
-			// invertDarkModeBaseAccent: true,
-		})
-			// .preset(presets.demo)
-			.light({ maxChroma: 0.1, lightness: 0.8 })
-			.dark({ maxChroma: 0.3, lightness: 0.2 });
-		// .addToken('base-strong', '#ff0000'); // overrides generated base.strong
-		// .addRole('banner', '#ff006e')
-		// .addRole('moonpay', 'bb00ff');
-		// .addVariant('placeholder', { beyond: 'weak' })
-		// .addVariant('intense', { beyond: 'strong' })
-		// .addToken('brand', '#3a86ff');
-
-		// const themeFork = theme.fork('#ff6677').addRole('forked', '#00ffbb');
-		//
-		console.log({ theme });
-
-		result = theme.format({
-			as: 'object',
-			colors: 'hex',
-			// roleNames: {
-			// 	base: 'bg',
-			// 	accent: 'button',
-			// 	positive: 'success',
-			// },
-			// variantNames: {
-			// 	DEFAULT: 'primary',
-			// 	strong: 'secondary',
-			// 	weak: 'tertiary',
-			// },
-		});
-	} catch (e) {
-		error = e instanceof Error ? e.message : 'Unknown error';
-	}
-
 	return (
-		<>
-			<h1>hextimator playground</h1>
-			<div className="card">
-				<label>
-					<input
-						type="color"
-						value={input}
-						onChange={(e) => setInput(e.target.value)}
-					/>
-					<input
-						type="text"
-						value={input}
-						onChange={(e) => setInput(e.target.value)}
-						spellCheck={false}
-					/>
-				</label>
+		<div className="app">
+			<div className="top-bar">
+				<HextimatorLogo scale={0.6} />
 			</div>
-			{error && <p className="error">{error}</p>}
-			{result && <PalettePreview result={result} />}
-		</>
+			<CodeEditor
+				defaultCode={DEFAULT_CODE}
+				color={INITIAL_COLOR}
+			/>
+		</div>
 	);
 }
 

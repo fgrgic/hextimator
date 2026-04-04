@@ -1,3 +1,24 @@
+@font-face {
+	font-family: "picomono";
+	src: url("./assets/fonts/picomono-regular.woff2");
+	font-weight: 400;
+	font-style: normal;
+	font-display: swap;
+}
+
+@font-face {
+	font-family: "picomono";
+	src: url("./assets/fonts/picomono-bold.woff2");
+	font-weight: 700;
+	font-style: normal;
+	font-display: swap;
+}
+
+.cm-editor,
+.cm-editor * {
+	font-family: "picomono", monospace !important;
+}
+
 :root {
 	font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
 	line-height: 1.5;
@@ -13,77 +34,25 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
-a {
-	font-weight: 500;
-	color: #646cff;
-	text-decoration: inherit;
-}
-a:hover {
-	color: #535bf2;
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
 }
 
 body {
 	margin: 0;
-	display: flex;
-	place-items: start;
 	min-width: 320px;
 	min-height: 100vh;
 }
 
-h1 {
-	font-size: 3.2em;
-	line-height: 1.1;
-}
-
-button {
-	border-radius: 8px;
-	border: 1px solid transparent;
-	padding: 0.6em 1.2em;
-	font-size: 1em;
-	font-weight: 500;
-	font-family: inherit;
-	background-color: #1a1a1a;
-	cursor: pointer;
-	transition: border-color 0.25s;
-}
-button:hover {
-	border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-	outline: 4px auto -webkit-focus-ring-color;
-}
-
-pre {
-	font-family:
-		"picomono", "Monaco", "Menlo", "Ubuntu Mono", "Consolas", "source-code-pro",
-		monospace;
-	background-color: #1a1a1a;
-	padding: 1.5rem;
-	border-radius: 8px;
-	overflow-x: auto;
-	text-align: left;
-	font-size: 0.9em;
-	line-height: 1.6;
-	border: 1px solid #333;
-	max-width: 600px;
-	margin: 1rem auto;
+#root {
+	height: 100vh;
 }
 
 @media (prefers-color-scheme: light) {
 	:root {
 		color: #213547;
 		background-color: #ffffff;
-	}
-	a:hover {
-		color: #747bff;
-	}
-	button {
-		background-color: #f9f9f9;
-	}
-	pre {
-		background-color: #f5f5f5;
-		border-color: #ddd;
-		color: #213547;
 	}
 }

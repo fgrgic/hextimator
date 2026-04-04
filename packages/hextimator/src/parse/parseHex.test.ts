@@ -48,6 +48,24 @@ describe('tryParseHex', () => {
 		});
 	});
 
+	it('parses bare 3-digit shorthand without prefix', () => {
+		expect(tryParseHex('f66')).toEqual({
+			space: 'srgb',
+			r: 255,
+			g: 102,
+			b: 102,
+			alpha: 1,
+		});
+	});
+
+	it('parses bare 4-digit shorthand without prefix', () => {
+		const result = tryParseHex('f668');
+		expect(result?.r).toBe(255);
+		expect(result?.g).toBe(102);
+		expect(result?.b).toBe(102);
+		expect(result?.alpha).toBe(1);
+	});
+
 	it('parses 0x-prefixed hex', () => {
 		expect(tryParseHex('0xff6666')).toEqual({
 			space: 'srgb',

@@ -32,7 +32,8 @@
 	},
 	"license": "MIT",
 	"bin": {
-		"hextimator": "./dist/cli.mjs"
+		"hextimator": "./dist/cli.mjs",
+		"hextimate": "./dist/cli.mjs"
 	},
 	"author": "fgrgic",
 	"main": "dist/index.js",

@@ -18,6 +18,7 @@ export function generateSemanticColors(
 			_determineBaseColorFromRange(
 				color,
 				options?.semanticColorRanges?.positive ?? POSITIVE_RANGE,
+				{ includeInputAsCandidate: true },
 			),
 	);
 
@@ -42,6 +43,7 @@ export function generateSemanticColors(
 		dark: options?.dark,
 		minContrastRatio: options?.minContrastRatio,
 		hueShift: options?.hueShift,
+		foregroundMaxChroma: options?.foregroundMaxChroma,
 	};
 	const positiveColorScale = expandColorToScale(
 		positiveBaseColor,
@@ -69,12 +71,17 @@ export function generateSemanticColors(
 function _determineBaseColorFromRange(
 	color: Color,
 	range: [number, number],
+	options?: { includeInputAsCandidate?: boolean },
 ): Color {
 	const complementaryColor = _getComplementaryColor(color);
 	const splitComplementaryColors =
 		_getSplitComplementaryColors(complementaryColor);
 
-	const targetColors = [complementaryColor, ...splitComplementaryColors];
+	const targetColors = [
+		...(options?.includeInputAsCandidate ? [color] : []),
+		complementaryColor,
+		...splitComplementaryColors,
+	];
 
 	for (const targetColor of targetColors) {
 		const h = convert(targetColor, 'oklch').h;

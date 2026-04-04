@@ -83,7 +83,7 @@ describe('preset', () => {
 		expect(lightKeys).not.toContain('--warning');
 	});
 
-test('fork preserves preset', () => {
+	test('fork preserves preset', () => {
 		const builder = hextimate('#6366F1').preset(shadcn);
 		const forked = builder.fork('#ff6600');
 		const theme = forked.format();
@@ -120,10 +120,9 @@ test('fork preserves preset', () => {
 		expect(lightKeys).toContain('--foreground');
 	});
 
-	test('regenerate preserves preset (via light/dark adjustments)', () => {
-		const theme = hextimate('#6366F1')
+	test('regenerate preserves preset (via light/dark options)', () => {
+		const theme = hextimate('#6366F1', { light: { lightness: 0.8 } })
 			.preset(shadcn)
-			.light({ lightness: 0.8 })
 			.format();
 
 		expect(theme.light).toHaveProperty('--primary');

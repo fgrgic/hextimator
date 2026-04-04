@@ -10,7 +10,7 @@ const BASELINE_LIGHT_L_VALUE = 0.97;
 const BASELINE_MAX_CHROMA = 0.01;
 
 const STRONG_DELTA_DARK = -0.1;
-const STRONG_DELTA_LIGHT = 0.03;
+const STRONG_DELTA_LIGHT = 0.02;
 const WEAK_DELTA_DARK = 0.1;
 const WEAK_DELTA_LIGHT = -0.03;
 
@@ -26,7 +26,12 @@ export function generateBase(
 		? (color ?? options?.baseColor)
 		: (options?.baseColor ?? color);
 
-	const baselineMaxChroma = options?.baseMaxChroma ?? BASELINE_MAX_CHROMA;
+	const themeAdjustments =
+		themeType === 'light' ? options?.light : options?.dark;
+	const baselineMaxChroma =
+		themeAdjustments?.baseMaxChroma ??
+		options?.baseMaxChroma ??
+		BASELINE_MAX_CHROMA;
 
 	const preferredBaseColor = convert(parse(preferredBaseColorInput), 'oklch');
 
@@ -54,5 +59,8 @@ export function generateBase(
 		weakDeltaLight: WEAK_DELTA_LIGHT,
 		minContrastRatio: options?.minContrastRatio,
 		hueShift: options?.hueShift,
+		foregroundMaxChroma: options?.foregroundMaxChroma,
+		light: options?.light,
+		dark: options?.dark,
 	});
 }

@@ -1,10 +1,76 @@
 import './App.css';
-import { Hero } from './components';
+
+import {
+	Accessibility,
+	AIReady,
+	CodeEditor,
+	Footer,
+	Hero,
+	NavBar,
+	OtherFeatures,
+	Section,
+	ThemePreferences,
+} from './components';
+import { GetStarted } from './components/interactive/get-started';
+import { ThemePreview } from './components/theme-preview';
 
 function App() {
 	return (
-		<div className="bg-accent text-base-foreground min-h-3/5">
-			<Hero />
+		<div>
+			<NavBar />
+			<main className="flex flex-col items-center md:gap-0 mt-12 mb-24">
+				<Hero />
+				<div
+					className="flex flex-col items-stretch gap-8 md:gap-16"
+					id="features"
+				>
+					<div className="flex w-full justify-center mt-20 mb-14 px-4">
+						<ThemePreview />
+					</div>
+					<Section
+						title="Build your own preset"
+						description="Tweak how to generate the rest of the colors, and see the theme update on runtime."
+						id="theme-preferences"
+					>
+						<ThemePreferences />
+					</Section>
+					<Section
+						title="AI ready"
+						description="Agents can use the CLI to generate themes. Hextimator also includes an llms.txt out of the box."
+						reversed
+					>
+						<AIReady />
+					</Section>
+					<Section
+						title="Accessibility built-in"
+						description="Guaranteed contrast ratios between all backgrounds and foregrounds, and color blindness adjustments to make sure your theme is inclusive and accessible to everyone."
+					>
+						<Accessibility />
+					</Section>
+					<Section
+						title="And much more..."
+						description="Built from ground up for runtime theming"
+						stacked
+					>
+						<OtherFeatures />
+					</Section>
+					<Section
+						title="Try it out"
+						description="Play around with the code to see how the output changes, and use it as a base for your projects!"
+						stacked
+						id="playground"
+					>
+						<CodeEditor />
+					</Section>
+					<Section
+						title="Get started"
+						description="Add hextimator to your project, and start building your theme!"
+					>
+						<GetStarted />
+					</Section>
+				</div>
+			</main>
+			<Footer />
 		</div>
 	);
 }

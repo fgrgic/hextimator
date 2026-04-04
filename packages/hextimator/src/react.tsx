@@ -7,6 +7,7 @@ import {
 	useMemo,
 	useRef,
 	useState,
+	useSyncExternalStore,
 } from 'react';
 import type {
 	HextimatePaletteBuilder,
@@ -22,6 +23,7 @@ type DarkModeStrategy =
 	| { type: 'class'; className?: string }
 	| { type: 'data'; attribute?: string }
 	| { type: 'media' }
+	| { type: 'media-or-class'; className?: string }
 	| false;
 
 /**
@@ -65,6 +67,16 @@ function buildStyleContent(
 		return [
 			`:root {\n  ${lightVars}\n}`,
 			`@media (prefers-color-scheme: dark) {\n  :root {\n    ${darkVars}\n  }\n}`,
+		].join('\n');
+	}
+
+	if (darkMode.type === 'media-or-class') {
+		const cls = darkMode.className ?? 'dark';
+		const lightCls = cls === 'dark' ? 'light' : `not-${cls}`;
+		return [
+			`:root {\n  ${lightVars}\n}`,
+			`@media (prefers-color-scheme: dark) {\n  :root:not(.${lightCls}) {\n    ${darkVars}\n  }\n}`,
+			`:root.${cls} {\n  ${darkVars}\n}`,
 		].join('\n');
 	}
 
@@ -188,6 +200,53 @@ export function useHextimator(color: string, options?: UseHextimatorOptions) {
 	return palette;
 }
 
+// --- Dark mode detection ---
+
+export type ModePreference = 'light' | 'dark' | 'system';
+export type ResolvedMode = 'light' | 'dark';
+
+const darkQuery =
+	typeof window !== 'undefined'
+		? window.matchMedia('(prefers-color-scheme: dark)')
+		: null;
+
+function useOsPrefersDark(): boolean {
+	return useSyncExternalStore(
+		(cb) => {
+			if (!darkQuery) return () => {};
+			darkQuery.addEventListener('change', cb);
+			return () => darkQuery.removeEventListener('change', cb);
+		},
+		() => darkQuery?.matches ?? false,
+		() => false,
+	);
+}
+
+function applyModeToDOM(mode: ResolvedMode | null, darkMode: DarkModeStrategy) {
+	if (typeof document === 'undefined') return;
+	if (darkMode === false || darkMode.type === 'media') return;
+
+	const root = document.documentElement;
+
+	if (darkMode.type === 'data') {
+		const attr = darkMode.attribute ?? 'data-theme';
+		if (mode) {
+			root.setAttribute(attr, mode);
+		} else {
+			root.removeAttribute(attr);
+		}
+		return;
+	}
+
+	// class or media-or-class
+	const cls = darkMode.className ?? 'dark';
+	const lightCls = cls === 'dark' ? 'light' : `not-${cls}`;
+	root.classList.remove(cls, lightCls);
+	if (mode) {
+		root.classList.add(mode === 'dark' ? cls : lightCls);
+	}
+}
+
 // --- Provider ---
 
 /**
@@ -202,6 +261,7 @@ export function useHextimator(color: string, options?: UseHextimatorOptions) {
  */
 export interface HextimatorProviderProps {
 	defaultColor: string;
+	defaultMode?: ModePreference;
 	generation?: HextimateGenerationOptions;
 	format?: Omit<HextimateFormatOptions, 'as'>;
 	configure?: (builder: HextimatePaletteBuilder) => void;
@@ -210,9 +270,12 @@ export interface HextimatorProviderProps {
 	target?: React.RefObject<HTMLElement | null>;
 }
 
-interface HextimatorContextValue {
+export interface HextimatorContextValue {
 	color: string;
 	setColor: (color: string) => void;
+	mode: ResolvedMode;
+	modePreference: ModePreference;
+	setMode: (mode: ModePreference) => void;
 	generation: HextimateGenerationOptions | undefined;
 	setGeneration: (opts: HextimateGenerationOptions | undefined) => void;
 	configure: ((builder: HextimatePaletteBuilder) => void) | undefined;
@@ -246,6 +309,7 @@ const HextimatorContext = createContext<HextimatorContextValue | null>(null);
 export function HextimatorProvider({
 	children,
 	defaultColor,
+	defaultMode: initialMode = 'system',
 	generation: initialGeneration,
 	format: formatOpts,
 	configure: initialConfigure,
@@ -254,10 +318,24 @@ export function HextimatorProvider({
 	target,
 }: PropsWithChildren<HextimatorProviderProps>) {
 	const [color, setColor] = useState(defaultColor);
+	const [modePreference, setMode] = useState<ModePreference>(initialMode);
 	const [generation, setGeneration] = useState(initialGeneration);
 	const [configure, setConfigureState] = useState<
 		((builder: HextimatePaletteBuilder) => void) | undefined
 	>(() => initialConfigure);
+
+	const osDark = useOsPrefersDark();
+	const mode: ResolvedMode =
+		modePreference === 'system' ? (osDark ? 'dark' : 'light') : modePreference;
+
+	const resolvedDarkMode = darkMode ?? { type: 'media' as const };
+
+	useEffect(() => {
+		applyModeToDOM(
+			modePreference === 'system' ? null : modePreference,
+			resolvedDarkMode,
+		);
+	}, [modePreference, resolvedDarkMode]);
 
 	const setConfigure = useCallback(
 		(fn: ((builder: HextimatePaletteBuilder) => void) | undefined) => {
@@ -279,13 +357,16 @@ export function HextimatorProvider({
 		() => ({
 			color,
 			setColor,
+			mode,
+			modePreference,
+			setMode,
 			generation,
 			setGeneration,
 			configure,
 			setConfigure,
 			palette,
 		}),
-		[color, generation, configure, setConfigure, palette],
+		[color, mode, modePreference, generation, configure, setConfigure, palette],
 	);
 
 	return (
@@ -296,16 +377,27 @@ export function HextimatorProvider({
 }
 
 /**
- * A custom React hook that provides access to the current Hextimator palette and related state from the nearest `HextimatorProvider` in the component tree.
- * It returns an object containing the current base color, generation options, configuration callback, and the generated palette.
- * If used outside of a `HextimatorProvider`, it throws an error to indicate that the context is not available.
+ * Provides access to the current Hextimator palette and theme state from the nearest `HextimatorProvider`.
  *
- * Example usage:
+ * Returned properties:
+ * - `color` / `setColor` — the current base color.
+ * - `mode` — the resolved color mode (`'light'` or `'dark'`), accounting for OS preference when set to `'system'`.
+ * - `modePreference` — the raw preference (`'light'`, `'dark'`, or `'system'`).
+ * - `setMode` — update the mode preference. Pass `'system'` to follow the OS.
+ * - `generation` / `setGeneration` — palette generation options.
+ * - `configure` / `setConfigure` — builder configuration callback.
+ * - `palette` — the generated `HextimateResult`.
+ *
+ * @example
  * ```tsx
- * const { color, setColor, generation, setGeneration, configure, setConfigure, palette } = useHextimatorTheme();
+ * const { mode, setMode } = useHextimatorTheme();
+ *
+ * <button onClick={() => setMode(mode === 'dark' ? 'light' : 'dark')}>
+ *   Toggle dark mode
+ * </button>
  * ```
  *
- * @returns An object with the current Hextimator state and palette.
+ * @throws If used outside of a `HextimatorProvider`.
  */
 export function useHextimatorTheme(): HextimatorContextValue {
 	const ctx = useContext(HextimatorContext);

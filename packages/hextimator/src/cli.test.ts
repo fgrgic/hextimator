@@ -40,8 +40,6 @@ const BUILDER_METHODS = [
 	'addVariant',
 	'addToken',
 	'preset',
-	'light',
-	'dark',
 	'simulate',
 	'adaptFor',
 	'fork',
