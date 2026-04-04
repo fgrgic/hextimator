@@ -12,6 +12,8 @@ One brand color in, full accessible theme out.
 - Works at runtime — built for multi-tenant apps that need per-brand themes on the fly.
 - Perceptually uniform (OKLCH) — blue and yellow palettes look equally balanced, unlike HSL-based generators.
 
+Landing page with an intuitive playground at **[hextimator.com](https://hextimator.com)**.
+
 ## Quick start
 
 ```bash
@@ -27,7 +29,7 @@ const theme = hextimate("#6A5ACD").format();
 
 ## Documentation
 
-Full API docs, options reference, React hook, Tailwind v4 setup, and examples live in the [package README](./packages/hextimator/README.md).
+Full API docs, options reference, React hook, Tailwind v4 setup, and examples live in the [package README](./packages/hextimator/README.md) 
 
 ## Monorepo structure
 
@@ -35,7 +37,7 @@ Full API docs, options reference, React hook, Tailwind v4 setup, and examples li
 |---|---|---|
 | `hextimator` | `packages/hextimator/` | The publishable npm package |
 | `playground` | `apps/playground/` | React app for local testing |
-| `website` | `apps/website/` | Landing page |
+| `website` | `apps/website/` | Landing page ([hextimator.com](https://hextimator.com)) |
 
 ## Dev workflow
 
