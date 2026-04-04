@@ -65,24 +65,30 @@ export function CodeSnippet({
 			)}
 			<div
 				className={cn(
-					'group flex items-start gap-3 px-4 py-2.5 font-mono bg-base-weak text-base-foreground',
+					'group relative px-4 py-2.5 font-mono bg-base-weak text-base-foreground',
 					tabs && activeTab === 0 ? 'rounded-sm rounded-tl-none' : 'rounded-sm',
 				)}
 			>
-				{activePrefix && (
-					<span className="select-none font-mono text-accent">
-						{activePrefix}
-					</span>
-				)}
-				{activeCode.includes('\n') ? (
-					<pre className="flex-1 select-all whitespace-pre">{activeCode}</pre>
-				) : (
-					<code className="flex-1 select-all">{activeCode}</code>
-				)}
+				<div className="overflow-x-auto">
+					<div className="flex items-start gap-3 pr-8">
+						{activePrefix && (
+							<span className="select-none font-mono text-accent">
+								{activePrefix}
+							</span>
+						)}
+						{activeCode.includes('\n') ? (
+							<pre className="flex-1 select-all whitespace-pre">
+								{activeCode}
+							</pre>
+						) : (
+							<code className="flex-1 select-all">{activeCode}</code>
+						)}
+					</div>
+				</div>
 				<button
 					type="button"
 					onClick={copy}
-					className="cursor-pointer text-base-foreground opacity-0 transition-opacity hover:text-base-foreground group-hover:opacity-100"
+					className="absolute top-2.5 right-4 cursor-pointer text-base-foreground opacity-0 transition-opacity hover:text-base-foreground group-hover:opacity-100"
 					aria-label="Copy to clipboard"
 				>
 					{copied ? (
