@@ -88,7 +88,7 @@ export function NavBar() {
     >
       <nav
         className={cn(
-          "flex items-center justify-between px-6 text-base-foreground transition-all duration-300",
+          "md:grid md:grid-cols-[1fr_auto_1fr] flex items-center justify-between px-6 text-base-foreground transition-all duration-300",
           scrolled
             ? "py-2 pl-4 pr-3 -mx-2 md:mx-0 rounded-full bg-base/70 backdrop-blur-lg shadow-lg"
             : "py-4 rounded-none bg-transparent",
@@ -96,7 +96,7 @@ export function NavBar() {
       >
         <button
           type='button'
-          className='md:min-w-3xs origin-left transition-transform duration-300 cursor-pointer'
+          className='origin-left transition-transform duration-300 cursor-pointer'
           style={{ transform: scrolled ? "scale(0.9)" : "scale(1)" }}
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           aria-label='Scroll to top'
@@ -108,7 +108,7 @@ export function NavBar() {
         </div>
         <div
           className={
-            "hidden items-center justify-end gap-4 md:flex md:min-w-3xs"
+            "hidden items-center justify-end gap-4 md:flex"
           }
         >
           <DarkModeSwitch />
