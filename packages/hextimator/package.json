@@ -1,6 +1,6 @@
 {
 	"name": "hextimator",
-	"version": "0.0.1",
+	"version": "0.1.0",
 	"description": "Generate perceptually uniform color palettes with light/dark themes and WCAG contrast guarantees from a single brand color. Outputs CSS vars, Tailwind, SCSS, or JSON.",
 	"keywords": [
 		"color",
@@ -22,7 +22,7 @@
 		"runtime-theming",
 		"multi-tenant"
 	],
-	"homepage": "https://github.com/fgrgic/hextimator#readme",
+	"homepage": "https://hextimator.com",
 	"bugs": {
 		"url": "https://github.com/fgrgic/hextimator/issues"
 	},
