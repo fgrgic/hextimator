@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "hextimator-monorepo",
@@ -95,7 +96,9 @@
       "name": "hextimator",
       "version": "0.0.1",
       "bin": {
-        "hextimator": "./dist/cli.mjs",        "hextimate": "./dist/cli.mjs"      },
+        "hextimator": "./dist/cli.mjs",
+        "hextimate": "./dist/cli.mjs",
+      },
       "devDependencies": {
         "@types/react": "^19.2.7",
         "react": "^19.2.0",
