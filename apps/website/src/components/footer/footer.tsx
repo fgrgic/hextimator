@@ -7,7 +7,7 @@ const navigation = [
 	{ label: 'Playground', href: '#playground' },
 	{
 		label: 'Docs',
-		href: 'https://github.com/fgrgic/hextimator/packages/hextimator',
+		href: 'https://www.npmjs.com/package/hextimator',
 	},
 ];
 

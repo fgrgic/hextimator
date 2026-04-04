@@ -44,9 +44,11 @@ function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
 				Playground
 			</Button>
 			<Button
-				href="https://github.com/fgrgic/hextimator"
+				href="https://www.npmjs.com/package/hextimator"
 				variant="navigation"
 				onClick={onNavigate}
+				target="_blank"
+				rel="noopener noreferrer"
 			>
 				Docs
 			</Button>
