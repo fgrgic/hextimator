@@ -14,8 +14,16 @@ One brand color in, full accessible theme out.
 
 ## Installation
 
+Add to your project:
+
 ```bash
-npm install hextimator
+npm i hextimator
+```
+
+Or quickly get a one-off theme:
+
+```bash
+npx hextimator "#ff6677"
 ```
 
 ## Quick start
