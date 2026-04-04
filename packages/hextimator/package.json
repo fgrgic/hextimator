@@ -31,24 +31,25 @@
 		"url": "git+https://github.com/fgrgic/hextimator.git"
 	},
 	"license": "MIT",
+	"engines": {
+		"node": ">=18.3.0"
+	},
 	"bin": {
-		"hextimator": "./dist/cli.mjs",
-		"hextimate": "./dist/cli.mjs"
+		"hextimator": "./dist/cli.js",
+		"hextimate": "./dist/cli.js"
 	},
 	"author": "fgrgic",
-	"main": "dist/index.js",
-	"module": "dist/index.mjs",
+	"type": "module",
+	"module": "dist/index.js",
 	"types": "dist/index.d.ts",
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
-			"import": "./dist/index.mjs",
-			"require": "./dist/index.js"
+			"import": "./dist/index.js"
 		},
 		"./react": {
 			"types": "./dist/react.d.ts",
-			"import": "./dist/react.mjs",
-			"require": "./dist/react.js"
+			"import": "./dist/react.js"
 		},
 		"./tailwind.css": "./tailwind.css"
 	},
