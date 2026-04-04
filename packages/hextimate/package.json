@@ -1,8 +1,14 @@
 {
 	"name": "hextimate",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "Shorthand for hextimator CLI — generate color palettes from a single color",
-	"keywords": ["hextimator", "color", "palette", "cli", "theme"],
+	"keywords": [
+		"hextimator",
+		"color",
+		"palette",
+		"cli",
+		"theme"
+	],
 	"homepage": "https://hextimator.com",
 	"repository": {
 		"type": "git",
@@ -11,8 +17,10 @@
 	"license": "MIT",
 	"type": "module",
 	"bin": "cli.js",
-	"files": ["cli.js"],
+	"files": [
+		"cli.js"
+	],
 	"dependencies": {
-		"hextimator": "^0.1.0"
+		"hextimator": "^0.1.1"
 	}
 }
