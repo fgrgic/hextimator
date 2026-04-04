@@ -8,11 +8,11 @@
 
 One brand color in, full accessible theme out.
 
-**[hextimator.com](https://hextimator.com)** — landing page with a playground.
-
 - Input: any single color. Output: complete light + dark theme with accessibility guarantees (AAA contrast by default).
 - Works at runtime — built for multi-tenant apps that need per-brand themes on the fly.
 - Perceptually uniform (OKLCH) — blue and yellow palettes look equally balanced, unlike HSL-based generators.
+
+**[hextimator.com](https://hextimator.com)** — landing page with a playground.
 
 ## Installation
 
