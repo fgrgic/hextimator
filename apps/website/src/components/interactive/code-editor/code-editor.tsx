@@ -1,24 +1,24 @@
-import { CodeEditor as PlaygroundEditor } from "@hextimator/playground";
-import "@hextimator/playground/style.css";
-import { useHextimatorTheme } from "hextimator/react";
+import { CodeEditor as PlaygroundEditor } from '@hextimator/playground';
+import '@hextimator/playground/style.css';
+import { useHextimatorTheme } from 'hextimator/react';
 
 const DEFAULT_CODE = `hextimate(color)
   // .preset(presets.shadcn)
   // .addRole('cta', '#ff006e')
-  // .addVariant('muted', { beyond: 'weak' })
-  // .addToken('ring', { from: 'accent' })
+  // .addVariant('muted', { from: 'weak' })
+  // .addToken('ring', { from: 'accent', emphasis: -0.2 })
   `;
 
 export function CodeEditor() {
-  const { color } = useHextimatorTheme();
+	const { color } = useHextimatorTheme();
 
-  return (
-    <PlaygroundEditor
-      defaultCode={DEFAULT_CODE}
-      color={color}
-      className='bg-base-strong border border-base-weak'
-      outputClassName='max-h-75 md:max-h-80'
-      fontSize={20}
-    />
-  );
+	return (
+		<PlaygroundEditor
+			defaultCode={DEFAULT_CODE}
+			color={color}
+			className="bg-base-strong border border-base-weak"
+			outputClassName="max-h-75 md:max-h-80"
+			fontSize={20}
+		/>
+	);
 }

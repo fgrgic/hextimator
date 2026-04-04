@@ -1,8 +1,17 @@
-import { hextimate, presets } from 'hextimator';
 import type { HextimateResult } from 'hextimator';
+import { hextimate, presets } from 'hextimator';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-type ColorFormat = 'hex' | 'hsl' | 'hsl-raw' | 'oklch' | 'oklch-raw' | 'p3' | 'p3-raw' | 'rgb' | 'rgb-raw';
+type ColorFormat =
+	| 'hex'
+	| 'hsl'
+	| 'hsl-raw'
+	| 'oklch'
+	| 'oklch-raw'
+	| 'p3'
+	| 'p3-raw'
+	| 'rgb'
+	| 'rgb-raw';
 
 type CodeEvalResult = {
 	object: HextimateResult | null;
@@ -12,8 +21,17 @@ type CodeEvalResult = {
 
 export type { ColorFormat };
 
-export function useCodeEval(code: string, color: string, colorFormat: ColorFormat = 'hex', debounceMs = 300) {
-	const [result, setResult] = useState<CodeEvalResult>({ object: null, css: null, error: null });
+export function useCodeEval(
+	code: string,
+	color: string,
+	colorFormat: ColorFormat = 'hex',
+	debounceMs = 300,
+) {
+	const [result, setResult] = useState<CodeEvalResult>({
+		object: null,
+		css: null,
+		error: null,
+	});
 	const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 	const lastCssRef = useRef<HextimateResult | null>(null);
 	const lastObjectRef = useRef<HextimateResult | null>(null);
@@ -33,7 +51,8 @@ export function useCodeEval(code: string, color: string, colorFormat: ColorForma
 					setResult({
 						object: lastObjectRef.current,
 						css: lastCssRef.current,
-						error: 'Code must return a HextimatePaletteBuilder (the result of hextimate() chaining).',
+						error:
+							'Code must return a HextimatePaletteBuilder (the result of hextimate() chaining).',
 					});
 					return;
 				}
@@ -57,7 +76,10 @@ export function useCodeEval(code: string, color: string, colorFormat: ColorForma
 
 	useEffect(() => {
 		clearTimeout(timerRef.current);
-		timerRef.current = setTimeout(() => evaluate(code, color, colorFormat), debounceMs);
+		timerRef.current = setTimeout(
+			() => evaluate(code, color, colorFormat),
+			debounceMs,
+		);
 		return () => clearTimeout(timerRef.current);
 	}, [code, color, colorFormat, debounceMs, evaluate]);
 

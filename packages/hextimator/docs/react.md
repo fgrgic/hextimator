@@ -87,7 +87,7 @@ useHextimator("#6A5ACD", {
   configure: (builder) => {
     builder
       .addRole("cta", "#EE2244")
-      .addVariant("hover", { beyond: "strong" })
+      .addVariant("hover", { from: "strong" })
       .addToken("border", { from: "base.weak", lightness: -0.05 });
   },
 });

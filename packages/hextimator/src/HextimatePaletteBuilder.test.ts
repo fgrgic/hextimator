@@ -53,7 +53,7 @@ describe('HextimatePaletteBuilder: construction', () => {
 	it('all methods return this for chaining', () => {
 		const builder = hextimate('#ff6600');
 		expect(builder.addRole('cta', '#ee2244')).toBe(builder);
-		expect(builder.addVariant('hover', { beyond: 'strong' })).toBe(builder);
+		expect(builder.addVariant('hover', { from: 'strong' })).toBe(builder);
 		expect(builder.addToken('brand', '#000')).toBe(builder);
 		expect(builder.simulate('deuteranopia')).toBe(builder);
 		expect(builder.adaptFor('protanopia')).toBe(builder);
@@ -190,15 +190,73 @@ describe('HextimatePaletteBuilder: addRole()', () => {
 		expect(keys).toContain('cta');
 		expect(keys).toContain('info');
 	});
+
+	it('derived role from existing role produces full scale', () => {
+		const result = formatObject(
+			hextimate('#ff6600').addRole('cta', { from: 'accent', hue: 180 }),
+		);
+		const keys = lightKeys(result);
+		expect(keys).toContain('cta');
+		expect(keys).toContain('cta-strong');
+		expect(keys).toContain('cta-weak');
+		expect(keys).toContain('cta-foreground');
+	});
+
+	it('derived role hue is shifted from source', () => {
+		const result = hextimate('#ff6600')
+			.addRole('complement', { from: 'accent', hue: 180 })
+			.format({ as: 'object', colors: 'oklch' });
+		const light = result.light as Record<string, string>;
+
+		const parseH = (s: string) => {
+			const parts = s.match(/oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)\s*\)/);
+			return parts ? Number.parseFloat(parts[3]) : 0;
+		};
+
+		const accentH = parseH(light.accent);
+		const complementH = parseH(light.complement);
+		// Hue should be ~180° apart (allow some tolerance for gamut mapping)
+		const rawDiff = (complementH - accentH + 360) % 360;
+		const diff = Math.abs(rawDiff - 180);
+		expect(diff).toBeLessThan(5);
+	});
+
+	it('derived role with chroma offset', () => {
+		const result = formatObject(
+			hextimate('#ff6600').addRole('muted', {
+				from: 'accent',
+				chroma: -0.05,
+			}),
+		);
+		expect(result.light.muted).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.dark.muted).toMatch(/^#[0-9a-f]{6}$/);
+	});
+
+	it('derived role appears in both themes', () => {
+		const result = formatObject(
+			hextimate('#ff6600').addRole('cta', { from: 'accent', hue: 90 }),
+		);
+		expect(result.light.cta).toBeDefined();
+		expect(result.dark.cta).toBeDefined();
+	});
+
+	it('derived role is preserved through fork', () => {
+		const builder = hextimate('#ff6600').addRole('cta', {
+			from: 'accent',
+			hue: 180,
+		});
+		const forked = builder.fork('#0000ff');
+		expect(lightKeys(formatObject(forked))).toContain('cta');
+	});
 });
 
 // ──────────────────────────────────────────────
 // 4. addVariant
 // ──────────────────────────────────────────────
 describe('HextimatePaletteBuilder: addVariant()', () => {
-	it('beyond variant appears on all roles', () => {
+	it('from-variant appears on all roles', () => {
 		const result = formatObject(
-			hextimate('#ff6600').addVariant('hover', { beyond: 'strong' }),
+			hextimate('#ff6600').addVariant('hover', { from: 'strong' }),
 		);
 		const keys = lightKeys(result);
 		for (const role of ['accent', 'base', 'positive', 'negative', 'warning']) {
@@ -243,7 +301,7 @@ describe('HextimatePaletteBuilder: addVariant()', () => {
 		const result = formatObject(
 			hextimate('#ff6600')
 				.addRole('cta', '#ee2244')
-				.addVariant('hover', { beyond: 'strong' }),
+				.addVariant('hover', { from: 'strong' }),
 		);
 		expect(lightKeys(result)).toContain('cta-hover');
 	});
@@ -303,6 +361,59 @@ describe('HextimatePaletteBuilder: addToken()', () => {
 		// White and black should be very different
 		expect(result.light.overlay).not.toBe(result.dark.overlay);
 	});
+
+	it('emphasis produces same result as manual light/dark split', () => {
+		const manual = formatObject(
+			hextimate('#ff6600').addToken('divider', {
+				light: { from: 'base', lightness: -0.12 },
+				dark: { from: 'base', lightness: +0.12 },
+			}),
+		);
+		const withEmphasis = formatObject(
+			hextimate('#ff6600').addToken('divider', {
+				from: 'base',
+				emphasis: 0.12,
+			}),
+		);
+		expect(withEmphasis.light.divider).toBe(manual.light.divider);
+		expect(withEmphasis.dark.divider).toBe(manual.dark.divider);
+	});
+
+	it('negative emphasis softens toward background', () => {
+		const manual = formatObject(
+			hextimate('#ff6600').addToken('text-secondary', {
+				light: { from: 'base.foreground', lightness: +0.2 },
+				dark: { from: 'base.foreground', lightness: -0.2 },
+			}),
+		);
+		const withEmphasis = formatObject(
+			hextimate('#ff6600').addToken('text-secondary', {
+				from: 'base.foreground',
+				emphasis: -0.2,
+			}),
+		);
+		expect(withEmphasis.light['text-secondary']).toBe(
+			manual.light['text-secondary'],
+		);
+		expect(withEmphasis.dark['text-secondary']).toBe(
+			manual.dark['text-secondary'],
+		);
+	});
+
+	it('emphasis combined with lightness and chroma', () => {
+		const result = formatObject(
+			hextimate('#ff6600').addToken('custom', {
+				from: 'accent',
+				emphasis: 0.1,
+				lightness: 0.02,
+				chroma: -0.03,
+			}),
+		);
+		expect(result.light.custom).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.dark.custom).toMatch(/^#[0-9a-f]{6}$/);
+		// Light and dark should differ since emphasis flips direction
+		expect(result.light.custom).not.toBe(result.dark.custom);
+	});
 });
 
 // ──────────────────────────────────────────────
@@ -352,7 +463,10 @@ describe('HextimatePaletteBuilder: light / dark options', () => {
 
 	it('adjustments work alongside addRole', () => {
 		const result = formatObject(
-			hextimate('#ff6600', { light: { lightness: 0.8 } }).addRole('cta', '#ee2244'),
+			hextimate('#ff6600', { light: { lightness: 0.8 } }).addRole(
+				'cta',
+				'#ee2244',
+			),
 		);
 		expect(result.light.cta).toBeDefined();
 	});
@@ -444,7 +558,7 @@ describe('HextimatePaletteBuilder: fork()', () => {
 
 	it('fork preserves addVariant operations', () => {
 		const builder = hextimate('#ff6600').addVariant('hover', {
-			beyond: 'strong',
+			from: 'strong',
 		});
 		const forked = builder.fork('#0000ff');
 		expect(lightKeys(formatObject(forked))).toContain('accent-hover');
@@ -551,7 +665,7 @@ describe('HextimatePaletteBuilder: simulate() / adaptFor()', () => {
 describe('HextimatePaletteBuilder: preset()', () => {
 	const customPreset: HextimatePreset = {
 		roles: [{ name: 'info', color: '#3366cc' }],
-		variants: [{ name: 'hover', placement: { beyond: 'strong' } }],
+		variants: [{ name: 'hover', placement: { from: 'strong' } }],
 		tokens: [{ name: 'ring', value: { from: 'accent', lightness: 0.1 } }],
 		format: {
 			as: 'css',
@@ -626,7 +740,7 @@ describe('HextimatePaletteBuilder: complex chaining', () => {
 		const result = formatObject(
 			hextimate('#ff6600')
 				.addRole('cta', '#ee2244')
-				.addVariant('hover', { beyond: 'strong' })
+				.addVariant('hover', { from: 'strong' })
 				.addToken('ring', { from: 'cta.hover' }),
 		);
 		const keys = lightKeys(result);
@@ -660,9 +774,12 @@ describe('HextimatePaletteBuilder: complex chaining', () => {
 
 	it('theme adjustments + roles + variants', () => {
 		const result = formatObject(
-			hextimate('#ff6600', { light: { lightness: 0.75 }, dark: { lightness: 0.55 } })
+			hextimate('#ff6600', {
+				light: { lightness: 0.75 },
+				dark: { lightness: 0.55 },
+			})
 				.addRole('cta', '#ee2244')
-				.addVariant('hover', { beyond: 'strong' }),
+				.addVariant('hover', { from: 'strong' }),
 		);
 		expect(lightKeys(result)).toContain('cta-hover');
 	});
@@ -672,7 +789,7 @@ describe('HextimatePaletteBuilder: complex chaining', () => {
 		const forked = base
 			.fork('#0000ff')
 			.addRole('info', '#3366cc')
-			.addVariant('hover', { beyond: 'strong' });
+			.addVariant('hover', { from: 'strong' });
 
 		const baseResult = formatObject(base);
 		const forkResult = formatObject(forked);
@@ -707,7 +824,7 @@ describe('HextimatePaletteBuilder: determinism', () => {
 	it('format can be called multiple times with same result', () => {
 		const builder = hextimate('#ff6600')
 			.addRole('cta', '#ee2244')
-			.addVariant('hover', { beyond: 'strong' });
+			.addVariant('hover', { from: 'strong' });
 		const first = formatObject(builder);
 		const second = formatObject(builder);
 		expect(first).toEqual(second);

@@ -56,7 +56,7 @@ CVD (color vision deficiency):
 
 Roles & variants (repeatable):
       --role <name>=<color>   Add a custom role
-      --variant <spec>        beyond:  "name:beyond:edge"
+      --variant <spec>        from:    "name:from:edge"
                               between: "name:between:a,b"
 
 Output:
@@ -70,7 +70,7 @@ Examples:
   hextimator '#3366cc' --format json --theme light
   hextimator '#6366F1' --preset shadcn
   hextimator '#6366F1' --preset shadcn --colors hsl-raw
-  hextimator '#22aa44' --role cta=#ee2244 --variant hover:beyond:strong -o theme.css
+  hextimator '#22aa44' --role cta=#ee2244 --variant hover:from:strong -o theme.css
   hextimator '#6A5ACD' --base-color '#FEBA5D' --invert-dark
   hextimator '#ff6600' --simulate deuteranopia
   hextimator '#ff6600' --adapt deuteranopia --cvd-severity 0.8
@@ -206,13 +206,13 @@ function run(): void {
 			const parts = v.split(':');
 			if (parts.length < 3) {
 				console.error(
-					`Error: invalid --variant "${v}". Expected "name:beyond:edge" or "name:between:a,b"`,
+					`Error: invalid --variant "${v}". Expected "name:from:edge" or "name:between:a,b"`,
 				);
 				process.exit(1);
 			}
 			const [name, type, ref] = parts;
-			if (type === 'beyond') {
-				builder.addVariant(name, { beyond: ref });
+			if (type === 'from') {
+				builder.addVariant(name, { from: ref });
 			} else if (type === 'between') {
 				const refs = ref.split(',');
 				if (refs.length !== 2) {
@@ -224,7 +224,7 @@ function run(): void {
 				builder.addVariant(name, { between: [refs[0], refs[1]] });
 			} else {
 				console.error(
-					`Error: invalid --variant type "${type}". Expected "beyond" or "between"`,
+					`Error: invalid --variant type "${type}". Expected "from" or "between"`,
 				);
 				process.exit(1);
 			}

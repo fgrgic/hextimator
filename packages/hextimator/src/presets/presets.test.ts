@@ -161,7 +161,7 @@ describe('preset', () => {
 
 	test('custom preset with variants', () => {
 		const custom: HextimatePreset = {
-			variants: [{ name: 'hover', placement: { beyond: 'strong' } }],
+			variants: [{ name: 'hover', placement: { from: 'strong' } }],
 			format: { as: 'object' },
 		};
 

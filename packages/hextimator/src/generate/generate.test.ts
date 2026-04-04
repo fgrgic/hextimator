@@ -69,10 +69,10 @@ describe('contrast: all variants meet AAA with foreground', () => {
 describe('contrast: added variants still meet AAA with foreground', () => {
 	for (const color of TEST_COLORS) {
 		for (const theme of THEME_TYPES) {
-			it(`${color} – ${theme} (beyond strong + between)`, () => {
+			it(`${color} – ${theme} (from strong + between)`, () => {
 				const result = hextimate(color)
-					.addVariant('stronger', { beyond: 'strong' })
-					.addVariant('weaker', { beyond: 'weak' })
+					.addVariant('stronger', { from: 'strong' })
+					.addVariant('weaker', { from: 'weak' })
 					.addVariant('mid', { between: ['DEFAULT', 'strong'] })
 					.format({ as: 'object', colors: 'hex' });
 
@@ -226,7 +226,7 @@ describe('addRole: values do not change with input color', () => {
 describe('addVariant: applies to roles, not tokens', () => {
 	it('new variant appears on every role', () => {
 		const result = hextimate('#ff6600')
-			.addVariant('stronger', { beyond: 'strong' })
+			.addVariant('stronger', { from: 'strong' })
 			.format({ as: 'object', colors: 'hex' });
 
 		const lightScales = groupByRole(result.light as Record<string, string>);
@@ -241,7 +241,7 @@ describe('addVariant: applies to roles, not tokens', () => {
 	it('new variant does NOT appear on standalone tokens', () => {
 		const result = hextimate('#ff6600')
 			.addToken('surface', '#fafafa')
-			.addVariant('stronger', { beyond: 'strong' })
+			.addVariant('stronger', { from: 'strong' })
 			.format({ as: 'object', colors: 'hex' });
 
 		const tokens = result.light as Record<string, string>;
@@ -411,10 +411,10 @@ describe('hueShift: added variants still meet AAA', () => {
 	for (const color of TEST_COLORS) {
 		for (const theme of THEME_TYPES) {
 			for (const shift of HUE_SHIFTS) {
-				it(`${color} – ${theme} – hueShift: ${shift} (beyond + between)`, () => {
+				it(`${color} – ${theme} – hueShift: ${shift} (from + between)`, () => {
 					const result = hextimate(color, { hueShift: shift })
-						.addVariant('stronger', { beyond: 'strong' })
-						.addVariant('weaker', { beyond: 'weak' })
+						.addVariant('stronger', { from: 'strong' })
+						.addVariant('weaker', { from: 'weak' })
 						.addVariant('mid', { between: ['DEFAULT', 'strong'] })
 						.format({ as: 'object', colors: 'hex' });
 
@@ -525,8 +525,8 @@ describe('hueShift: clamping to 360/(n+1)', () => {
 	it('clamping adjusts when more variants are added', () => {
 		// When weaker is added (4 total variants), weak side uses max = 360/5 = 72
 		const result = hextimate('#6366f1', { hueShift: 200 })
-			.addVariant('stronger', { beyond: 'strong' })
-			.addVariant('weaker', { beyond: 'weak' })
+			.addVariant('stronger', { from: 'strong' })
+			.addVariant('weaker', { from: 'weak' })
 			.format({ as: 'object', colors: 'oklch' });
 
 		for (const theme of THEME_TYPES) {

@@ -33,33 +33,15 @@ export const demo: HextimatePreset = {
 	],
 
 	variants: [
-		{ name: 'muted', placement: { beyond: 'weak' } },
-		{ name: 'vivid', placement: { beyond: 'strong' } },
+		{ name: 'muted', placement: { from: 'weak' } },
+		{ name: 'vivid', placement: { from: 'strong' } },
 	],
 
 	tokens: [
 		{ name: 'surface', value: { from: 'base.weak' } },
-		{
-			name: 'surface-raised',
-			value: {
-				light: { from: 'base', lightness: +0.03 },
-				dark: { from: 'base', lightness: +0.05 },
-			},
-		},
-		{
-			name: 'border',
-			value: {
-				light: { from: 'base', lightness: -0.1 },
-				dark: { from: 'base', lightness: +0.1 },
-			},
-		},
-		{
-			name: 'border-subtle',
-			value: {
-				light: { from: 'base', lightness: -0.05 },
-				dark: { from: 'base', lightness: +0.05 },
-			},
-		},
+		{ name: 'surface-raised', value: { from: 'base', emphasis: -0.04 } },
+		{ name: 'border', value: { from: 'base', emphasis: 0.1 } },
+		{ name: 'border-subtle', value: { from: 'base', emphasis: 0.05 } },
 		{ name: 'ring', value: { from: 'accent' } },
 		{ name: 'cta-ring', value: { from: 'cta', chroma: -0.05 } },
 	],

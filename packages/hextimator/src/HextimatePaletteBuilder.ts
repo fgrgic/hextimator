@@ -32,23 +32,34 @@ export interface HextimateResult<F = FormatResult> {
 
 /**
  * Where to place a new variant relative to existing ones.
- * - `{ beyond: "strong" }` — one step past the named variant
+ * - `{ from: "strong" }` — one step past the named variant (redistributes to respect contrast)
+ * - `{ from: "weak", chroma: -0.02 }` — one step past weak, with a chroma offset
  * - `{ between: ["DEFAULT", "weak"] }` — midpoint between two variants
  */
 export type VariantPlacement =
-	| { beyond: string }
+	| { from: string; emphasis?: number; chroma?: number; hue?: number }
 	| { between: [string, string] };
 
 /**
- * A token derived from an existing role+variant, with optional lightness/chroma offsets.
+ * A token derived from an existing role+variant, with optional offsets.
+ *
+ * `emphasis` is theme-aware: positive = more contrast with background,
+ * negative = softer/closer to background. It flips direction automatically
+ * between light and dark themes, so you never need per-theme splits for
+ * simple contrast adjustments.
  *
  * @example
  * { from: "base.weak", lightness: -0.05 }
+ * { from: "accent", hue: -20 }
+ * { from: "base", emphasis: 0.12 }
+ * { from: "base.foreground", emphasis: -0.2 }
  */
 export interface DerivedToken {
 	from: string;
+	emphasis?: number;
 	lightness?: number;
 	chroma?: number;
+	hue?: number;
 }
 
 /**
@@ -77,7 +88,7 @@ export class HextimatePaletteBuilder {
 	private readonly inputColor: Color;
 	private readonly options: Partial<HextimateGenerationOptions>;
 	private readonly operations: Array<
-		| { method: 'addRole'; args: [string, ColorInput] }
+		| { method: 'addRole'; args: [string, ColorInput | DerivedToken] }
 		| { method: 'addVariant'; args: [string, VariantPlacement] }
 		| { method: 'addToken'; args: [string, TokenValue] }
 		| { method: 'simulate'; args: [CVDType, number] }
@@ -108,27 +119,28 @@ export class HextimatePaletteBuilder {
 	 * Adds a custom role with given name and color.
 	 * The color is expanded into a full scale and added to both light and dark palettes.
 	 *
-	 * e.g. `addRole('cta', '#ff0066')` adds a "cta" role with the specified hue as the base,
-	 * generating appropriate variants (`cta-strong`, `cta-weak`, `cta-foreground`) for light and dark themes.
+	 * The color can be a direct color value or a derived token referencing an existing role.
+	 *
+	 * e.g. `addRole('cta', '#ff0066')` adds a "cta" role with the specified hue as the base.
+	 * `addRole('cta', { from: 'accent', hue: 180 })` adds a "cta" role with a complementary hue to accent.
 	 *
 	 * @param name Role name (e.g. "cta", "banner")
-	 * @param color Base color for the role, its hue will be expanded into a full scale (e.g. "#ff0066")
+	 * @param color Base color or derived token for the role
 	 */
-	addRole(name: string, color: ColorInput): this {
+	addRole(name: string, color: ColorInput | DerivedToken): this {
 		this.operations.push({ method: 'addRole', args: [name, color] });
 		this.applyRole(name, color);
 		return this;
 	}
 
 	/**
+	 * Adds a variant to all roles, derived from an existing variant or placed between two variants.
 	 *
-	 * Adds a variant to all roles, either "beyond" an existing variant or "between" two existing variants.
-	 *
-	 * e.g. `addVariant('placeholder', { beyond: 'weak' })` adds a "placeholder" variant that is "weaker" than "weak" across all roles and themes.
+	 * e.g. `addVariant('placeholder', { from: 'weak' })` adds a "placeholder" variant one step past "weak" across all roles and themes.
 	 * `addVariant('highlight', { between: ['DEFAULT', 'strong'] })` adds a "highlight" variant that is exactly between "DEFAULT" and "strong" across all roles and themes.
 	 *
 	 * @param name Variant name (e.g. "placeholder", "highlight")
-	 * @param placement Placement of the variant, either `{ beyond: 'weak' }` or `{ between: ['DEFAULT', 'strong'] }`
+	 * @param placement Placement of the variant, either `{ from: 'weak' }` or `{ between: ['DEFAULT', 'strong'] }`
 	 */
 	addVariant(name: string, placement: VariantPlacement): this {
 		this.operations.push({ method: 'addVariant', args: [name, placement] });
@@ -394,8 +406,10 @@ export class HextimatePaletteBuilder {
 		};
 	}
 
-	private applyRole(name: string, color: ColorInput): void {
-		const parsedColor = parse(color);
+	private applyRole(name: string, color: ColorInput | DerivedToken): void {
+		const parsedColor = this.isDerivedToken(color)
+			? this.resolveDerivedToken(color, this.lightPalette, 'light')
+			: parse(color);
 		const opts = this.resolvedOptions();
 
 		this.lightPalette[name] = expandColorToScale(parsedColor, 'light', {
@@ -413,12 +427,12 @@ export class HextimatePaletteBuilder {
 	}
 
 	private applyVariant(name: string, placement: VariantPlacement): void {
-		if ('beyond' in placement) {
-			const edge = placement.beyond;
+		if ('from' in placement) {
+			const edge = placement.from;
 
-			// Place beyond the current edge, then redistribute. If the
-			// expanded position would violate the contrast ratio, clamp to
-			// the contrast boundary instead.
+			// Place one step past the edge variant, then redistribute.
+			// If the expanded position would violate the contrast ratio,
+			// clamp to the contrast boundary instead.
 			for (const palette of [this.lightPalette, this.darkPalette]) {
 				for (const role of Object.keys(palette)) {
 					const scale = palette[role];
@@ -431,6 +445,21 @@ export class HextimatePaletteBuilder {
 				sideVariants.push(name);
 				this.redistributeAllScales(sideVariants);
 				this.recomputeBetweenVariants();
+			}
+
+			// Apply optional offsets (chroma, hue) after redistribution
+			if (placement.chroma || placement.hue) {
+				for (const palette of [this.lightPalette, this.darkPalette]) {
+					for (const role of Object.keys(palette)) {
+						const scale = palette[role];
+						const oklch = convert(parse(scale[name]), 'oklch');
+						scale[name] = {
+							...oklch,
+							c: Math.max(0, oklch.c + (placement.chroma ?? 0)),
+							h: wrapHue(oklch.h + (placement.hue ?? 0)),
+						};
+					}
+				}
 			}
 		} else {
 			this.betweenVariants.push({ name, refs: placement.between });
@@ -553,10 +582,25 @@ export class HextimatePaletteBuilder {
 
 		const oklch = convert(parse(sourceColor), 'oklch');
 
+		let emphasisOffset = 0;
+		if (token.emphasis) {
+			// Determine contrast direction for this theme:
+			// In light mode, more contrast = darker (negative L), so emphasis > 0 → L decreases.
+			// In dark mode, more contrast = lighter (positive L), so emphasis > 0 → L increases.
+			// This works for both base (background-like) and accent roles because
+			// we use the theme direction, not the role's foreground direction.
+			const contrastDirection = themeType === 'light' ? -1 : 1;
+			emphasisOffset = token.emphasis * contrastDirection;
+		}
+
 		return {
 			...oklch,
-			l: Math.max(0, Math.min(1, oklch.l + (token.lightness ?? 0))),
+			l: Math.max(
+				0,
+				Math.min(1, oklch.l + (token.lightness ?? 0) + emphasisOffset),
+			),
 			c: Math.max(0, oklch.c + (token.chroma ?? 0)),
+			h: wrapHue(oklch.h + (token.hue ?? 0)),
 		};
 	}
 

@@ -52,7 +52,8 @@ export function useCodeMirror({
 				EditorView.theme(
 					{
 						'&': {
-							fontSize: typeof fontSize === 'number' ? `${fontSize}px` : fontSize,
+							fontSize:
+								typeof fontSize === 'number' ? `${fontSize}px` : fontSize,
 							height: '100%',
 						},
 						'.cm-content': {

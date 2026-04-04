@@ -46,8 +46,8 @@ export const shadcn: HextimatePreset = {
 		{
 			name: 'muted-foreground',
 			value: {
-				light: { from: 'base.foreground', lightness: +0.25 },
-				dark: { from: 'base.foreground', lightness: -0.25 },
+				from: 'base.foreground',
+				emphasis: -0.25,
 			},
 		},
 
@@ -58,16 +58,13 @@ export const shadcn: HextimatePreset = {
 		// border / input
 		{
 			name: 'border',
-			value: {
-				light: { from: 'base', lightness: -0.08 },
-				dark: { from: 'base', lightness: +0.08 },
-			},
+			value: { from: 'base', emphasis: +0.8 },
 		},
 		{
 			name: 'input',
 			value: {
-				light: { from: 'base', lightness: -0.1 },
-				dark: { from: 'base', lightness: +0.1 },
+				from: 'base',
+				emphasis: +0.8,
 			},
 		},
 
@@ -76,10 +73,10 @@ export const shadcn: HextimatePreset = {
 
 		// chart tokens colors use brand/priamry color
 		{ name: 'chart-1', value: { from: 'accent' } },
-		{ name: 'chart-2', value: { from: 'chart-1', lightness: +0.05 } },
-		{ name: 'chart-3', value: { from: 'chart-2', lightness: +0.05 } },
-		{ name: 'chart-4', value: { from: 'chart-3', lightness: +0.05 } },
-		{ name: 'chart-5', value: { from: 'chart-4', lightness: +0.05 } },
+		{ name: 'chart-2', value: { from: 'chart-1', emphasis: -0.04 } },
+		{ name: 'chart-3', value: { from: 'chart-2', emphasis: -0.04 } },
+		{ name: 'chart-4', value: { from: 'chart-3', emphasis: -0.04 } },
+		{ name: 'chart-5', value: { from: 'chart-4', emphasis: -0.04 } },
 	],
 	format: {
 		as: 'css',
