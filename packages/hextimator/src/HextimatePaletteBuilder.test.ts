@@ -635,6 +635,29 @@ describe('HextimatePaletteBuilder: complex chaining', () => {
 		expect(keys).toContain('ring');
 	});
 
+	it('addToken derived from another addToken', () => {
+		const result = formatObject(
+			hextimate('#ff6600')
+				.addToken('chart-1', { from: 'accent' })
+				.addToken('chart-2', { from: 'chart-1', lightness: -0.05 }),
+		);
+		const keys = lightKeys(result);
+		expect(keys).toContain('chart-1');
+		expect(keys).toContain('chart-2');
+		// chart-2 should be a different color than chart-1 due to lightness shift
+		expect(result.light['chart-2']).not.toBe(result.light['chart-1']);
+	});
+
+	it('addToken chain throws on circular reference', () => {
+		expect(() =>
+			formatObject(
+				hextimate('#ff6600')
+					.addToken('a', { from: 'b' })
+					.addToken('b', { from: 'a' }),
+			),
+		).toThrow(/[Cc]ircular/);
+	});
+
 	it('theme adjustments + roles + variants', () => {
 		const result = formatObject(
 			hextimate('#ff6600', { light: { lightness: 0.75 }, dark: { lightness: 0.55 } })

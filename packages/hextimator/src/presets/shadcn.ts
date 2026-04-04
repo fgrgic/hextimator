@@ -73,6 +73,13 @@ export const shadcn: HextimatePreset = {
 
 		// ring — uses the brand/primary color
 		{ name: 'ring', value: { from: 'accent' } },
+
+		// chart tokens colors use brand/priamry color
+		{ name: 'chart-1', value: { from: 'accent' } },
+		{ name: 'chart-2', value: { from: 'chart-1', lightness: +0.05 } },
+		{ name: 'chart-3', value: { from: 'chart-2', lightness: +0.05 } },
+		{ name: 'chart-4', value: { from: 'chart-3', lightness: +0.05 } },
+		{ name: 'chart-5', value: { from: 'chart-4', lightness: +0.05 } },
 	],
 	format: {
 		as: 'css',
