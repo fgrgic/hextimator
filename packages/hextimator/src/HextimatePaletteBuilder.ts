@@ -481,18 +481,23 @@ export class HextimatePaletteBuilder {
 			'dark' in value
 		) {
 			const themeValue = themeType === 'light' ? value.light : value.dark;
-			return this.resolveTokenSingle(themeValue, palette);
+			return this.resolveTokenSingle(themeValue, palette, themeType);
 		}
 
-		return this.resolveTokenSingle(value as DerivedToken | ColorInput, palette);
+		return this.resolveTokenSingle(
+			value as DerivedToken | ColorInput,
+			palette,
+			themeType,
+		);
 	}
 
 	private resolveTokenSingle(
 		value: DerivedToken | ColorInput,
 		palette: HextimatePalette,
+		themeType: 'light' | 'dark',
 	): Color {
 		if (this.isDerivedToken(value)) {
-			return this.resolveDerivedToken(value, palette);
+			return this.resolveDerivedToken(value, palette, themeType);
 		}
 		return parse(value);
 	}
@@ -511,19 +516,38 @@ export class HextimatePaletteBuilder {
 	private resolveDerivedToken(
 		token: DerivedToken,
 		palette: HextimatePalette,
+		themeType: 'light' | 'dark',
+		resolving?: Set<string>,
 	): Color {
 		const [role, variant = 'DEFAULT'] = token.from.split('.');
 		const scale = palette[role];
-		if (!scale) {
-			throw new Error(
-				`Unknown role "${role}" in token reference "${token.from}"`,
-			);
-		}
 
-		const sourceColor = scale[variant];
-		if (!sourceColor) {
-			throw new Error(
-				`Unknown variant "${variant}" in token reference "${token.from}"`,
+		let sourceColor: ColorInput | undefined;
+
+		if (scale) {
+			sourceColor = scale[variant];
+			if (!sourceColor) {
+				throw new Error(
+					`Unknown variant "${variant}" in token reference "${token.from}"`,
+				);
+			}
+		} else {
+			const standalone = this.standaloneTokens.find((t) => t.name === role);
+			if (!standalone) {
+				throw new Error(
+					`Unknown role "${role}" in token reference "${token.from}"`,
+				);
+			}
+			const seen = resolving ?? new Set<string>();
+			if (seen.has(role)) {
+				throw new Error(`Circular token reference detected: "${token.from}"`);
+			}
+			seen.add(role);
+			sourceColor = this.resolveTokenValueWithChain(
+				standalone.value,
+				themeType,
+				palette,
+				seen,
 			);
 		}
 
@@ -534,6 +558,47 @@ export class HextimatePaletteBuilder {
 			l: Math.max(0, Math.min(1, oklch.l + (token.lightness ?? 0))),
 			c: Math.max(0, oklch.c + (token.chroma ?? 0)),
 		};
+	}
+
+	private resolveTokenValueWithChain(
+		value: TokenValue,
+		themeType: 'light' | 'dark',
+		palette: HextimatePalette,
+		resolving: Set<string>,
+	): Color {
+		if (
+			typeof value === 'object' &&
+			value !== null &&
+			!Array.isArray(value) &&
+			'light' in value &&
+			'dark' in value
+		) {
+			const themeValue = themeType === 'light' ? value.light : value.dark;
+			return this.resolveTokenSingleWithChain(
+				themeValue,
+				palette,
+				themeType,
+				resolving,
+			);
+		}
+		return this.resolveTokenSingleWithChain(
+			value as DerivedToken | ColorInput,
+			palette,
+			themeType,
+			resolving,
+		);
+	}
+
+	private resolveTokenSingleWithChain(
+		value: DerivedToken | ColorInput,
+		palette: HextimatePalette,
+		themeType: 'light' | 'dark',
+		resolving: Set<string>,
+	): Color {
+		if (this.isDerivedToken(value)) {
+			return this.resolveDerivedToken(value, palette, themeType, resolving);
+		}
+		return parse(value);
 	}
 
 	private getSideVariantsFor(variantName: string): string[] | null {
