@@ -15,8 +15,8 @@
 		"check": "biome check --write .",
 		"dev:playground": "bun run --filter hextimator dev & bun run --filter '@hextimator/playground' dev & bun run --filter playground dev",
 		"dev:website": "bun run --filter hextimator dev & bun run --filter '@hextimator/playground' dev & bun run --filter website dev",
-		"build:website": "cd packages/hextimator && bun run build && cd ../../apps/playground && bun run build && cd ../website && bun run build",
-		"build:playground": "cd packages/hextimator && bun run build && cd ../../apps/playground && bun run build"
+		"build:website": "bun run --filter hextimator build && bun run --filter '@hextimator/playground' build && bun run --filter website build",
+		"build:playground": "bun run --filter hextimator build && bun run --filter '@hextimator/playground' build && bun run --filter playground build"
 	},
 	"workspaces": [
 		"packages/*",
