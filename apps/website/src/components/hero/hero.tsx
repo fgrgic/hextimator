@@ -133,7 +133,7 @@ export function Hero() {
 				Generate complete light and dark themes at runtime with accessibility
 				guarantees.
 			</p>
-			<div className="flex flex-col gap-2 mt-4">
+			<div className="flex flex-col gap-3 mt-4">
 				<Button icon={NavArrowRight} onClick={handleGetStarted}>
 					Get started
 				</Button>
@@ -142,10 +142,9 @@ export function Hero() {
 					href="https://github.com/fgrgic/hextimator"
 					target="_blank"
 					rel="noopener noreferrer"
-					className="flex-row-reverse justify-center items-end gap-1"
-					icon={() => <Star width="0.8rem" strokeWidth={2} />}
+					icon={Star}
 				>
-					Star us on GitHub
+					Star it on GitHub
 				</Button>
 			</div>
 		</section>
