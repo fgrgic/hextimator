@@ -1,4 +1,6 @@
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { hextimate } from './index';
 import * as presets from './presets';
@@ -9,8 +11,15 @@ import type {
 	HextimateGenerationOptions,
 } from './types';
 
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const PKG_VERSION: string = JSON.parse(
+	readFileSync(join(__dirname, '..', 'package.json'), 'utf8'),
+).version;
+
 const AVAILABLE_PRESETS: Record<string, HextimatePreset> = {
 	shadcn: presets.shadcn,
+	mui: presets.mui,
+	demo: presets.demo,
 };
 
 const HELP = `
@@ -22,7 +31,7 @@ Arguments:
   color                       Input color (quote hex values: '#ff6600')
 
 Presets:
-  -p, --preset <name>         Apply a preset: shadcn
+  -p, --preset <name>         Apply a preset: shadcn, mui, demo
                               Preset format defaults can be overridden with -f, -c, etc.
 
 Format options:
@@ -116,7 +125,7 @@ function run(): void {
 	}
 
 	if (values.version) {
-		console.log('0.0.1');
+		console.log(PKG_VERSION);
 		process.exit(0);
 	}
 

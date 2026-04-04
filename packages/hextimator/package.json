@@ -56,7 +56,8 @@
 	"files": [
 		"dist",
 		"tailwind.css",
-		"llms.txt"
+		"llms.txt",
+		"CHANGELOG.md"
 	],
 	"scripts": {
 		"build": "tsup",

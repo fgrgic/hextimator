@@ -1,37 +1,37 @@
-import { HextimatePaletteBuilder } from "./HextimatePaletteBuilder";
-import { parse } from "./parse";
-import type { ColorInput, HextimateGenerationOptions } from "./types";
+import { HextimatePaletteBuilder } from './HextimatePaletteBuilder';
+import { parse } from './parse';
+import type { ColorInput, HextimateGenerationOptions } from './types';
 
-export { daltonizeColor, simulateColor } from "./a11y";
-export type { CVDType } from "./a11y";
-export { convert as convertColor } from "./convert";
-export type { FlatTokenMap, FormatResult, NestedTokenMap } from "./format";
+export type { CVDType } from './a11y';
+export { daltonizeColor, simulateColor } from './a11y';
+export { convert as convertColor } from './convert';
+export type { FlatTokenMap, FormatResult, NestedTokenMap } from './format';
 export {
-  HextimatePaletteBuilder,
-  type DerivedToken,
-  type HextimateResult,
-  type TokenValue,
-  type VariantPlacement,
-} from "./HextimatePaletteBuilder";
-export { parse as parseColor } from "./parse";
-export * as presets from "./presets";
-export type { HextimatePreset } from "./presets/types";
+	type DerivedToken,
+	HextimatePaletteBuilder,
+	type HextimateResult,
+	type TokenValue,
+	type VariantPlacement,
+} from './HextimatePaletteBuilder';
+export { parse as parseColor } from './parse';
+export * as presets from './presets';
+export type { HextimatePreset } from './presets/types';
 export type {
-  HextimateFormatOptions,
-  HextimateGenerationOptions,
-  HextimateOptions,
-  ThemeAdjustments,
-} from "./types";
+	HextimateFormatOptions,
+	HextimateGenerationOptions,
+	HextimateOptions,
+	ThemeAdjustments,
+} from './types';
 
 /** Thrown when `hextimate()` fails to parse or generate a palette from the given input. */
 export class HextimateError extends Error {
-  constructor(
-    public readonly input: ColorInput,
-    message?: string,
-  ) {
-    super(message ?? `Failed to hextimate color:  ${String(input)}`);
-    this.name = "HextimateError";
-  }
+	constructor(
+		public readonly input: ColorInput,
+		message?: string,
+	) {
+		super(message ?? `Failed to hextimate color:  ${String(input)}`);
+		this.name = 'HextimateError';
+	}
 }
 
 /**
@@ -50,19 +50,19 @@ export class HextimateError extends Error {
  *   .format({ as: 'tailwind' });
  */
 export function hextimate(
-  color: ColorInput,
-  options?: HextimateGenerationOptions,
+	color: ColorInput,
+	options?: HextimateGenerationOptions,
 ): HextimatePaletteBuilder {
-  try {
-    const parsedColor = parse(color);
-    return new HextimatePaletteBuilder(parsedColor, options);
-  } catch (e) {
-    if (e instanceof HextimateError) {
-      throw e;
-    }
-    throw new HextimateError(
-      color,
-      e instanceof Error ? e.message : "Unknown error",
-    );
-  }
+	try {
+		const parsedColor = parse(color);
+		return new HextimatePaletteBuilder(parsedColor, options);
+	} catch (e) {
+		if (e instanceof HextimateError) {
+			throw e;
+		}
+		throw new HextimateError(
+			color,
+			e instanceof Error ? e.message : 'Unknown error',
+		);
+	}
 }

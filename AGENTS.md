@@ -9,14 +9,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a **Bun monorepo** with three workspaces:
 
 - `packages/hextimator` — the publishable npm package (exports `hextimate()`)
+- `packages/hextimator-playground` — embeddable playground component (`@hextimator/playground`)
 - `apps/playground` — React app for local testing of the package
-- `apps/website` — React landing page
+- `apps/website` — React landing page (hextimator.com)
 
 ## Stack
 
 - **Runtime/package manager**: Bun
 - **Language**: TypeScript
-- **Package build**: tsup (CJS + ESM + `.d.ts`)
+- **Package build**: tsup (ESM + `.d.ts`)
 - **Apps**: Vite + React
 - **Linting/formatting**: Biome
 
@@ -69,13 +70,13 @@ The package source lives in `packages/hextimator/src/` with six modules:
 | `generate/` | Build accent, base, and semantic (positive/negative/warning) color scales in OKLCH, ensuring perceptually uniform lightness |
 | `format/` | Serialize palettes to CSS vars, Tailwind tokens, SCSS vars, JSON, or plain objects in any color format (hex, rgb, hsl, oklch) |
 | `HextimatePaletteBuilder.ts` | Builder-pattern API — `hextimate()` returns a builder that supports `.addRole()`, `.addVariant()`, `.format()` chaining |
-| `react.ts` | React hook (`useHextimate`) with dark mode support (class, data-attribute, or media query strategies) |
+| `react.tsx` | React hook (`useHextimator`) with dark mode support (class, data-attribute, or media query strategies) |
 
 **Entry point**: `packages/hextimator/src/index.ts` exports `hextimate()`, `HextimatePaletteBuilder`, `parseColor`, `convertColor`, and the key types. The package also has secondary entry points: `hextimator/react` (the React hook) and `hextimator/tailwind.css` (Tailwind utility layer).
 
 **Key design choice**: All palette generation happens in **OKLCH** (perceptual color space). This is what ensures consistent contrast across hues. Out-of-gamut colors are mapped back to sRGB via binary-search chroma reduction that preserves lightness and hue.
 
-The package is built by `tsup` into `dist/` (CJS + ESM). In development, the playground imports the package directly via Bun's workspace resolution (`workspace:*`). Use the root `dev:playground` or `dev:website` scripts to start the package watcher and app dev server together.
+The package is built by `tsup` into `dist/` (ESM only). In development, the playground imports the package directly via Bun's workspace resolution (`workspace:*`). Use the root `dev:playground` or `dev:website` scripts to start the package watcher and app dev server together.
 
 ## Publishing
 
