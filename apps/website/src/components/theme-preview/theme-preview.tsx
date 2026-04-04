@@ -1,5 +1,5 @@
 import { useHextimatorTheme } from 'hextimator/react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ThemePreviewProps } from './theme-preview.types';
 
 const FOREGROUND_SUFFIX = '-foreground';
@@ -30,7 +30,24 @@ export function ThemePreview({
 }: ThemePreviewProps) {
 	const { palette, mode } = useHextimatorTheme();
 	const [active, setActive] = useState<string | null>(defaultActive);
-	const isTouch = useRef(false);
+	const [clicked, setClicked] = useState<string | null>(null);
+	const containerRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		if (!clicked) return;
+		function handleClickOutside(e: PointerEvent) {
+			if (
+				containerRef.current &&
+				!containerRef.current.contains(e.target as Node)
+			) {
+				setClicked(null);
+				setActive(defaultActive);
+			}
+		}
+		document.addEventListener('pointerdown', handleClickOutside);
+		return () =>
+			document.removeEventListener('pointerdown', handleClickOutside);
+	}, [clicked, defaultActive]);
 
 	const tokens = palette[mode] as Record<string, string>;
 
@@ -54,6 +71,7 @@ export function ThemePreview({
 	return (
 		<div
 			{...props}
+			ref={containerRef}
 			className={`flex flex-row h-12 rounded-lg overflow-hidden w-full max-w-lg border border-base-weak shadow-xs ${props.className ?? ''}`}
 		>
 			{entries.map(([token, color]) => {
@@ -71,22 +89,17 @@ export function ThemePreview({
 							transition:
 								'flex 300ms ease-out, background-color 0.3s ease-in-out, color 0.3s ease-in-out',
 						}}
-						onPointerDown={(e) => {
-							if (e.pointerType === 'touch') isTouch.current = true;
-						}}
-						onPointerEnter={() => {
-							if (!isTouch.current) setActive(token);
-						}}
-						onPointerLeave={() => {
-							if (!isTouch.current) setActive(defaultActive);
-						}}
+						onPointerEnter={() => setActive(token)}
+						onPointerLeave={() => setActive(clicked ?? defaultActive)}
 						onClick={() => {
-							if (isTouch.current) {
-								setActive((prev) => (prev === token ? defaultActive : token));
+							if (clicked === token) {
+								setClicked(null);
+								setActive(defaultActive);
+							} else {
+								setClicked(token);
+								setActive(token);
 							}
 						}}
-						onFocus={() => setActive(token)}
-						onBlur={() => setActive(defaultActive)}
 						aria-label={`${stripToken(token)}: ${color}`}
 					>
 						{isActive && (
