@@ -49,6 +49,7 @@
 }
 
 [data-radix-popper-content-wrapper] {
+	/* biome-ignore lint/complexity/noImportantStyles: Radix popper injects inline transition styles */
 	transition-property: none !important;
 }
 
@@ -99,5 +100,6 @@ body {
 
 .cm-editor,
 .cm-editor * {
+	/* biome-ignore lint/complexity/noImportantStyles: CodeMirror injects inline styles that must be overridden */
 	font-family: "picomono", monospace !important;
 }

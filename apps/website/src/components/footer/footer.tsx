@@ -4,7 +4,10 @@ import { HextimatorLogo } from '../hextimator-logo';
 const navigation = [
 	{ label: 'Features', href: '#features' },
 	{ label: 'Playground', href: '#playground' },
-	{ label: 'Docs', href: 'https://github.com/fgrgic/hextimator' },
+	{
+		label: 'Docs',
+		href: 'https://github.com/fgrgic/hextimator/packages/hextimator',
+	},
 ];
 
 const resources = [
@@ -25,7 +28,7 @@ const support = [
 	},
 	{
 		label: 'Contact',
-		href: 'mailto:support@hextimator.dev',
+		href: 'mailto:support@hextimator.com',
 	},
 ];
 
@@ -64,7 +67,7 @@ export function Footer() {
 			<div className="mx-auto max-w-5xl px-6 py-12">
 				<div className="grid grid-cols-2 gap-8 md:grid-cols-4">
 					<div className="col-span-2 md:col-span-1">
-						<HextimatorLogo scale={0.4} />
+						<HextimatorLogo scale={0.6} />
 						<p className="mt-3 text-sm font-light text-base-foreground">
 							Perceptually uniform color palettes from a single color.
 						</p>
