@@ -760,35 +760,4 @@ export class HextimatePaletteBuilder {
 	private resolvedOptions(): HextimateGenerationOptions {
 		return { ...this.options } as HextimateGenerationOptions;
 	}
-
-	private regenerate(): void {
-		const rebuilt = new HextimatePaletteBuilder(
-			this.inputColor,
-			this.resolvedOptions(),
-		);
-		for (const op of this.operations) {
-			switch (op.method) {
-				case 'addRole':
-					rebuilt.addRole(...op.args);
-					break;
-				case 'addVariant':
-					rebuilt.addVariant(...op.args);
-					break;
-				case 'addToken':
-					rebuilt.addToken(...op.args);
-					break;
-				case 'simulate':
-					rebuilt.simulate(...op.args);
-					break;
-				case 'adaptFor':
-					rebuilt.adaptFor(...op.args);
-					break;
-				case 'preset':
-					rebuilt.preset(...op.args);
-					break;
-			}
-		}
-		this.lightPalette = rebuilt.lightPalette;
-		this.darkPalette = rebuilt.darkPalette;
-	}
 }

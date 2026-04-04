@@ -14,8 +14,15 @@
 	font-display: swap;
 }
 
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
 .cm-editor,
 .cm-editor * {
+	/* biome-ignore lint/complexity/noImportantStyles: CodeMirror injects inline styles that must be overridden */
 	font-family: "picomono", monospace !important;
 }
 
@@ -32,12 +39,6 @@
 	text-rendering: optimizeLegibility;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
-}
-
-*,
-*::before,
-*::after {
-	box-sizing: border-box;
 }
 
 body {
