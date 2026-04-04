@@ -37,26 +37,15 @@ function DarkModeSwitch() {
 function NavLinks({ onNavigate }: { onNavigate?: () => void }) {
 	return (
 		<>
-			<Button
-				href="#features"
-				variant="ghost"
-				className="hover:bg-base-weak py-1"
-				onClick={onNavigate}
-			>
+			<Button href="#features" variant="navigation" onClick={onNavigate}>
 				Features
 			</Button>
-			<Button
-				href="#playground"
-				variant="ghost"
-				className="hover:bg-base-weak py-1"
-				onClick={onNavigate}
-			>
+			<Button href="#playground" variant="navigation" onClick={onNavigate}>
 				Playground
 			</Button>
 			<Button
 				href="https://github.com/fgrgic/hextimator"
-				variant="ghost"
-				className="hover:bg-base-weak py-1"
+				variant="navigation"
 				onClick={onNavigate}
 			>
 				Docs

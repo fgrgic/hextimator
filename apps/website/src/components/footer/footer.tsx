@@ -1,3 +1,4 @@
+import { ArrowUpRight } from 'iconoir-react/regular';
 import { Button } from '../button';
 import { HextimatorLogo } from '../hextimator-logo';
 
@@ -14,10 +15,12 @@ const resources = [
 	{
 		label: 'GitHub',
 		href: 'https://github.com/fgrgic/hextimator',
+		external: true,
 	},
 	{
 		label: 'npm',
 		href: 'https://www.npmjs.com/package/hextimator',
+		external: true,
 	},
 ];
 
@@ -25,10 +28,12 @@ const support = [
 	{
 		label: 'Report an Issue',
 		href: 'https://github.com/fgrgic/hextimator/issues',
+		external: true,
 	},
 	{
 		label: 'Contact',
 		href: 'mailto:support@hextimator.com',
+		external: true,
 	},
 ];
 
@@ -37,8 +42,15 @@ function FooterColumn({
 	links,
 }: {
 	title: string;
-	links: { label: string; href: string }[];
+	links: {
+		label: string;
+		href: string;
+		external?: boolean;
+	}[];
 }) {
+	const externalIcon = () => (
+		<ArrowUpRight strokeWidth={1} width="0.875rem" height="0.875rem" />
+	);
 	return (
 		<div className="flex flex-col gap-3">
 			<h4 className="text-sm px-2 font-semibold text-base-foreground">
@@ -48,9 +60,12 @@ function FooterColumn({
 				{links.map((link) => (
 					<li key={link.label}>
 						<Button
-							variant="ghost"
+							variant="navigation"
 							href={link.href}
-							className="self-start justify-end py-1 hover:bg-base-weak text-sm font-light text-base-foreground transition-colors"
+							className="justify-start text-sm font-light transition-colors"
+							icon={link.external ? externalIcon : undefined}
+							target={link.external ? '_blank' : undefined}
+							rel={link.external ? 'noopener noreferrer' : undefined}
 						>
 							{link.label}
 						</Button>

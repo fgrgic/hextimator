@@ -1,16 +1,18 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import type { ComponentPropsWithRef, ComponentType, SVGProps } from 'react';
+import { cn } from '../../utils/cn';
 
 const buttonVariants = cva(
-	'flex items-center rounded-md cursor-pointer gap-2 text-sm',
+	'flex items-center justify-center rounded-md cursor-pointer gap-2 text-sm leading-none transition-background duration-200',
 	{
 		variants: {
 			variant: {
 				primary:
 					'px-4 py-2 bg-accent text-accent-foreground min-w-32 hover:bg-accent-weak',
-				secondary: 'px-4 py-2 bg-secondary text-secondary-foreground',
 				ghost:
 					'flex-row-reverse px-2 py-0 bg-transparent text-base-foreground text-sm justify-center',
+				navigation:
+					'flex-row px-2 py-1 bg-transparent text-base-foreground text-sm justify-center hover:bg-base-weak',
 			},
 		},
 		defaultVariants: {
@@ -41,18 +43,24 @@ export function Button({
 }: ButtonProps) {
 	const classes = buttonVariants({
 		variant,
-		className:
-			`${Icon ? 'justify-between' : 'justify-center'} ${className ?? ''}`.trim() ||
-			undefined,
+		className,
 	});
+
+	const iconSize =
+		variant === 'ghost' || variant === 'navigation' ? '0.875rem' : '1rem';
 
 	const children = (
 		<>
 			{props.children}
 			{Icon && (
 				<Icon
-					width={variant === 'ghost' ? '0.7rem' : '1rem'}
+					width={iconSize}
+					height={iconSize}
 					strokeWidth={2}
+					className={cn(
+						variant === 'ghost' ? '-translate-y-px' : undefined,
+						iconProps?.className,
+					)}
 					{...iconProps}
 				/>
 			)}
