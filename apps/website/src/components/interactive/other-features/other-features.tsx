@@ -30,12 +30,12 @@ export function OtherFeatures() {
 			<BentoCard
 				span="wide"
 				title="Perceptually uniform"
-				description="Built on OKLCH. Once the theming preset is defined, any theme built on that preset will have consistent perceived contrast, no matter the hue!"
+				description="Built on OKLCH.Built on OKLCH. Define a preset once — every color you feed it produces equally balanced contrast, regardless of hue."
 				visual={<HueGradient />}
 			/>
 			<BentoCard
 				title="Runtime theming"
-				description="Generate branded themes on the fly. Perfect for B2B2C apps with per-tenant branding."
+				description="Your client sends a hex code, your app returns a full theme. Perfect for B2B2C apps where every tenant gets their own brand."
 				icon={<Flash />}
 			/>
 			<BentoCard

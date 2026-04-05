@@ -30,35 +30,35 @@ function App() {
 						<ThemePreview />
 					</div>
 					<Section
-						title="Build your own preset"
-						description="Tweak how to generate the rest of the colors, and see the theme update on runtime."
+						title="Build the rules"
+						description="Configure lightness, chroma, and hue shifts for your palette. Once saved as a preset, any brand color produces a full theme with these same rules"
 						id="theme-preferences"
 					>
 						<ThemePreferences />
 					</Section>
 					<Section
 						title="AI ready"
-						description="Agents can use the CLI to generate themes. Hextimator also includes an llms.txt out of the box."
+						description="Generate themes from the CLI: one command, one color, full output. Ships with llms.txt so AI agents can use it without docs."
 						reversed
 					>
 						<AIReady />
 					</Section>
 					<Section
 						title="Accessibility built-in"
-						description="Guaranteed contrast ratios between all backgrounds and foregrounds, and color blindness adjustments to make sure your theme is inclusive and accessible to everyone."
+						description="Every generated foreground meets your minimum contrast ratio against its background. Adapt palettes for color vision deficiencies in one call."
 					>
 						<Accessibility />
 					</Section>
 					<Section
-						title="And much more..."
-						description="Built from ground up for runtime theming"
+						title="Built for runtime theming"
+						description="Everything you need to go from one brand color to a production-ready theme at build time or on every request."
 						stacked
 					>
 						<OtherFeatures />
 					</Section>
 					<Section
 						title="Try it out"
-						description="Play around with the code to see how the output changes, and use it as a base for your projects!"
+						description="Edit the code below and watch the theme update live. Copy the snippet to start your own preset."
 						stacked
 						id="playground"
 					>
@@ -66,7 +66,7 @@ function App() {
 					</Section>
 					<Section
 						title="Get started"
-						description="Add hextimator to your project, and start building your theme!"
+						description="Add hextimator to your project and start building your theme."
 					>
 						<GetStarted />
 					</Section>

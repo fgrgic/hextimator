@@ -101,7 +101,7 @@ export function Hero() {
 				</span>
 				<LongArrowRightDown className="size-4" strokeWidth={1} />
 			</div>
-			<h1 className="sr-only">One color in. Whole theme out</h1>
+			<h1 className="sr-only">Hextimator: one color in, whole theme out</h1>
 			<div className="flex flex-col items-center">
 				<div className="flex flex-row gap-1 font-light text-4xl">
 					<span aria-hidden>One</span>
@@ -130,8 +130,8 @@ export function Hero() {
 				</div>
 			</div>
 			<p className="text-sm font-light max-w-xs">
-				Generate complete light and dark themes at runtime with accessibility
-				guarantees.
+				Swap the brand color, and every shade, scale, and contrast ratio
+				regenerates itself.
 			</p>
 			<div className="flex flex-col gap-3 mt-4">
 				<Button icon={NavArrowRight} onClick={handleGetStarted}>
