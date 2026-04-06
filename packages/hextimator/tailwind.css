@@ -19,4 +19,6 @@
 	--color-warning-strong: var(--warning-strong);
 	--color-warning-weak: var(--warning-weak);
 	--color-warning-foreground: var(--warning-foreground);
+	--color-brand-exact: var(--brand-exact);
+	--color-brand-exact-foreground: var(--brand-exact-foreground);
 }
