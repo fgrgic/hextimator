@@ -82,12 +82,13 @@ Output shape depends on `as`:
 
 ### Default palette structure
 
-Every palette includes 5 roles × 4 variants = 20 tokens:
+Every palette includes 5 roles x 4 variants + 2 brand tokens = 22 tokens:
 
 - Roles: `base`, `accent`, `positive`, `negative`, `warning`
 - Variants: `DEFAULT` (no suffix), `strong`, `weak`, `foreground`
+- Brand tokens: `brand-exact` (the exact input color, unmodified), `brand-exact-foreground` (best-contrast foreground for that color)
 
-Token keys: `accent`, `accent-strong`, `accent-weak`, `accent-foreground`, `base`, `base-strong`, ...
+Token keys: `accent`, `accent-strong`, `accent-weak`, `accent-foreground`, `base`, `base-strong`, ..., `brand-exact`, `brand-exact-foreground`
 
 ### Presets
 
@@ -318,23 +319,59 @@ function App() {
 }
 ```
 
-Dark mode strategies: `{ type: "media" }` (default), `{ type: "class" }`, `{ type: "data" }`, or `false`.
+Dark mode strategies:
+- `{ type: "media" }` (default) -- uses `prefers-color-scheme` media query
+- `{ type: "class", className?: string }` -- toggles on a CSS class (default: `"dark"`)
+- `{ type: "data", attribute?: string }` -- toggles on a data attribute (default: `"data-theme"`)
+- `{ type: "media-or-class", className?: string }` -- media query with class override
+- `false` -- disable dark mode entirely
 
-Options: `generation`, `format`, `configure` (access builder), `darkMode`, `cssPrefix`, `target` (ref for scoped theming).
+Hook options:
 
-Provider for app-wide theming:
+| Option | Type | Description |
+|---|---|---|
+| `generation` | `HextimateGenerationOptions` | Palette generation options |
+| `format` | `Omit<HextimateFormatOptions, "as">` | Format options (output is always CSS vars) |
+| `configure` | `(builder: HextimatePaletteBuilder) => void` | Customize the builder (add roles, tokens, presets) |
+| `darkMode` | `DarkModeStrategy` | Dark mode strategy (see above) |
+| `cssPrefix` | `string` | Prefix for all CSS variable names |
+| `target` | `RefObject<HTMLElement>` | Inject variables into a specific element instead of `:root` |
+
+### Provider
+
+For app-wide theming with dynamic color changes:
 
 ```typescript
 import { HextimatorProvider, useHextimatorTheme } from "hextimator/react";
 
-// Wrap app
-<HextimatorProvider defaultColor="#6A5ACD">
+<HextimatorProvider
+  defaultColor="#6A5ACD"
+  defaultMode="system"       // "light" | "dark" | "system"
+  generation={generationOpts}
+  format={formatOpts}
+  configure={(b) => b.preset(presets.shadcn)}
+  darkMode={{ type: "class" }}
+  cssPrefix="app"
+  target={containerRef}
+>
   <App />
 </HextimatorProvider>
-
-// In children — setColor triggers re-generation
-const { color, setColor, palette } = useHextimatorTheme();
 ```
+
+`useHextimatorTheme()` returns:
+
+| Property | Type | Description |
+|---|---|---|
+| `color` | `string` | Current input color |
+| `setColor` | `(color: string) => void` | Change the input color (triggers re-generation) |
+| `palette` | `HextimateResult` | The generated `{ light, dark }` palette |
+| `mode` | `"light" \| "dark"` | Resolved color mode (accounts for OS preference) |
+| `modePreference` | `"light" \| "dark" \| "system"` | Raw preference before resolution |
+| `setMode` | `(mode: ModePreference) => void` | Change mode preference |
+| `generation` | `HextimateGenerationOptions \| undefined` | Current generation options |
+| `setGeneration` | `(opts) => void` | Update generation options |
+| `configure` | `((builder) => void) \| undefined` | Current builder configure function |
+| `setConfigure` | `(fn) => void` | Update the configure callback |
 
 ## Tailwind CSS v4
 
@@ -343,7 +380,7 @@ const { color, setColor, palette } = useHextimatorTheme();
 @import "hextimator/tailwind.css";
 ```
 
-This registers all 20 built-in tokens as Tailwind utilities (`bg-accent`, `text-base-foreground`, etc.).
+This registers all built-in tokens as Tailwind utilities (`bg-accent`, `text-base-foreground`, etc.).
 
 ## Common recipes
 
