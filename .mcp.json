@@ -1,8 +1,0 @@
-{
-	"mcpServers": {
-		"hextimator": {
-			"command": "node",
-			"args": ["./packages/mcp/dist/index.js"]
-		}
-	}
-}
