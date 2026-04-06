@@ -6,13 +6,15 @@
     </picture>
 </p>
 
-One brand color in, full accessible theme out.
+One color in, whole theme out.
 
-- Input: any single color. Output: complete light + dark theme with accessibility guarantees (AAA contrast by default).
-- Works at runtime — built for multi-tenant apps that need per-brand themes on the fly.
-- Perceptually uniform (OKLCH) — blue and yellow palettes look equally balanced, unlike HSL-based generators.
+Your customers pick a brand color. Your app looks good. Every time. No manual tuning, no edge cases where "that shade of yellow" breaks your UI.
 
-Landing page with an intuitive playground at **[hextimator.com](https://hextimator.com)**.
+- **Ship white-labeling without the design overhead** — generate per-tenant branded themes at runtime from a single input color. No design review per customer.
+- **Every color just works** — perceptually uniform color science (OKLCH) means electric blue looks as balanced as muted olive. No hue gets special treatment.
+- **Accessible by default** — every foreground meets AAA contrast against its background, light and dark mode included.
+
+Try it in the playground at **[hextimator.com](https://hextimator.com)**.
 
 ## Quick start
 
