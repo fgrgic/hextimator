@@ -106,6 +106,111 @@ const theme = hextimate("#6366F1")
 
 The shadcn preset adds tokens like foreground, card, popover, secondary, muted, border, input, ring, and renames roles (base→background, accent→primary, negative→destructive, positive→success).
 
+### Creating presets
+
+A preset is a plain `HextimatePreset` object with optional fields for `generation`, `roles`, `variants`, `tokens`, and `format`. It configures the builder the same way chained methods would, but as a reusable data object.
+
+```typescript
+import type { HextimatePreset } from "hextimator";
+```
+
+**Interface:**
+
+```typescript
+interface HextimatePreset {
+  generation?: HextimateGenerationOptions;  // contrast, lightness, chroma, hue shifts
+  roles?: Array<{ name: string; color: ColorInput | DerivedToken }>;
+  variants?: Array<{ name: string; placement: VariantPlacement }>;
+  tokens?: Array<{ name: string; value: TokenValue }>;
+  format?: HextimateFormatOptions;  // default format options, overridable in .format()
+}
+```
+
+**Token values** can be:
+- A raw color: `"#FF6600"`, `[255, 102, 102]`, etc.
+- A derived reference: `{ from: "role.variant", emphasis?, lightness?, chroma?, hue? }`
+- Per-theme: `{ light: DerivedToken | ColorInput, dark: DerivedToken | ColorInput }`
+
+**`from` syntax**: `"role"` resolves to the DEFAULT variant, `"role.variant"` to a specific one. Valid built-in references: `base`, `base.strong`, `base.weak`, `base.foreground`, `accent`, `accent.strong`, etc. Custom roles/tokens added earlier in the preset can also be referenced.
+
+**`emphasis`** is theme-aware contrast adjustment. Positive values push the color *away* from the background (more contrast), negative values pull it *toward* the background (softer). The direction flips automatically between light and dark themes, so `emphasis: 0.12` always means "slightly more visible than the source" regardless of theme. Use this instead of per-theme `lightness` splits when you just want "a bit more/less contrast."
+
+**`roleNames` / `variantNames`** in format options remap output keys. This is how you match another framework's naming. For example, `roleNames: { base: "background", accent: "primary" }` turns `base-strong` into `background-strong` and `accent` into `primary` in the output. `variantNames: { DEFAULT: "main", foreground: "contrastText" }` turns `accent` (DEFAULT) into `primary-main` and `accent-foreground` into `primary-contrastText`.
+
+**Role colors** can be derived from other roles: `{ from: "accent", hue: 180 }` creates a role whose hue is rotated 180 degrees from the accent.
+
+**Example - custom preset for a design system with "surface", "brand", and "danger" tokens:**
+
+```typescript
+const myPreset: HextimatePreset = {
+  roles: [
+    // Add an "info" role not in the default palette
+    { name: "info", color: "#0288d1" },
+    // Derive a secondary role by rotating the accent hue
+    { name: "secondary", color: { from: "accent", hue: 180 } },
+  ],
+  tokens: [
+    // Surface tokens derived from base
+    { name: "surface", value: { from: "base" } },
+    { name: "surface-raised", value: { from: "base", emphasis: -0.025 } },
+    { name: "surface-overlay", value: { from: "base", emphasis: -0.05 } },
+
+    // Text with varying prominence
+    { name: "text-primary", value: { from: "base.foreground" } },
+    { name: "text-secondary", value: { from: "base.foreground", emphasis: -0.2 } },
+    { name: "text-disabled", value: { from: "base.foreground", emphasis: -0.4 } },
+
+    // Border that adjusts direction per theme
+    { name: "border", value: { from: "base", emphasis: 0.12 } },
+
+    // Per-theme token when emphasis alone isn't enough
+    {
+      name: "divider",
+      value: {
+        light: { from: "base.weak", lightness: -0.08 },
+        dark: { from: "base.weak", lightness: +0.08 },
+      },
+    },
+  ],
+  format: {
+    as: "css",
+    colors: "hex",
+    roleNames: {
+      base: "surface",
+      accent: "brand",
+      negative: "danger",
+      positive: "success",
+    },
+    variantNames: {
+      DEFAULT: "",        // no suffix for the base variant
+      strong: "bold",
+      weak: "subtle",
+      foreground: "on",   // e.g. --brand-on
+    },
+    separator: "-",
+  },
+};
+```
+
+Usage:
+
+```typescript
+import { hextimate } from "hextimator";
+
+const theme = hextimate("#6366F1").preset(myPreset).format();
+// .format() options override preset defaults:
+const asScss = hextimate("#6366F1").preset(myPreset).format({ as: "scss" });
+```
+
+**How to build a preset for an existing app's theme:**
+
+1. List the app's theme tokens (e.g. from its CSS variables or theme config)
+2. Map each token to a hextimator source: which built-in role/variant is it closest to?
+3. Use `roleNames`/`variantNames` to rename the 20 built-in tokens to match the app's naming
+4. Use `tokens` for any extra tokens not covered by the built-in 5x4 grid, deriving them with `from` + `emphasis`/`lightness`/`chroma`/`hue` offsets
+5. Use `roles` if the app has color categories beyond base/accent/positive/negative/warning
+6. Set `format` defaults to match what the app expects (CSS vars, object, etc.)
+
 ### Standalone tokens with per-theme values
 
 ```typescript
@@ -148,7 +253,11 @@ Alpha is always ignored (forced to 1) to preserve contrast guarantees.
 
 ```bash
 npx hextimator <color> [options]
+# or the shorter alias:
+npx hextimate <color> [options]
 ```
+
+Both commands are identical. Use whichever you prefer.
 
 | Flag | Description | Default |
 |---|---|---|
