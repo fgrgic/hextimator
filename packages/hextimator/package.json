@@ -1,6 +1,6 @@
 {
 	"name": "hextimator",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "Generate perceptually uniform color palettes with light/dark themes and WCAG contrast guarantees from a single brand color. Outputs CSS vars, Tailwind, SCSS, or JSON.",
 	"keywords": [
 		"color",
