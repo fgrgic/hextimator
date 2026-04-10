@@ -30,7 +30,7 @@ export function OtherFeatures() {
 			<BentoCard
 				span="wide"
 				title="Perceptually uniform"
-				description="Built on OKLCH.Built on OKLCH. Define a preset once — every color you feed it produces equally balanced contrast, regardless of hue."
+				description="Built on OKLCH. Define a preset once — every color you feed it produces equally balanced contrast, regardless of hue."
 				visual={<HueGradient />}
 			/>
 			<BentoCard
