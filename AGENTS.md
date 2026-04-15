@@ -93,7 +93,7 @@ The package source lives in `packages/hextimator/src/` with six modules:
 | `generate/` | Build accent, base, and semantic (positive/negative/warning) color scales in OKLCH, ensuring perceptually uniform lightness |
 | `format/` | Serialize palettes to CSS vars, Tailwind tokens, SCSS vars, JSON, or plain objects in any color format (hex, rgb, hsl, oklch) |
 | `HextimatePaletteBuilder.ts` | Builder-pattern API — `hextimate()` returns a builder that supports `.addRole()`, `.addVariant()`, `.format()` chaining |
-| `react.tsx` | React hook (`useHextimator`) with dark mode support (class, data-attribute, or media query strategies) |
+| `react/` | React integration: `useHextimator`, provider, scoped themes, dark mode (class, data-attribute, or media query strategies) |
 
 **Entry point**: `packages/hextimator/src/index.ts` exports `hextimate()`, `HextimatePaletteBuilder`, `parseColor`, `convertColor`, and the key types. The package also has secondary entry points: `hextimator/react` (the React hook) and `hextimator/tailwind.css` (Tailwind utility layer).
 
