@@ -16,9 +16,11 @@ export default defineConfig({
 						'@codemirror/lang-javascript',
 						'@codemirror/theme-one-dark',
 					],
-					ui: ['radix-ui', 'iconoir-react'],
 				},
 			},
 		},
+	},
+	resolve: {
+		dedupe: ['react', 'react-dom'],
 	},
 });
