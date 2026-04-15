@@ -1,6 +1,6 @@
 {
 	"name": "hextimate",
-	"version": "0.1.2",
+	"version": "0.2.0",
 	"description": "Shorthand for hextimator CLI — generate color palettes from a single color",
 	"keywords": [
 		"hextimator",
