@@ -116,6 +116,20 @@ useHextimator("#6A5ACD", {
 useHextimator("#6A5ACD", { darkMode: false });
 ```
 
+### Light-only apps
+
+For a light-mode-only UI, pass **`darkMode: false`**. Only the light palette is written to `:root` (no `prefers-color-scheme` block, no `.dark` / `[data-theme="dark"]` overrides). The hook still returns `palette.light` and `palette.dark` if you read them in JS; CSS injection is light tokens only.
+
+With the provider:
+
+```typescript
+<HextimatorProvider defaultColor="#6A5ACD" darkMode={false}>
+  <App />
+</HextimatorProvider>
+```
+
+You can also skip React integration and call `hextimate()` from the main package, then use only `palette.light` from `.format(...)`.
+
 ## CSS prefix
 
 Namespace CSS variables to avoid collisions with other libraries:
