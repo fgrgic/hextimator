@@ -129,7 +129,7 @@ function App() {
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `darkMode` | `{ type: "media" \| "class" \| "data", ... } \| false` | `{ type: "media" }` | How dark tokens are injected; `false` = light palette only on `:root` |
+| `darkMode` | `{ type: "media" \| "class" \| "data", ... } \| false` | `{ type: "media" }` | Dark mode strategy |
 | `cssPrefix` | `string` | `""` | Prefix for CSS variable names |
 | `target` | `RefObject<HTMLElement>` | — | Scope vars to an element instead of injecting a `<style>` tag |
 | `generation` | `HextimateGenerationOptions` | — | Palette generation options |
