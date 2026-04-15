@@ -50,6 +50,8 @@ By default, both light and dark themes are injected and toggled via `prefers-col
 
 ## `HextimatorStyle` (declarative, SSR-friendly)
 
+For **SPAs**, `hextimator/fallback.css` (see package README) can load with your bundle CSS so variables exist before any JS runs; `HextimatorStyle` / the hook still supply the real theme once the app loads.
+
 `HextimatorStyle` builds the same palette as `useHextimator` but renders a `<style>` element as part of your React output. There is no `useEffect` and no `document.head` injection, so the initial HTML can include theme CSS (for example in a Next.js layout). It does not use a provider.
 
 ```tsx
