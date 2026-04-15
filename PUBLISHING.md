@@ -46,9 +46,9 @@ npm login
 From `packages/hextimator/`:
 
 ```bash
-npm version patch   # 0.0.1 -> 0.0.2
-npm version minor   # 0.0.1 -> 0.1.0
-npm version major   # 0.0.1 -> 1.0.0
+bun pm version patch   # 0.0.1 -> 0.0.2
+bun pm version minor   # 0.0.1 -> 0.1.0
+bun pm version major   # 0.0.1 -> 1.0.0
 ```
 
 This updates `package.json` and creates a git tag.
@@ -66,7 +66,7 @@ From `packages/hextimate/`:
 ```bash
 # Update the hextimator dependency to match the version you just published
 # Then bump hextimate's own version to match
-npm version patch
+bun pm version patch
 npm publish
 ```
 
@@ -76,12 +76,12 @@ Keep hextimate's version in sync with hextimator for simplicity.
 
 ```bash
 cd packages/hextimator
-npm version patch
+bun pm version patch
 bun run build
 npm publish
 
 cd ../hextimate
-npm version patch
+bun pm version patch
 npm publish
 ```
 
