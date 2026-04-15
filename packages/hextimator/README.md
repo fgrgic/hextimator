@@ -135,6 +135,17 @@ Import from `hextimator/react`:
 
 See **[React (full guide)](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/react.md)** for dark mode strategies, examples, and API tables.
 
+### `fallback.css`
+
+Pre-JS placeholder: neutral values for the same variables as default `hextimate()` (and `hextimator/tailwind.css`). Use in **client-rendered** apps so the first paint is not missing `--accent`, `--base`, etc. before your bundle runs; runtime theme CSS then replaces them. Import **before** `tailwind.css` if you use it.
+
+```css
+@import "hextimator/fallback.css";
+@import "hextimator/tailwind.css";
+```
+
+Does not match **preset-only** token names (e.g. shadcn); use the CLI to generate a static file for those.
+
 ## Documentation
 
 - [Extending the palette](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/extending-the-palette.md) — `addRole`, `addVariant`, `addToken`

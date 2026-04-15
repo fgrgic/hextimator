@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "hextimator/fallback.css";
 @import "hextimator/tailwind.css";
 
 @theme {
@@ -77,14 +78,6 @@
 	to {
 		opacity: 0;
 	}
-}
-
-:root {
-	/* Prevent flash of unstyled borders/backgrounds before HextimatorProvider mounts */
-	--base: transparent;
-	--base-strong: transparent;
-	--base-weak: transparent;
-	--base-foreground: transparent;
 }
 
 html {

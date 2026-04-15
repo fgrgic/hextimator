@@ -52,17 +52,20 @@
 			"import": "./dist/react.js"
 		},
 		"./cli": "./dist/cli.js",
-		"./tailwind.css": "./tailwind.css"
+		"./tailwind.css": "./tailwind.css",
+		"./fallback.css": "./fallback.css"
 	},
 	"files": [
 		"dist",
 		"tailwind.css",
+		"fallback.css",
 		"llms.txt",
 		"CHANGELOG.md"
 	],
 	"scripts": {
-		"build": "tsup",
+		"build": "bun scripts/generate-fallback-css.ts && tsup",
 		"dev": "tsup --watch",
+		"generate:fallback": "bun scripts/generate-fallback-css.ts",
 		"test": "bun test"
 	},
 	"peerDependencies": {
