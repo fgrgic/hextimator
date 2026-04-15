@@ -14,6 +14,9 @@ dist/
 npm-debug.log*
 bun-debug.log*
 
+# claude (nested worktrees are full git repos; never commit as submodule)
+.claude/worktrees/
+
 # editor
 .DS_Store
 .vscode/
