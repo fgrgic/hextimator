@@ -44,6 +44,20 @@ useHextimator("#6A5ACD", { darkMode: { type: "data", attribute: "data-mode" } })
 useHextimator("#6A5ACD", { darkMode: false });
 ```
 
+### Light-only apps
+
+For a light-mode-only UI, pass **`darkMode: false`**. Only the light palette is written to `:root` (no `prefers-color-scheme` block, no `.dark` / `[data-theme="dark"]` overrides). The hook still returns `palette.light` and `palette.dark` if you read them in JS; CSS injection is light tokens only.
+
+With the provider:
+
+```typescript
+<HextimatorProvider defaultColor="#6A5ACD" darkMode={false}>
+  <App />
+</HextimatorProvider>
+```
+
+You can also skip React integration and call `hextimate()` from the main package, then use only `palette.light` from `.format(...)`.
+
 ## CSS prefix
 
 Namespace CSS variables to avoid collisions with other libraries:
@@ -115,7 +129,7 @@ function App() {
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `darkMode` | `{ type: "media" \| "class" \| "data", ... } \| false` | `{ type: "media" }` | Dark mode strategy |
+| `darkMode` | `{ type: "media" \| "class" \| "data", ... } \| false` | `{ type: "media" }` | How dark tokens are injected; `false` = light palette only on `:root` |
 | `cssPrefix` | `string` | `""` | Prefix for CSS variable names |
 | `target` | `RefObject<HTMLElement>` | — | Scope vars to an element instead of injecting a `<style>` tag |
 | `generation` | `HextimateGenerationOptions` | — | Palette generation options |
