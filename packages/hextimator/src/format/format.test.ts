@@ -143,4 +143,35 @@ describe('format() — options', () => {
 			Object.values(result).every((v) => v.startsWith('color(display-p3 ')),
 		).toBe(true);
 	});
+
+	it('excludeRoles omits the specified roles', () => {
+		const result = format(palette, {
+			excludeRoles: ['warning', 'positive'],
+		}) as Record<string, string>;
+		expect(Object.keys(result).some((k) => k === 'warning' || k.startsWith('warning-'))).toBe(false);
+		expect(Object.keys(result).some((k) => k === 'positive' || k.startsWith('positive-'))).toBe(false);
+		expect(result.base).toBeDefined();
+		expect(result.accent).toBeDefined();
+	});
+
+	it('excludeVariants omits the specified variants from all roles', () => {
+		const result = format(palette, {
+			excludeVariants: ['strong', 'weak'],
+		}) as Record<string, string>;
+		expect(Object.keys(result).some((k) => k.endsWith('-strong'))).toBe(false);
+		expect(Object.keys(result).some((k) => k.endsWith('-weak'))).toBe(false);
+		expect(result.base).toBeDefined();
+		expect(result['base-foreground']).toBeDefined();
+	});
+
+	it('excludeRoles and excludeVariants can be combined', () => {
+		const result = format(palette, {
+			excludeRoles: ['negative'],
+			excludeVariants: ['strong'],
+		}) as Record<string, string>;
+		expect(Object.keys(result).some((k) => k === 'negative' || k.startsWith('negative-'))).toBe(false);
+		expect(Object.keys(result).some((k) => k.endsWith('-strong'))).toBe(false);
+		expect(result.base).toBeDefined();
+		expect(result['base-weak']).toBeDefined();
+	});
 });

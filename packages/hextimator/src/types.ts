@@ -327,6 +327,22 @@ export interface HextimateFormatOptions {
 	 * - "rgb-raw"       → "242 238 232"
 	 */
 	colors?: ColorFormat;
+
+	/**
+	 * Role keys to omit from the output entirely.
+	 * Uses the internal role name (before any `roleNames` remapping).
+	 *
+	 * Example: `['warning']` removes the warning scale from the output.
+	 */
+	excludeRoles?: string[];
+
+	/**
+	 * Variant keys to omit from every role's output.
+	 * Uses the internal variant name (before any `variantNames` remapping).
+	 *
+	 * Example: `['strong', 'weak']` removes those variants from all roles.
+	 */
+	excludeVariants?: string[];
 }
 
 /**
