@@ -11,28 +11,28 @@ const MAX_ITERATIONS = 16;
  * Works directly in linear-RGB so we skip full Color object creation.
  */
 function oklchToLinearRgbRaw(
-	l: number,
-	c: number,
-	h: number,
+  l: number,
+  c: number,
+  h: number,
 ): [number, number, number] {
-	const hRad = h * DEG_TO_RAD;
-	const a = c * Math.cos(hRad);
-	const b = c * Math.sin(hRad);
+  const hRad = h * DEG_TO_RAD;
+  const a = c * Math.cos(hRad);
+  const b = c * Math.sin(hRad);
 
-	const lms_ = multiplyMatrix3(M2_INV, [l, a, b]);
-	const lms = lms_.map((v) => v * v * v) as [number, number, number];
-	return multiplyMatrix3(M1_INV, lms);
+  const lms_ = multiplyMatrix3(M2_INV, [l, a, b]);
+  const lms = lms_.map((v) => v * v * v) as [number, number, number];
+  return multiplyMatrix3(M1_INV, lms);
 }
 
 function isInGamut(r: number, g: number, b: number): boolean {
-	return (
-		r >= -EPSILON &&
-		r <= 1 + EPSILON &&
-		g >= -EPSILON &&
-		g <= 1 + EPSILON &&
-		b >= -EPSILON &&
-		b <= 1 + EPSILON
-	);
+  return (
+    r >= -EPSILON &&
+    r <= 1 + EPSILON &&
+    g >= -EPSILON &&
+    g <= 1 + EPSILON &&
+    b >= -EPSILON &&
+    b <= 1 + EPSILON
+  );
 }
 
 /**
@@ -43,64 +43,64 @@ function isInGamut(r: number, g: number, b: number): boolean {
  * Returns a new OKLCH color with chroma ≤ the original.
  */
 export function gamutMapOklch(color: OKLCH): OKLCH {
-	// Achromatic or already in gamut → fast path
-	if (color.c <= EPSILON) {
-		return { ...color, c: 0 };
-	}
+  // Achromatic or already in gamut → fast path
+  if (color.c <= EPSILON) {
+    return { ...color, c: 0 };
+  }
 
-	const [r, g, b] = oklchToLinearRgbRaw(color.l, color.c, color.h);
-	if (isInGamut(r, g, b)) {
-		return color;
-	}
+  const [r, g, b] = oklchToLinearRgbRaw(color.l, color.c, color.h);
+  if (isInGamut(r, g, b)) {
+    return color;
+  }
 
-	let lo = 0;
-	let hi = color.c;
+  let lo = 0;
+  let hi = color.c;
 
-	for (let i = 0; i < MAX_ITERATIONS; i++) {
-		const mid = (lo + hi) / 2;
-		const [rm, gm, bm] = oklchToLinearRgbRaw(color.l, mid, color.h);
+  for (let i = 0; i < MAX_ITERATIONS; i++) {
+    const mid = (lo + hi) / 2;
+    const [rm, gm, bm] = oklchToLinearRgbRaw(color.l, mid, color.h);
 
-		if (isInGamut(rm, gm, bm)) {
-			lo = mid;
-		} else {
-			hi = mid;
-		}
-	}
+    if (isInGamut(rm, gm, bm)) {
+      lo = mid;
+    } else {
+      hi = mid;
+    }
+  }
 
-	return { ...color, c: lo };
+  return { ...color, c: lo };
 }
 
 /** Same as gamutMapOklch but targeting the wider Display P3 gamut. */
 export function gamutMapOklchToP3(color: OKLCH): OKLCH {
-	if (color.c <= EPSILON) {
-		return { ...color, c: 0 };
-	}
+  if (color.c <= EPSILON) {
+    return { ...color, c: 0 };
+  }
 
-	const [rSrgb, gSrgb, bSrgb] = oklchToLinearRgbRaw(color.l, color.c, color.h);
-	const [rP3, gP3, bP3] = multiplyMatrix3(LINEAR_SRGB_TO_P3, [
-		rSrgb,
-		gSrgb,
-		bSrgb,
-	]);
+  const [rSrgb, gSrgb, bSrgb] = oklchToLinearRgbRaw(color.l, color.c, color.h);
+  const [rP3, gP3, bP3] = multiplyMatrix3(LINEAR_SRGB_TO_P3, [
+    rSrgb,
+    gSrgb,
+    bSrgb,
+  ]);
 
-	if (isInGamut(rP3, gP3, bP3)) {
-		return color;
-	}
+  if (isInGamut(rP3, gP3, bP3)) {
+    return color;
+  }
 
-	let lo = 0;
-	let hi = color.c;
+  let lo = 0;
+  let hi = color.c;
 
-	for (let i = 0; i < MAX_ITERATIONS; i++) {
-		const mid = (lo + hi) / 2;
-		const [rm, gm, bm] = oklchToLinearRgbRaw(color.l, mid, color.h);
-		const [rP3m, gP3m, bP3m] = multiplyMatrix3(LINEAR_SRGB_TO_P3, [rm, gm, bm]);
+  for (let i = 0; i < MAX_ITERATIONS; i++) {
+    const mid = (lo + hi) / 2;
+    const [rm, gm, bm] = oklchToLinearRgbRaw(color.l, mid, color.h);
+    const [rP3m, gP3m, bP3m] = multiplyMatrix3(LINEAR_SRGB_TO_P3, [rm, gm, bm]);
 
-		if (isInGamut(rP3m, gP3m, bP3m)) {
-			lo = mid;
-		} else {
-			hi = mid;
-		}
-	}
+    if (isInGamut(rP3m, gP3m, bP3m)) {
+      lo = mid;
+    } else {
+      hi = mid;
+    }
+  }
 
-	return { ...color, c: lo };
+  return { ...color, c: lo };
 }

@@ -3,10 +3,10 @@ import type { HextimateFormatOptions } from '../types';
 export type FormatOptions = HextimateFormatOptions;
 
 export interface TokenEntry {
-	role: string;
-	variant: string;
-	isDefault: boolean;
-	value: string;
+  role: string;
+  variant: string;
+  isDefault: boolean;
+  value: string;
 }
 
 export type FlatTokenMap = Record<string, string>;

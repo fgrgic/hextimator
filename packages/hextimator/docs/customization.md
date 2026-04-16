@@ -1,19 +1,22 @@
 # Customization
 
-## Generation options
+## Style options
 
-Passed to `hextimate()` — these affect how colors are generated.
+Passed to `.style()` on the palette builder (and to the `style` field on presets, or the React `style` prop). These control how colors are generated from the input color.
 
 | Option | Type | Default | Description |
 |---|---|---|---|
 | `baseColor` | `ColorInput` | Auto-generated from input color with very low chroma | Base color used as baseline for generating the rest of the base scale |
+| `baseHueShift` | `number` (degrees) | `0` | Rotate base hue relative to accent. Ignored when `baseColor` is set |
+| `hueShift` | `number` (degrees) | `0` | Per-variant hue rotation across the palette |
 | `semanticColors` | `{ positive?: color, negative?: color, warning?: color }` | Auto-generated from seed | Override specific semantic colors instead of deriving them |
 | `semanticColorRanges` | `{ positive?: [start, end], ... }` | `positive: [135,160]`, `negative: [5,25]`, `warning: [45,65]` | Hue degree ranges for finding semantic colors. Ranges are clockwise arcs; `[350, 10]` wraps through 0°. |
 | `baseMaxChroma` | `number` | `0.01` | Max chroma for baseline colors (higher = more colorful) |
 | `foregroundMaxChroma` | `number` | `0.01` | Max chroma for foreground colors (higher = more colorful) |
-| `themeLightness` | `number` (0–1) | `0.8` | Perceived lightness of the generated theme |
+| `light` | `ThemeAdjustments` | (see types) | Per-light-theme overrides: `lightness`, `maxChroma`, `minContrastRatio`, `baseMaxChroma`, `foregroundMaxChroma` |
+| `dark` | `ThemeAdjustments` | (see types) | Per-dark-theme overrides (same shape as `light`) |
 | `minContrastRatio` | `"AAA" \| "AA" \| number` | `"AAA"` | Minimum WCAG contrast ratio between variants and foreground. `"AAA"` = 7, `"AA"` = 4.5, or pass any number |
-| `invertDarkModeBaseAccent` | `boolean` | `false` | Swap base and accent hues in dark mode. The dark theme's base scale takes the accent hue and vice versa, creating a more visually distinct dark theme. Requires a `baseColor` to be set |
+| `invertDarkModeBaseAccent` | `boolean` | `false` | Swap base and accent hues in dark mode. Requires `baseColor` to be set |
 
 ## Format options
 

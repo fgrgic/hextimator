@@ -3,71 +3,71 @@
 @import "hextimator/tailwind.css";
 
 @theme {
-	--font-mono: "picomono", monospace;
+  --font-mono: "picomono", monospace;
 }
 
 :root {
-	--hxp-font-mono: "picomono", monospace;
+  --hxp-font-mono: "picomono", monospace;
 }
 
 @font-face {
-	font-family: "picomono";
-	src: url("./assets/fonts/picomono-regular.woff2");
-	font-weight: 400;
-	font-style: normal;
-	font-display: swap;
+  font-family: "picomono";
+  src: url("./assets/fonts/picomono-regular.woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-	font-family: "picomono";
-	src: url("./assets/fonts/picomono-bold.woff2");
-	font-weight: 700;
-	font-style: normal;
-	font-display: swap;
+  font-family: "picomono";
+  src: url("./assets/fonts/picomono-bold.woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
 }
 
 *,
 *::before,
 *::after {
-	box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 .cm-editor,
 .cm-editor * {
-	/* biome-ignore lint/complexity/noImportantStyles: CodeMirror injects inline styles that must be overridden */
-	font-family: "picomono", monospace !important;
+  /* biome-ignore lint/complexity/noImportantStyles: CodeMirror injects inline styles that must be overridden */
+  font-family: "picomono", monospace !important;
 }
 
 :root {
-	font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-	line-height: 1.5;
-	font-weight: 400;
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
 
-	color-scheme: light dark;
-	color: rgba(255, 255, 255, 0.87);
-	background-color: #242424;
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
 
-	font-synthesis: none;
-	text-rendering: optimizeLegibility;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-	margin: 0;
-	min-width: 320px;
-	min-height: 100vh;
-	background-color: var(--base);
-	color: var(--base-foreground);
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--base);
+  color: var(--base-foreground);
 }
 
 #root {
-	height: 100vh;
+  height: 100vh;
 }
 
 @media (prefers-color-scheme: light) {
-	:root {
-		color: #213547;
-		background-color: #ffffff;
-	}
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
 }

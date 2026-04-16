@@ -6,104 +6,104 @@ type Matrix3 = readonly (readonly [number, number, number])[];
 
 // ── Protanopia ──────────────────────────────────────────────────────
 const PROTAN_A: Matrix3 = [
-	[0.152286, 1.052583, -0.204868],
-	[0.114503, 0.786281, 0.099216],
-	[-0.003882, -0.048116, 1.051998],
+  [0.152286, 1.052583, -0.204868],
+  [0.114503, 0.786281, 0.099216],
+  [-0.003882, -0.048116, 1.051998],
 ];
 
 const PROTAN_B: Matrix3 = [
-	[0.152286, 1.052583, -0.204868],
-	[0.114503, 0.786281, 0.099216],
-	[-0.003882, -0.048116, 1.051998],
+  [0.152286, 1.052583, -0.204868],
+  [0.114503, 0.786281, 0.099216],
+  [-0.003882, -0.048116, 1.051998],
 ];
 
 const PROTAN_SEP: readonly [number, number, number] = [
-	0.00048, 0.00393, -0.00441,
+  0.00048, 0.00393, -0.00441,
 ];
 
 // ── Deuteranopia ────────────────────────────────────────────────────
 const DEUTAN_A: Matrix3 = [
-	[0.367322, 0.860646, -0.227968],
-	[0.280085, 0.672501, 0.047413],
-	[-0.01182, 0.04294, 0.968881],
+  [0.367322, 0.860646, -0.227968],
+  [0.280085, 0.672501, 0.047413],
+  [-0.01182, 0.04294, 0.968881],
 ];
 
 const DEUTAN_B: Matrix3 = [
-	[0.367322, 0.860646, -0.227968],
-	[0.280085, 0.672501, 0.047413],
-	[-0.01182, 0.04294, 0.968881],
+  [0.367322, 0.860646, -0.227968],
+  [0.280085, 0.672501, 0.047413],
+  [-0.01182, 0.04294, 0.968881],
 ];
 
 const DEUTAN_SEP: readonly [number, number, number] = [
-	-0.00281, -0.00611, 0.00892,
+  -0.00281, -0.00611, 0.00892,
 ];
 
 // ── Tritanopia ──────────────────────────────────────────────────────
 const TRITAN_A: Matrix3 = [
-	[1.255528, -0.076749, -0.178779],
-	[-0.078411, 0.930809, 0.147602],
-	[0.004733, 0.691367, 0.3039],
+  [1.255528, -0.076749, -0.178779],
+  [-0.078411, 0.930809, 0.147602],
+  [0.004733, 0.691367, 0.3039],
 ];
 
 const TRITAN_B: Matrix3 = [
-	[1.255528, -0.076749, -0.178779],
-	[-0.078411, 0.930809, 0.147602],
-	[0.004733, 0.691367, 0.3039],
+  [1.255528, -0.076749, -0.178779],
+  [-0.078411, 0.930809, 0.147602],
+  [0.004733, 0.691367, 0.3039],
 ];
 
 const TRITAN_SEP: readonly [number, number, number] = [
-	0.03901, -0.02788, -0.01113,
+  0.03901, -0.02788, -0.01113,
 ];
 
 export type CVDType =
-	| 'protanopia'
-	| 'deuteranopia'
-	| 'tritanopia'
-	| 'achromatopsia';
+  | 'protanopia'
+  | 'deuteranopia'
+  | 'tritanopia'
+  | 'achromatopsia';
 
 interface BrettelParams {
-	a: Matrix3;
-	b: Matrix3;
-	sep: readonly [number, number, number];
+  a: Matrix3;
+  b: Matrix3;
+  sep: readonly [number, number, number];
 }
 
 const BRETTEL: Record<string, BrettelParams> = {
-	protanopia: { a: PROTAN_A, b: PROTAN_B, sep: PROTAN_SEP },
-	deuteranopia: { a: DEUTAN_A, b: DEUTAN_B, sep: DEUTAN_SEP },
-	tritanopia: { a: TRITAN_A, b: TRITAN_B, sep: TRITAN_SEP },
+  protanopia: { a: PROTAN_A, b: PROTAN_B, sep: PROTAN_SEP },
+  deuteranopia: { a: DEUTAN_A, b: DEUTAN_B, sep: DEUTAN_SEP },
+  tritanopia: { a: TRITAN_A, b: TRITAN_B, sep: TRITAN_SEP },
 };
 
 export function simulateCVD(
-	rgb: readonly [number, number, number],
-	type: CVDType,
-	severity: number,
+  rgb: readonly [number, number, number],
+  type: CVDType,
+  severity: number,
 ): [number, number, number] {
-	const s = Math.max(0, Math.min(1, severity));
-	if (s === 0) return [rgb[0], rgb[1], rgb[2]];
+  const s = Math.max(0, Math.min(1, severity));
+  if (s === 0) return [rgb[0], rgb[1], rgb[2]];
 
-	let simulated: [number, number, number];
+  let simulated: [number, number, number];
 
-	if (type === 'achromatopsia') {
-		// Rec. 709 luminance
-		const y = 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
-		simulated = [y, y, y];
-	} else {
-		const params = BRETTEL[type];
+  if (type === 'achromatopsia') {
+    // Rec. 709 luminance
+    const y = 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+    simulated = [y, y, y];
+  } else {
+    const params = BRETTEL[type];
 
-		const dotSep =
-			rgb[0] * params.sep[0] + rgb[1] * params.sep[1] + rgb[2] * params.sep[2];
-		const matrix = dotSep >= 0 ? params.a : params.b;
+    const dotSep =
+      rgb[0] * params.sep[0] + rgb[1] * params.sep[1] + rgb[2] * params.sep[2];
+    const matrix = dotSep >= 0 ? params.a : params.b;
 
-		simulated = multiplyMatrix3(matrix, rgb);
-	}
+    simulated = multiplyMatrix3(matrix, rgb);
+  }
 
-	if (s < 1) {
-		return [
-			rgb[0] + s * (simulated[0] - rgb[0]),
-			rgb[1] + s * (simulated[1] - rgb[1]),
-			rgb[2] + s * (simulated[2] - rgb[2]),
-		];
-	}
+  if (s < 1) {
+    return [
+      rgb[0] + s * (simulated[0] - rgb[0]),
+      rgb[1] + s * (simulated[1] - rgb[1]),
+      rgb[2] + s * (simulated[2] - rgb[2]),
+    ];
+  }
 
-	return simulated;
+  return simulated;
 }

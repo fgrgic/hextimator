@@ -2,10 +2,7 @@ import { useMemo } from 'react';
 import type { HextimatePaletteBuilder } from '../HextimatePaletteBuilder';
 import { hextimate } from '../index';
 import type { HextimatePreset } from '../presets/types';
-import type {
-	HextimateFormatOptions,
-	HextimateGenerationOptions,
-} from '../types';
+import type { HextimateFormatOptions, HextimateStyleOptions } from '../types';
 import { buildStyleContent } from './css';
 import type { DarkModeStrategy } from './types';
 import { useStableOptions } from './use-stable-options';
@@ -20,7 +17,7 @@ import { useStableOptions } from './use-stable-options';
  * multiple subtrees can carry different themes via CSS cascade.
  *
  * - `color`: The base color to generate the palette from.
- * - `generation`: Options for how the palette is generated.
+ * - `style`: Options for how the palette is generated.
  * - `format`: Options for how the generated palette is formatted.
  * - `configure`: A callback to further customize the palette builder before formatting.
  * - `darkMode`: Strategy for handling dark mode variants.
@@ -28,14 +25,14 @@ import { useStableOptions } from './use-stable-options';
  * - `selector`: CSS selector the variables are scoped to. Defaults to `:root`.
  */
 export interface HextimatorStyleProps {
-	color: string;
-	generation?: HextimateGenerationOptions;
-	presets?: HextimatePreset[];
-	format?: Omit<HextimateFormatOptions, 'as'>;
-	configure?: (builder: HextimatePaletteBuilder) => void;
-	darkMode?: DarkModeStrategy;
-	cssPrefix?: string;
-	selector?: string;
+  color: string;
+  style?: HextimateStyleOptions;
+  presets?: HextimatePreset[];
+  format?: Omit<HextimateFormatOptions, 'as'>;
+  configure?: (builder: HextimatePaletteBuilder) => void;
+  darkMode?: DarkModeStrategy;
+  cssPrefix?: string;
+  selector?: string;
 }
 
 /**
@@ -56,38 +53,41 @@ export interface HextimatorStyleProps {
  * ```
  */
 export function HextimatorStyle({
-	color,
-	generation,
-	presets,
-	format: formatOpts,
-	configure,
-	darkMode,
-	cssPrefix,
-	selector,
+  color,
+  style: styleOptions,
+  presets,
+  format: formatOpts,
+  configure,
+  darkMode,
+  cssPrefix,
+  selector,
 }: HextimatorStyleProps) {
-	const stable = useStableOptions({
-		generation,
-		presets,
-		format: formatOpts,
-		darkMode,
-		cssPrefix,
-	});
+  const stable = useStableOptions({
+    style: styleOptions,
+    presets,
+    format: formatOpts,
+    darkMode,
+    cssPrefix,
+  });
 
-	const css = useMemo(() => {
-		const builder = hextimate(color, stable?.generation);
-		for (const p of stable?.presets ?? []) builder.preset(p);
-		configure?.(builder);
-		const palette = builder.format({
-			...stable?.format,
-			as: 'css',
-		});
-		return buildStyleContent(
-			palette,
-			stable?.darkMode ?? { type: 'media' },
-			stable?.cssPrefix ?? '',
-			selector,
-		);
-	}, [color, stable, configure, selector]);
+  const css = useMemo(() => {
+    const builder = hextimate(color);
+    if (stable?.style && Object.keys(stable.style).length > 0) {
+      builder.style(stable.style);
+    }
+    for (const p of stable?.presets ?? []) builder.preset(p);
+    configure?.(builder);
+    const palette = builder.format({
+      ...stable?.format,
+      as: 'css',
+    });
+    return buildStyleContent(
+      palette,
+      stable?.darkMode ?? { type: 'media' },
+      stable?.cssPrefix ?? '',
+      selector,
+    );
+  }, [color, stable, configure, selector]);
 
-	return <style data-hextimator="">{css}</style>;
+  return <style data-hextimator="">{css}</style>;
 }

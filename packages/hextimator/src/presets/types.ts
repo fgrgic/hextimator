@@ -1,12 +1,12 @@
 import type {
-	DerivedToken,
-	TokenValue,
-	VariantPlacement,
+  DerivedToken,
+  TokenValue,
+  VariantPlacement,
 } from '../HextimatePaletteBuilder';
 import type {
-	ColorInput,
-	HextimateFormatOptions,
-	HextimateGenerationOptions,
+  ColorInput,
+  HextimateFormatOptions,
+  HextimateStyleOptions,
 } from '../types';
 
 /**
@@ -23,18 +23,18 @@ import type {
  *   .format();
  */
 export interface HextimatePreset {
-	/** Generation options (contrast, hue shifts, lightness, chroma). Applied before roles/variants/tokens. */
-	generation?: HextimateGenerationOptions;
+  /** Style options (contrast, hue shifts, lightness, chroma). Applied before roles/variants/tokens. */
+  style?: HextimateStyleOptions;
 
-	/** Extra roles to add to the palette (each generates DEFAULT, strong, weak, foreground variants). */
-	roles?: Array<{ name: string; color: ColorInput | DerivedToken }>;
+  /** Extra roles to add to the palette (each generates DEFAULT, strong, weak, foreground variants). */
+  roles?: Array<{ name: string; color: ColorInput | DerivedToken }>;
 
-	/** Extra variants to add across all roles. */
-	variants?: Array<{ name: string; placement: VariantPlacement }>;
+  /** Extra variants to add across all roles. */
+  variants?: Array<{ name: string; placement: VariantPlacement }>;
 
-	/** Standalone tokens derived from existing palette values or explicit colors. */
-	tokens?: Array<{ name: string; value: TokenValue }>;
+  /** Standalone tokens derived from existing palette values or explicit colors. */
+  tokens?: Array<{ name: string; value: TokenValue }>;
 
-	/** Default format options. Can be overridden in `.format()`. */
-	format?: HextimateFormatOptions;
+  /** Default format options. Can be overridden in `.format()`. */
+  format?: HextimateFormatOptions;
 }

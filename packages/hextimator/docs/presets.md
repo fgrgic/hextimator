@@ -39,7 +39,7 @@ const theme = createTheme({ palette: palette.light });
 
 ### Style presets
 
-Style presets only set generation parameters -- they have no opinion on tokens, naming, or output format. This makes them composable with any framework preset.
+Style presets only set style parameters -- they have no opinion on tokens, naming, or output format. This makes them composable with any framework preset.
 
 #### `muted`
 
@@ -59,23 +59,24 @@ Call `.preset()` multiple times. Each call deep-merges with the accumulated stat
 
 ```typescript
 const theme = hextimate("#6366F1")
-  .preset(presets.vibrant)   // sets generation params
-  .preset(presets.shadcn)    // adds tokens, format -- doesn't touch generation
+  .preset(presets.vibrant)   // sets style params
+  .preset(presets.shadcn)    // adds tokens, format -- doesn't add style unless the preset defines it
   .format();
 ```
 
 **Merge rules:**
 
-- **Generation options**: deep-merged. Later presets override earlier ones for the same key.
+- **Preset `style`**: nested keys `light`, `dark`, `semanticColors`, and `semanticColorRanges` shallow-merge per key; other keys overwrite. Later presets override earlier ones for the same key.
 - **Roles, variants, tokens**: concatenated (additive). A second preset never drops tokens from a previous one.
 - **Format options**: deep-merged. `roleNames` and `variantNames` are merged individually.
-- **Constructor options always win**: anything passed to `hextimate(color, options)` takes precedence over all presets.
+- **`.style()` after presets**: call `.style({ ... })` after `.preset(...)` to override overlapping style keys (for example, tighten `baseMaxChroma` after chaining style presets).
 
 ```typescript
-// Constructor's baseMaxChroma (0.01) wins over both presets
-const theme = hextimate("#6366F1", { baseMaxChroma: 0.01 })
-  .preset(presets.tinted)    // would set baseMaxChroma: 0.05
+// Final .style() wins over preset style for the same keys
+const theme = hextimate("#6366F1")
+  .preset(presets.tinted)
   .preset(presets.shadcn)
+  .style({ baseMaxChroma: 0.01 })
   .format();
 ```
 
@@ -170,8 +171,8 @@ A preset is a plain object -- you can create your own:
 import type { HextimatePreset } from "hextimator";
 
 const myPreset: HextimatePreset = {
-  // Generation options (contrast, hue shifts, lightness, chroma)
-  generation: {
+  // Style options (contrast, hue shifts, lightness, chroma)
+  style: {
     minContrastRatio: "AA",
     baseHueShift: 180,
   },
@@ -205,11 +206,11 @@ const theme = hextimate("#3a86ff")
   .format();
 ```
 
-A style-only preset is even simpler -- just generation params:
+A style-only preset is even simpler -- just style params:
 
 ```typescript
 const pastel: HextimatePreset = {
-  generation: {
+  style: {
     light: { maxChroma: 0.1, lightness: 0.8 },
     dark: { maxChroma: 0.09, lightness: 0.7 },
   },
@@ -220,7 +221,7 @@ The `HextimatePreset` interface:
 
 ```typescript
 interface HextimatePreset {
-  generation?: HextimateGenerationOptions;
+  style?: HextimateStyleOptions;
   roles?: Array<{ name: string; color: ColorInput | DerivedToken }>;
   variants?: Array<{ name: string; placement: VariantPlacement }>;
   tokens?: Array<{ name: string; value: TokenValue }>;

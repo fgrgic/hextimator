@@ -30,7 +30,7 @@ createRoot(document.getElementById("root")!).render(
 );
 ```
 
-Use **`useHextimatorTheme()`** under the provider for `color`, `setColor`, `palette`, `mode`, `setMode`, and the rest. More options (generation, `format`, `configure`, `darkMode`, …) are [below](#provider-options-and-usehextimatortheme).
+Use **`useHextimatorTheme()`** under the provider for `color`, `setColor`, `palette`, `mode`, `setMode`, and the rest. More options (`style`, `format`, `configure`, `darkMode`, …) are [below](#provider-options-and-usehextimatortheme).
 
 ## `useHextimator` without a provider
 
@@ -69,7 +69,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 ```
 
-It accepts the same levers as the hook: `generation`, `format`, `configure`, `darkMode`, and `cssPrefix`.
+It accepts the same levers as the hook: `style`, `format`, `configure`, `darkMode`, and `cssPrefix`.
 
 ### Scoping with `selector`
 
@@ -164,7 +164,7 @@ function BrandedSection({ brandColor }: { brandColor: string }) {
 
 `HextimatorScope` wraps children in a `div` with a stable `data-hextimator-scope` attribute (via `useId()`), injects a scoped `<style>` for that subtree, and provides a **nested** `HextimatorContext`. `useHextimatorTheme()` from inside the scope returns the **scope’s** `color`, `palette`, and `builder`, not the root’s.
 
-When the scope sits under `HextimatorProvider` (or another scope), it **inherits** custom roles, variants, tokens, and presets: internally it does `parent.builder.fork(scopeColor, scopeGeneration)` and then applies the scope’s own `configure`. You typically only pass **`defaultColor`**; you do not need to repeat the root `configure` unless you want extra tokens in that subtree.
+When the scope sits under `HextimatorProvider` (or another scope), it **inherits** custom roles, variants, tokens, and presets: internally it does `parent.builder.fork(scopeColor)`, then merges the scope’s `style` prop with `.style()` when present, and applies the scope’s own `configure`. You typically only pass **`defaultColor`**; you do not need to repeat the root `configure` unless you want extra tokens in that subtree.
 
 ```tsx
 import {
@@ -195,11 +195,11 @@ function App() {
 
 **Format options:** the provider’s `format` prop is applied when the root palette is built; it is not stored on the builder. If you rely on non-default `format` options at the root, pass the same `format` on each `HextimatorScope` (or standalone `HextimatorStyle`) so serialized tokens stay consistent.
 
-## With generation and format options
+## With style and format options
 
 ```typescript
 useHextimator("#6A5ACD", {
-  generation: { minContrastRatio: "AA" },
+  style: { minContrastRatio: "AA" },
   format: { colors: "oklch" },
 });
 ```
@@ -243,7 +243,7 @@ function App() {
 | `darkMode`   | `{ type: "media" \| "class" \| "data", ... } \| false` | `{ type: "media" }` | Dark mode strategy                                            |
 | `cssPrefix`  | `string`                                               | `""`                | Prefix for CSS variable names                                 |
 | `target`     | `RefObject<HTMLElement>`                               | —                   | Scope vars to an element instead of injecting a `<style>` tag |
-| `generation` | `HextimateGenerationOptions`                           | —                   | Palette generation options                                    |
+| `style` | `HextimateStyleOptions`                           | —                   | Palette style options                                    |
 | `format`     | `Omit<HextimateFormatOptions, "as">`                   | —                   | Color serialization options                                   |
 | `configure`  | `(builder) => void`                                    | —                   | Access the builder to add roles, variants, or tokens          |
 
@@ -255,7 +255,7 @@ function App() {
 | `darkMode`   | same as hook                         | `{ type: "media" }` | Dark mode strategy                  |
 | `cssPrefix`  | `string`                             | `""`                | Variable prefix                     |
 | `selector`   | `string`                             | `":root"`           | CSS selector for the variable block |
-| `generation` | `HextimateGenerationOptions`         | —                   | Generation options                  |
+| `style` | `HextimateStyleOptions`         | —                   | Style options                  |
 | `format`     | `Omit<HextimateFormatOptions, "as">` | —                   | Format options                      |
 | `configure`  | `(builder) => void`                  | —                   | Builder callback                    |
 
@@ -266,20 +266,20 @@ function App() {
 | `defaultColor` | `string`                             | (required)          | Base color for this subtree               |
 | `darkMode`     | same as hook                         | `{ type: "media" }` | Should match root strategy for class/data |
 | `cssPrefix`    | `string`                             | `""`                | Variable prefix                           |
-| `generation`   | `HextimateGenerationOptions`         | —                   | Overrides merged into `fork()`            |
+| `style`   | `HextimateStyleOptions`         | —                   | Merged with `.style()` after `fork()`            |
 | `format`       | `Omit<HextimateFormatOptions, "as">` | —                   | Format for this subtree’s palette         |
 | `configure`    | `(builder) => void`                  | —                   | Applied after fork (extra tokens, etc.)   |
 | `className`    | `string`                             | —                   | On the wrapper `div`                      |
-| `style`        | `CSSProperties`                      | —                   | On the wrapper `div`                      |
+| `wrapperStyle` | `CSSProperties`                      | —                   | Inline styles on the wrapper `div`        |
 
 ## Provider options and `useHextimatorTheme`
 
-The provider accepts the same options as `useHextimator` — `darkMode`, `cssPrefix`, `target`, `generation`, `format`, and `configure`:
+The provider accepts the same options as `useHextimator` — `darkMode`, `cssPrefix`, `target`, `style`, `format`, and `configure`:
 
 ```typescript
 <HextimatorProvider
   defaultColor="#6A5ACD"
-  generation={{ minContrastRatio: "AA" }}
+  style={{ minContrastRatio: "AA" }}
   format={{ colors: "oklch", roleNames: { accent: "brand" } }}
   darkMode={{ type: "class" }}
   cssPrefix="ht-"
@@ -312,8 +312,8 @@ function ThemePicker() {
 | --------------------- | --------------------------------------------------------------------- |
 | `color`               | Current input color                                                   |
 | `setColor(color)`     | Update the input color — palette regenerates automatically            |
-| `generation`          | Current generation options                                            |
-| `setGeneration(opts)` | Update generation options at runtime                                  |
+| `style`          | Current style options                                            |
+| `setStyle(opts)` | Update style options at runtime                                  |
 | `configure`           | Current builder configure function                                    |
 | `setConfigure(fn)`    | Update the builder configure function (e.g. to toggle CVD adaptation) |
 | `palette`             | The current formatted palette result                                  |

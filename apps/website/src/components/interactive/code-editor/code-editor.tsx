@@ -3,6 +3,7 @@ import '@hextimator/playground/style.css';
 import { useHextimatorTheme } from 'hextimator/react';
 
 const DEFAULT_CODE = `hextimate(color)
+  // .style({ minContrastRatio: 'AA' })
   // .preset(presets.shadcn)
   // .addRole('cta', '#ff006e')
   // .addVariant('muted', { from: 'weak' })
@@ -10,15 +11,15 @@ const DEFAULT_CODE = `hextimate(color)
   `;
 
 export function CodeEditor() {
-	const { color } = useHextimatorTheme();
+  const { color } = useHextimatorTheme();
 
-	return (
-		<PlaygroundEditor
-			defaultCode={DEFAULT_CODE}
-			color={color}
-			className="bg-base-strong border border-base-weak"
-			outputClassName="max-h-75 md:max-h-80"
-			fontSize={20}
-		/>
-	);
+  return (
+    <PlaygroundEditor
+      defaultCode={DEFAULT_CODE}
+      color={color}
+      className="bg-base-strong border border-base-weak"
+      outputClassName="max-h-75 md:max-h-80"
+      fontSize={20}
+    />
+  );
 }

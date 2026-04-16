@@ -7,23 +7,23 @@ import type { RGB } from '../types';
  * @returns RGB Color or null if parsing failed
  */
 export function tryParseNumeric(n: number): RGB | null {
-	if (!Number.isInteger(n) || n < 0 || n > 0xffffffff) return null;
+  if (!Number.isInteger(n) || n < 0 || n > 0xffffffff) return null;
 
-	if (n <= 0xffffff) {
-		return {
-			space: 'srgb',
-			r: (n >> 16) & 0xff,
-			g: (n >> 8) & 0xff,
-			b: n & 0xff,
-			alpha: 1,
-		};
-	}
+  if (n <= 0xffffff) {
+    return {
+      space: 'srgb',
+      r: (n >> 16) & 0xff,
+      g: (n >> 8) & 0xff,
+      b: n & 0xff,
+      alpha: 1,
+    };
+  }
 
-	return {
-		space: 'srgb',
-		r: (n >> 24) & 0xff,
-		g: (n >> 16) & 0xff,
-		b: (n >> 8) & 0xff,
-		alpha: 1,
-	};
+  return {
+    space: 'srgb',
+    r: (n >> 24) & 0xff,
+    g: (n >> 16) & 0xff,
+    b: (n >> 8) & 0xff,
+    alpha: 1,
+  };
 }

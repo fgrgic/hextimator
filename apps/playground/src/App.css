@@ -1,31 +1,31 @@
 :root {
-	--hxp-font-mono: "picomono", monospace;
+  --hxp-font-mono: "picomono", monospace;
 }
 
 .app {
-	height: 100vh;
-	display: flex;
-	flex-direction: column;
-	padding: 1rem 1.5rem;
-	box-sizing: border-box;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 1.5rem;
+  box-sizing: border-box;
 }
 
 .top-bar {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	margin-bottom: 1rem;
-	gap: 1rem;
-	flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: 1rem;
+  flex-shrink: 0;
 }
 
 .hxp-editor-layout {
-	flex: 1;
+  flex: 1;
 }
 
 @media (max-width: 768px) {
-	.app {
-		height: auto;
-		min-height: 100vh;
-	}
+  .app {
+    height: auto;
+    min-height: 100vh;
+  }
 }

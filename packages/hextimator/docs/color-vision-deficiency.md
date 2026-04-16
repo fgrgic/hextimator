@@ -34,7 +34,7 @@ Supported CVD types: `protanopia`, `deuteranopia`, `tritanopia`, `achromatopsia`
 You can also chain them with other builder methods:
 
 ```typescript
-const theme = hextimate("#3a86ff", { minContrastRatio: "AAA" })
+const theme = hextimate("#3a86ff").style({ minContrastRatio: "AAA" })
   .addRole("banner", "#ff006e")
   .addVariant("intense", { from: "strong" })
   .adaptFor("deuteranopia")

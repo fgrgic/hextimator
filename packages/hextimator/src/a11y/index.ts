@@ -1,7 +1,7 @@
 export {
-	adaptPalette,
-	type CVDType,
-	daltonizeColor,
-	simulateColor,
-	simulatePalette,
+  adaptPalette,
+  type CVDType,
+  daltonizeColor,
+  simulateColor,
+  simulatePalette,
 } from './cvd';

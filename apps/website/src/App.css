@@ -1,91 +1,91 @@
 /*Fonts*/
 
 @font-face {
-	font-family: "Aleo";
-	src: url("./assets/fonts/Aleo-Regular.woff2") format("woff2");
-	font-weight: normal;
-	font-style: normal;
-	font-display: swap;
+  font-family: "Aleo";
+  src: url("./assets/fonts/Aleo-Regular.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-	font-family: "Aleo";
-	src: url("./assets/fonts/Aleo-Italic.woff2") format("woff2");
-	font-weight: normal;
-	font-style: italic;
-	font-display: swap;
+  font-family: "Aleo";
+  src: url("./assets/fonts/Aleo-Italic.woff2") format("woff2");
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
 }
 
 @font-face {
-	font-family: "Aleo";
-	src: url("./assets/fonts/Aleo-Bold.woff2") format("woff2");
-	font-weight: bold;
-	font-style: normal;
-	font-display: swap;
+  font-family: "Aleo";
+  src: url("./assets/fonts/Aleo-Bold.woff2") format("woff2");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-	font-family: "Aleo";
-	src: url("./assets/fonts/Aleo-BoldItalic.woff2") format("woff2");
-	font-weight: bold;
-	font-style: italic;
-	font-display: swap;
+  font-family: "Aleo";
+  src: url("./assets/fonts/Aleo-BoldItalic.woff2") format("woff2");
+  font-weight: bold;
+  font-style: italic;
+  font-display: swap;
 }
 
 @font-face {
-	font-family: "Aleo";
-	src: url("./assets/fonts/Aleo-ExtraBold.woff2") format("woff2");
-	font-weight: 800;
-	font-style: normal;
-	font-display: swap;
+  font-family: "Aleo";
+  src: url("./assets/fonts/Aleo-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-	font-family: "Aleo";
-	src: url("./assets/fonts/Aleo-ExtraBoldItalic.woff2") format("woff2");
-	font-weight: 800;
-	font-style: italic;
-	font-display: swap;
+  font-family: "Aleo";
+  src: url("./assets/fonts/Aleo-ExtraBoldItalic.woff2") format("woff2");
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
 }
 
 @font-face {
-	font-family: "Aleo";
-	src: url("./assets/fonts/Aleo-Light.woff2") format("woff2");
-	font-weight: 300;
-	font-style: normal;
-	font-display: swap;
+  font-family: "Aleo";
+  src: url("./assets/fonts/Aleo-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-	font-family: "Aleo";
-	src: url("./assets/fonts/Aleo-LightItalic.woff2") format("woff2");
-	font-weight: 300;
-	font-style: italic;
-	font-display: swap;
+  font-family: "Aleo";
+  src: url("./assets/fonts/Aleo-LightItalic.woff2") format("woff2");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
 }
 
 @font-face {
-	font-family: "picomono";
-	src: url("./assets/fonts/picomono-regular.woff2");
-	font-weight: 400;
-	font-style: normal;
-	font-display: swap;
+  font-family: "picomono";
+  src: url("./assets/fonts/picomono-regular.woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
-	font-family: "picomono";
-	src: url("./assets/fonts/picomono-bold.woff2");
-	font-weight: 700;
-	font-style: normal;
-	font-display: swap;
+  font-family: "picomono";
+  src: url("./assets/fonts/picomono-bold.woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
 }
 
 @layer base {
-	body {
-		font-family: "Aleo", sans-serif;
-	}
+  body {
+    font-family: "Aleo", sans-serif;
+  }
 
-	pre {
-		font-family: "picomono", monospace;
-	}
+  pre {
+    font-family: "picomono", monospace;
+  }
 }

@@ -9,144 +9,144 @@ import { RangeSlider } from '../../slider';
 import { InteractiveCard } from '../interactive-card';
 
 const CVD_OPTIONS: { value: CVDType; label: string }[] = [
-	{ value: 'deuteranopia', label: 'Deuteranopia (green-blind)' },
-	{ value: 'protanopia', label: 'Protanopia (red-blind)' },
-	{ value: 'tritanopia', label: 'Tritanopia (blue-yellow)' },
-	{ value: 'achromatopsia', label: 'Achromatopsia (monochromacy)' },
+  { value: 'deuteranopia', label: 'Deuteranopia (green-blind)' },
+  { value: 'protanopia', label: 'Protanopia (red-blind)' },
+  { value: 'tritanopia', label: 'Tritanopia (blue-yellow)' },
+  { value: 'achromatopsia', label: 'Achromatopsia (monochromacy)' },
 ];
 
 export function Accessibility() {
-	const { generation, setGeneration, setConfigure } = useHextimatorTheme();
+  const { style, setStyle, setConfigure } = useHextimatorTheme();
 
-	const [contrastRatio, setContrastRatio] = useState(7);
-	const [cvdType, setCvdType] = useState<CVDType | 'none'>('none');
-	const [simulatePreview, setSimulatePreview] = useState(false);
+  const [contrastRatio, setContrastRatio] = useState(7);
+  const [cvdType, setCvdType] = useState<CVDType | 'none'>('none');
+  const [simulatePreview, setSimulatePreview] = useState(false);
 
-	const hasStopped = useRef(false);
+  const hasStopped = useRef(false);
 
-	const handleInteract = () => {
-		if (!hasStopped.current) {
-			stopColorCycler();
-			hasStopped.current = true;
-		}
-	};
+  const handleInteract = () => {
+    if (!hasStopped.current) {
+      stopColorCycler();
+      hasStopped.current = true;
+    }
+  };
 
-	const applyAccessibility = useCallback(
-		(ratio: number, cvd: CVDType | 'none', simulate: boolean) => {
-			setGeneration({
-				...generation,
-				minContrastRatio: ratio,
-			});
+  const applyAccessibility = useCallback(
+    (ratio: number, cvd: CVDType | 'none', simulate: boolean) => {
+      setStyle({
+        ...style,
+        minContrastRatio: ratio,
+      });
 
-			if (cvd === 'none') {
-				setConfigure(undefined);
-			} else {
-				setConfigure((builder) => {
-					builder.adaptFor(cvd);
-					if (simulate) {
-						builder.simulate(cvd);
-					}
-				});
-			}
-		},
-		[generation, setGeneration, setConfigure],
-	);
+      if (cvd === 'none') {
+        setConfigure(undefined);
+      } else {
+        setConfigure((builder) => {
+          builder.adaptFor(cvd);
+          if (simulate) {
+            builder.simulate(cvd);
+          }
+        });
+      }
+    },
+    [style, setStyle, setConfigure],
+  );
 
-	const handleContrastChange = (value: number) => {
-		handleInteract();
-		setContrastRatio(value);
-		applyAccessibility(value, cvdType, simulatePreview);
-	};
+  const handleContrastChange = (value: number) => {
+    handleInteract();
+    setContrastRatio(value);
+    applyAccessibility(value, cvdType, simulatePreview);
+  };
 
-	const handleCvdChange = (type: CVDType | 'none') => {
-		handleInteract();
-		setCvdType(type);
-		const newSimulate = type === 'none' ? false : simulatePreview;
-		if (type === 'none') setSimulatePreview(false);
-		applyAccessibility(contrastRatio, type, newSimulate);
-	};
+  const handleCvdChange = (type: CVDType | 'none') => {
+    handleInteract();
+    setCvdType(type);
+    const newSimulate = type === 'none' ? false : simulatePreview;
+    if (type === 'none') setSimulatePreview(false);
+    applyAccessibility(contrastRatio, type, newSimulate);
+  };
 
-	const handleReset = () => {
-		handleInteract();
-		setContrastRatio(7);
-		setCvdType('none');
-		setSimulatePreview(false);
-		setGeneration({
-			...generation,
-			minContrastRatio: 7,
-		});
-		setConfigure(undefined);
-	};
+  const handleReset = () => {
+    handleInteract();
+    setContrastRatio(7);
+    setCvdType('none');
+    setSimulatePreview(false);
+    setStyle({
+      ...style,
+      minContrastRatio: 7,
+    });
+    setConfigure(undefined);
+  };
 
-	return (
-		<InteractiveCard>
-			<h3>Accessibility</h3>
+  return (
+    <InteractiveCard>
+      <h3>Accessibility</h3>
 
-			<RangeSlider
-				label="Min contrast"
-				value={contrastRatio}
-				valueClassName={
-					contrastRatio >= 7
-						? 'bg-positive text-positive-foreground'
-						: contrastRatio >= 4.5
-							? 'bg-warning text-warning-foreground'
-							: ''
-				}
-				min={1}
-				max={14}
-				step={0.5}
-				onChange={handleContrastChange}
-				onInteract={handleInteract}
-				unit=":1"
-				aria-label="Minimum contrast ratio for generated colors"
-			/>
+      <RangeSlider
+        label="Min contrast"
+        value={contrastRatio}
+        valueClassName={
+          contrastRatio >= 7
+            ? 'bg-positive text-positive-foreground'
+            : contrastRatio >= 4.5
+              ? 'bg-warning text-warning-foreground'
+              : ''
+        }
+        min={1}
+        max={14}
+        step={0.5}
+        onChange={handleContrastChange}
+        onInteract={handleInteract}
+        unit=":1"
+        aria-label="Minimum contrast ratio for generated colors"
+      />
 
-			<div className="flex flex-col gap-1.5">
-				<span className="text-sm">Adapt for color blindness</span>
-				<Select.Root
-					value={cvdType}
-					onValueChange={(value) => {
-						handleInteract();
-						handleCvdChange(value as CVDType | 'none');
-					}}
-				>
-					<Select.Trigger
-						className="flex items-center justify-between gap-2 text-xs px-2 py-1.5 rounded-lg bg-base cursor-pointer hover:bg-base-strong"
-						aria-label="Color blindness simulation options"
-					>
-						<Select.Value />
-						<Select.Icon className="text-base-foreground">
-							<NavArrowDown width="12" height="12" />
-						</Select.Icon>
-					</Select.Trigger>
-					<Select.Portal>
-						<Select.Content
-							className="rounded-lg bg-base p-1 shadow-lg border border-base-strong z-50 min-w-(--radix-select-trigger-width)"
-							position="popper"
-							sideOffset={4}
-						>
-							<Select.Viewport>
-								{[
-									{ value: 'none' as const, label: 'None' },
-									...CVD_OPTIONS,
-								].map((opt) => (
-									<Select.Item
-										key={opt.value}
-										value={opt.value}
-										className="flex items-center text-base-foreground gap-2 text-xs px-2 py-1.5 rounded cursor-pointer hover:bg-base-strong outline-none data-highlighted:bg-base-strong"
-									>
-										<Select.ItemText>{opt.label}</Select.ItemText>
-									</Select.Item>
-								))}
-							</Select.Viewport>
-						</Select.Content>
-					</Select.Portal>
-				</Select.Root>
-			</div>
+      <div className="flex flex-col gap-1.5">
+        <span className="text-sm">Adapt for color blindness</span>
+        <Select.Root
+          value={cvdType}
+          onValueChange={(value) => {
+            handleInteract();
+            handleCvdChange(value as CVDType | 'none');
+          }}
+        >
+          <Select.Trigger
+            className="flex items-center justify-between gap-2 text-xs px-2 py-1.5 rounded-lg bg-base cursor-pointer hover:bg-base-strong"
+            aria-label="Color blindness simulation options"
+          >
+            <Select.Value />
+            <Select.Icon className="text-base-foreground">
+              <NavArrowDown width="12" height="12" />
+            </Select.Icon>
+          </Select.Trigger>
+          <Select.Portal>
+            <Select.Content
+              className="rounded-lg bg-base p-1 shadow-lg border border-base-strong z-50 min-w-(--radix-select-trigger-width)"
+              position="popper"
+              sideOffset={4}
+            >
+              <Select.Viewport>
+                {[
+                  { value: 'none' as const, label: 'None' },
+                  ...CVD_OPTIONS,
+                ].map((opt) => (
+                  <Select.Item
+                    key={opt.value}
+                    value={opt.value}
+                    className="flex items-center text-base-foreground gap-2 text-xs px-2 py-1.5 rounded cursor-pointer hover:bg-base-strong outline-none data-highlighted:bg-base-strong"
+                  >
+                    <Select.ItemText>{opt.label}</Select.ItemText>
+                  </Select.Item>
+                ))}
+              </Select.Viewport>
+            </Select.Content>
+          </Select.Portal>
+        </Select.Root>
+      </div>
 
-			<Button variant="ghost" onClick={handleReset} icon={RefreshDouble}>
-				Reset to defaults
-			</Button>
-		</InteractiveCard>
-	);
+      <Button variant="ghost" onClick={handleReset} icon={RefreshDouble}>
+        Reset to defaults
+      </Button>
+    </InteractiveCard>
+  );
 }

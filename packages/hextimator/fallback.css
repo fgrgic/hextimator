@@ -1,15 +1,3 @@
-/**
- * Neutral placeholder theme for the pre-JavaScript paint (and before Hextimator injects CSS).
- * Same token names as default hextimate() + hextimator/tailwind.css. Dark mode matches
- * useHextimator / HextimatorStyle with darkMode: { type: "media-or-class" } (also fine for
- * { type: "media" } when :root has no .light class).
- *
- * Does not include tokens from presets (e.g. shadcn). For those, generate CSS with the CLI
- * and ship it alongside this file or instead of it.
- *
- * Regenerated at package build time (see package.json "build").
- */
-
 :root {
   --base: #f5f5f5;
   --base-strong: #fcfcfc;
@@ -37,27 +25,27 @@
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
     --base: #161616;
-  --base-strong: #030303;
-  --base-weak: #2e2e2e;
-  --base-foreground: #f5f5f5;
-  --accent: #a8a8a8;
-  --accent-strong: #b7b7b7;
-  --accent-weak: #989898;
-  --accent-foreground: #030303;
-  --positive: #a8a8a8;
-  --positive-strong: #b7b7b7;
-  --positive-weak: #989898;
-  --positive-foreground: #030303;
-  --negative: #a8a8a8;
-  --negative-strong: #b7b7b7;
-  --negative-weak: #989898;
-  --negative-foreground: #030303;
-  --warning: #a8a8a8;
-  --warning-strong: #b7b7b7;
-  --warning-weak: #989898;
-  --warning-foreground: #030303;
-  --brand-exact: #737373;
-  --brand-exact-foreground: #f5f5f5;
+    --base-strong: #030303;
+    --base-weak: #2e2e2e;
+    --base-foreground: #f5f5f5;
+    --accent: #a8a8a8;
+    --accent-strong: #b7b7b7;
+    --accent-weak: #989898;
+    --accent-foreground: #030303;
+    --positive: #a8a8a8;
+    --positive-strong: #b7b7b7;
+    --positive-weak: #989898;
+    --positive-foreground: #030303;
+    --negative: #a8a8a8;
+    --negative-strong: #b7b7b7;
+    --negative-weak: #989898;
+    --negative-foreground: #030303;
+    --warning: #a8a8a8;
+    --warning-strong: #b7b7b7;
+    --warning-weak: #989898;
+    --warning-foreground: #030303;
+    --brand-exact: #737373;
+    --brand-exact-foreground: #f5f5f5;
   }
 }
 :root.dark {

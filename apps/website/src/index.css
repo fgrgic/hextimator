@@ -3,96 +3,96 @@
 @import "hextimator/tailwind.css";
 
 @theme {
-	--font-mono: "picomono", monospace;
+  --font-mono: "picomono", monospace;
 }
 
 :root {
-	--hxp-font-mono: "picomono", monospace;
+  --hxp-font-mono: "picomono", monospace;
 }
 
 @layer base {
-	h1 {
-		font-weight: 800;
-		font-size: 2rem;
-	}
+  h1 {
+    font-weight: 800;
+    font-size: 2rem;
+  }
 
-	h2 {
-		font-weight: bold;
-		font-size: 1.5rem;
-	}
+  h2 {
+    font-weight: bold;
+    font-size: 1.5rem;
+  }
 
-	h3 {
-		font-weight: bold;
-		font-size: 1.25rem;
-	}
+  h3 {
+    font-weight: bold;
+    font-size: 1.25rem;
+  }
 }
 
 @layer base {
-	body,
-	nav,
-	main,
-	section,
-	header,
-	footer,
-	a,
-	button,
-	input,
-	svg,
-	[class*="bg-"],
-	[class*="text-"],
-	[class*="border-"] {
-		transition:
-			background-color 0.3s ease-in-out,
-			color 0.3s ease-in-out,
-			border-color 0.3s ease-in-out,
-			box-shadow 0.3s ease-in-out;
-	}
+  body,
+  nav,
+  main,
+  section,
+  header,
+  footer,
+  a,
+  button,
+  input,
+  svg,
+  [class*="bg-"],
+  [class*="text-"],
+  [class*="border-"] {
+    transition:
+      background-color 0.3s ease-in-out,
+      color 0.3s ease-in-out,
+      border-color 0.3s ease-in-out,
+      box-shadow 0.3s ease-in-out;
+  }
 }
 
 [data-radix-popper-content-wrapper] {
-	/* biome-ignore lint/complexity/noImportantStyles: Radix popper injects inline transition styles */
-	transition-property: none !important;
+  /* biome-ignore lint/complexity/noImportantStyles: Radix popper injects inline transition styles */
+  transition-property: none !important;
 }
 
 [data-radix-popper-content-wrapper] [data-state="open"] {
-	animation: fade-in 0.2s ease-out;
+  animation: fade-in 0.2s ease-out;
 }
 
 [data-radix-popper-content-wrapper] [data-state="closed"] {
-	animation: fade-out 0.15s ease-in;
+  animation: fade-out 0.15s ease-in;
 }
 
 @keyframes fade-in {
-	from {
-		opacity: 0;
-	}
-	to {
-		opacity: 1;
-	}
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fade-out {
-	from {
-		opacity: 1;
-	}
-	to {
-		opacity: 0;
-	}
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 html {
-	scroll-behavior: smooth;
-	font-size: 20px;
-	overflow-x: hidden;
-	overscroll-behavior-x: none;
+  scroll-behavior: smooth;
+  font-size: 20px;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
 }
 
 body {
-	background-color: var(--color-base);
+  background-color: var(--color-base);
 }
 
 .cm-editor,
 .cm-editor * {
-	/* biome-ignore lint/complexity/noImportantStyles: CodeMirror injects inline styles that must be overridden */
-	font-family: "picomono", monospace !important;
+  /* biome-ignore lint/complexity/noImportantStyles: CodeMirror injects inline styles that must be overridden */
+  font-family: "picomono", monospace !important;
 }
