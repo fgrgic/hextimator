@@ -67,14 +67,14 @@ const theme = hextimate("#FACADE")
   .format({ colors: "hsl-raw" }); // override preset's oklch default
 ```
 
-### Overriding presets
+### Extending presets
 
-Presets can carry a **`style`** block (contrast, chroma, and other generation options). After you chain **`.preset()`**, call **`.style(partial)`** to patch or replace overlapping keys—your call wins on those fields, without editing the preset itself:
+Presets can bring their own **`style`** (contrast, chroma, and other generation options). **`.style(partial)`** after **`.preset()`** layers your tweaks on top—options merge along the chain, so you can refine a preset’s look for your product without forking the preset object:
 
 ```typescript
 const theme = hextimate("#FACADE")
   .preset(presets.tinted) // e.g. sets a looser baseMaxChroma
-  .style({ baseMaxChroma: 0.01 }) // app-specific cap
+  .style({ baseMaxChroma: 0.01 }) // tighten further for this app
   .preset(presets.shadcn)
   .format();
 ```
@@ -99,7 +99,7 @@ hextimate("#C0FFEE")
   .format();
 ```
 
-Preset **`style`** vs **`.style()`** on the builder is covered in [Overriding presets](#overriding-presets) above. For every option you can pass, see [Customization](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md). To reuse the same chain with another accent or options, see [Multiple themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md) (`.fork()` + `.style()`).
+Preset **`style`** plus **`.style()`** on the builder is covered in [Extending presets](#extending-presets) above. For every option you can pass, see [Customization](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md). To reuse the same chain with another accent or options, see [Multiple themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md) (`.fork()` + `.style()`).
 
 ### Filtering output
 
