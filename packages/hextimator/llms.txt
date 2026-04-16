@@ -292,6 +292,8 @@ Both commands are identical. Use whichever you prefer.
 | `-t, --theme` | `light`, `dark`, `both` | `both` |
 | `-p, --preset` | Apply preset (repeatable, applied in order): `shadcn`, `mui`, `muted`, `vibrant`, `tinted` | — |
 | `--separator` | Token separator between role and variant | `-` |
+| `--exclude-role` | Omit a role from output by internal name (repeatable) | — |
+| `--exclude-variant` | Omit a variant from output by internal name (repeatable) | — |
 | `--base-color` | Override base color | — |
 | `--base-hue-shift` | Degrees | `0` |
 | `--hue-shift` | Per-variant hue shift | `0` |

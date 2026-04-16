@@ -42,6 +42,8 @@ Format options:
   -c, --colors <type>         hex | rgb | hsl | oklch | p3 and -raw variants        (default: hex)
   -t, --theme <type>          light | dark | both                                   (default: both)
       --separator <char>      Token separator                                       (default: -)
+      --exclude-role <name>   Omit a role from output (repeatable)
+      --exclude-variant <name> Omit a variant from output (repeatable)
 
 Generation options:
       --base-color <color>    Override base/neutral color
@@ -98,6 +100,8 @@ function run(): void {
 			colors: { type: 'string', short: 'c' },
 			theme: { type: 'string', short: 't', default: 'both' },
 			separator: { type: 'string' },
+			'exclude-role': { type: 'string', multiple: true },
+			'exclude-variant': { type: 'string', multiple: true },
 			'base-color': { type: 'string' },
 			'base-hue-shift': { type: 'string' },
 			'hue-shift': { type: 'string' },
@@ -288,6 +292,12 @@ function run(): void {
 		formatOptions.separator = values.separator;
 	} else if (!hasPreset) {
 		formatOptions.separator = '-';
+	}
+	if (values['exclude-role']?.length) {
+		formatOptions.excludeRoles = values['exclude-role'];
+	}
+	if (values['exclude-variant']?.length) {
+		formatOptions.excludeVariants = values['exclude-variant'];
 	}
 
 	const result = builder.format(formatOptions);
