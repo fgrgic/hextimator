@@ -75,5 +75,6 @@ export const mui: HextimatePreset = {
 			strong: 'dark',
 			foreground: 'contrastText',
 		},
+		excludeRoles: ['base'],
 	},
 };

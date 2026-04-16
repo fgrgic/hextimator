@@ -305,6 +305,7 @@ describe('HextimatePaletteBuilder: addVariant()', () => {
 		);
 		expect(lightKeys(result)).toContain('cta-hover');
 	});
+
 });
 
 // ──────────────────────────────────────────────

@@ -14,13 +14,19 @@ export function buildTokenEntries(
 	const colorFormat = options?.colors ?? 'hex';
 	const entries: TokenEntry[] = [];
 
+	const excludeRoles = new Set(options?.excludeRoles ?? []);
+	const excludeVariants = new Set(options?.excludeVariants ?? []);
 	const roles = Object.keys(palette);
 
 	for (const role of roles) {
+		if (excludeRoles.has(role)) continue;
+
 		const scale = palette[role];
 		const variants = Object.keys(scale);
 
 		for (const variant of variants) {
+			if (excludeVariants.has(variant)) continue;
+
 			const raw = scale[variant];
 			if (!isColorObject(raw)) continue;
 

@@ -1,5 +1,7 @@
 ## 0.3.0 (unreleased)
 
+- [#100](https://github.com/fgrgic/hextimator/pull/100): Adds `excludeRoles` and `excludeVariants` to `HextimateFormatOptions`, allowing presets and `.format()` calls to suppress auto-generated roles or variants they don't need. Also available in the CLI as `--exclude-role` and `--exclude-variant` (both repeatable). Applied to the `shadcn` and `mui` built-in presets to clean up their default output.
+
 - #[99](https://github.com/fgrgic/hextimator/pull/96): Adds option to chain presets. Presets are merged, last added wins if both touch the same tokens. For example:
 
 ```ts

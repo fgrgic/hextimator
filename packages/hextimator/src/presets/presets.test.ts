@@ -72,15 +72,14 @@ describe('preset', () => {
 	test('roleNames merge between preset and format call', () => {
 		const theme = hextimate('#6366F1')
 			.preset(shadcn)
-			.format({ roleNames: { warning: 'caution' } });
+			.format({ roleNames: { accent: 'brand' } });
 
 		const lightKeys = Object.keys(theme.light);
-		// shadcn's renaming still applies
-		expect(lightKeys).toContain('--primary');
+		// shadcn's renaming still applies for other roles
 		expect(lightKeys).toContain('--background');
-		// user's override also applies
-		expect(lightKeys).toContain('--caution');
-		expect(lightKeys).not.toContain('--warning');
+		// user's override takes precedence over the preset's rename
+		expect(lightKeys).toContain('--brand');
+		expect(lightKeys).not.toContain('--primary');
 	});
 
 	test('fork preserves preset', () => {
