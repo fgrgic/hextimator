@@ -5,10 +5,10 @@ import type { HextimatePreset } from './types';
  * Higher chroma for neutrals.
  */
 export const bold: HextimatePreset = {
-  style: {
-    light: { lightness: 0.5 },
-    dark: { lightness: 0.8 },
-    baseMaxChroma: 0.06,
-    foregroundMaxChroma: 0.02,
-  },
+	style: {
+		light: { lightness: 0.5 },
+		dark: { lightness: 0.8 },
+		baseMaxChroma: 0.06,
+		foregroundMaxChroma: 0.02,
+	},
 };

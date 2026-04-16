@@ -2,8 +2,8 @@ import { useEffect, useMemo } from 'react';
 import { hextimate } from '../index';
 import { buildStyleContent, buildTargetedVars } from './css';
 import {
-  type UseHextimatorOptions,
-  useStableOptions,
+	type UseHextimatorOptions,
+	useStableOptions,
 } from './use-stable-options';
 
 /**
@@ -24,51 +24,51 @@ import {
  * @param options - Configuration options for palette generation, formatting, and CSS variable injection.
  */
 export function useHextimator(color: string, options?: UseHextimatorOptions) {
-  const stable = useStableOptions(options);
-  const configure = options?.configure;
-  const target = options?.target;
+	const stable = useStableOptions(options);
+	const configure = options?.configure;
+	const target = options?.target;
 
-  const presets = stable?.presets;
+	const presets = stable?.presets;
 
-  const palette = useMemo(() => {
-    const builder = hextimate(color);
-    if (stable?.style && Object.keys(stable.style).length > 0) {
-      builder.style(stable.style);
-    }
-    for (const p of presets ?? []) builder.preset(p);
-    configure?.(builder);
-    return builder.format({
-      ...stable?.format,
-      as: 'css',
-    });
-  }, [color, stable?.style, presets, stable?.format, configure]);
+	const palette = useMemo(() => {
+		const builder = hextimate(color);
+		if (stable?.style && Object.keys(stable.style).length > 0) {
+			builder.style(stable.style);
+		}
+		for (const p of presets ?? []) builder.preset(p);
+		configure?.(builder);
+		return builder.format({
+			...stable?.format,
+			as: 'css',
+		});
+	}, [color, stable?.style, presets, stable?.format, configure]);
 
-  const darkMode = stable?.darkMode ?? { type: 'media' as const };
-  const cssPrefix = stable?.cssPrefix ?? '';
+	const darkMode = stable?.darkMode ?? { type: 'media' as const };
+	const cssPrefix = stable?.cssPrefix ?? '';
 
-  useEffect(() => {
-    const el = target?.current;
+	useEffect(() => {
+		const el = target?.current;
 
-    if (el) {
-      const vars = buildTargetedVars(palette, darkMode, cssPrefix);
-      for (const [key, value] of vars.light) {
-        el.style.setProperty(key, value);
-      }
-      return () => {
-        for (const [key] of vars.light) {
-          el.style.removeProperty(key);
-        }
-      };
-    }
+		if (el) {
+			const vars = buildTargetedVars(palette, darkMode, cssPrefix);
+			for (const [key, value] of vars.light) {
+				el.style.setProperty(key, value);
+			}
+			return () => {
+				for (const [key] of vars.light) {
+					el.style.removeProperty(key);
+				}
+			};
+		}
 
-    const style = document.createElement('style');
-    style.setAttribute('data-hextimator', '');
-    style.textContent = buildStyleContent(palette, darkMode, cssPrefix);
-    document.head.appendChild(style);
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, [palette, darkMode, cssPrefix, target]);
+		const style = document.createElement('style');
+		style.setAttribute('data-hextimator', '');
+		style.textContent = buildStyleContent(palette, darkMode, cssPrefix);
+		document.head.appendChild(style);
+		return () => {
+			document.head.removeChild(style);
+		};
+	}, [palette, darkMode, cssPrefix, target]);
 
-  return palette;
+	return palette;
 }

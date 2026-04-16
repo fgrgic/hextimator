@@ -22,8 +22,6 @@
   <HextimatorScope style={s} /> → <HextimatorScope wrapperStyle={s} />
   ```
 
-  Also: two-space Biome formatting repo-wide, generated theme CSS (including `fallback.css`) indented to match, docs and completions refreshed.
-
 ## 0.2.0
 
 - [#94](https://github.com/fgrgic/hextimator/pull/94): Adds scoped themes to React implementation. See [react.md](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/react.md) for more details:

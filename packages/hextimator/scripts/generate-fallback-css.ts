@@ -7,17 +7,17 @@ import { buildStyleContent } from '../src/react/css';
 export const FALLBACK_BRAND_COLOR = '#737373';
 
 export function neutralFallbackCss(): string {
-  const palette = hextimate(FALLBACK_BRAND_COLOR).format({ as: 'css' });
-  const body = buildStyleContent(
-    palette,
-    { type: 'media-or-class' },
-    '',
-    ':root',
-  );
-  return `${body}\n`;
+	const palette = hextimate(FALLBACK_BRAND_COLOR).format({ as: 'css' });
+	const body = buildStyleContent(
+		palette,
+		{ type: 'media-or-class' },
+		'',
+		':root',
+	);
+	return `${body}\n`;
 }
 
 if (import.meta.main) {
-  const out = join(import.meta.dirname, '..', 'fallback.css');
-  writeFileSync(out, neutralFallbackCss(), 'utf8');
+	const out = join(import.meta.dirname, '..', 'fallback.css');
+	writeFileSync(out, neutralFallbackCss(), 'utf8');
 }

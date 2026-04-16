@@ -1,10 +1,10 @@
 import {
-  type PropsWithChildren,
-  type RefObject,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
+	type PropsWithChildren,
+	type RefObject,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState,
 } from 'react';
 import type { HextimatePaletteBuilder } from '../HextimatePaletteBuilder';
 import { hextimate } from '../index';
@@ -26,15 +26,15 @@ import { useHextimator } from './use-hextimator';
  * - `target`: An optional ref to a specific DOM element where CSS variables should be injected instead of the document root.
  */
 export interface HextimatorProviderProps {
-  defaultColor: string;
-  defaultMode?: ModePreference;
-  style?: HextimateStyleOptions;
-  presets?: HextimatePreset[];
-  format?: Omit<HextimateFormatOptions, 'as'>;
-  configure?: (builder: HextimatePaletteBuilder) => void;
-  darkMode?: DarkModeStrategy;
-  cssPrefix?: string;
-  target?: RefObject<HTMLElement | null>;
+	defaultColor: string;
+	defaultMode?: ModePreference;
+	style?: HextimateStyleOptions;
+	presets?: HextimatePreset[];
+	format?: Omit<HextimateFormatOptions, 'as'>;
+	configure?: (builder: HextimatePaletteBuilder) => void;
+	darkMode?: DarkModeStrategy;
+	cssPrefix?: string;
+	target?: RefObject<HTMLElement | null>;
 }
 
 /**
@@ -57,97 +57,97 @@ export interface HextimatorProviderProps {
  * ```
  */
 export function HextimatorProvider({
-  children,
-  defaultColor,
-  defaultMode: initialMode = 'system',
-  style: initialStyle,
-  presets: initialPresets,
-  format: formatOpts,
-  configure: initialConfigure,
-  darkMode,
-  cssPrefix,
-  target,
+	children,
+	defaultColor,
+	defaultMode: initialMode = 'system',
+	style: initialStyle,
+	presets: initialPresets,
+	format: formatOpts,
+	configure: initialConfigure,
+	darkMode,
+	cssPrefix,
+	target,
 }: PropsWithChildren<HextimatorProviderProps>) {
-  const [color, setColor] = useState(defaultColor);
-  const [modePreference, setMode] = useState<ModePreference>(initialMode);
-  const [style, setStyle] = useState(initialStyle);
-  const [presets, setPresets] = useState(initialPresets);
-  const [configure, setConfigureState] = useState<
-    ((builder: HextimatePaletteBuilder) => void) | undefined
-  >(() => initialConfigure);
+	const [color, setColor] = useState(defaultColor);
+	const [modePreference, setMode] = useState<ModePreference>(initialMode);
+	const [style, setStyle] = useState(initialStyle);
+	const [presets, setPresets] = useState(initialPresets);
+	const [configure, setConfigureState] = useState<
+		((builder: HextimatePaletteBuilder) => void) | undefined
+	>(() => initialConfigure);
 
-  const osDark = useOsPrefersDark();
-  const mode: ResolvedMode =
-    modePreference === 'system' ? (osDark ? 'dark' : 'light') : modePreference;
+	const osDark = useOsPrefersDark();
+	const mode: ResolvedMode =
+		modePreference === 'system' ? (osDark ? 'dark' : 'light') : modePreference;
 
-  const resolvedDarkMode = darkMode ?? { type: 'media' as const };
+	const resolvedDarkMode = darkMode ?? { type: 'media' as const };
 
-  useEffect(() => {
-    applyModeToDOM(
-      modePreference === 'system' ? null : modePreference,
-      resolvedDarkMode,
-    );
-  }, [modePreference, resolvedDarkMode]);
+	useEffect(() => {
+		applyModeToDOM(
+			modePreference === 'system' ? null : modePreference,
+			resolvedDarkMode,
+		);
+	}, [modePreference, resolvedDarkMode]);
 
-  const setConfigure = useCallback(
-    (fn: ((builder: HextimatePaletteBuilder) => void) | undefined) => {
-      setConfigureState(() => fn);
-    },
-    [],
-  );
+	const setConfigure = useCallback(
+		(fn: ((builder: HextimatePaletteBuilder) => void) | undefined) => {
+			setConfigureState(() => fn);
+		},
+		[],
+	);
 
-  const palette = useHextimator(color, {
-    style,
-    presets,
-    format: formatOpts,
-    configure,
-    darkMode,
-    cssPrefix,
-    target,
-  });
+	const palette = useHextimator(color, {
+		style,
+		presets,
+		format: formatOpts,
+		configure,
+		darkMode,
+		cssPrefix,
+		target,
+	});
 
-  const builder = useMemo(() => {
-    const b = hextimate(color);
-    if (style && Object.keys(style).length > 0) {
-      b.style(style);
-    }
-    for (const p of presets ?? []) b.preset(p);
-    configure?.(b);
-    return b;
-  }, [color, style, presets, configure]);
+	const builder = useMemo(() => {
+		const b = hextimate(color);
+		if (style && Object.keys(style).length > 0) {
+			b.style(style);
+		}
+		for (const p of presets ?? []) b.preset(p);
+		configure?.(b);
+		return b;
+	}, [color, style, presets, configure]);
 
-  const value = useMemo<HextimatorContextValue>(
-    () => ({
-      color,
-      setColor,
-      mode,
-      modePreference,
-      setMode,
-      style,
-      setStyle,
-      presets,
-      setPresets,
-      configure,
-      setConfigure,
-      palette,
-      builder,
-    }),
-    [
-      color,
-      mode,
-      modePreference,
-      style,
-      presets,
-      configure,
-      setConfigure,
-      palette,
-      builder,
-    ],
-  );
+	const value = useMemo<HextimatorContextValue>(
+		() => ({
+			color,
+			setColor,
+			mode,
+			modePreference,
+			setMode,
+			style,
+			setStyle,
+			presets,
+			setPresets,
+			configure,
+			setConfigure,
+			palette,
+			builder,
+		}),
+		[
+			color,
+			mode,
+			modePreference,
+			style,
+			presets,
+			configure,
+			setConfigure,
+			palette,
+			builder,
+		],
+	);
 
-  return (
-    <HextimatorContext.Provider value={value}>
-      {children}
-    </HextimatorContext.Provider>
-  );
+	return (
+		<HextimatorContext.Provider value={value}>
+			{children}
+		</HextimatorContext.Provider>
+	);
 }

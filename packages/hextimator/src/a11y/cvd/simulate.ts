@@ -8,22 +8,22 @@ import { type CVDType, simulateCVD } from './matrices';
  * Simulate how a color would appear to someone with a specific type of color vision deficiency (CVD).
  */
 export function simulateColor(
-  color: Color,
-  type: CVDType,
-  severity = 1,
+	color: Color,
+	type: CVDType,
+	severity = 1,
 ): OKLCH {
-  const linear = convert(color, 'linear-rgb');
-  const simulated = simulateCVD([linear.r, linear.g, linear.b], type, severity);
+	const linear = convert(color, 'linear-rgb');
+	const simulated = simulateCVD([linear.r, linear.g, linear.b], type, severity);
 
-  const simulatedLinear = {
-    space: 'linear-rgb' as const,
-    r: Math.max(0, simulated[0]),
-    g: Math.max(0, simulated[1]),
-    b: Math.max(0, simulated[2]),
-    alpha: linear.alpha,
-  };
+	const simulatedLinear = {
+		space: 'linear-rgb' as const,
+		r: Math.max(0, simulated[0]),
+		g: Math.max(0, simulated[1]),
+		b: Math.max(0, simulated[2]),
+		alpha: linear.alpha,
+	};
 
-  return convert(simulatedLinear, 'oklch');
+	return convert(simulatedLinear, 'oklch');
 }
 
 /**
@@ -38,27 +38,27 @@ export function simulateColor(
  * @returns
  */
 export function simulatePalette(
-  palette: HextimatePalette,
-  type: CVDType,
-  severity = 1,
+	palette: HextimatePalette,
+	type: CVDType,
+	severity = 1,
 ): HextimatePalette {
-  const result: HextimatePalette = {};
+	const result: HextimatePalette = {};
 
-  for (const role of Object.keys(palette)) {
-    const scale = palette[role];
-    const newScale: HextimatePalette[string] = {
-      DEFAULT: scale.DEFAULT,
-      strong: scale.strong,
-      weak: scale.weak,
-      foreground: scale.foreground,
-    };
+	for (const role of Object.keys(palette)) {
+		const scale = palette[role];
+		const newScale: HextimatePalette[string] = {
+			DEFAULT: scale.DEFAULT,
+			strong: scale.strong,
+			weak: scale.weak,
+			foreground: scale.foreground,
+		};
 
-    for (const variant of Object.keys(scale)) {
-      newScale[variant] = simulateColor(parse(scale[variant]), type, severity);
-    }
+		for (const variant of Object.keys(scale)) {
+			newScale[variant] = simulateColor(parse(scale[variant]), type, severity);
+		}
 
-    result[role] = newScale;
-  }
+		result[role] = newScale;
+	}
 
-  return result;
+	return result;
 }

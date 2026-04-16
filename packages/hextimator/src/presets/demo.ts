@@ -19,45 +19,45 @@ import type { HextimatePreset } from './types';
  *   .format({ colors: 'rgb' });
  */
 export const demo: HextimatePreset = {
-  style: {
-    minContrastRatio: 'AA',
-    baseHueShift: 180,
-    baseMaxChroma: 0.025,
-    hueShift: 10,
-    light: { lightness: 0.55, maxChroma: 0.14 },
-    dark: { lightness: 0.35, maxChroma: 0.12 },
-  },
+	style: {
+		minContrastRatio: 'AA',
+		baseHueShift: 180,
+		baseMaxChroma: 0.025,
+		hueShift: 10,
+		light: { lightness: 0.55, maxChroma: 0.14 },
+		dark: { lightness: 0.35, maxChroma: 0.12 },
+	},
 
-  roles: [
-    { name: 'cta', color: '#ff006e' },
-    { name: 'info', color: '#3a86ff' },
-  ],
+	roles: [
+		{ name: 'cta', color: '#ff006e' },
+		{ name: 'info', color: '#3a86ff' },
+	],
 
-  variants: [
-    { name: 'muted', placement: { from: 'weak' } },
-    { name: 'vivid', placement: { from: 'strong' } },
-  ],
+	variants: [
+		{ name: 'muted', placement: { from: 'weak' } },
+		{ name: 'vivid', placement: { from: 'strong' } },
+	],
 
-  tokens: [
-    { name: 'surface', value: { from: 'base.weak' } },
-    { name: 'surface-raised', value: { from: 'base', emphasis: -0.04 } },
-    { name: 'border', value: { from: 'base', emphasis: 0.1 } },
-    { name: 'border-subtle', value: { from: 'base', emphasis: 0.05 } },
-    { name: 'ring', value: { from: 'accent' } },
-    { name: 'cta-ring', value: { from: 'cta', chroma: -0.05 } },
-  ],
+	tokens: [
+		{ name: 'surface', value: { from: 'base.weak' } },
+		{ name: 'surface-raised', value: { from: 'base', emphasis: -0.04 } },
+		{ name: 'border', value: { from: 'base', emphasis: 0.1 } },
+		{ name: 'border-subtle', value: { from: 'base', emphasis: 0.05 } },
+		{ name: 'ring', value: { from: 'accent' } },
+		{ name: 'cta-ring', value: { from: 'cta', chroma: -0.05 } },
+	],
 
-  format: {
-    as: 'css',
-    colors: 'hex',
-    roleNames: {
-      base: 'bg',
-      accent: 'brand',
-      positive: 'success',
-      negative: 'danger',
-    },
-    variantNames: {
-      foreground: 'text',
-    },
-  },
+	format: {
+		as: 'css',
+		colors: 'hex',
+		roleNames: {
+			base: 'bg',
+			accent: 'brand',
+			positive: 'success',
+			negative: 'danger',
+		},
+		variantNames: {
+			foreground: 'text',
+		},
+	},
 };

@@ -28,11 +28,11 @@ import { HextimatorContext, type HextimatorContextValue } from './context';
  * @throws If used outside of a `HextimatorProvider` or `HextimatorScope`.
  */
 export function useHextimatorTheme(): HextimatorContextValue {
-  const ctx = useContext(HextimatorContext);
-  if (!ctx) {
-    throw new Error(
-      'useHextimatorTheme must be used within a <HextimatorProvider> or <HextimatorScope>',
-    );
-  }
-  return ctx;
+	const ctx = useContext(HextimatorContext);
+	if (!ctx) {
+		throw new Error(
+			'useHextimatorTheme must be used within a <HextimatorProvider> or <HextimatorScope>',
+		);
+	}
+	return ctx;
 }

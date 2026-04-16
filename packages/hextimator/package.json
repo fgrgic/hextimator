@@ -1,87 +1,87 @@
 {
-  "name": "hextimator",
-  "version": "0.3.0",
-  "description": "Generate perceptually uniform color palettes with light/dark themes and WCAG contrast guarantees from a single brand color. Outputs CSS vars, Tailwind, SCSS, or JSON.",
-  "keywords": [
-    "color",
-    "palette",
-    "generator",
-    "creator",
-    "oklch",
-    "rgb",
-    "rgb2oklch",
-    "theme",
-    "design-tokens",
-    "dark-mode",
-    "wcag",
-    "accessibility",
-    "contrast",
-    "brand-color",
-    "css-variables",
-    "tailwind-theme",
-    "runtime-theming",
-    "multi-tenant"
-  ],
-  "homepage": "https://hextimator.com",
-  "bugs": {
-    "url": "https://github.com/fgrgic/hextimator/issues"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/fgrgic/hextimator.git"
-  },
-  "license": "MIT",
-  "engines": {
-    "node": ">=18.3.0"
-  },
-  "bin": {
-    "hextimator": "./dist/cli.js",
-    "hextimate": "./dist/cli.js"
-  },
-  "author": "fgrgic",
-  "type": "module",
-  "module": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    },
-    "./react": {
-      "types": "./dist/react.d.ts",
-      "import": "./dist/react.js"
-    },
-    "./cli": "./dist/cli.js",
-    "./tailwind.css": "./tailwind.css",
-    "./fallback.css": "./fallback.css"
-  },
-  "files": [
-    "dist",
-    "tailwind.css",
-    "fallback.css",
-    "llms.txt",
-    "CHANGELOG.md"
-  ],
-  "scripts": {
-    "build": "bun scripts/generate-fallback-css.ts && tsup",
-    "dev": "tsup --watch",
-    "generate:fallback": "bun scripts/generate-fallback-css.ts",
-    "test": "bun test"
-  },
-  "peerDependencies": {
-    "react": ">=18"
-  },
-  "peerDependenciesMeta": {
-    "react": {
-      "optional": true
-    }
-  },
-  "devDependencies": {
-    "@types/react": "^19.2.7",
-    "@types/react-dom": "^19.2.3",
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "tsup": "^8.0.0",
-    "typescript": "^5.0.0"
-  }
+	"name": "hextimator",
+	"version": "0.3.0",
+	"description": "Generate perceptually uniform color palettes with light/dark themes and WCAG contrast guarantees from a single brand color. Outputs CSS vars, Tailwind, SCSS, or JSON.",
+	"keywords": [
+		"color",
+		"palette",
+		"generator",
+		"creator",
+		"oklch",
+		"rgb",
+		"rgb2oklch",
+		"theme",
+		"design-tokens",
+		"dark-mode",
+		"wcag",
+		"accessibility",
+		"contrast",
+		"brand-color",
+		"css-variables",
+		"tailwind-theme",
+		"runtime-theming",
+		"multi-tenant"
+	],
+	"homepage": "https://hextimator.com",
+	"bugs": {
+		"url": "https://github.com/fgrgic/hextimator/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/fgrgic/hextimator.git"
+	},
+	"license": "MIT",
+	"engines": {
+		"node": ">=18.3.0"
+	},
+	"bin": {
+		"hextimator": "./dist/cli.js",
+		"hextimate": "./dist/cli.js"
+	},
+	"author": "fgrgic",
+	"type": "module",
+	"module": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		},
+		"./react": {
+			"types": "./dist/react.d.ts",
+			"import": "./dist/react.js"
+		},
+		"./cli": "./dist/cli.js",
+		"./tailwind.css": "./tailwind.css",
+		"./fallback.css": "./fallback.css"
+	},
+	"files": [
+		"dist",
+		"tailwind.css",
+		"fallback.css",
+		"llms.txt",
+		"CHANGELOG.md"
+	],
+	"scripts": {
+		"build": "bun scripts/generate-fallback-css.ts && tsup",
+		"dev": "tsup --watch",
+		"generate:fallback": "bun scripts/generate-fallback-css.ts",
+		"test": "bun test"
+	},
+	"peerDependencies": {
+		"react": ">=18"
+	},
+	"peerDependenciesMeta": {
+		"react": {
+			"optional": true
+		}
+	},
+	"devDependencies": {
+		"@types/react": "^19.2.7",
+		"@types/react-dom": "^19.2.3",
+		"react": "^19.2.0",
+		"react-dom": "^19.2.0",
+		"tsup": "^8.0.0",
+		"typescript": "^5.0.0"
+	}
 }

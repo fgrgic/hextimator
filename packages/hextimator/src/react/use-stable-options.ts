@@ -15,37 +15,37 @@ import type { DarkModeStrategy } from './types';
  *
  */
 export interface UseHextimatorOptions {
-  style?: HextimateStyleOptions;
-  presets?: HextimatePreset[];
-  format?: Omit<HextimateFormatOptions, 'as'>;
-  configure?: (builder: HextimatePaletteBuilder) => void;
-  darkMode?: DarkModeStrategy;
-  cssPrefix?: string;
-  target?: RefObject<HTMLElement | null>;
+	style?: HextimateStyleOptions;
+	presets?: HextimatePreset[];
+	format?: Omit<HextimateFormatOptions, 'as'>;
+	configure?: (builder: HextimatePaletteBuilder) => void;
+	darkMode?: DarkModeStrategy;
+	cssPrefix?: string;
+	target?: RefObject<HTMLElement | null>;
 }
 
 export function useStableOptions(options?: UseHextimatorOptions) {
-  const ref = useRef(options);
-  const serialized = JSON.stringify({
-    style: options?.style,
-    presets: options?.presets,
-    format: options?.format,
-    darkMode: options?.darkMode,
-    cssPrefix: options?.cssPrefix,
-  });
+	const ref = useRef(options);
+	const serialized = JSON.stringify({
+		style: options?.style,
+		presets: options?.presets,
+		format: options?.format,
+		darkMode: options?.darkMode,
+		cssPrefix: options?.cssPrefix,
+	});
 
-  if (
-    serialized !==
-    JSON.stringify({
-      style: ref.current?.style,
-      presets: ref.current?.presets,
-      format: ref.current?.format,
-      darkMode: ref.current?.darkMode,
-      cssPrefix: ref.current?.cssPrefix,
-    })
-  ) {
-    ref.current = options;
-  }
+	if (
+		serialized !==
+		JSON.stringify({
+			style: ref.current?.style,
+			presets: ref.current?.presets,
+			format: ref.current?.format,
+			darkMode: ref.current?.darkMode,
+			cssPrefix: ref.current?.cssPrefix,
+		})
+	) {
+		ref.current = options;
+	}
 
-  return ref.current;
+	return ref.current;
 }

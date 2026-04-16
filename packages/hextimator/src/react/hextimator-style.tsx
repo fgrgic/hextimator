@@ -25,14 +25,14 @@ import { useStableOptions } from './use-stable-options';
  * - `selector`: CSS selector the variables are scoped to. Defaults to `:root`.
  */
 export interface HextimatorStyleProps {
-  color: string;
-  style?: HextimateStyleOptions;
-  presets?: HextimatePreset[];
-  format?: Omit<HextimateFormatOptions, 'as'>;
-  configure?: (builder: HextimatePaletteBuilder) => void;
-  darkMode?: DarkModeStrategy;
-  cssPrefix?: string;
-  selector?: string;
+	color: string;
+	style?: HextimateStyleOptions;
+	presets?: HextimatePreset[];
+	format?: Omit<HextimateFormatOptions, 'as'>;
+	configure?: (builder: HextimatePaletteBuilder) => void;
+	darkMode?: DarkModeStrategy;
+	cssPrefix?: string;
+	selector?: string;
 }
 
 /**
@@ -53,41 +53,41 @@ export interface HextimatorStyleProps {
  * ```
  */
 export function HextimatorStyle({
-  color,
-  style: styleOptions,
-  presets,
-  format: formatOpts,
-  configure,
-  darkMode,
-  cssPrefix,
-  selector,
+	color,
+	style: styleOptions,
+	presets,
+	format: formatOpts,
+	configure,
+	darkMode,
+	cssPrefix,
+	selector,
 }: HextimatorStyleProps) {
-  const stable = useStableOptions({
-    style: styleOptions,
-    presets,
-    format: formatOpts,
-    darkMode,
-    cssPrefix,
-  });
+	const stable = useStableOptions({
+		style: styleOptions,
+		presets,
+		format: formatOpts,
+		darkMode,
+		cssPrefix,
+	});
 
-  const css = useMemo(() => {
-    const builder = hextimate(color);
-    if (stable?.style && Object.keys(stable.style).length > 0) {
-      builder.style(stable.style);
-    }
-    for (const p of stable?.presets ?? []) builder.preset(p);
-    configure?.(builder);
-    const palette = builder.format({
-      ...stable?.format,
-      as: 'css',
-    });
-    return buildStyleContent(
-      palette,
-      stable?.darkMode ?? { type: 'media' },
-      stable?.cssPrefix ?? '',
-      selector,
-    );
-  }, [color, stable, configure, selector]);
+	const css = useMemo(() => {
+		const builder = hextimate(color);
+		if (stable?.style && Object.keys(stable.style).length > 0) {
+			builder.style(stable.style);
+		}
+		for (const p of stable?.presets ?? []) builder.preset(p);
+		configure?.(builder);
+		const palette = builder.format({
+			...stable?.format,
+			as: 'css',
+		});
+		return buildStyleContent(
+			palette,
+			stable?.darkMode ?? { type: 'media' },
+			stable?.cssPrefix ?? '',
+			selector,
+		);
+	}, [color, stable, configure, selector]);
 
-  return <style data-hextimator="">{css}</style>;
+	return <style data-hextimator="">{css}</style>;
 }

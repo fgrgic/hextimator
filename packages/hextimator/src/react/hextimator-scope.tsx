@@ -1,12 +1,12 @@
 import {
-  type CSSProperties,
-  type ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useId,
-  useMemo,
-  useState,
+	type CSSProperties,
+	type ReactNode,
+	useCallback,
+	useContext,
+	useEffect,
+	useId,
+	useMemo,
+	useState,
 } from 'react';
 import type { HextimatePaletteBuilder } from '../HextimatePaletteBuilder';
 import { hextimate } from '../index';
@@ -34,24 +34,24 @@ import { useStableOptions } from './use-stable-options';
  * line up.
  */
 export interface HextimatorScopeProps {
-  defaultColor: string;
-  /**
-   * When true, builds from this scope's color and options only (via
-   * `hextimate`), without forking the parent builder. Use for previews or
-   * widgets where each scope must match exactly its presets and must not
-   * inherit parent roles, variants, or preset merges.
-   */
-  isolated?: boolean;
-  style?: HextimateStyleOptions;
-  presets?: HextimatePreset[];
-  format?: Omit<HextimateFormatOptions, 'as'>;
-  configure?: (builder: HextimatePaletteBuilder) => void;
-  darkMode?: DarkModeStrategy;
-  cssPrefix?: string;
-  className?: string;
-  /** Inline styles for the scope wrapper element (not palette options; use `style` for those). */
-  wrapperStyle?: CSSProperties;
-  children?: ReactNode;
+	defaultColor: string;
+	/**
+	 * When true, builds from this scope's color and options only (via
+	 * `hextimate`), without forking the parent builder. Use for previews or
+	 * widgets where each scope must match exactly its presets and must not
+	 * inherit parent roles, variants, or preset merges.
+	 */
+	isolated?: boolean;
+	style?: HextimateStyleOptions;
+	presets?: HextimatePreset[];
+	format?: Omit<HextimateFormatOptions, 'as'>;
+	configure?: (builder: HextimatePaletteBuilder) => void;
+	darkMode?: DarkModeStrategy;
+	cssPrefix?: string;
+	className?: string;
+	/** Inline styles for the scope wrapper element (not palette options; use `style` for those). */
+	wrapperStyle?: CSSProperties;
+	children?: ReactNode;
 }
 
 /**
@@ -87,129 +87,129 @@ export interface HextimatorScopeProps {
  * ```
  */
 export function HextimatorScope({
-  defaultColor,
-  isolated = false,
-  style: initialStyle,
-  presets: initialPresets,
-  format: formatOpts,
-  configure: initialConfigure,
-  darkMode,
-  cssPrefix,
-  className,
-  wrapperStyle,
-  children,
+	defaultColor,
+	isolated = false,
+	style: initialStyle,
+	presets: initialPresets,
+	format: formatOpts,
+	configure: initialConfigure,
+	darkMode,
+	cssPrefix,
+	className,
+	wrapperStyle,
+	children,
 }: HextimatorScopeProps) {
-  const id = useId();
-  const selector = `[data-hextimator-scope="${id}"]`;
+	const id = useId();
+	const selector = `[data-hextimator-scope="${id}"]`;
 
-  const [color, setColor] = useState(defaultColor);
-  const [style, setStyle] = useState(initialStyle);
-  const [presets, setPresets] = useState(initialPresets);
-  const [configure, setConfigureState] = useState<
-    ((builder: HextimatePaletteBuilder) => void) | undefined
-  >(() => initialConfigure);
+	const [color, setColor] = useState(defaultColor);
+	const [style, setStyle] = useState(initialStyle);
+	const [presets, setPresets] = useState(initialPresets);
+	const [configure, setConfigureState] = useState<
+		((builder: HextimatePaletteBuilder) => void) | undefined
+	>(() => initialConfigure);
 
-  useEffect(() => {
-    setColor(defaultColor);
-  }, [defaultColor]);
+	useEffect(() => {
+		setColor(defaultColor);
+	}, [defaultColor]);
 
-  const setConfigure = useCallback(
-    (fn: ((builder: HextimatePaletteBuilder) => void) | undefined) => {
-      setConfigureState(() => fn);
-    },
-    [],
-  );
+	const setConfigure = useCallback(
+		(fn: ((builder: HextimatePaletteBuilder) => void) | undefined) => {
+			setConfigureState(() => fn);
+		},
+		[],
+	);
 
-  const parent = useContext(HextimatorContext);
+	const parent = useContext(HextimatorContext);
 
-  const stable = useStableOptions({
-    style,
-    presets,
-    format: formatOpts,
-    darkMode,
-    cssPrefix,
-  });
+	const stable = useStableOptions({
+		style,
+		presets,
+		format: formatOpts,
+		darkMode,
+		cssPrefix,
+	});
 
-  const builder = useMemo(() => {
-    const b =
-      !isolated && parent?.builder
-        ? parent.builder.fork(color)
-        : hextimate(color);
-    if (stable?.style && Object.keys(stable.style).length > 0) {
-      b.style(stable.style);
-    }
-    for (const p of presets ?? []) b.preset(p);
-    configure?.(b);
-    return b;
-  }, [parent?.builder, color, presets, stable, configure, isolated]);
+	const builder = useMemo(() => {
+		const b =
+			!isolated && parent?.builder
+				? parent.builder.fork(color)
+				: hextimate(color);
+		if (stable?.style && Object.keys(stable.style).length > 0) {
+			b.style(stable.style);
+		}
+		for (const p of presets ?? []) b.preset(p);
+		configure?.(b);
+		return b;
+	}, [parent?.builder, color, presets, stable, configure, isolated]);
 
-  const palette = useMemo(
-    () =>
-      builder.format({
-        ...stable?.format,
-        as: 'css',
-      }),
-    [builder, stable],
-  );
+	const palette = useMemo(
+		() =>
+			builder.format({
+				...stable?.format,
+				as: 'css',
+			}),
+		[builder, stable],
+	);
 
-  const css = useMemo(
-    () =>
-      buildStyleContent(
-        palette,
-        stable?.darkMode ?? { type: 'media' },
-        stable?.cssPrefix ?? '',
-        selector,
-      ),
-    [palette, stable, selector],
-  );
+	const css = useMemo(
+		() =>
+			buildStyleContent(
+				palette,
+				stable?.darkMode ?? { type: 'media' },
+				stable?.cssPrefix ?? '',
+				selector,
+			),
+		[palette, stable, selector],
+	);
 
-  const osDark = useOsPrefersDark();
+	const osDark = useOsPrefersDark();
 
-  const noopSetMode = useCallback(() => {}, []);
-  const mode: ResolvedMode = parent?.mode ?? (osDark ? 'dark' : 'light');
-  const modePreference: ModePreference = parent?.modePreference ?? 'system';
-  const setMode = parent?.setMode ?? noopSetMode;
+	const noopSetMode = useCallback(() => {}, []);
+	const mode: ResolvedMode = parent?.mode ?? (osDark ? 'dark' : 'light');
+	const modePreference: ModePreference = parent?.modePreference ?? 'system';
+	const setMode = parent?.setMode ?? noopSetMode;
 
-  const value = useMemo<HextimatorContextValue>(
-    () => ({
-      color,
-      setColor,
-      mode,
-      modePreference,
-      setMode,
-      style,
-      setStyle,
-      presets,
-      setPresets,
-      configure,
-      setConfigure,
-      palette,
-      builder,
-    }),
-    [
-      color,
-      mode,
-      modePreference,
-      setMode,
-      style,
-      presets,
-      configure,
-      setConfigure,
-      palette,
-      builder,
-    ],
-  );
+	const value = useMemo<HextimatorContextValue>(
+		() => ({
+			color,
+			setColor,
+			mode,
+			modePreference,
+			setMode,
+			style,
+			setStyle,
+			presets,
+			setPresets,
+			configure,
+			setConfigure,
+			palette,
+			builder,
+		}),
+		[
+			color,
+			mode,
+			modePreference,
+			setMode,
+			style,
+			presets,
+			configure,
+			setConfigure,
+			palette,
+			builder,
+		],
+	);
 
-  return (
-    <HextimatorContext.Provider value={value}>
-      <div
-        data-hextimator-scope={id}
-        className={className}
-        style={wrapperStyle}
-      >
-        <style data-hextimator="">{css}</style>
-        {children}
-      </div>
-    </HextimatorContext.Provider>
-  );
+	return (
+		<HextimatorContext.Provider value={value}>
+			<div
+				data-hextimator-scope={id}
+				className={className}
+				style={wrapperStyle}
+			>
+				<style data-hextimator="">{css}</style>
+				{children}
+			</div>
+		</HextimatorContext.Provider>
+	);
 }

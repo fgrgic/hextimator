@@ -1,122 +1,122 @@
 import { describe, expect, it } from 'bun:test';
 import {
-  formatCSS,
-  formatJSON,
-  formatObject,
-  formatSCSS,
-  formatTailwind,
-  formatTailwindCSS,
+	formatCSS,
+	formatJSON,
+	formatObject,
+	formatSCSS,
+	formatTailwind,
+	formatTailwindCSS,
 } from './formatters';
 import type { TokenEntry } from './types';
 
 const entries: TokenEntry[] = [
-  { role: 'base', variant: 'DEFAULT', isDefault: true, value: '#ffffff' },
-  { role: 'base', variant: 'strong', isDefault: false, value: '#cccccc' },
-  { role: 'accent', variant: 'DEFAULT', isDefault: true, value: '#0000ff' },
-  { role: 'accent', variant: 'weak', isDefault: false, value: '#8888ff' },
+	{ role: 'base', variant: 'DEFAULT', isDefault: true, value: '#ffffff' },
+	{ role: 'base', variant: 'strong', isDefault: false, value: '#cccccc' },
+	{ role: 'accent', variant: 'DEFAULT', isDefault: true, value: '#0000ff' },
+	{ role: 'accent', variant: 'weak', isDefault: false, value: '#8888ff' },
 ];
 
 describe('formatObject', () => {
-  it('collapses DEFAULT variant to just the role name', () => {
-    const result = formatObject(entries, '-');
-    expect(result.base).toBe('#ffffff');
-  });
+	it('collapses DEFAULT variant to just the role name', () => {
+		const result = formatObject(entries, '-');
+		expect(result.base).toBe('#ffffff');
+	});
 
-  it('combines role and variant with separator for non-DEFAULT', () => {
-    const result = formatObject(entries, '-');
-    expect(result['base-strong']).toBe('#cccccc');
-  });
+	it('combines role and variant with separator for non-DEFAULT', () => {
+		const result = formatObject(entries, '-');
+		expect(result['base-strong']).toBe('#cccccc');
+	});
 
-  it('respects custom separator', () => {
-    const result = formatObject(entries, '_');
-    expect(result.base_strong).toBe('#cccccc');
-    expect(result.accent_weak).toBe('#8888ff');
-  });
+	it('respects custom separator', () => {
+		const result = formatObject(entries, '_');
+		expect(result.base_strong).toBe('#cccccc');
+		expect(result.accent_weak).toBe('#8888ff');
+	});
 
-  it('includes all entries', () => {
-    const result = formatObject(entries, '-');
-    expect(Object.keys(result)).toHaveLength(4);
-  });
+	it('includes all entries', () => {
+		const result = formatObject(entries, '-');
+		expect(Object.keys(result)).toHaveLength(4);
+	});
 });
 
 describe('formatCSS', () => {
-  it('prefixes keys with --', () => {
-    const result = formatCSS(entries, '-');
-    expect(result['--base']).toBe('#ffffff');
-    expect(result['--base-strong']).toBe('#cccccc');
-  });
+	it('prefixes keys with --', () => {
+		const result = formatCSS(entries, '-');
+		expect(result['--base']).toBe('#ffffff');
+		expect(result['--base-strong']).toBe('#cccccc');
+	});
 
-  it('does not include unprefixed keys', () => {
-    const result = formatCSS(entries, '-');
-    expect(result.base).toBeUndefined();
-  });
+	it('does not include unprefixed keys', () => {
+		const result = formatCSS(entries, '-');
+		expect(result.base).toBeUndefined();
+	});
 });
 
 describe('formatSCSS', () => {
-  it('prefixes keys with $', () => {
-    const result = formatSCSS(entries, '-');
-    expect(result.$base).toBe('#ffffff');
-    expect(result['$base-strong']).toBe('#cccccc');
-  });
+	it('prefixes keys with $', () => {
+		const result = formatSCSS(entries, '-');
+		expect(result.$base).toBe('#ffffff');
+		expect(result['$base-strong']).toBe('#cccccc');
+	});
 
-  it('does not include unprefixed keys', () => {
-    const result = formatSCSS(entries, '-');
-    expect(result.base).toBeUndefined();
-  });
+	it('does not include unprefixed keys', () => {
+		const result = formatSCSS(entries, '-');
+		expect(result.base).toBeUndefined();
+	});
 });
 
 describe('formatTailwind', () => {
-  it('produces a nested role → variant → value structure', () => {
-    const result = formatTailwind(entries);
-    expect(result.base.DEFAULT).toBe('#ffffff');
-    expect(result.base.strong).toBe('#cccccc');
-    expect(result.accent.DEFAULT).toBe('#0000ff');
-    expect(result.accent.weak).toBe('#8888ff');
-  });
+	it('produces a nested role → variant → value structure', () => {
+		const result = formatTailwind(entries);
+		expect(result.base.DEFAULT).toBe('#ffffff');
+		expect(result.base.strong).toBe('#cccccc');
+		expect(result.accent.DEFAULT).toBe('#0000ff');
+		expect(result.accent.weak).toBe('#8888ff');
+	});
 
-  it('groups all variants under their role', () => {
-    const result = formatTailwind(entries);
-    expect(Object.keys(result.base)).toEqual(['DEFAULT', 'strong']);
-  });
+	it('groups all variants under their role', () => {
+		const result = formatTailwind(entries);
+		expect(Object.keys(result.base)).toEqual(['DEFAULT', 'strong']);
+	});
 });
 
 describe('formatTailwindCSS', () => {
-  it('wraps entries in a @theme block with --color- prefix', () => {
-    const result = formatTailwindCSS(entries, '-');
-    expect(result).toContain('@theme {');
-    expect(result).toContain('--color-base: #ffffff;');
-    expect(result).toContain('--color-base-strong: #cccccc;');
-    expect(result).toContain('--color-accent: #0000ff;');
-    expect(result).toContain('--color-accent-weak: #8888ff;');
-  });
+	it('wraps entries in a @theme block with --color- prefix', () => {
+		const result = formatTailwindCSS(entries, '-');
+		expect(result).toContain('@theme {');
+		expect(result).toContain('--color-base: #ffffff;');
+		expect(result).toContain('--color-base-strong: #cccccc;');
+		expect(result).toContain('--color-accent: #0000ff;');
+		expect(result).toContain('--color-accent-weak: #8888ff;');
+	});
 
-  it('collapses DEFAULT variant to just the role name', () => {
-    const result = formatTailwindCSS(entries, '-');
-    expect(result).toContain('--color-base:');
-    expect(result).not.toContain('--color-base-DEFAULT');
-  });
+	it('collapses DEFAULT variant to just the role name', () => {
+		const result = formatTailwindCSS(entries, '-');
+		expect(result).toContain('--color-base:');
+		expect(result).not.toContain('--color-base-DEFAULT');
+	});
 
-  it('respects custom separator', () => {
-    const result = formatTailwindCSS(entries, '_');
-    expect(result).toContain('--color-base_strong: #cccccc;');
-  });
+	it('respects custom separator', () => {
+		const result = formatTailwindCSS(entries, '_');
+		expect(result).toContain('--color-base_strong: #cccccc;');
+	});
 });
 
 describe('formatJSON', () => {
-  it('returns a valid JSON string', () => {
-    const result = formatJSON(entries, '-');
-    expect(() => JSON.parse(result)).not.toThrow();
-  });
+	it('returns a valid JSON string', () => {
+		const result = formatJSON(entries, '-');
+		expect(() => JSON.parse(result)).not.toThrow();
+	});
 
-  it('contains the expected keys and values', () => {
-    const result = formatJSON(entries, '-');
-    const parsed = JSON.parse(result);
-    expect(parsed.base).toBe('#ffffff');
-    expect(parsed['base-strong']).toBe('#cccccc');
-  });
+	it('contains the expected keys and values', () => {
+		const result = formatJSON(entries, '-');
+		const parsed = JSON.parse(result);
+		expect(parsed.base).toBe('#ffffff');
+		expect(parsed['base-strong']).toBe('#cccccc');
+	});
 
-  it('is pretty-printed (contains newlines)', () => {
-    const result = formatJSON(entries, '-');
-    expect(result).toContain('\n');
-  });
+	it('is pretty-printed (contains newlines)', () => {
+		const result = formatJSON(entries, '-');
+		expect(result).toContain('\n');
+	});
 });

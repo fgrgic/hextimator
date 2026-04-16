@@ -11,15 +11,15 @@ const DEFAULT_CODE = `hextimate(color)
   `;
 
 export function CodeEditor() {
-  const { color } = useHextimatorTheme();
+	const { color } = useHextimatorTheme();
 
-  return (
-    <PlaygroundEditor
-      defaultCode={DEFAULT_CODE}
-      color={color}
-      className="bg-base-strong border border-base-weak"
-      outputClassName="max-h-75 md:max-h-80"
-      fontSize={20}
-    />
-  );
+	return (
+		<PlaygroundEditor
+			defaultCode={DEFAULT_CODE}
+			color={color}
+			className="bg-base-strong border border-base-weak"
+			outputClassName="max-h-75 md:max-h-80"
+			fontSize={20}
+		/>
+	);
 }
