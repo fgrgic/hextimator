@@ -187,10 +187,7 @@ describe('preset chaining', () => {
 			generation: { light: { maxChroma: 0.06 }, dark: { maxChroma: 0.05 } },
 		};
 
-		const theme = hextimate('#6366F1')
-			.preset(muted)
-			.preset(shadcn)
-			.format();
+		const theme = hextimate('#6366F1').preset(muted).preset(shadcn).format();
 
 		// shadcn tokens present
 		expect(theme.light).toHaveProperty('--primary');
@@ -200,7 +197,9 @@ describe('preset chaining', () => {
 		// muted generation applied (chroma is lower than default)
 		const defaultTheme = hextimate('#6366F1').preset(shadcn).format();
 		const mutedPrimary = (theme.light as Record<string, string>)['--primary'];
-		const defaultPrimary = (defaultTheme.light as Record<string, string>)['--primary'];
+		const defaultPrimary = (defaultTheme.light as Record<string, string>)[
+			'--primary'
+		];
 		expect(mutedPrimary).not.toBe(defaultPrimary);
 	});
 
@@ -290,10 +289,7 @@ describe('preset chaining', () => {
 			tokens: [{ name: 'ring', value: { from: 'accent' } }],
 		};
 
-		const theme = hextimate('#6366F1')
-			.preset(presetA)
-			.preset(presetB)
-			.format();
+		const theme = hextimate('#6366F1').preset(presetA).preset(presetB).format();
 
 		// Both tokens present
 		expect(theme.light).toHaveProperty('surface');
@@ -314,10 +310,7 @@ describe('preset chaining', () => {
 			},
 		};
 
-		const theme = hextimate('#6366F1')
-			.preset(presetA)
-			.preset(presetB)
-			.format();
+		const theme = hextimate('#6366F1').preset(presetA).preset(presetB).format();
 
 		const keys = Object.keys(theme.light);
 		// presetA's roleNames

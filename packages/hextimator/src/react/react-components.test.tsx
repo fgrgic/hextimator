@@ -68,6 +68,36 @@ describe('HextimatorProvider / Scope (renderToString)', () => {
 		expect(html).toContain('--accent:');
 	});
 
+	it('isolated scope does not inherit parent builder roles', () => {
+		const html = renderToString(
+			<HextimatorProvider
+				defaultColor="#3366ff"
+				darkMode={false}
+				configure={(b) => b.addRole('peekrole', '#ff0000')}
+			>
+				<HextimatorScope isolated defaultColor="#3366ff" darkMode={false}>
+					<span />
+				</HextimatorScope>
+			</HextimatorProvider>,
+		);
+		expect(html).not.toContain('--peekrole');
+	});
+
+	it('non-isolated nested scope inherits parent builder roles', () => {
+		const html = renderToString(
+			<HextimatorProvider
+				defaultColor="#3366ff"
+				darkMode={false}
+				configure={(b) => b.addRole('peekrole', '#ff0000')}
+			>
+				<HextimatorScope defaultColor="#3366ff" darkMode={false}>
+					<span />
+				</HextimatorScope>
+			</HextimatorProvider>,
+		);
+		expect(html).toContain('--peekrole');
+	});
+
 	it('useHextimatorTheme throws outside provider and scope', () => {
 		expect(() => renderToString(<ThemeColor />)).toThrow(
 			'useHextimatorTheme must be used within',

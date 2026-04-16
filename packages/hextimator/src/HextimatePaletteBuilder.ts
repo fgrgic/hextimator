@@ -98,7 +98,11 @@ function mergeGenerationOptions(
 		if (!source) continue;
 		for (const [key, value] of Object.entries(source)) {
 			if (value === undefined) continue;
-			if (NESTED_GEN_KEYS.has(key) && typeof value === 'object' && value !== null) {
+			if (
+				NESTED_GEN_KEYS.has(key) &&
+				typeof value === 'object' &&
+				value !== null
+			) {
 				result[key] = { ...(result[key] as Record<string, unknown>), ...value };
 			} else {
 				result[key] = value;

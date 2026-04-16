@@ -3,6 +3,7 @@ import {
 	type ReactNode,
 	useCallback,
 	useContext,
+	useEffect,
 	useId,
 	useMemo,
 	useState,
@@ -37,6 +38,13 @@ import { useStableOptions } from './use-stable-options';
  */
 export interface HextimatorScopeProps {
 	defaultColor: string;
+	/**
+	 * When true, builds from this scope's color and options only (via
+	 * `hextimate`), without forking the parent builder. Use for previews or
+	 * widgets where each scope must match exactly its presets and must not
+	 * inherit parent roles, variants, or preset merges.
+	 */
+	isolated?: boolean;
 	generation?: HextimateGenerationOptions;
 	presets?: HextimatePreset[];
 	format?: Omit<HextimateFormatOptions, 'as'>;
@@ -82,6 +90,7 @@ export interface HextimatorScopeProps {
  */
 export function HextimatorScope({
 	defaultColor,
+	isolated = false,
 	generation: initialGeneration,
 	presets: initialPresets,
 	format: formatOpts,
@@ -102,6 +111,10 @@ export function HextimatorScope({
 		((builder: HextimatePaletteBuilder) => void) | undefined
 	>(() => initialConfigure);
 
+	useEffect(() => {
+		setColor(defaultColor);
+	}, [defaultColor]);
+
 	const setConfigure = useCallback(
 		(fn: ((builder: HextimatePaletteBuilder) => void) | undefined) => {
 			setConfigureState(() => fn);
@@ -120,13 +133,14 @@ export function HextimatorScope({
 	});
 
 	const builder = useMemo(() => {
-		const b = parent?.builder
-			? parent.builder.fork(color, stable?.generation)
-			: hextimate(color, stable?.generation);
+		const b =
+			!isolated && parent?.builder
+				? parent.builder.fork(color, stable?.generation)
+				: hextimate(color, stable?.generation);
 		for (const p of presets ?? []) b.preset(p);
 		configure?.(b);
 		return b;
-	}, [parent?.builder, color, presets, stable, configure]);
+	}, [parent?.builder, color, presets, stable, configure, isolated]);
 
 	const palette = useMemo(
 		() =>
