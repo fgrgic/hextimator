@@ -9,6 +9,7 @@ import {
 } from 'react';
 import type { HextimatePaletteBuilder } from '../HextimatePaletteBuilder';
 import { hextimate } from '../index';
+import type { HextimatePreset } from '../presets/types';
 import type {
 	HextimateFormatOptions,
 	HextimateGenerationOptions,
@@ -37,6 +38,7 @@ import { useStableOptions } from './use-stable-options';
 export interface HextimatorScopeProps {
 	defaultColor: string;
 	generation?: HextimateGenerationOptions;
+	presets?: HextimatePreset[];
 	format?: Omit<HextimateFormatOptions, 'as'>;
 	configure?: (builder: HextimatePaletteBuilder) => void;
 	darkMode?: DarkModeStrategy;
@@ -81,6 +83,7 @@ export interface HextimatorScopeProps {
 export function HextimatorScope({
 	defaultColor,
 	generation: initialGeneration,
+	presets: initialPresets,
 	format: formatOpts,
 	configure: initialConfigure,
 	darkMode,
@@ -94,6 +97,7 @@ export function HextimatorScope({
 
 	const [color, setColor] = useState(defaultColor);
 	const [generation, setGeneration] = useState(initialGeneration);
+	const [presets, setPresets] = useState(initialPresets);
 	const [configure, setConfigureState] = useState<
 		((builder: HextimatePaletteBuilder) => void) | undefined
 	>(() => initialConfigure);
@@ -109,6 +113,7 @@ export function HextimatorScope({
 
 	const stable = useStableOptions({
 		generation,
+		presets,
 		format: formatOpts,
 		darkMode,
 		cssPrefix,
@@ -118,9 +123,10 @@ export function HextimatorScope({
 		const b = parent?.builder
 			? parent.builder.fork(color, stable?.generation)
 			: hextimate(color, stable?.generation);
+		for (const p of presets ?? []) b.preset(p);
 		configure?.(b);
 		return b;
-	}, [parent?.builder, color, stable, configure]);
+	}, [parent?.builder, color, presets, stable, configure]);
 
 	const palette = useMemo(
 		() =>
@@ -158,6 +164,8 @@ export function HextimatorScope({
 			setMode,
 			generation,
 			setGeneration,
+			presets,
+			setPresets,
 			configure,
 			setConfigure,
 			palette,
@@ -169,6 +177,7 @@ export function HextimatorScope({
 			modePreference,
 			setMode,
 			generation,
+			presets,
 			configure,
 			setConfigure,
 			palette,

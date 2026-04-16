@@ -11,7 +11,7 @@ One color in, whole theme out.
 Your customers pick a brand color. Your app looks good. Every time. No manual tuning, no edge cases where "that shade of yellow" breaks your UI.
 
 - **Ship white-labeling without the design overhead** — generate per-tenant branded themes at runtime from a single input color. No design review per customer.
-- **Every color just works** — perceptually uniform color science (OKLCH) means electric blue looks as balanced as muted olive. No hue gets special treatment.
+- **Every color just works** — perceptually uniform colors with OKLCH means that electric blue looks as balanced as muted olive.
 - **Accessible by default** — every foreground meets AAA contrast against its background, light and dark mode included.
 
 **[hextimator.com](https://hextimator.com)** — try it in the playground.
@@ -27,7 +27,7 @@ npm i hextimator
 Or quickly get a one-off theme:
 
 ```bash
-npx hextimator "#ff6677"
+npx hextimator "#FF6677"
 ```
 
 ## Quick start
@@ -35,39 +35,46 @@ npx hextimator "#ff6677"
 ```typescript
 import { hextimate } from "hextimator";
 
-const theme = hextimate("#6A5ACD").format();
+const theme = hextimate("#C0FFEE").format();
 ```
 
-### With a preset
+### With presets
 
-Presets configure hextimator for a specific framework in one call:
+Presets are predefined configurations you can use as a starting point: whether for a specific framework or a particular style:
 
 ```typescript
 import { hextimate, presets } from "hextimator";
 
-// shadcn/ui — generates --background, --primary, --destructive, etc.
-const theme = hextimate("#6366F1")
+// Framework preset -- shadcn/ui tokens
+const theme = hextimate("#DEC0DE").preset(presets.shadcn).format();
+
+// Style preset -- muted palette
+const theme = hextimate("#BADA55").preset(presets.muted).format();
+
+// Chain them -- muted shadcn theme
+const theme = hextimate("#0FF1CE")
   .preset(presets.shadcn)
+  .preset(presets.muted)
   .format();
 ```
 
-Presets set sensible defaults but you can override anything in `.format()`:
+Presets are applied sequentially (last wins for conflicts) and you can override anything in `.format()`:
 
 ```typescript
-const theme = hextimate("#6366F1")
+const theme = hextimate("#FACADE")
+  .preset(presets.muted)
   .preset(presets.shadcn)
-  .format({ colors: "hsl-raw" }); // older shadcn format
+  .format({ colors: "hsl-raw" }); // override preset's oklch default
 ```
 
-See [Presets](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/presets.md) for the full list and how to create your own.
+See [Presets](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/presets.md) for the full list, chaining details, and how to create your own.
 
 ## Two-step API: generate, then format
 
 hextimator separates **palette generation** (color math) from **formatting** (output shape). This lets you extend the palette before choosing how to serialize it.
 
 ```typescript
-const theme = hextimate("#6A5ACD")
-  .format({ as: "css", colors: "oklch" });
+const theme = hextimate("#0FF5E7").format({ as: "css", colors: "oklch" });
 ```
 
 ### Output formats
@@ -83,25 +90,25 @@ All formats return `{ light: { ... }, dark: { ... } }`.
 
 ### Color value formats
 
-| `colors` | Example output |
-|---|---|
-| `"hex"` (default) | `"#6a5acd"` |
-| `"oklch"` | `"oklch(0.54 0.18 276)"` |
-| `"oklch-raw"` | `"0.54 0.18 276"` |
-| `"rgb"` | `"rgb(106, 90, 205)"` |
-| `"rgb-raw"` | `"106 90 205"` |
-| `"hsl"` | `"hsl(248, 53%, 58%)"` |
-| `"hsl-raw"` | `"248 53% 58%"` |
-| `"p3"` | `"color(display-p3 0.39 0.34 0.79)"` |
-| `"p3-raw"` | `"0.39 0.34 0.79"` |
+| `colors`          | Example output                       |
+| ----------------- | ------------------------------------ |
+| `"hex"` (default) | `"#6a5acd"`                          |
+| `"oklch"`         | `"oklch(0.54 0.18 276)"`             |
+| `"oklch-raw"`     | `"0.54 0.18 276"`                    |
+| `"rgb"`           | `"rgb(106, 90, 205)"`                |
+| `"rgb-raw"`       | `"106 90 205"`                       |
+| `"hsl"`           | `"hsl(248, 53%, 58%)"`               |
+| `"hsl-raw"`       | `"248 53% 58%"`                      |
+| `"p3"`            | `"color(display-p3 0.39 0.34 0.79)"` |
+| `"p3-raw"`        | `"0.39 0.34 0.79"`                   |
 
 ### Flexible input
 
 ```typescript
-hextimate("#FF6666");            // hex string
+hextimate("#FF6666"); // hex string
 hextimate("rgb(255, 102, 102)"); // CSS function
-hextimate([255, 102, 102]);      // RGB tuple
-hextimate(0xff6666);             // numeric hex
+hextimate([255, 102, 102]); // RGB tuple
+hextimate(0xff6666); // numeric hex
 ```
 
 > **Note on alpha**: Alpha values are intentionally ignored — `rgba(255, 0, 0, 0.5)` is treated as fully opaque `rgb(255, 0, 0)`. Alpha tokens undermine accessibility guarantees because contrast ratios depend on the background, which hextimator does not control.
