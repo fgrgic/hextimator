@@ -6,7 +6,7 @@ There are two ways to wire it up:
 
 - **`HextimatorProvider`** — React context for the base color, dark-mode preference, and builder configuration. It injects the stylesheet (via `useHextimator` internally). Child components use **`useHextimatorTheme()`** to read or update that state.
 
-- **`useHextimator`** or **`HextimatorStyle`** — no context. They only compute the palette and emit CSS: the hook uses `useEffect` plus `document.head` or a `target` ref; the component renders a `<style>` node. There is no `useHextimatorTheme()`; you supply color and options yourself (fixed or from your own state).
+- **`useHextimator`** or **`HextimatorStyle`** — no context. They only compute the palette and emit CSS: the hook uses `useEffect` plus `document.head` or a `target` ref; the component renders a `<style>` node. There is no `useHextimatorTheme()`; you pass **`color`** and an optional options object (`style`, `darkMode`, `format`, …). That mirrors the core builder API: **`hextimate(color)`** only takes the color, and palette tuning uses **`.style()`** on the builder (here exposed as the hook/component **`style`** prop).
 
 **`HextimatorScope`** themes a subtree and inherits palette shape from the parent via **`fork()`** (see below).
 
@@ -312,8 +312,8 @@ function ThemePicker() {
 | --------------------- | --------------------------------------------------------------------- |
 | `color`               | Current input color                                                   |
 | `setColor(color)`     | Update the input color — palette regenerates automatically            |
-| `style`          | Current style options                                            |
-| `setStyle(opts)` | Update style options at runtime                                  |
+| `style`          | Current style options                                             |
+| `setStyle(opts)` | Update style options at runtime                                   |
 | `configure`           | Current builder configure function                                    |
 | `setConfigure(fn)`    | Update the builder configure function (e.g. to toggle CVD adaptation) |
 | `palette`             | The current formatted palette result                                  |

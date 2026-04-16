@@ -1,6 +1,6 @@
 # Presets
 
-Presets are predefined configurations that set up hextimator in one call -- whether for a specific framework or a particular style. They can be chained:
+Presets are predefined configurations that set up hextimator in one call -- whether for a specific framework or a particular style. **`hextimate` takes only the color**; presets attach with **`.preset()`**, and optional tuning uses **`.style()`** on the same chain (never a second argument to `hextimate`). They can be chained:
 
 ```typescript
 import { hextimate, presets } from "hextimator";
