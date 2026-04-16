@@ -8,9 +8,6 @@ import type { HextimatePreset } from './types';
  * `--accent`, `--destructive`, `--card`, `--popover`, `--border`, `--input`, `--ring`,
  * plus their `-foreground` counterparts.
  *
- * Also includes hextimator's bonus scale variants (`--primary-strong`, `--primary-weak`, etc.)
- * which you can optionally use beyond what shadcn requires.
- *
  * Defaults to `oklch` color format (modern shadcn). Override with
  * `.format({ colors: 'hsl-raw' })` for older shadcn setups.
  *
@@ -90,5 +87,7 @@ export const shadcn: HextimatePreset = {
 		variantNames: {
 			foreground: 'foreground',
 		},
+		excludeRoles: ['warning'],
+		excludeVariants: ['strong', 'weak'],
 	},
 };

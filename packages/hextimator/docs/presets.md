@@ -17,7 +17,7 @@ const theme = hextimate("#6366F1")
 
 #### `shadcn`
 
-Drop-in for [shadcn/ui](https://ui.shadcn.com). Generates `--background`, `--foreground`, `--primary`, `--secondary`, `--muted`, `--accent`, `--destructive`, `--success`, `--card`, `--popover`, `--border`, `--input`, `--ring`, `--chart-1`--`--chart-5`, plus `-foreground` counterparts. Also includes hextimator's bonus scale variants (`--primary-strong`, `--primary-weak`, etc.).
+Drop-in for [shadcn/ui](https://ui.shadcn.com). Generates `--background`, `--foreground`, `--primary`, `--secondary`, `--muted`, `--accent`, `--destructive`, `--success`, `--card`, `--popover`, `--border`, `--input`, `--ring`, `--chart-1`--`--chart-5`, plus `-foreground` counterparts.
 
 **Defaults**: `as: "css"`, `colors: "oklch"`. For older shadcn setups using HSL, override with `.format({ colors: "hsl-raw" })`.
 
@@ -226,4 +226,30 @@ interface HextimatePreset {
   tokens?: Array<{ name: string; value: TokenValue }>;
   format?: HextimateFormatOptions;
 }
+```
+
+### Removing default roles and variants
+
+Set `excludeRoles` or `excludeVariants` in a preset's `format` field to drop tokens the preset doesn't need. Both take internal names (before any `roleNames`/`variantNames` remapping).
+
+```typescript
+const myPreset: HextimatePreset = {
+  format: {
+    as: "css",
+    colors: "oklch",
+    roleNames: { base: "background", accent: "primary" },
+    // Drop roles and variants the preset doesn't map to anything
+    excludeRoles: ["warning"],
+    excludeVariants: ["strong", "weak"],
+  },
+};
+```
+
+You can also pass them directly to `.format()` without a preset:
+
+```typescript
+hextimate("#6366F1").format({
+  excludeRoles: ["warning", "positive"],
+  excludeVariants: ["strong"],
+});
 ```

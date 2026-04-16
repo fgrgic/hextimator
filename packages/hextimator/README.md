@@ -77,6 +77,28 @@ hextimator separates **palette generation** (color math) from **formatting** (ou
 const theme = hextimate("#0FF5E7").format({ as: "css", colors: "oklch" });
 ```
 
+### Filtering output
+
+Use `excludeRoles` and `excludeVariants` in `.format()` (or in a preset's `format` field) to drop tokens you don't need:
+
+```typescript
+// Drop the warning role and the strong/weak variants entirely
+hextimate("#6366F1").format({
+  excludeRoles: ["warning"],
+  excludeVariants: ["strong", "weak"],
+});
+
+// Useful in custom presets to keep output tight
+const myPreset: HextimatePreset = {
+  format: {
+    excludeRoles: ["warning"],
+    excludeVariants: ["strong", "weak"],
+  },
+};
+```
+
+Both options use internal names (before any `roleNames`/`variantNames` remapping).
+
 ### Output formats
 
 All formats return `{ light: { ... }, dark: { ... } }`.

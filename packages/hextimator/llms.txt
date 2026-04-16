@@ -55,6 +55,8 @@ Creates a palette builder from any color input.
 | `roleNames` | `Record<string, string>` — rename roles in output keys | built-in names |
 | `variantNames` | `Record<string, string>` — rename variant suffixes | built-in names |
 | `separator` | `string` — between role and variant in keys | `"-"` |
+| `excludeRoles` | `string[]` — role keys to omit entirely from output (by internal name, before `roleNames`) | `[]` |
+| `excludeVariants` | `string[]` — variant keys to omit from every role's output (by internal name, before `variantNames`) | `[]` |
 
 Output shape depends on `as`:
 - `"object"` → `Record<string, string>` flat map: `{ accent: "#...", "accent-strong": "#..." }`
