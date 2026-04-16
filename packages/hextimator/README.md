@@ -67,6 +67,18 @@ const theme = hextimate("#FACADE")
   .format({ colors: "hsl-raw" }); // override preset's oklch default
 ```
 
+### Overriding presets
+
+Presets can carry a **`style`** block (contrast, chroma, and other generation options). After you chain **`.preset()`**, call **`.style(partial)`** to patch or replace overlapping keys—your call wins on those fields, without editing the preset itself:
+
+```typescript
+const theme = hextimate("#FACADE")
+  .preset(presets.tinted) // e.g. sets a looser baseMaxChroma
+  .style({ baseMaxChroma: 0.01 }) // app-specific cap
+  .preset(presets.shadcn)
+  .format();
+```
+
 See [Presets](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/presets.md) for the full list, chaining details, and how to create your own.
 
 ## Two-step API: generate, then format
@@ -76,6 +88,18 @@ hextimator separates **palette generation** (color math) from **formatting** (ou
 ```typescript
 const theme = hextimate("#0FF5E7").format({ as: "css", colors: "oklch" });
 ```
+
+### Palette options with `.style()`
+
+**`hextimate` only takes the color.** Everything that steers generation—contrast rules, chroma caps, hue tweaks, light/dark tweaks, and the rest—goes on **`.style(partial)`**. Call it once or stack several calls; each merges into the current options (later wins on the same keys).
+
+```typescript
+hextimate("#C0FFEE")
+  .style({ minContrastRatio: "AA", baseMaxChroma: 0.02 })
+  .format();
+```
+
+Preset **`style`** vs **`.style()`** on the builder is covered in [Overriding presets](#overriding-presets) above. For every option you can pass, see [Customization](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md). To reuse the same chain with another accent or options, see [Multiple themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md) (`.fork()` + `.style()`).
 
 ### Filtering output
 
@@ -126,14 +150,11 @@ All formats return `{ light: { ... }, dark: { ... } }`.
 
 ### Flexible input
 
-```typescript
-hextimate("#FF6666"); // hex string
-hextimate("rgb(255, 102, 102)"); // CSS function
-hextimate([255, 102, 102]); // RGB tuple
-hextimate(0xff6666); // numeric hex
-```
+Besides hex, **`hextimate`** accepts CSS color strings, RGB tuples, and numeric `0xRRGGBB`—anything **`parseColor`** understands.
 
 > **Note on alpha**: Alpha values are intentionally ignored — `rgba(255, 0, 0, 0.5)` is treated as fully opaque `rgb(255, 0, 0)`. Alpha tokens undermine accessibility guarantees because contrast ratios depend on the background, which hextimator does not control.
+
+Before `.format()` you can still chain **`addRole` / `addVariant` / `addToken`**, **`.preset()`**, **`.fork()`**, **`.simulate()` / `.adaptFor()`**, and anything else in [Extending the palette](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/extending-the-palette.md) or [Presets](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/presets.md).
 
 ## How it works
 
