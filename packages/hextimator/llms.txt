@@ -40,7 +40,7 @@ Creates a palette builder from any color input.
 | `.addRole(name, color)` | Add a new color role with DEFAULT, strong, weak, foreground variants |
 | `.addVariant(name, placement)` | Add a lightness step to every role. `placement`: `{ from: "strong" }`, `{ from: "weak" }`, or `{ between: ["DEFAULT", "weak"] }` |
 | `.addToken(name, value)` | Add a standalone derived token. `value`: a color, `{ from: "role.variant", emphasis?, lightness?, chroma?, hue? }`, or `{ light: ..., dark: ... }` for per-theme values. `emphasis` is theme-aware (positive = more contrast, negative = softer) |
-| `.preset(preset)` | Apply a framework preset (e.g. `presets.shadcn`). Preset format defaults are overridden by `.format()` options |
+| `.preset(preset)` | Apply a preset (chainable -- call multiple times to layer style + framework presets). Preset format defaults are overridden by `.format()` options |
 | `.simulate(cvdType, severity?)` | Simulate color vision deficiency. Types: `protanopia`, `deuteranopia`, `tritanopia`, `achromatopsia` |
 | `.adaptFor(cvdType, severity?)` | Optimize palette for a CVD type (use instead of simulate for actual accessibility) |
 | `.fork(color?, options?)` | Clone builder with optional new color/options. Original unchanged |
@@ -92,20 +92,43 @@ Token keys: `accent`, `accent-strong`, `accent-weak`, `accent-foreground`, `base
 
 ### Presets
 
+Presets are predefined configurations -- for a specific framework or a particular style. They can be chained by calling `.preset()` multiple times. Applied sequentially: later presets override earlier ones for conflicting keys. Constructor options always win over all presets.
+
+**Available presets:**
+
+| Preset | Type | Description |
+|---|---|---|
+| `shadcn` | Framework | shadcn/ui tokens: --background, --primary, --destructive, --ring, etc. `as: "css"`, `colors: "oklch"` |
+| `mui` | Framework | MUI theme: primary/secondary/error with main/light/dark/contrastText. `as: "object"`, `colors: "hex"` |
+| `muted` | Style | Desaturated, restrained. Low chroma across the board |
+| `vibrant` | Style | High saturation, complementary tinted neutrals, slight hue shift |
+| `tinted` | Style | Neutrals pick up the accent hue for a cohesive feel |
+
 ```typescript
 import { hextimate, presets } from "hextimator";
 
+// Framework preset
 const theme = hextimate("#6366F1")
+  .preset(presets.shadcn)
+  .format();
+
+// Style + framework preset
+const theme = hextimate("#6366F1")
+  .preset(presets.muted)
   .preset(presets.shadcn)
   .format();
 
 // Override preset defaults:
 const theme = hextimate("#6366F1")
+  .preset(presets.muted)
   .preset(presets.shadcn)
   .format({ colors: "hsl-raw" });
 ```
 
-The shadcn preset adds tokens like foreground, card, popover, secondary, muted, border, input, ring, and renames roles (base→background, accent→primary, negative→destructive, positive→success).
+**Chaining merge rules:**
+- Generation options: deep-merged (later wins for same key)
+- Roles, variants, tokens: concatenated (additive)
+- Format options: deep-merged (roleNames/variantNames merged individually)
 
 ### Creating presets
 
@@ -265,7 +288,7 @@ Both commands are identical. Use whichever you prefer.
 | `-f, --format` | `css`, `object`, `tailwind`, `tailwind-css`, `scss`, `json` | `css` |
 | `-c, --colors` | `hex`, `rgb`, `rgb-raw`, `hsl`, `hsl-raw`, `oklch`, `oklch-raw`, `p3`, `p3-raw` | `hex` |
 | `-t, --theme` | `light`, `dark`, `both` | `both` |
-| `-p, --preset` | Apply preset (e.g. `shadcn`) | — |
+| `-p, --preset` | Apply preset (repeatable, applied in order): `shadcn`, `mui`, `muted`, `vibrant`, `tinted` | — |
 | `--separator` | Token separator between role and variant | `-` |
 | `--base-color` | Override base color | — |
 | `--base-hue-shift` | Degrees | `0` |
@@ -294,6 +317,9 @@ npx hextimator "#6A5ACD" --format css --colors oklch
 
 # shadcn/ui preset
 npx hextimator "#6366F1" --preset shadcn
+
+# Chained presets: muted style + shadcn framework
+npx hextimator "#6366F1" --preset muted --preset shadcn
 
 # Invert base/accent in dark mode
 npx hextimator "#6A5ACD" --base-color "#FEBA5D" --invert-dark
@@ -331,8 +357,9 @@ Hook options:
 | Option | Type | Description |
 |---|---|---|
 | `generation` | `HextimateGenerationOptions` | Palette generation options |
+| `presets` | `HextimatePreset[]` | Presets to apply in order (style + framework) |
 | `format` | `Omit<HextimateFormatOptions, "as">` | Format options (output is always CSS vars) |
-| `configure` | `(builder: HextimatePaletteBuilder) => void` | Customize the builder (add roles, tokens, presets) |
+| `configure` | `(builder: HextimatePaletteBuilder) => void` | Customize the builder (add roles, tokens, etc.) |
 | `darkMode` | `DarkModeStrategy` | Dark mode strategy (see above) |
 | `cssPrefix` | `string` | Prefix for all CSS variable names |
 | `target` | `RefObject<HTMLElement>` | Inject variables into a specific element instead of `:root` |
@@ -348,8 +375,8 @@ import { HextimatorProvider, useHextimatorTheme } from "hextimator/react";
   defaultColor="#6A5ACD"
   defaultMode="system"       // "light" | "dark" | "system"
   generation={generationOpts}
+  presets={[presets.muted, presets.shadcn]}
   format={formatOpts}
-  configure={(b) => b.preset(presets.shadcn)}
   darkMode={{ type: "class" }}
   cssPrefix="app"
   target={containerRef}
@@ -370,8 +397,64 @@ import { HextimatorProvider, useHextimatorTheme } from "hextimator/react";
 | `setMode` | `(mode: ModePreference) => void` | Change mode preference |
 | `generation` | `HextimateGenerationOptions \| undefined` | Current generation options |
 | `setGeneration` | `(opts) => void` | Update generation options |
+| `presets` | `HextimatePreset[] \| undefined` | Current presets |
+| `setPresets` | `(presets) => void` | Update presets (triggers re-generation) |
 | `configure` | `((builder) => void) \| undefined` | Current builder configure function |
 | `setConfigure` | `(fn) => void` | Update the configure callback |
+
+### `HextimatorStyle`
+
+Declarative alternative to `useHextimator`. Renders a `<style>` element with CSS variables directly in the tree -- works during SSR/RSC (no `useEffect`). Optional `selector` for per-subtree scoping via CSS cascade.
+
+```tsx
+import { HextimatorStyle } from "hextimator/react";
+
+// Global theme (SSR-safe)
+<HextimatorStyle color="#ff6600" darkMode={{ type: "class" }} />
+
+// Scoped to a specific subtree
+<div className="card-a">
+  <HextimatorStyle color="#ff0066" selector=".card-a" />
+  ...
+</div>
+```
+
+Props: same as `useHextimator` options, plus `selector?: string` (defaults to `:root`).
+
+### `HextimatorScope`
+
+Subtree theming with automatic shape inheritance. Wraps children in a scoped `<div>` with its own `<style>`. When nested inside a `HextimatorProvider` or another `HextimatorScope`, it inherits all custom roles, variants, tokens, and presets from the parent via `builder.fork()` -- you only need to pass the new color.
+
+```tsx
+import { HextimatorProvider, HextimatorScope } from "hextimator/react";
+
+<HextimatorProvider
+  defaultColor="#ff6600"
+  presets={[presets.shadcn]}
+  darkMode={{ type: "class" }}
+  configure={(b) => b.addRole("cta", "#ff0066")}
+>
+  <App>
+    {/* Inherits shadcn preset + cta role, just swaps color */}
+    <HextimatorScope defaultColor="#0066ff" darkMode={{ type: "class" }}>
+      <Card />
+    </HextimatorScope>
+  </App>
+</HextimatorProvider>
+```
+
+Props: `defaultColor`, `generation?`, `presets?`, `format?`, `configure?`, `darkMode?`, `cssPrefix?`, `className?`, `style?`.
+
+## `fallback.css`
+
+Pre-JS placeholder: neutral values for the same variables as default `hextimate()` output. Use in client-rendered apps so the first paint has `--accent`, `--base`, etc. before the bundle runs. Runtime theme CSS then replaces them.
+
+```css
+@import "hextimator/fallback.css";
+@import "hextimator/tailwind.css";  /* if using Tailwind */
+```
+
+Does not cover preset-only token names (e.g. shadcn's `--ring`). Use the CLI to generate a static file for those.
 
 ## Tailwind CSS v4
 

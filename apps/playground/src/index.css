@@ -1,3 +1,15 @@
+@import "tailwindcss";
+@import "hextimator/fallback.css";
+@import "hextimator/tailwind.css";
+
+@theme {
+	--font-mono: "picomono", monospace;
+}
+
+:root {
+	--hxp-font-mono: "picomono", monospace;
+}
+
 @font-face {
 	font-family: "picomono";
 	src: url("./assets/fonts/picomono-regular.woff2");
@@ -45,6 +57,8 @@ body {
 	margin: 0;
 	min-width: 320px;
 	min-height: 100vh;
+	background-color: var(--base);
+	color: var(--base-foreground);
 }
 
 #root {

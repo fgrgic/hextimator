@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import type { HextimatePaletteBuilder } from '../HextimatePaletteBuilder';
 import { hextimate } from '../index';
+import type { HextimatePreset } from '../presets/types';
 import type {
 	HextimateFormatOptions,
 	HextimateGenerationOptions,
@@ -29,6 +30,7 @@ import { useStableOptions } from './use-stable-options';
 export interface HextimatorStyleProps {
 	color: string;
 	generation?: HextimateGenerationOptions;
+	presets?: HextimatePreset[];
 	format?: Omit<HextimateFormatOptions, 'as'>;
 	configure?: (builder: HextimatePaletteBuilder) => void;
 	darkMode?: DarkModeStrategy;
@@ -56,6 +58,7 @@ export interface HextimatorStyleProps {
 export function HextimatorStyle({
 	color,
 	generation,
+	presets,
 	format: formatOpts,
 	configure,
 	darkMode,
@@ -64,6 +67,7 @@ export function HextimatorStyle({
 }: HextimatorStyleProps) {
 	const stable = useStableOptions({
 		generation,
+		presets,
 		format: formatOpts,
 		darkMode,
 		cssPrefix,
@@ -71,6 +75,7 @@ export function HextimatorStyle({
 
 	const css = useMemo(() => {
 		const builder = hextimate(color, stable?.generation);
+		for (const p of stable?.presets ?? []) builder.preset(p);
 		configure?.(builder);
 		const palette = builder.format({
 			...stable?.format,

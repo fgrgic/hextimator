@@ -28,14 +28,17 @@ export function useHextimator(color: string, options?: UseHextimatorOptions) {
 	const configure = options?.configure;
 	const target = options?.target;
 
+	const presets = stable?.presets;
+
 	const palette = useMemo(() => {
 		const builder = hextimate(color, stable?.generation);
+		for (const p of presets ?? []) builder.preset(p);
 		configure?.(builder);
 		return builder.format({
 			...stable?.format,
 			as: 'css',
 		});
-	}, [color, stable?.generation, stable?.format, configure]);
+	}, [color, stable?.generation, presets, stable?.format, configure]);
 
 	const darkMode = stable?.darkMode ?? { type: 'media' as const };
 	const cssPrefix = stable?.cssPrefix ?? '';

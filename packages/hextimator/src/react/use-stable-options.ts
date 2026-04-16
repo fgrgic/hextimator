@@ -1,5 +1,6 @@
 import { type RefObject, useRef } from 'react';
 import type { HextimatePaletteBuilder } from '../HextimatePaletteBuilder';
+import type { HextimatePreset } from '../presets/types';
 import type {
 	HextimateFormatOptions,
 	HextimateGenerationOptions,
@@ -18,6 +19,7 @@ import type { DarkModeStrategy } from './types';
  */
 export interface UseHextimatorOptions {
 	generation?: HextimateGenerationOptions;
+	presets?: HextimatePreset[];
 	format?: Omit<HextimateFormatOptions, 'as'>;
 	configure?: (builder: HextimatePaletteBuilder) => void;
 	darkMode?: DarkModeStrategy;
@@ -29,6 +31,7 @@ export function useStableOptions(options?: UseHextimatorOptions) {
 	const ref = useRef(options);
 	const serialized = JSON.stringify({
 		generation: options?.generation,
+		presets: options?.presets,
 		format: options?.format,
 		darkMode: options?.darkMode,
 		cssPrefix: options?.cssPrefix,
@@ -38,6 +41,7 @@ export function useStableOptions(options?: UseHextimatorOptions) {
 		serialized !==
 		JSON.stringify({
 			generation: ref.current?.generation,
+			presets: ref.current?.presets,
 			format: ref.current?.format,
 			darkMode: ref.current?.darkMode,
 			cssPrefix: ref.current?.cssPrefix,

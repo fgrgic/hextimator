@@ -8,6 +8,7 @@ import {
 } from 'react';
 import type { HextimatePaletteBuilder } from '../HextimatePaletteBuilder';
 import { hextimate } from '../index';
+import type { HextimatePreset } from '../presets/types';
 import type {
 	HextimateFormatOptions,
 	HextimateGenerationOptions,
@@ -31,6 +32,7 @@ export interface HextimatorProviderProps {
 	defaultColor: string;
 	defaultMode?: ModePreference;
 	generation?: HextimateGenerationOptions;
+	presets?: HextimatePreset[];
 	format?: Omit<HextimateFormatOptions, 'as'>;
 	configure?: (builder: HextimatePaletteBuilder) => void;
 	darkMode?: DarkModeStrategy;
@@ -62,6 +64,7 @@ export function HextimatorProvider({
 	defaultColor,
 	defaultMode: initialMode = 'system',
 	generation: initialGeneration,
+	presets: initialPresets,
 	format: formatOpts,
 	configure: initialConfigure,
 	darkMode,
@@ -71,6 +74,7 @@ export function HextimatorProvider({
 	const [color, setColor] = useState(defaultColor);
 	const [modePreference, setMode] = useState<ModePreference>(initialMode);
 	const [generation, setGeneration] = useState(initialGeneration);
+	const [presets, setPresets] = useState(initialPresets);
 	const [configure, setConfigureState] = useState<
 		((builder: HextimatePaletteBuilder) => void) | undefined
 	>(() => initialConfigure);
@@ -97,6 +101,7 @@ export function HextimatorProvider({
 
 	const palette = useHextimator(color, {
 		generation,
+		presets,
 		format: formatOpts,
 		configure,
 		darkMode,
@@ -106,9 +111,10 @@ export function HextimatorProvider({
 
 	const builder = useMemo(() => {
 		const b = hextimate(color, generation);
+		for (const p of presets ?? []) b.preset(p);
 		configure?.(b);
 		return b;
-	}, [color, generation, configure]);
+	}, [color, generation, presets, configure]);
 
 	const value = useMemo<HextimatorContextValue>(
 		() => ({
@@ -119,6 +125,8 @@ export function HextimatorProvider({
 			setMode,
 			generation,
 			setGeneration,
+			presets,
+			setPresets,
 			configure,
 			setConfigure,
 			palette,
@@ -129,6 +137,7 @@ export function HextimatorProvider({
 			mode,
 			modePreference,
 			generation,
+			presets,
 			configure,
 			setConfigure,
 			palette,

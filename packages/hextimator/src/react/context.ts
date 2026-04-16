@@ -3,6 +3,7 @@ import type {
 	HextimatePaletteBuilder,
 	HextimateResult,
 } from '../HextimatePaletteBuilder';
+import type { HextimatePreset } from '../presets/types';
 import type { HextimateGenerationOptions } from '../types';
 import type { ModePreference, ResolvedMode } from './types';
 
@@ -14,6 +15,8 @@ export interface HextimatorContextValue {
 	setMode: (mode: ModePreference) => void;
 	generation: HextimateGenerationOptions | undefined;
 	setGeneration: (opts: HextimateGenerationOptions | undefined) => void;
+	presets: HextimatePreset[] | undefined;
+	setPresets: (presets: HextimatePreset[] | undefined) => void;
 	configure: ((builder: HextimatePaletteBuilder) => void) | undefined;
 	setConfigure: (
 		fn: ((builder: HextimatePaletteBuilder) => void) | undefined,

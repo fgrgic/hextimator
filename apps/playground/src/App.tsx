@@ -1,6 +1,13 @@
 import { CodeEditor } from '@hextimator/playground';
 import '@hextimator/playground/style.css';
+import { HextimatorProvider, useHextimatorTheme } from 'hextimator/react';
+import { useMemo } from 'react';
 import { HextimatorLogo } from './hextimator-logo';
+import {
+	activeGenerationPresetId,
+	buildPlaygroundCode,
+	PresetShowcase,
+} from './preset-showcase';
 import './App.css';
 
 function getColorFromURL(): string {
@@ -11,22 +18,42 @@ function getColorFromURL(): string {
 
 const INITIAL_COLOR = getColorFromURL();
 
-const DEFAULT_CODE = `hextimate('${INITIAL_COLOR}')
-  // .preset(presets.shadcn)
-  // .addRole('cta', '#ff006e')
-  // .addVariant('muted', { from: 'weak' })
-  // .addToken('ring', { from: 'accent', emphasis: -0.2 })
-  `;
+function PlaygroundShell() {
+	const { color, presets: activePresets } = useHextimatorTheme();
+	const presetId = useMemo(
+		() => activeGenerationPresetId(activePresets),
+		[activePresets],
+	);
+	const editorCode = useMemo(
+		() => buildPlaygroundCode(color, presetId),
+		[color, presetId],
+	);
 
-function App() {
 	return (
 		<div className="app">
 			<div className="top-bar">
 				<HextimatorLogo scale={0.6} />
 			</div>
-			<CodeEditor defaultCode={DEFAULT_CODE} color={INITIAL_COLOR} />
+			<div className="flex min-h-0 flex-1 flex-col gap-5 md:flex-row">
+				<PresetShowcase className="w-full shrink-0 md:h-full md:w-60 md:overflow-y-auto" />
+				<CodeEditor
+					key={`${presetId ?? 'none'}::${color}`}
+					className="min-h-0 min-w-0 flex-1"
+					defaultCode={editorCode}
+					color={color}
+				/>
+			</div>
 		</div>
 	);
 }
 
-export default App;
+export default function App() {
+	return (
+		<HextimatorProvider
+			defaultColor={INITIAL_COLOR}
+			darkMode={{ type: 'media-or-class' }}
+		>
+			<PlaygroundShell />
+		</HextimatorProvider>
+	);
+}

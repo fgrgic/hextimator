@@ -180,3 +180,175 @@ describe('preset', () => {
 		expect(lightBorder).not.toBe(darkBorder);
 	});
 });
+
+describe('preset chaining', () => {
+	test('style preset + framework preset produces both effects', () => {
+		const muted: HextimatePreset = {
+			generation: { light: { maxChroma: 0.06 }, dark: { maxChroma: 0.05 } },
+		};
+
+		const theme = hextimate('#6366F1').preset(muted).preset(shadcn).format();
+
+		// shadcn tokens present
+		expect(theme.light).toHaveProperty('--primary');
+		expect(theme.light).toHaveProperty('--background');
+		expect(theme.light).toHaveProperty('--ring');
+
+		// muted generation applied (chroma is lower than default)
+		const defaultTheme = hextimate('#6366F1').preset(shadcn).format();
+		const mutedPrimary = (theme.light as Record<string, string>)['--primary'];
+		const defaultPrimary = (defaultTheme.light as Record<string, string>)[
+			'--primary'
+		];
+		expect(mutedPrimary).not.toBe(defaultPrimary);
+	});
+
+	test('second preset generation deep-merges with first', () => {
+		const presetA: HextimatePreset = {
+			generation: {
+				light: { maxChroma: 0.06 },
+				baseMaxChroma: 0.03,
+			},
+		};
+		const presetB: HextimatePreset = {
+			generation: {
+				light: { lightness: 0.8 },
+			},
+		};
+
+		// A sets light.maxChroma + baseMaxChroma, B sets light.lightness
+		// After chaining, all three should be active
+		const chained = hextimate('#6366F1')
+			.preset(presetA)
+			.preset(presetB)
+			.format({ as: 'object' });
+
+		const onlyA = hextimate('#6366F1').preset(presetA).format({ as: 'object' });
+		const onlyB = hextimate('#6366F1').preset(presetB).format({ as: 'object' });
+
+		// Result should differ from both individual presets
+		const chainedAccent = (chained.light as Record<string, string>)['accent'];
+		const aAccent = (onlyA.light as Record<string, string>)['accent'];
+		const bAccent = (onlyB.light as Record<string, string>)['accent'];
+		expect(chainedAccent).not.toBe(aAccent);
+		expect(chainedAccent).not.toBe(bAccent);
+	});
+
+	test('later preset overrides earlier preset for same key', () => {
+		const presetA: HextimatePreset = {
+			generation: { baseMaxChroma: 0.03 },
+		};
+		const presetB: HextimatePreset = {
+			generation: { baseMaxChroma: 0.08 },
+		};
+
+		const abTheme = hextimate('#6366F1')
+			.preset(presetA)
+			.preset(presetB)
+			.format({ as: 'object' });
+
+		const bOnlyTheme = hextimate('#6366F1')
+			.preset(presetB)
+			.format({ as: 'object' });
+
+		// A then B should produce same result as just B for the conflicting key
+		expect((abTheme.light as Record<string, string>)['base']).toBe(
+			(bOnlyTheme.light as Record<string, string>)['base'],
+		);
+	});
+
+	test('constructor options override all presets', () => {
+		const presetA: HextimatePreset = {
+			generation: { baseMaxChroma: 0.03 },
+		};
+		const presetB: HextimatePreset = {
+			generation: { baseMaxChroma: 0.08 },
+		};
+
+		const theme = hextimate('#6366F1', { baseMaxChroma: 0.01 })
+			.preset(presetA)
+			.preset(presetB)
+			.format({ as: 'object' });
+
+		const userOnlyTheme = hextimate('#6366F1', { baseMaxChroma: 0.01 }).format({
+			as: 'object',
+		});
+
+		// User's value (0.01) should win over both presets
+		expect((theme.light as Record<string, string>)['base']).toBe(
+			(userOnlyTheme.light as Record<string, string>)['base'],
+		);
+	});
+
+	test('chained presets concatenate tokens', () => {
+		const presetA: HextimatePreset = {
+			tokens: [{ name: 'surface', value: { from: 'base.weak' } }],
+			format: { as: 'object' },
+		};
+		const presetB: HextimatePreset = {
+			tokens: [{ name: 'ring', value: { from: 'accent' } }],
+		};
+
+		const theme = hextimate('#6366F1').preset(presetA).preset(presetB).format();
+
+		// Both tokens present
+		expect(theme.light).toHaveProperty('surface');
+		expect(theme.light).toHaveProperty('ring');
+	});
+
+	test('chained presets merge format options', () => {
+		const presetA: HextimatePreset = {
+			format: {
+				as: 'css',
+				roleNames: { base: 'bg' },
+			},
+		};
+		const presetB: HextimatePreset = {
+			format: {
+				colors: 'hex',
+				roleNames: { accent: 'brand' },
+			},
+		};
+
+		const theme = hextimate('#6366F1').preset(presetA).preset(presetB).format();
+
+		const keys = Object.keys(theme.light);
+		// presetA's roleNames
+		expect(keys).toContain('--bg');
+		// presetB's roleNames
+		expect(keys).toContain('--brand');
+		// presetB's color format
+		const bgValue = (theme.light as Record<string, string>)['--bg'];
+		expect(bgValue).toMatch(/^#/);
+	});
+
+	test('chained presets concatenate roles', () => {
+		const presetA: HextimatePreset = {
+			roles: [{ name: 'info', color: '#0288d1' }],
+		};
+		const presetB: HextimatePreset = {
+			roles: [{ name: 'cta', color: '#ee2244' }],
+		};
+
+		const theme = hextimate('#6366F1')
+			.preset(presetA)
+			.preset(presetB)
+			.format({ as: 'object' });
+
+		expect(theme.light).toHaveProperty('info');
+		expect(theme.light).toHaveProperty('cta');
+	});
+
+	test('fork preserves chained presets', () => {
+		const muted: HextimatePreset = {
+			generation: { light: { maxChroma: 0.06 } },
+		};
+
+		const builder = hextimate('#6366F1').preset(muted).preset(shadcn);
+		const forked = builder.fork('#ff6600');
+		const theme = forked.format();
+
+		expect(theme.light).toHaveProperty('--primary');
+		expect(theme.light).toHaveProperty('--ring');
+	});
+});

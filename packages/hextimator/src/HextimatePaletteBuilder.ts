@@ -82,11 +82,42 @@ export type TokenValue =
  * All operations are recorded and replayed in order on fork, ensuring consistent results.
  * The internal palette is stored in a raw form with OKLCH color objects, allowing for precise adjustments and transformations.
  */
+const NESTED_GEN_KEYS = new Set([
+	'light',
+	'dark',
+	'semanticColors',
+	'semanticColorRanges',
+]);
+
+/** Sequential deep merge for generation options. Later sources win. */
+function mergeGenerationOptions(
+	...sources: (Partial<HextimateGenerationOptions> | undefined)[]
+): Partial<HextimateGenerationOptions> {
+	const result: Record<string, unknown> = {};
+	for (const source of sources) {
+		if (!source) continue;
+		for (const [key, value] of Object.entries(source)) {
+			if (value === undefined) continue;
+			if (
+				NESTED_GEN_KEYS.has(key) &&
+				typeof value === 'object' &&
+				value !== null
+			) {
+				result[key] = { ...(result[key] as Record<string, unknown>), ...value };
+			} else {
+				result[key] = value;
+			}
+		}
+	}
+	return result as Partial<HextimateGenerationOptions>;
+}
+
 export class HextimatePaletteBuilder {
 	private lightPalette: HextimatePalette;
 	private darkPalette: HextimatePalette;
 	private readonly inputColor: Color;
-	private readonly options: Partial<HextimateGenerationOptions>;
+	private options: Partial<HextimateGenerationOptions>;
+	private readonly userOptions: Partial<HextimateGenerationOptions>;
 	private readonly operations: Array<
 		| { method: 'addRole'; args: [string, ColorInput | DerivedToken] }
 		| { method: 'addVariant'; args: [string, VariantPlacement] }
@@ -110,6 +141,7 @@ export class HextimatePaletteBuilder {
 	constructor(color: Color, options?: HextimateGenerationOptions) {
 		this.inputColor = color;
 		this.options = options ?? {};
+		this.userOptions = options ?? {};
 		this.lightPalette = generate(color, 'light', options);
 		this.darkPalette = generate(color, 'dark', options);
 		this.applyToken('brand-exact', color);
@@ -199,8 +231,11 @@ export class HextimatePaletteBuilder {
 		this.operations.push({ method: 'preset', args: [preset] });
 
 		if (preset.generation) {
-			const userOptions = { ...this.options };
-			Object.assign(this.options, preset.generation, userOptions);
+			this.options = mergeGenerationOptions(
+				this.options,
+				preset.generation,
+				this.userOptions,
+			);
 			this.lightPalette = generate(
 				this.inputColor,
 				'light',

@@ -19,7 +19,9 @@ const PKG_VERSION: string = JSON.parse(
 const AVAILABLE_PRESETS: Record<string, HextimatePreset> = {
 	shadcn: presets.shadcn,
 	mui: presets.mui,
-	demo: presets.demo,
+	muted: presets.muted,
+	vibrant: presets.vibrant,
+	tinted: presets.tinted,
 };
 
 const HELP = `
@@ -31,8 +33,9 @@ Arguments:
   color                       Input color (quote hex values: '#ff6600')
 
 Presets:
-  -p, --preset <name>         Apply a preset: shadcn, mui, demo
-                              Preset format defaults can be overridden with -f, -c, etc.
+  -p, --preset <name>         Apply a preset (repeatable, applied in order):
+                              Framework: shadcn, mui
+                              Style:     muted, vibrant, tinted
 
 Format options:
   -f, --format <type>         css | object | tailwind | tailwind-css | scss | json  (default: css)
@@ -78,6 +81,7 @@ Examples:
   hextimator '#ff6600' --format tailwind-css --colors oklch
   hextimator '#3366cc' --format json --theme light
   hextimator '#6366F1' --preset shadcn
+  hextimator '#6366F1' --preset muted --preset shadcn
   hextimator '#6366F1' --preset shadcn --colors hsl-raw
   hextimator '#22aa44' --role cta=#ee2244 --variant hover:from:strong -o theme.css
   hextimator '#6A5ACD' --base-color '#FEBA5D' --invert-dark
@@ -89,7 +93,7 @@ function run(): void {
 	const { values, positionals } = parseArgs({
 		allowPositionals: true,
 		options: {
-			preset: { type: 'string', short: 'p' },
+			preset: { type: 'string', short: 'p', multiple: true },
 			format: { type: 'string', short: 'f' },
 			colors: { type: 'string', short: 'c' },
 			theme: { type: 'string', short: 't', default: 'both' },
@@ -187,14 +191,16 @@ function run(): void {
 	const builder = hextimate(color, generationOptions);
 
 	if (values.preset) {
-		const preset = AVAILABLE_PRESETS[values.preset];
-		if (!preset) {
-			console.error(
-				`Error: unknown preset "${values.preset}". Available: ${Object.keys(AVAILABLE_PRESETS).join(', ')}`,
-			);
-			process.exit(1);
+		for (const name of values.preset) {
+			const preset = AVAILABLE_PRESETS[name];
+			if (!preset) {
+				console.error(
+					`Error: unknown preset "${name}". Available: ${Object.keys(AVAILABLE_PRESETS).join(', ')}`,
+				);
+				process.exit(1);
+			}
+			builder.preset(preset);
 		}
-		builder.preset(preset);
 	}
 
 	if (values.role) {
@@ -266,7 +272,7 @@ function run(): void {
 		);
 	}
 
-	const hasPreset = !!values.preset;
+	const hasPreset = values.preset && values.preset.length > 0;
 	const formatOptions: HextimateFormatOptions = {};
 	if (values.format) {
 		formatOptions.as = values.format as HextimateFormatOptions['as'];
