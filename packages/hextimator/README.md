@@ -10,7 +10,7 @@ One color in, whole theme out.
 
 Your customers pick a brand color. Your app looks good. Every time. No manual tuning, no edge cases where "that shade of yellow" breaks your UI.
 
-- **Ship white-labeling without the design overhead** — generate per-tenant branded themes at runtime from a single input color. No design review per customer.
+- **Ship multi-tenant apps without the design overhead** — generate per-tenant branded themes at runtime from a single input color. No design review per customer.
 - **Every color just works** — perceptually uniform colors with OKLCH means that electric blue looks as balanced as muted olive.
 - **Accessible by default** — every foreground meets AAA contrast against its background, light and dark mode included.
 
@@ -27,7 +27,7 @@ npm i hextimator
 Or quickly get a one-off theme:
 
 ```bash
-npx hextimator "#FF6677"
+npx hextimator "#C0FFEE"
 ```
 
 ## Quick start
@@ -40,18 +40,18 @@ const theme = hextimate("#C0FFEE").format();
 
 ### With presets
 
-Presets are predefined configurations you can use as a starting point: whether for a specific framework or a particular style:
+Presets are partial or full themes. You can chain them together, [extend them](#extending-presets), or not use them at all. They provide a starting point: whether for a specific framework or a particular style:
 
 ```typescript
 import { hextimate, presets } from "hextimator";
 
-// Framework preset -- shadcn/ui tokens
-const theme = hextimate("#DEC0DE").preset(presets.shadcn).format();
+// shadcn/ui tokens
+const theme = hextimate("#0FF1CE").preset(presets.shadcn).format();
 
-// Style preset -- muted palette
-const theme = hextimate("#BADA55").preset(presets.muted).format();
+// muted palette
+const theme = hextimate("#0FF1CE").preset(presets.muted).format();
 
-// Chain them -- muted shadcn theme
+// muted shadcn theme
 const theme = hextimate("#0FF1CE")
   .preset(presets.shadcn)
   .preset(presets.muted)
@@ -61,7 +61,7 @@ const theme = hextimate("#0FF1CE")
 Presets are applied sequentially (last wins for conflicts) and you can override anything in `.format()`:
 
 ```typescript
-const theme = hextimate("#FACADE")
+const theme = hextimate("#BADA55")
   .preset(presets.muted)
   .preset(presets.shadcn)
   .format({ colors: "hsl-raw" }); // override preset's oklch default
@@ -72,7 +72,7 @@ const theme = hextimate("#FACADE")
 Presets can bring their own **`style`** (contrast, chroma, and other generation options). **`.style(partial)`** after **`.preset()`** layers your tweaks on top—options merge along the chain, so you can refine a preset’s look for your product without forking the preset object:
 
 ```typescript
-const theme = hextimate("#FACADE")
+const theme = hextimate("#DEC0DE")
   .preset(presets.tinted) // e.g. sets a looser baseMaxChroma
   .style({ baseMaxChroma: 0.01 }) // tighten further for this app
   .preset(presets.shadcn)
@@ -94,7 +94,7 @@ const theme = hextimate("#0FF5E7").format({ as: "css", colors: "oklch" });
 **`hextimate` only takes the color.** Everything that steers generation—contrast rules, chroma caps, hue tweaks, light/dark tweaks, and the rest—goes on **`.style(partial)`**. Call it once or stack several calls; each merges into the current options (later wins on the same keys).
 
 ```typescript
-hextimate("#C0FFEE")
+hextimate("#FACADE")
   .style({ minContrastRatio: "AA", baseMaxChroma: 0.02 })
   .format();
 ```
@@ -107,7 +107,7 @@ Use `excludeRoles` and `excludeVariants` in `.format()` (or in a preset's `forma
 
 ```typescript
 // Drop the warning role and the strong/weak variants entirely
-hextimate("#6366F1").format({
+hextimate("#F11732").format({
   excludeRoles: ["warning"],
   excludeVariants: ["strong", "weak"],
 });

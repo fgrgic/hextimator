@@ -1,6 +1,6 @@
 # Presets
 
-Presets are partial themes. You can chain them together, extend them, or not use them at all. They provide a starting point. Whether it's making it easier to work with a component library like shadcn, or just a style starting point.
+Presets are partial or full themes. You can chain them together, extend them, or not use them at all. They provide a starting point. Whether it's making it easier to work with a component library like shadcn, or just a style starting point.
 
 **`hextimate` takes only the color**; presets attach with **`.preset()`**, and optional tuning uses **`.style()`** on the same chain.
 
