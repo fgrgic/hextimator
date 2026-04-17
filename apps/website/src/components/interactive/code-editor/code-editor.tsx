@@ -3,6 +3,7 @@ import '@hextimator/playground/style.css';
 import { useHextimatorTheme } from 'hextimator/react';
 
 const DEFAULT_CODE = `hextimate(color)
+  // .style({ minContrastRatio: 'AA' })
   // .preset(presets.shadcn)
   // .addRole('cta', '#ff006e')
   // .addVariant('muted', { from: 'weak' })

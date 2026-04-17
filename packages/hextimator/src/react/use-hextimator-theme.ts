@@ -12,7 +12,7 @@ import { HextimatorContext, type HextimatorContextValue } from './context';
  * - `mode` — the resolved color mode (`'light'` or `'dark'`), accounting for OS preference when set to `'system'`.
  * - `modePreference` — the raw preference (`'light'`, `'dark'`, or `'system'`).
  * - `setMode` — update the mode preference. Pass `'system'` to follow the OS.
- * - `generation` / `setGeneration` — palette generation options.
+ * - `style` / `setStyle` — palette style options.
  * - `configure` / `setConfigure` — builder configuration callback.
  * - `palette` — the generated `HextimateResult`.
  *

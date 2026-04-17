@@ -2,7 +2,7 @@ import type { HextimatePreset } from './types';
 
 /**
  * Demo preset that exercises every `HextimatePreset` capability:
- * generation options, extra roles, extra variants, standalone tokens,
+ * style options, extra roles, extra variants, standalone tokens,
  * and format defaults.
  *
  * Use this as a reference when building your own presets.
@@ -13,12 +13,13 @@ import type { HextimatePreset } from './types';
  * const theme = hextimate('#e63946').preset(presets.demo).format();
  *
  * // Override any preset default:
- * const theme = hextimate('#e63946', { minContrastRatio: 'AAA' })
+ * const theme = hextimate('#e63946')
+ *   .style({ minContrastRatio: 'AAA' })
  *   .preset(presets.demo)
  *   .format({ colors: 'rgb' });
  */
 export const demo: HextimatePreset = {
-	generation: {
+	style: {
 		minContrastRatio: 'AA',
 		baseHueShift: 180,
 		baseMaxChroma: 0.025,

@@ -24,14 +24,15 @@ const css = hextimate("#6A5ACD").format({ as: "css", colors: "oklch" });
 
 ## API
 
-### `hextimate(color, options?)`
+### `hextimate(color)`
 
 Creates a palette builder from any color input.
 
 - `color`: `string` (hex, CSS function), `[r, g, b]` tuple, `number` (0xFF6666), or a `Color` object
-- `options`: `HextimateGenerationOptions` (see below)
 - Returns: `HextimatePaletteBuilder` (chainable)
 - Throws: `HextimateError` on invalid input
+
+Tune how the palette is built with `.style(partial)` (`HextimateStyleOptions`, see table below). Presets may include a `style` field; later `.style()` calls merge on top.
 
 ### Builder methods (all return `this`, chainable)
 
@@ -41,9 +42,10 @@ Creates a palette builder from any color input.
 | `.addVariant(name, placement)` | Add a lightness step to every role. `placement`: `{ from: "strong" }`, `{ from: "weak" }`, or `{ between: ["DEFAULT", "weak"] }` |
 | `.addToken(name, value)` | Add a standalone derived token. `value`: a color, `{ from: "role.variant", emphasis?, lightness?, chroma?, hue? }`, or `{ light: ..., dark: ... }` for per-theme values. `emphasis` is theme-aware (positive = more contrast, negative = softer) |
 | `.preset(preset)` | Apply a preset (chainable -- call multiple times to layer style + framework presets). Preset format defaults are overridden by `.format()` options |
+| `.style(partial)` | Merge style options into the builder, regenerate base palettes, and replay recorded operations |
 | `.simulate(cvdType, severity?)` | Simulate color vision deficiency. Types: `protanopia`, `deuteranopia`, `tritanopia`, `achromatopsia` |
 | `.adaptFor(cvdType, severity?)` | Optimize palette for a CVD type (use instead of simulate for actual accessibility) |
-| `.fork(color?, options?)` | Clone builder with optional new color/options. Original unchanged |
+| `.fork(color?)` | Clone builder with optional new accent color. Chain `.style()` on the fork to change style options. Original unchanged |
 | `.format(options?)` | Output the palette (see format options) |
 
 ### `.format(options?)` → `{ light: FormatResult, dark: FormatResult }`
@@ -66,7 +68,7 @@ Output shape depends on `as`:
 - `"scss"` → `Record<string, string>` flat map: `{ "$accent": "#...", "$accent-strong": "#..." }`
 - `"json"` → JSON string
 
-### Generation options
+### Style options (`HextimateStyleOptions`)
 
 | Option | Type | Default | Description |
 |---|---|---|---|
@@ -94,7 +96,7 @@ Token keys: `accent`, `accent-strong`, `accent-weak`, `accent-foreground`, `base
 
 ### Presets
 
-Presets are predefined configurations -- for a specific framework or a particular style. They can be chained by calling `.preset()` multiple times. Applied sequentially: later presets override earlier ones for conflicting keys. Constructor options always win over all presets.
+Presets are predefined configurations -- for a specific framework or a particular style. They can be chained by calling `.preset()` multiple times. Applied sequentially: later presets override earlier ones for conflicting keys. Call `.style()` after `.preset()` to override overlapping style keys.
 
 **Available presets:**
 
@@ -128,13 +130,13 @@ const theme = hextimate("#6366F1")
 ```
 
 **Chaining merge rules:**
-- Generation options: deep-merged (later wins for same key)
+- Preset `style` / `.style()`: nested keys `light`, `dark`, `semanticColors`, `semanticColorRanges` shallow-merge per key; other keys overwrite (later wins)
 - Roles, variants, tokens: concatenated (additive)
 - Format options: deep-merged (roleNames/variantNames merged individually)
 
 ### Creating presets
 
-A preset is a plain `HextimatePreset` object with optional fields for `generation`, `roles`, `variants`, `tokens`, and `format`. It configures the builder the same way chained methods would, but as a reusable data object.
+A preset is a plain `HextimatePreset` object with optional fields for `style`, `roles`, `variants`, `tokens`, and `format`. It configures the builder the same way chained methods would, but as a reusable data object.
 
 ```typescript
 import type { HextimatePreset } from "hextimator";
@@ -144,7 +146,7 @@ import type { HextimatePreset } from "hextimator";
 
 ```typescript
 interface HextimatePreset {
-  generation?: HextimateGenerationOptions;  // contrast, lightness, chroma, hue shifts
+  style?: HextimateStyleOptions;  // contrast, lightness, chroma, hue shifts
   roles?: Array<{ name: string; color: ColorInput | DerivedToken }>;
   variants?: Array<{ name: string; placement: VariantPlacement }>;
   tokens?: Array<{ name: string; value: TokenValue }>;
@@ -360,7 +362,7 @@ Hook options:
 
 | Option | Type | Description |
 |---|---|---|
-| `generation` | `HextimateGenerationOptions` | Palette generation options |
+| `style` | `HextimateStyleOptions` | Palette style options |
 | `presets` | `HextimatePreset[]` | Presets to apply in order (style + framework) |
 | `format` | `Omit<HextimateFormatOptions, "as">` | Format options (output is always CSS vars) |
 | `configure` | `(builder: HextimatePaletteBuilder) => void` | Customize the builder (add roles, tokens, etc.) |
@@ -378,7 +380,7 @@ import { HextimatorProvider, useHextimatorTheme } from "hextimator/react";
 <HextimatorProvider
   defaultColor="#6A5ACD"
   defaultMode="system"       // "light" | "dark" | "system"
-  generation={generationOpts}
+  style={styleOpts}
   presets={[presets.muted, presets.shadcn]}
   format={formatOpts}
   darkMode={{ type: "class" }}
@@ -399,8 +401,8 @@ import { HextimatorProvider, useHextimatorTheme } from "hextimator/react";
 | `mode` | `"light" \| "dark"` | Resolved color mode (accounts for OS preference) |
 | `modePreference` | `"light" \| "dark" \| "system"` | Raw preference before resolution |
 | `setMode` | `(mode: ModePreference) => void` | Change mode preference |
-| `generation` | `HextimateGenerationOptions \| undefined` | Current generation options |
-| `setGeneration` | `(opts) => void` | Update generation options |
+| `style` | `HextimateStyleOptions \| undefined` | Current style options |
+| `setStyle` | `(opts) => void` | Update style options |
 | `presets` | `HextimatePreset[] \| undefined` | Current presets |
 | `setPresets` | `(presets) => void` | Update presets (triggers re-generation) |
 | `configure` | `((builder) => void) \| undefined` | Current builder configure function |
@@ -447,7 +449,7 @@ import { HextimatorProvider, HextimatorScope } from "hextimator/react";
 </HextimatorProvider>
 ```
 
-Props: `defaultColor`, `generation?`, `presets?`, `format?`, `configure?`, `darkMode?`, `cssPrefix?`, `className?`, `style?`.
+Props: `defaultColor`, `style?`, `presets?`, `format?`, `configure?`, `darkMode?`, `cssPrefix?`, `className?`, `wrapperStyle?` (inline styles for the scope element).
 
 ## `fallback.css`
 
@@ -474,10 +476,12 @@ This registers all built-in tokens as Tailwind utilities (`bg-accent`, `text-bas
 ### Inverted dark mode (accent as background)
 
 ```typescript
-const theme = hextimate("#52FE8C", {
-  baseColor: "#FEBA5D",
-  invertDarkModeBaseAccent: true,
-}).format({ as: "css" });
+const theme = hextimate("#52FE8C")
+  .style({
+    baseColor: "#FEBA5D",
+    invertDarkModeBaseAccent: true,
+  })
+  .format({ as: "css" });
 // Dark mode uses the accent hue as background, base hue as accent
 ```
 
@@ -495,7 +499,8 @@ hextimate("#6366F1")
 ### Multi-tenant with `.fork()`
 
 ```typescript
-const base = hextimate("#52FE8C", { baseColor: "#FEBA5D" })
+const base = hextimate("#52FE8C")
+  .style({ baseColor: "#FEBA5D" })
   .addRole("banner", "#ff006e")
   .addVariant("hover", { from: "strong" });
 
@@ -514,7 +519,7 @@ const preview = normalTheme.fork().simulate("deuteranopia");
 ## Optional
 
 - [Extending the palette](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/extending-the-palette.md): addRole, addVariant, addToken in depth
-- [Customization reference](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md): all generation and format options
+- [Customization reference](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md): all style and format options
 - [Multiple themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md): .fork() and dynamic theming
 - [Color vision deficiency](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/color-vision-deficiency.md): simulate and adaptFor
 - [React docs](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/react.md): hook, provider, dark mode strategies

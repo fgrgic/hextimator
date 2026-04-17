@@ -120,7 +120,8 @@ describe('preset', () => {
 	});
 
 	test('regenerate preserves preset (via light/dark options)', () => {
-		const theme = hextimate('#6366F1', { light: { lightness: 0.8 } })
+		const theme = hextimate('#6366F1')
+			.style({ light: { lightness: 0.8 } })
 			.preset(shadcn)
 			.format();
 
@@ -183,7 +184,7 @@ describe('preset', () => {
 describe('preset chaining', () => {
 	test('style preset + framework preset produces both effects', () => {
 		const muted: HextimatePreset = {
-			generation: { light: { maxChroma: 0.06 }, dark: { maxChroma: 0.05 } },
+			style: { light: { maxChroma: 0.06 }, dark: { maxChroma: 0.05 } },
 		};
 
 		const theme = hextimate('#6366F1').preset(muted).preset(shadcn).format();
@@ -193,7 +194,7 @@ describe('preset chaining', () => {
 		expect(theme.light).toHaveProperty('--background');
 		expect(theme.light).toHaveProperty('--ring');
 
-		// muted generation applied (chroma is lower than default)
+		// muted style applied (chroma is lower than default)
 		const defaultTheme = hextimate('#6366F1').preset(shadcn).format();
 		const mutedPrimary = (theme.light as Record<string, string>)['--primary'];
 		const defaultPrimary = (defaultTheme.light as Record<string, string>)[
@@ -202,15 +203,15 @@ describe('preset chaining', () => {
 		expect(mutedPrimary).not.toBe(defaultPrimary);
 	});
 
-	test('second preset generation deep-merges with first', () => {
+	test('second preset style deep-merges with first', () => {
 		const presetA: HextimatePreset = {
-			generation: {
+			style: {
 				light: { maxChroma: 0.06 },
 				baseMaxChroma: 0.03,
 			},
 		};
 		const presetB: HextimatePreset = {
-			generation: {
+			style: {
 				light: { lightness: 0.8 },
 			},
 		};
@@ -235,10 +236,10 @@ describe('preset chaining', () => {
 
 	test('later preset overrides earlier preset for same key', () => {
 		const presetA: HextimatePreset = {
-			generation: { baseMaxChroma: 0.03 },
+			style: { baseMaxChroma: 0.03 },
 		};
 		const presetB: HextimatePreset = {
-			generation: { baseMaxChroma: 0.08 },
+			style: { baseMaxChroma: 0.08 },
 		};
 
 		const abTheme = hextimate('#6366F1')
@@ -256,24 +257,25 @@ describe('preset chaining', () => {
 		);
 	});
 
-	test('constructor options override all presets', () => {
+	test('style() after presets overrides preset style for the same key', () => {
 		const presetA: HextimatePreset = {
-			generation: { baseMaxChroma: 0.03 },
+			style: { baseMaxChroma: 0.03 },
 		};
 		const presetB: HextimatePreset = {
-			generation: { baseMaxChroma: 0.08 },
+			style: { baseMaxChroma: 0.08 },
 		};
 
-		const theme = hextimate('#6366F1', { baseMaxChroma: 0.01 })
+		const theme = hextimate('#6366F1')
 			.preset(presetA)
 			.preset(presetB)
+			.style({ baseMaxChroma: 0.01 })
 			.format({ as: 'object' });
 
-		const userOnlyTheme = hextimate('#6366F1', { baseMaxChroma: 0.01 }).format({
-			as: 'object',
-		});
+		const userOnlyTheme = hextimate('#6366F1')
+			.style({ baseMaxChroma: 0.01 })
+			.format({ as: 'object' });
 
-		// User's value (0.01) should win over both presets
+		// Final .style() value (0.01) should match style-only theme
 		expect((theme.light as Record<string, string>)['base']).toBe(
 			(userOnlyTheme.light as Record<string, string>)['base'],
 		);
@@ -340,7 +342,7 @@ describe('preset chaining', () => {
 
 	test('fork preserves chained presets', () => {
 		const muted: HextimatePreset = {
-			generation: { light: { maxChroma: 0.06 } },
+			style: { light: { maxChroma: 0.06 } },
 		};
 
 		const builder = hextimate('#6366F1').preset(muted).preset(shadcn);

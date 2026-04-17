@@ -148,8 +148,16 @@ describe('format() — options', () => {
 		const result = format(palette, {
 			excludeRoles: ['warning', 'positive'],
 		}) as Record<string, string>;
-		expect(Object.keys(result).some((k) => k === 'warning' || k.startsWith('warning-'))).toBe(false);
-		expect(Object.keys(result).some((k) => k === 'positive' || k.startsWith('positive-'))).toBe(false);
+		expect(
+			Object.keys(result).some(
+				(k) => k === 'warning' || k.startsWith('warning-'),
+			),
+		).toBe(false);
+		expect(
+			Object.keys(result).some(
+				(k) => k === 'positive' || k.startsWith('positive-'),
+			),
+		).toBe(false);
 		expect(result.base).toBeDefined();
 		expect(result.accent).toBeDefined();
 	});
@@ -169,7 +177,11 @@ describe('format() — options', () => {
 			excludeRoles: ['negative'],
 			excludeVariants: ['strong'],
 		}) as Record<string, string>;
-		expect(Object.keys(result).some((k) => k === 'negative' || k.startsWith('negative-'))).toBe(false);
+		expect(
+			Object.keys(result).some(
+				(k) => k === 'negative' || k.startsWith('negative-'),
+			),
+		).toBe(false);
 		expect(Object.keys(result).some((k) => k.endsWith('-strong'))).toBe(false);
 		expect(result.base).toBeDefined();
 		expect(result['base-weak']).toBeDefined();

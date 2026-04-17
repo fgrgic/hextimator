@@ -305,7 +305,6 @@ describe('HextimatePaletteBuilder: addVariant()', () => {
 		);
 		expect(lightKeys(result)).toContain('cta-hover');
 	});
-
 });
 
 // ──────────────────────────────────────────────
@@ -424,7 +423,7 @@ describe('HextimatePaletteBuilder: light / dark options', () => {
 	it('light adjustments change light theme output', () => {
 		const normal = formatObject(hextimate('#ff6600'));
 		const adjusted = formatObject(
-			hextimate('#ff6600', { light: { lightness: 0.8 } }),
+			hextimate('#ff6600').style({ light: { lightness: 0.8 } }),
 		);
 		expect(adjusted.light.accent).not.toBe(normal.light.accent);
 	});
@@ -432,7 +431,7 @@ describe('HextimatePaletteBuilder: light / dark options', () => {
 	it('light adjustments do not change dark theme', () => {
 		const normal = formatObject(hextimate('#ff6600'));
 		const adjusted = formatObject(
-			hextimate('#ff6600', { light: { lightness: 0.8 } }),
+			hextimate('#ff6600').style({ light: { lightness: 0.8 } }),
 		);
 		expect(adjusted.dark.accent).toBe(normal.dark.accent);
 	});
@@ -440,7 +439,7 @@ describe('HextimatePaletteBuilder: light / dark options', () => {
 	it('dark adjustments change dark theme output', () => {
 		const normal = formatObject(hextimate('#ff6600'));
 		const adjusted = formatObject(
-			hextimate('#ff6600', { dark: { lightness: 0.5 } }),
+			hextimate('#ff6600').style({ dark: { lightness: 0.5 } }),
 		);
 		expect(adjusted.dark.accent).not.toBe(normal.dark.accent);
 	});
@@ -448,7 +447,7 @@ describe('HextimatePaletteBuilder: light / dark options', () => {
 	it('dark adjustments do not change light theme', () => {
 		const normal = formatObject(hextimate('#ff6600'));
 		const adjusted = formatObject(
-			hextimate('#ff6600', { dark: { lightness: 0.5 } }),
+			hextimate('#ff6600').style({ dark: { lightness: 0.5 } }),
 		);
 		expect(adjusted.light.accent).toBe(normal.light.accent);
 	});
@@ -456,7 +455,7 @@ describe('HextimatePaletteBuilder: light / dark options', () => {
 	it('maxChroma adjustment affects output', () => {
 		const normal = formatObject(hextimate('#ff6600'));
 		const adjusted = formatObject(
-			hextimate('#ff6600', { light: { maxChroma: 0.05 } }),
+			hextimate('#ff6600').style({ light: { maxChroma: 0.05 } }),
 		);
 		// With heavily clamped chroma, the color should be different
 		expect(adjusted.light.accent).not.toBe(normal.light.accent);
@@ -464,20 +463,19 @@ describe('HextimatePaletteBuilder: light / dark options', () => {
 
 	it('adjustments work alongside addRole', () => {
 		const result = formatObject(
-			hextimate('#ff6600', { light: { lightness: 0.8 } }).addRole(
-				'cta',
-				'#ee2244',
-			),
+			hextimate('#ff6600')
+				.style({ light: { lightness: 0.8 } })
+				.addRole('cta', '#ee2244'),
 		);
 		expect(result.light.cta).toBeDefined();
 	});
 
 	it('per-theme minContrastRatio override affects only that theme', () => {
 		const global = formatObject(
-			hextimate('#ff6600', { minContrastRatio: 'AAA' }),
+			hextimate('#ff6600').style({ minContrastRatio: 'AAA' }),
 		);
 		const overridden = formatObject(
-			hextimate('#ff6600', {
+			hextimate('#ff6600').style({
 				minContrastRatio: 'AAA',
 				light: { minContrastRatio: 'AA' },
 			}),
@@ -491,7 +489,7 @@ describe('HextimatePaletteBuilder: light / dark options', () => {
 	it('per-theme baseMaxChroma override affects only that theme', () => {
 		const normal = formatObject(hextimate('#ff6600'));
 		const adjusted = formatObject(
-			hextimate('#ff6600', {
+			hextimate('#ff6600').style({
 				dark: { baseMaxChroma: 0.06 },
 			}),
 		);
@@ -504,7 +502,7 @@ describe('HextimatePaletteBuilder: light / dark options', () => {
 	it('per-theme foregroundMaxChroma override affects only that theme', () => {
 		const normal = formatObject(hextimate('#ff6600'));
 		const adjusted = formatObject(
-			hextimate('#ff6600', {
+			hextimate('#ff6600').style({
 				light: { foregroundMaxChroma: 0.08 },
 			}),
 		);
@@ -518,10 +516,10 @@ describe('HextimatePaletteBuilder: light / dark options', () => {
 
 	it('per-theme override takes precedence over global value', () => {
 		const globalOnly = formatObject(
-			hextimate('#ff6600', { baseMaxChroma: 0.06 }),
+			hextimate('#ff6600').style({ baseMaxChroma: 0.06 }),
 		);
 		const withOverride = formatObject(
-			hextimate('#ff6600', {
+			hextimate('#ff6600').style({
 				baseMaxChroma: 0.06,
 				light: { baseMaxChroma: 0.01 },
 			}),
@@ -572,7 +570,7 @@ describe('HextimatePaletteBuilder: fork()', () => {
 	});
 
 	it('fork preserves theme adjustments from options', () => {
-		const builder = hextimate('#ff6600', { light: { lightness: 0.8 } });
+		const builder = hextimate('#ff6600').style({ light: { lightness: 0.8 } });
 		const normal = formatObject(hextimate('#ff6600'));
 		const forked = formatObject(builder.fork());
 		// Forked should have light adjustments, different from unadjusted
@@ -590,17 +588,19 @@ describe('HextimatePaletteBuilder: fork()', () => {
 		expect(parentAfter).toEqual(parentResult);
 	});
 
-	it('fork with options overrides generation options', () => {
+	it('fork().style() overrides style options', () => {
 		const builder = hextimate('#ff6600');
-		const forked = builder.fork({ light: { lightness: 0.85 } });
+		const forked = builder.fork().style({ light: { lightness: 0.85 } });
 		const normal = formatObject(builder);
 		const forkedResult = formatObject(forked);
 		expect(forkedResult.light.accent).not.toBe(normal.light.accent);
 	});
 
-	it('fork with color and options', () => {
+	it('fork(color).style() applies color and style', () => {
 		const builder = hextimate('#ff6600');
-		const forked = builder.fork('#0000ff', { light: { lightness: 0.85 } });
+		const forked = builder
+			.fork('#0000ff')
+			.style({ light: { lightness: 0.85 } });
 		const result = formatObject(forked);
 		expect(result.light.accent).toBeDefined();
 		// Should differ from both the original color and default lightness
@@ -775,10 +775,11 @@ describe('HextimatePaletteBuilder: complex chaining', () => {
 
 	it('theme adjustments + roles + variants', () => {
 		const result = formatObject(
-			hextimate('#ff6600', {
-				light: { lightness: 0.75 },
-				dark: { lightness: 0.55 },
-			})
+			hextimate('#ff6600')
+				.style({
+					light: { lightness: 0.75 },
+					dark: { lightness: 0.55 },
+				})
 				.addRole('cta', '#ee2244')
 				.addVariant('hover', { from: 'strong' }),
 		);
@@ -817,8 +818,8 @@ describe('HextimatePaletteBuilder: determinism', () => {
 
 	it('same input with same options produces same output', () => {
 		const opts = { hueShift: 10, minContrastRatio: 'AA' as const };
-		const a = formatObject(hextimate('#ff6600', opts));
-		const b = formatObject(hextimate('#ff6600', opts));
+		const a = formatObject(hextimate('#ff6600').style(opts));
+		const b = formatObject(hextimate('#ff6600').style(opts));
 		expect(a).toEqual(b);
 	});
 

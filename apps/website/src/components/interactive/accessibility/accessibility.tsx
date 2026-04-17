@@ -16,7 +16,7 @@ const CVD_OPTIONS: { value: CVDType; label: string }[] = [
 ];
 
 export function Accessibility() {
-	const { generation, setGeneration, setConfigure } = useHextimatorTheme();
+	const { style, setStyle, setConfigure } = useHextimatorTheme();
 
 	const [contrastRatio, setContrastRatio] = useState(7);
 	const [cvdType, setCvdType] = useState<CVDType | 'none'>('none');
@@ -33,8 +33,8 @@ export function Accessibility() {
 
 	const applyAccessibility = useCallback(
 		(ratio: number, cvd: CVDType | 'none', simulate: boolean) => {
-			setGeneration({
-				...generation,
+			setStyle({
+				...style,
 				minContrastRatio: ratio,
 			});
 
@@ -49,7 +49,7 @@ export function Accessibility() {
 				});
 			}
 		},
-		[generation, setGeneration, setConfigure],
+		[style, setStyle, setConfigure],
 	);
 
 	const handleContrastChange = (value: number) => {
@@ -71,8 +71,8 @@ export function Accessibility() {
 		setContrastRatio(7);
 		setCvdType('none');
 		setSimulatePreview(false);
-		setGeneration({
-			...generation,
+		setStyle({
+			...style,
 			minContrastRatio: 7,
 		});
 		setConfigure(undefined);

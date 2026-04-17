@@ -66,6 +66,6 @@ The `addToken` can be used to override any generated token from the palette as w
 
 ```typescript
 hextimate("#6A5ACD")
-  .addToken("base-strong", ""#fafafa"") // overrides the generated --base-strong at formatting time
+  .addToken("base-strong", "#fafafa") // overrides the generated --base-strong at formatting time
   .format({ as: "css" });
 ```

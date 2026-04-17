@@ -1,6 +1,10 @@
 # Presets
 
-Presets are predefined configurations that set up hextimator in one call -- whether for a specific framework or a particular style. They can be chained:
+Presets are partial or full themes. You can chain them together, extend them, or not use them at all. They provide a starting point. Whether it's making it easier to work with a component library like shadcn, or just a style starting point.
+
+**`hextimate` takes only the color**; presets attach with **`.preset()`**, and optional tuning uses **`.style()`** on the same chain.
+
+They can be chained like so:
 
 ```typescript
 import { hextimate, presets } from "hextimator";
@@ -13,15 +17,13 @@ const theme = hextimate("#6366F1")
 
 ## Available presets
 
-### Framework presets
-
-#### `shadcn`
+`shadcn`
 
 Drop-in for [shadcn/ui](https://ui.shadcn.com). Generates `--background`, `--foreground`, `--primary`, `--secondary`, `--muted`, `--accent`, `--destructive`, `--success`, `--card`, `--popover`, `--border`, `--input`, `--ring`, `--chart-1`--`--chart-5`, plus `-foreground` counterparts.
 
 **Defaults**: `as: "css"`, `colors: "oklch"`. For older shadcn setups using HSL, override with `.format({ colors: "hsl-raw" })`.
 
-#### `mui`
+`mui`
 
 Matches [MUI's](https://mui.com) theme structure. Generates `primary`, `secondary`, `error`, `warning`, `info`, `success` -- each with `main`, `light`, `dark`, and `contrastText` variants. Also generates `background` (`default`, `paper`), `text` (`primary`, `secondary`, `disabled`), `divider`, and `action` tokens.
 
@@ -30,26 +32,20 @@ Matches [MUI's](https://mui.com) theme structure. Generates `primary`, `secondar
 ```typescript
 import { createTheme } from "@mui/material/styles";
 
-const palette = hextimate("#6366F1")
-  .preset(presets.mui)
-  .format();
+const palette = hextimate("#6366F1").preset(presets.mui).format();
 
 const theme = createTheme({ palette: palette.light });
 ```
 
-### Style presets
-
-Style presets only set generation parameters -- they have no opinion on tokens, naming, or output format. This makes them composable with any framework preset.
-
-#### `muted`
+`muted`
 
 Desaturated, restrained palette. Caps accent chroma and pulls foreground colors to near-neutral. Think Notion, Linear.
 
-#### `vibrant`
+`vibrant`
 
 High-saturation palette with complementary tinted neutrals. Pushes chroma up, adds a slight hue shift across variants, and uses a complementary base hue. Think Figma, Spotify.
 
-#### `tinted`
+`tinted`
 
 Neutrals pick up the accent hue for a cohesive, branded feel. Bumps base chroma and foreground chroma so backgrounds and text carry visible color instead of pure gray.
 
@@ -59,23 +55,24 @@ Call `.preset()` multiple times. Each call deep-merges with the accumulated stat
 
 ```typescript
 const theme = hextimate("#6366F1")
-  .preset(presets.vibrant)   // sets generation params
-  .preset(presets.shadcn)    // adds tokens, format -- doesn't touch generation
+  .preset(presets.vibrant) // sets style params
+  .preset(presets.shadcn) // adds tokens, format -- doesn't add style unless the preset defines it
   .format();
 ```
 
 **Merge rules:**
 
-- **Generation options**: deep-merged. Later presets override earlier ones for the same key.
+- **Preset `style`**: nested keys `light`, `dark`, `semanticColors`, and `semanticColorRanges` shallow-merge per key; other keys overwrite. Later presets override earlier ones for the same key.
 - **Roles, variants, tokens**: concatenated (additive). A second preset never drops tokens from a previous one.
 - **Format options**: deep-merged. `roleNames` and `variantNames` are merged individually.
-- **Constructor options always win**: anything passed to `hextimate(color, options)` takes precedence over all presets.
+- **`.style()` after presets**: call `.style({ ... })` after `.preset(...)` to override overlapping style keys (for example, tighten `baseMaxChroma` after chaining style presets).
 
 ```typescript
-// Constructor's baseMaxChroma (0.01) wins over both presets
-const theme = hextimate("#6366F1", { baseMaxChroma: 0.01 })
-  .preset(presets.tinted)    // would set baseMaxChroma: 0.05
+// Final .style() wins over preset style for the same keys
+const theme = hextimate("#6366F1")
+  .preset(presets.tinted)
   .preset(presets.shadcn)
+  .style({ baseMaxChroma: 0.01 })
   .format();
 ```
 
@@ -85,14 +82,10 @@ Anything you pass to `.format()` takes precedence over the preset's defaults:
 
 ```typescript
 // Change output format
-hextimate("#6366F1")
-  .preset(presets.shadcn)
-  .format({ as: "json" });
+hextimate("#6366F1").preset(presets.shadcn).format({ as: "json" });
 
 // Change color format
-hextimate("#6366F1")
-  .preset(presets.shadcn)
-  .format({ colors: "hsl-raw" });
+hextimate("#6366F1").preset(presets.shadcn).format({ colors: "hsl-raw" });
 
 // Add extra role renames (merged with preset's)
 hextimate("#6366F1")
@@ -132,12 +125,12 @@ import { HextimatorProvider } from "hextimator/react";
 import { presets } from "hextimator";
 
 <HextimatorProvider
-  defaultColor="#6366F1"
+  defaultColor='#6366F1'
   presets={[presets.muted, presets.shadcn]}
   darkMode={{ type: "class" }}
 >
   <App />
-</HextimatorProvider>
+</HextimatorProvider>;
 ```
 
 Presets can be updated at runtime via `useHextimatorTheme()`:
@@ -170,23 +163,25 @@ A preset is a plain object -- you can create your own:
 import type { HextimatePreset } from "hextimator";
 
 const myPreset: HextimatePreset = {
-  // Generation options (contrast, hue shifts, lightness, chroma)
-  generation: {
+  // Style options (contrast, hue shifts, lightness, chroma)
+  style: {
     minContrastRatio: "AA",
     baseHueShift: 180,
   },
 
   // Extra roles (each gets DEFAULT, strong, weak, foreground)
-  roles: [
-    { name: "cta", color: "#ee2244" },
-  ],
+  roles: [{ name: "cta", color: "#ee2244" }],
 
   // Standalone tokens
   tokens: [
     { name: "foreground", value: { from: "base.foreground" } },
-    { name: "border", value: {
-      from: "base", emphasis: 0.1,
-    }},
+    {
+      name: "border",
+      value: {
+        from: "base",
+        emphasis: 0.1,
+      },
+    },
   ],
 
   // Default format options
@@ -200,16 +195,14 @@ const myPreset: HextimatePreset = {
   },
 };
 
-const theme = hextimate("#3a86ff")
-  .preset(myPreset)
-  .format();
+const theme = hextimate("#3a86ff").preset(myPreset).format();
 ```
 
-A style-only preset is even simpler -- just generation params:
+A style-only preset is even simpler -- just style params:
 
 ```typescript
 const pastel: HextimatePreset = {
-  generation: {
+  style: {
     light: { maxChroma: 0.1, lightness: 0.8 },
     dark: { maxChroma: 0.09, lightness: 0.7 },
   },
@@ -220,7 +213,7 @@ The `HextimatePreset` interface:
 
 ```typescript
 interface HextimatePreset {
-  generation?: HextimateGenerationOptions;
+  style?: HextimateStyleOptions;
   roles?: Array<{ name: string; color: ColorInput | DerivedToken }>;
   variants?: Array<{ name: string; placement: VariantPlacement }>;
   tokens?: Array<{ name: string; value: TokenValue }>;

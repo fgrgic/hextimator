@@ -20,7 +20,7 @@ import type {
 	Color,
 	ColorInput,
 	HextimateFormatOptions,
-	HextimateGenerationOptions,
+	HextimateStyleOptions,
 	OKLCH,
 } from './types';
 
@@ -89,10 +89,10 @@ const NESTED_GEN_KEYS = new Set([
 	'semanticColorRanges',
 ]);
 
-/** Sequential deep merge for generation options. Later sources win. */
-function mergeGenerationOptions(
-	...sources: (Partial<HextimateGenerationOptions> | undefined)[]
-): Partial<HextimateGenerationOptions> {
+/** Sequential merge for style options. Nested keys `light`, `dark`, `semanticColors`, `semanticColorRanges` shallow-merge per key; other keys overwrite. Later sources win. */
+function mergeStyleOptions(
+	...sources: (Partial<HextimateStyleOptions> | undefined)[]
+): Partial<HextimateStyleOptions> {
 	const result: Record<string, unknown> = {};
 	for (const source of sources) {
 		if (!source) continue;
@@ -109,15 +109,14 @@ function mergeGenerationOptions(
 			}
 		}
 	}
-	return result as Partial<HextimateGenerationOptions>;
+	return result as Partial<HextimateStyleOptions>;
 }
 
 export class HextimatePaletteBuilder {
-	private lightPalette: HextimatePalette;
-	private darkPalette: HextimatePalette;
+	private lightPalette!: HextimatePalette;
+	private darkPalette!: HextimatePalette;
 	private readonly inputColor: Color;
-	private options: Partial<HextimateGenerationOptions>;
-	private readonly userOptions: Partial<HextimateGenerationOptions>;
+	private options: Partial<HextimateStyleOptions>;
 	private readonly operations: Array<
 		| { method: 'addRole'; args: [string, ColorInput | DerivedToken] }
 		| { method: 'addVariant'; args: [string, VariantPlacement] }
@@ -125,6 +124,7 @@ export class HextimatePaletteBuilder {
 		| { method: 'simulate'; args: [CVDType, number] }
 		| { method: 'adaptFor'; args: [CVDType, number] }
 		| { method: 'preset'; args: [HextimatePreset] }
+		| { method: 'style'; args: [Partial<HextimateStyleOptions>] }
 	> = [];
 	private readonly standaloneTokens: Array<{
 		name: string;
@@ -138,22 +138,114 @@ export class HextimatePaletteBuilder {
 	}> = [];
 	private presetFormatDefaults?: HextimateFormatOptions;
 
-	constructor(color: Color, options?: HextimateGenerationOptions) {
+	constructor(color: Color) {
 		this.inputColor = color;
-		this.options = options ?? {};
-		this.userOptions = options ?? {};
-		this.lightPalette = generate(color, 'light', options);
-		this.darkPalette = generate(color, 'dark', options);
-		this.applyToken('brand-exact', color);
+		this.options = {};
+		this.seedOptionsForFork({});
+	}
 
-		const colorOKLCH = convert(color, 'oklch');
+	/**
+	 * Merges style options into the builder and regenerates the base palettes,
+	 * then replays recorded operations so roles and variants reflect the new style.
+	 */
+	style(partial: Partial<HextimateStyleOptions>): this {
+		this.operations.push({ method: 'style', args: [partial] });
+		this.options = mergeStyleOptions(this.options, partial);
+		this.rebuildFromOperations();
+		return this;
+	}
+
+	private seedOptionsForFork(
+		seededOptions: Partial<HextimateStyleOptions>,
+	): void {
+		this.options = { ...seededOptions };
+		this.lightPalette = generate(
+			this.inputColor,
+			'light',
+			this.resolvedOptions(),
+		);
+		this.darkPalette = generate(
+			this.inputColor,
+			'dark',
+			this.resolvedOptions(),
+		);
+		this.standaloneTokens.length = 0;
+		this.weakSideVariants.length = 0;
+		this.weakSideVariants.push('weak');
+		this.strongSideVariants.length = 0;
+		this.strongSideVariants.push('strong');
+		this.betweenVariants.length = 0;
+		this.presetFormatDefaults = undefined;
+		this.applyToken('brand-exact', this.inputColor);
+
+		const colorOKLCH = convert(this.inputColor, 'oklch');
 		const lightFg = { ...colorOKLCH, l: 0.97, c: Math.min(colorOKLCH.c, 0.01) };
 		const darkFg = { ...colorOKLCH, l: 0.1, c: Math.min(colorOKLCH.c, 0.01) };
 		const brandForeground =
-			calculateContrast(color, lightFg) >= calculateContrast(color, darkFg)
+			calculateContrast(this.inputColor, lightFg) >=
+			calculateContrast(this.inputColor, darkFg)
 				? lightFg
 				: darkFg;
 		this.applyToken('brand-exact-foreground', brandForeground);
+	}
+
+	private rebuildFromOperations(): void {
+		this.seedOptionsForFork(this.options);
+		for (const op of this.operations) {
+			this.replayOperationInPlace(op);
+		}
+	}
+
+	private replayOperationInPlace(
+		op:
+			| { method: 'addRole'; args: [string, ColorInput | DerivedToken] }
+			| { method: 'addVariant'; args: [string, VariantPlacement] }
+			| { method: 'addToken'; args: [string, TokenValue] }
+			| { method: 'simulate'; args: [CVDType, number] }
+			| { method: 'adaptFor'; args: [CVDType, number] }
+			| { method: 'preset'; args: [HextimatePreset] }
+			| { method: 'style'; args: [Partial<HextimateStyleOptions>] },
+	): void {
+		switch (op.method) {
+			case 'style':
+				return;
+			case 'addRole':
+				this.applyRole(...op.args);
+				return;
+			case 'addVariant':
+				this.applyVariant(...op.args);
+				return;
+			case 'addToken':
+				this.applyToken(...op.args);
+				return;
+			case 'simulate':
+				this.lightPalette = simulatePalette(
+					this.lightPalette,
+					op.args[0],
+					op.args[1],
+				);
+				this.darkPalette = simulatePalette(
+					this.darkPalette,
+					op.args[0],
+					op.args[1],
+				);
+				return;
+			case 'adaptFor':
+				this.lightPalette = adaptPalette(
+					this.lightPalette,
+					op.args[0],
+					op.args[1],
+				);
+				this.darkPalette = adaptPalette(
+					this.darkPalette,
+					op.args[0],
+					op.args[1],
+				);
+				return;
+			case 'preset':
+				this.applyPresetRolesTokensFormat(op.args[0]);
+				return;
+		}
 	}
 
 	/**
@@ -229,13 +321,8 @@ export class HextimatePaletteBuilder {
 	 */
 	preset(preset: HextimatePreset): this {
 		this.operations.push({ method: 'preset', args: [preset] });
-
-		if (preset.generation) {
-			this.options = mergeGenerationOptions(
-				this.options,
-				preset.generation,
-				this.userOptions,
-			);
+		if (preset.style) {
+			this.options = mergeStyleOptions(this.options, preset.style);
 			this.lightPalette = generate(
 				this.inputColor,
 				'light',
@@ -247,7 +334,21 @@ export class HextimatePaletteBuilder {
 				this.resolvedOptions(),
 			);
 		}
+		this.applyPresetRolesTokensFormat(preset);
+		return this;
+	}
 
+	/**
+	 * Records a preset in the operation log and applies roles, variants, tokens, and format.
+	 * Does not merge `preset.style` — used when replaying onto a builder whose `this.options` already reflect merged style.
+	 */
+	private recordPresetWithoutStyleMerge(preset: HextimatePreset): void {
+		this.operations.push({ method: 'preset', args: [preset] });
+		this.applyPresetRolesTokensFormat(preset);
+	}
+
+	/** Roles, variants, tokens, and format only — `this.options` and base palettes are already correct. */
+	private applyPresetRolesTokensFormat(preset: HextimatePreset): void {
 		for (const role of preset.roles ?? []) {
 			this.applyRole(role.name, role.color);
 		}
@@ -272,8 +373,6 @@ export class HextimatePaletteBuilder {
 				},
 			};
 		}
-
-		return this;
 	}
 
 	/**
@@ -321,54 +420,20 @@ export class HextimatePaletteBuilder {
 	}
 
 	/**
-	 * Creates a new builder instance with the same operations history, allowing you to generate a related palette with a different base color or options.
+	 * Creates a new builder instance with the same operations history, optionally from a different base color.
+	 * To change style options on the fork, chain `.style()` after `.fork()`.
 	 *
-	 * e.g. `fork('#ff6677')` creates a new builder with the same
-	 * roles, variants, tokens, and adjustments, but based on a different input color.
-	 *
-	 * `fork({ light: { lightness: 0.8 } })` creates a new builder with the same color but different light theme adjustments.
-	 *
-	 * @param colorOrOptions Either a new base color for the palette, or an object with new generation options to override (e.g. light/dark adjustments, hue shift, contrast ratio).
-	 * @param maybeOptions If the first argument is a color, this can be an optional second argument with generation options to override.
-	 * @returns A new builder instance with the same operations history but different base color and/or options.
+	 * @param color Optional new accent/brand color. If omitted, the fork uses the same color as this builder.
 	 */
-	fork(
-		colorOrOptions?: ColorInput | Partial<HextimateGenerationOptions>,
-		maybeOptions?: Partial<HextimateGenerationOptions>,
-	): HextimatePaletteBuilder {
-		let newColor: Color;
-		let newOptions: HextimateGenerationOptions;
-
-		if (maybeOptions !== undefined) {
-			// fork(color, options)
-			newColor = parse(colorOrOptions as ColorInput);
-			newOptions = {
-				...this.options,
-				...maybeOptions,
-			} as HextimateGenerationOptions;
-		} else if (
-			colorOrOptions !== undefined &&
-			typeof colorOrOptions === 'object' &&
-			!Array.isArray(colorOrOptions) &&
-			!('space' in colorOrOptions)
-		) {
-			newColor = this.inputColor;
-			newOptions = {
-				...this.options,
-				...colorOrOptions,
-			} as HextimateGenerationOptions;
-		} else if (colorOrOptions !== undefined) {
-			newColor = parse(colorOrOptions as ColorInput);
-			newOptions = { ...this.options } as HextimateGenerationOptions;
-		} else {
-			newColor = this.inputColor;
-			newOptions = { ...this.options } as HextimateGenerationOptions;
-		}
-
-		const builder = new HextimatePaletteBuilder(newColor, newOptions);
+	fork(color?: ColorInput): HextimatePaletteBuilder {
+		const newColor = color !== undefined ? parse(color) : this.inputColor;
+		const builder = new HextimatePaletteBuilder(newColor);
+		builder.seedOptionsForFork({ ...this.options });
 
 		for (const op of this.operations) {
 			switch (op.method) {
+				case 'style':
+					break;
 				case 'addRole':
 					builder.addRole(...op.args);
 					break;
@@ -385,7 +450,7 @@ export class HextimatePaletteBuilder {
 					builder.adaptFor(...op.args);
 					break;
 				case 'preset':
-					builder.preset(...op.args);
+					builder.recordPresetWithoutStyleMerge(op.args[0]);
 					break;
 			}
 		}
@@ -910,7 +975,7 @@ export class HextimatePaletteBuilder {
 		return { ...colorA, l: midL, c: midC, h: midH };
 	}
 
-	private resolvedOptions(): HextimateGenerationOptions {
-		return { ...this.options } as HextimateGenerationOptions;
+	private resolvedOptions(): HextimateStyleOptions {
+		return { ...this.options } as HextimateStyleOptions;
 	}
 }

@@ -1,6 +1,6 @@
 import { HextimatePaletteBuilder } from './HextimatePaletteBuilder';
 import { parse } from './parse';
-import type { ColorInput, HextimateGenerationOptions } from './types';
+import type { ColorInput } from './types';
 
 export type { CVDType } from './a11y';
 export { daltonizeColor, simulateColor } from './a11y';
@@ -18,8 +18,8 @@ export * as presets from './presets';
 export type { HextimatePreset } from './presets/types';
 export type {
 	HextimateFormatOptions,
-	HextimateGenerationOptions,
 	HextimateOptions,
+	HextimateStyleOptions,
 	ThemeAdjustments,
 } from './types';
 
@@ -44,18 +44,16 @@ export class HextimateError extends Error {
  *
  * @example
  * // Extended: add roles and variants before formatting
- * const theme = hextimate('#ff6600', { light: { lightness: 0.5 }, dark: { lightness: 0.65, maxChroma: 0.1 } })
+ * const theme = hextimate('#ff6600')
+ *   .style({ light: { lightness: 0.5 }, dark: { lightness: 0.65, maxChroma: 0.1 } })
  *   .addRole('cta', '#ee2244')
  *   .addVariant('hover', { from: 'strong' })
  *   .format({ as: 'tailwind' });
  */
-export function hextimate(
-	color: ColorInput,
-	options?: HextimateGenerationOptions,
-): HextimatePaletteBuilder {
+export function hextimate(color: ColorInput): HextimatePaletteBuilder {
 	try {
 		const parsedColor = parse(color);
-		return new HextimatePaletteBuilder(parsedColor, options);
+		return new HextimatePaletteBuilder(parsedColor);
 	} catch (e) {
 		if (e instanceof HextimateError) {
 			throw e;

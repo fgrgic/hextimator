@@ -3,8 +3,8 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 /**
- * Mapping from every HextimateGenerationOptions key to its CLI flag.
- * When you add a new generation option, add it here — the test will
+ * Mapping from every HextimateStyleOptions key to its CLI flag.
+ * When you add a new style option, add it here — the test will
  * verify the flag exists in cli.ts and is documented in llms.txt.
  */
 const GENERATION_OPTION_TO_CLI_FLAG: Record<string, string | null> = {
@@ -64,7 +64,7 @@ const META_FLAGS = new Set(['help', 'version']);
 describe('CLI ↔ API sync', () => {
 	for (const [option, flag] of Object.entries(GENERATION_OPTION_TO_CLI_FLAG)) {
 		if (flag === null) continue;
-		test(`generation option "${option}" has CLI flag --${flag}`, () => {
+		test(`style option "${option}" has CLI flag --${flag}`, () => {
 			expect(cliFlags).toContain(flag);
 		});
 	}

@@ -41,6 +41,13 @@ const BUILDER_METHODS: CompletionEntry[] = [
 		apply: 'preset(presets.shadcn)',
 	},
 	{
+		label: 'style',
+		type: 'method',
+		detail: '(partial)',
+		info: 'Merge style options and regenerate the palette',
+		apply: "style({ minContrastRatio: 'AA' })",
+	},
+	{
 		label: 'light',
 		type: 'method',
 		detail: '(adjustments)',
@@ -71,8 +78,8 @@ const BUILDER_METHODS: CompletionEntry[] = [
 	{
 		label: 'fork',
 		type: 'method',
-		detail: '(color?, options?)',
-		info: 'Create a new builder with same operations but different color',
+		detail: '(color?)',
+		info: 'Clone builder; chain .style() to change style options',
 		apply: "fork('#color')",
 	},
 	{
@@ -84,7 +91,7 @@ const BUILDER_METHODS: CompletionEntry[] = [
 	},
 ];
 
-const GENERATION_OPTIONS: CompletionEntry[] = [
+const STYLE_OPTIONS: CompletionEntry[] = [
 	{
 		label: 'baseColor',
 		type: 'property',
@@ -233,8 +240,9 @@ function matchContext(text: string): CompletionEntry[] | null {
 	if (/\.addVariant\s*\([^,]+,\s*\{[^}]*$/.test(text))
 		return VARIANT_PLACEMENTS;
 
-	// Inside hextimate(..., { ... }) — generation options
-	if (/hextimate\s*\([^)]*,\s*\{[^}]*$/.test(text)) return GENERATION_OPTIONS;
+	// Inside hextimate(...).style({ ... }) — style options
+	if (/hextimate\s*\([^)]*\)\s*\.style\s*\(\s*\{[^}]*$/.test(text))
+		return STYLE_OPTIONS;
 
 	return null;
 }

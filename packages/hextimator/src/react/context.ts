@@ -4,7 +4,7 @@ import type {
 	HextimateResult,
 } from '../HextimatePaletteBuilder';
 import type { HextimatePreset } from '../presets/types';
-import type { HextimateGenerationOptions } from '../types';
+import type { HextimateStyleOptions } from '../types';
 import type { ModePreference, ResolvedMode } from './types';
 
 export interface HextimatorContextValue {
@@ -13,8 +13,8 @@ export interface HextimatorContextValue {
 	mode: ResolvedMode;
 	modePreference: ModePreference;
 	setMode: (mode: ModePreference) => void;
-	generation: HextimateGenerationOptions | undefined;
-	setGeneration: (opts: HextimateGenerationOptions | undefined) => void;
+	style: HextimateStyleOptions | undefined;
+	setStyle: (opts: HextimateStyleOptions | undefined) => void;
 	presets: HextimatePreset[] | undefined;
 	setPresets: (presets: HextimatePreset[] | undefined) => void;
 	configure: ((builder: HextimatePaletteBuilder) => void) | undefined;

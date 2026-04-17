@@ -6,7 +6,7 @@ import type {
 import type {
 	ColorInput,
 	HextimateFormatOptions,
-	HextimateGenerationOptions,
+	HextimateStyleOptions,
 } from '../types';
 
 /**
@@ -23,8 +23,8 @@ import type {
  *   .format();
  */
 export interface HextimatePreset {
-	/** Generation options (contrast, hue shifts, lightness, chroma). Applied before roles/variants/tokens. */
-	generation?: HextimateGenerationOptions;
+	/** Style options (contrast, hue shifts, lightness, chroma). Applied before roles/variants/tokens. */
+	style?: HextimateStyleOptions;
 
 	/** Extra roles to add to the palette (each generates DEFAULT, strong, weak, foreground variants). */
 	roles?: Array<{ name: string; color: ColorInput | DerivedToken }>;

@@ -42,6 +42,7 @@ export function buildPlaygroundCode(
 			? `hextimate(${literal})`
 			: `hextimate(${literal})\n  .preset(presets.${presetId})`;
 	return `${head}
+  // .style({ minContrastRatio: 'AA' })
   // .preset(presets.shadcn)
   // .addRole('cta', '#ff006e')
   // .addVariant('muted', { from: 'weak' })
@@ -127,7 +128,7 @@ export function PresetShowcase({ className }: { className?: string }) {
 			<div className={`flex flex-col gap-1 ${headerClass}`}>
 				<h2 className="text-lg font-bold md:text-xl">Starting point</h2>
 				<p className="text-xs font-light leading-snug md:text-sm">
-					Choose a generation preset for the page and starter code.
+					Choose a style preset for the page and starter code.
 				</p>
 			</div>
 			<div className="flex flex-col gap-3">

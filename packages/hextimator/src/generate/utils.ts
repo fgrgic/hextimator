@@ -1,5 +1,5 @@
 import { convert } from '../convert';
-import type { Color, HextimateGenerationOptions, OKLCH } from '../types';
+import type { Color, HextimateStyleOptions, OKLCH } from '../types';
 import {
 	DEFAULT_DARK_THEME_LIGHTNESS,
 	DEFAULT_LIGHT_THEME_LIGHTNESS,
@@ -310,7 +310,7 @@ const DARK_THEME_LIGHTNESS_RANGE = [0.2, 0.8] as const;
 
 export function resolveThemeLightness(
 	themeType: ThemeType,
-	options?: Pick<HextimateGenerationOptions, 'light' | 'dark'>,
+	options?: Pick<HextimateStyleOptions, 'light' | 'dark'>,
 ): number {
 	const themeAdjustments =
 		themeType === 'light' ? options?.light : options?.dark;

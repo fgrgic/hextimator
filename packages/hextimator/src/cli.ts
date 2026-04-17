@@ -8,7 +8,7 @@ import type { HextimatePreset } from './presets/types';
 import type {
 	ColorFormat,
 	HextimateFormatOptions,
-	HextimateGenerationOptions,
+	HextimateStyleOptions,
 } from './types';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -45,7 +45,7 @@ Format options:
       --exclude-role <name>   Omit a role from output (repeatable)
       --exclude-variant <name> Omit a variant from output (repeatable)
 
-Generation options:
+Style options:
       --base-color <color>    Override base/neutral color
       --base-hue-shift <deg>  Rotate base hue relative to accent
       --hue-shift <deg>       Per-variant hue shift in degrees
@@ -143,56 +143,58 @@ function run(): void {
 		process.exit(1);
 	}
 
-	const generationOptions: HextimateGenerationOptions = {};
+	const styleOptions: HextimateStyleOptions = {};
 
-	if (values['base-color']) generationOptions.baseColor = values['base-color'];
+	if (values['base-color']) styleOptions.baseColor = values['base-color'];
 	if (values['base-hue-shift'])
-		generationOptions.baseHueShift = Number(values['base-hue-shift']);
-	if (values['hue-shift'])
-		generationOptions.hueShift = Number(values['hue-shift']);
+		styleOptions.baseHueShift = Number(values['base-hue-shift']);
+	if (values['hue-shift']) styleOptions.hueShift = Number(values['hue-shift']);
 	if (values['base-max-chroma'])
-		generationOptions.baseMaxChroma = Number(values['base-max-chroma']);
+		styleOptions.baseMaxChroma = Number(values['base-max-chroma']);
 	if (values['fg-max-chroma'])
-		generationOptions.foregroundMaxChroma = Number(values['fg-max-chroma']);
+		styleOptions.foregroundMaxChroma = Number(values['fg-max-chroma']);
 
 	if (values['light-lightness'] || values['light-max-chroma']) {
-		generationOptions.light = {};
+		styleOptions.light = {};
 		if (values['light-lightness'])
-			generationOptions.light.lightness = Number(values['light-lightness']);
+			styleOptions.light.lightness = Number(values['light-lightness']);
 		if (values['light-max-chroma'])
-			generationOptions.light.maxChroma = Number(values['light-max-chroma']);
+			styleOptions.light.maxChroma = Number(values['light-max-chroma']);
 	}
 
 	if (values['dark-lightness'] || values['dark-max-chroma']) {
-		generationOptions.dark = {};
+		styleOptions.dark = {};
 		if (values['dark-lightness'])
-			generationOptions.dark.lightness = Number(values['dark-lightness']);
+			styleOptions.dark.lightness = Number(values['dark-lightness']);
 		if (values['dark-max-chroma'])
-			generationOptions.dark.maxChroma = Number(values['dark-max-chroma']);
+			styleOptions.dark.maxChroma = Number(values['dark-max-chroma']);
 	}
 
 	if (values['min-contrast']) {
 		const mc = values['min-contrast'];
 		if (mc === 'AAA' || mc === 'AA') {
-			generationOptions.minContrastRatio = mc;
+			styleOptions.minContrastRatio = mc;
 		} else {
-			generationOptions.minContrastRatio = Number(mc);
+			styleOptions.minContrastRatio = Number(mc);
 		}
 	}
 
 	if (values['invert-dark']) {
-		generationOptions.invertDarkModeBaseAccent = true;
+		styleOptions.invertDarkModeBaseAccent = true;
 	}
 
-	const semanticColors: HextimateGenerationOptions['semanticColors'] = {};
+	const semanticColors: HextimateStyleOptions['semanticColors'] = {};
 	if (values.positive) semanticColors.positive = values.positive;
 	if (values.negative) semanticColors.negative = values.negative;
 	if (values.warning) semanticColors.warning = values.warning;
 	if (Object.keys(semanticColors).length > 0) {
-		generationOptions.semanticColors = semanticColors;
+		styleOptions.semanticColors = semanticColors;
 	}
 
-	const builder = hextimate(color, generationOptions);
+	const builder = hextimate(color);
+	if (Object.keys(styleOptions).length > 0) {
+		builder.style(styleOptions);
+	}
 
 	if (values.preset) {
 		for (const name of values.preset) {

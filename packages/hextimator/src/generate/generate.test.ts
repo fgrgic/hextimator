@@ -260,10 +260,12 @@ describe('minContrastRatio', () => {
 	it('"AA" enforces 4.5 contrast with foreground', () => {
 		for (const color of TEST_COLORS) {
 			for (const theme of THEME_TYPES) {
-				const result = hextimate(color, { minContrastRatio: 'AA' }).format({
-					as: 'object',
-					colors: 'hex',
-				});
+				const result = hextimate(color)
+					.style({ minContrastRatio: 'AA' })
+					.format({
+						as: 'object',
+						colors: 'hex',
+					});
 				const palette = result[theme] as Record<string, string>;
 				const roleScales = groupByRole(palette);
 
@@ -288,7 +290,7 @@ describe('minContrastRatio', () => {
 	it('numeric value is respected', () => {
 		for (const color of TEST_COLORS) {
 			for (const theme of THEME_TYPES) {
-				const result = hextimate(color, { minContrastRatio: 3 }).format({
+				const result = hextimate(color).style({ minContrastRatio: 3 }).format({
 					as: 'object',
 					colors: 'hex',
 				});
@@ -348,7 +350,7 @@ describe('hueShift: all variants still meet AAA with foreground', () => {
 		for (const theme of THEME_TYPES) {
 			for (const shift of HUE_SHIFTS) {
 				it(`${color} – ${theme} – hueShift: ${shift}`, () => {
-					const result = hextimate(color, { hueShift: shift }).format({
+					const result = hextimate(color).style({ hueShift: shift }).format({
 						as: 'object',
 						colors: 'hex',
 					});
@@ -379,7 +381,7 @@ describe('hueShift: negative values flip direction', () => {
 	for (const color of TEST_COLORS) {
 		for (const theme of THEME_TYPES) {
 			it(`${color} – ${theme} – hueShift: -10`, () => {
-				const result = hextimate(color, { hueShift: -10 }).format({
+				const result = hextimate(color).style({ hueShift: -10 }).format({
 					as: 'object',
 					colors: 'hex',
 				});
@@ -412,7 +414,8 @@ describe('hueShift: added variants still meet AAA', () => {
 		for (const theme of THEME_TYPES) {
 			for (const shift of HUE_SHIFTS) {
 				it(`${color} – ${theme} – hueShift: ${shift} (from + between)`, () => {
-					const result = hextimate(color, { hueShift: shift })
+					const result = hextimate(color)
+						.style({ hueShift: shift })
 						.addVariant('stronger', { from: 'strong' })
 						.addVariant('weaker', { from: 'weak' })
 						.addVariant('mid', { between: ['DEFAULT', 'strong'] })
@@ -443,7 +446,7 @@ describe('hueShift: added variants still meet AAA', () => {
 
 describe('hueShift: hue actually shifts between variants', () => {
 	it('strong and weak have different hues from DEFAULT when hueShift > 0', () => {
-		const result = hextimate('#6366f1', { hueShift: 10 }).format({
+		const result = hextimate('#6366f1').style({ hueShift: 10 }).format({
 			as: 'object',
 			colors: 'oklch',
 		});
@@ -472,7 +475,7 @@ describe('hueShift: hue actually shifts between variants', () => {
 	});
 
 	it('hueShift: 0 keeps all variants at the same hue', () => {
-		const result = hextimate('#6366f1', { hueShift: 0 }).format({
+		const result = hextimate('#6366f1').style({ hueShift: 0 }).format({
 			as: 'object',
 			colors: 'oklch',
 		});
@@ -499,7 +502,7 @@ describe('hueShift: hue actually shifts between variants', () => {
 describe('hueShift: clamping to 360/(n+1)', () => {
 	it('extreme hueShift is clamped so palette stays bounded', () => {
 		// With 2 default variants (strong, weak), max = 360/3 = 120
-		const result = hextimate('#6366f1', { hueShift: 999 }).format({
+		const result = hextimate('#6366f1').style({ hueShift: 999 }).format({
 			as: 'object',
 			colors: 'oklch',
 		});
@@ -524,7 +527,8 @@ describe('hueShift: clamping to 360/(n+1)', () => {
 
 	it('clamping adjusts when more variants are added', () => {
 		// When weaker is added (4 total variants), weak side uses max = 360/5 = 72
-		const result = hextimate('#6366f1', { hueShift: 200 })
+		const result = hextimate('#6366f1')
+			.style({ hueShift: 200 })
 			.addVariant('stronger', { from: 'strong' })
 			.addVariant('weaker', { from: 'weak' })
 			.format({ as: 'object', colors: 'oklch' });
@@ -635,7 +639,7 @@ describe('end-to-end: output shape', () => {
 describe('baseHueShift: rotates base hue relative to accent', () => {
 	it('180 shifts base hue ~180° from accent', () => {
 		const accentHue = convert(parse('#ff6600'), 'oklch').h;
-		const result = hextimate('#ff6600', { baseHueShift: 180 }).format({
+		const result = hextimate('#ff6600').style({ baseHueShift: 180 }).format({
 			as: 'object',
 			colors: 'oklch',
 		});
@@ -651,7 +655,7 @@ describe('baseHueShift: rotates base hue relative to accent', () => {
 
 	it('30 shifts base hue ~+30° from accent', () => {
 		const accentHue = convert(parse('#ff6600'), 'oklch').h;
-		const result = hextimate('#ff6600', { baseHueShift: 30 }).format({
+		const result = hextimate('#ff6600').style({ baseHueShift: 30 }).format({
 			as: 'object',
 			colors: 'oklch',
 		});
@@ -669,7 +673,7 @@ describe('baseHueShift: rotates base hue relative to accent', () => {
 			as: 'object',
 			colors: 'hex',
 		});
-		const withShift = hextimate('#ff6600', { baseHueShift: 0 }).format({
+		const withShift = hextimate('#ff6600').style({ baseHueShift: 0 }).format({
 			as: 'object',
 			colors: 'hex',
 		});
@@ -679,10 +683,12 @@ describe('baseHueShift: rotates base hue relative to accent', () => {
 	});
 
 	it('explicit baseColor takes precedence over baseHueShift', () => {
-		const result = hextimate('#ff6600', {
-			baseColor: '#0000ff',
-			baseHueShift: 90,
-		}).format({ as: 'object', colors: 'oklch' });
+		const result = hextimate('#ff6600')
+			.style({
+				baseColor: '#0000ff',
+				baseHueShift: 90,
+			})
+			.format({ as: 'object', colors: 'oklch' });
 
 		const blueHue = convert(parse('#0000ff'), 'oklch').h;
 		for (const theme of THEME_TYPES) {
@@ -699,10 +705,12 @@ describe('baseHueShift: rotates base hue relative to accent', () => {
 		for (const shift of shifts) {
 			for (const color of TEST_COLORS) {
 				for (const theme of THEME_TYPES) {
-					const result = hextimate(color, { baseHueShift: shift }).format({
-						as: 'object',
-						colors: 'hex',
-					});
+					const result = hextimate(color)
+						.style({ baseHueShift: shift })
+						.format({
+							as: 'object',
+							colors: 'hex',
+						});
 					const palette = result[theme] as Record<string, string>;
 					const roleScales = groupByRole(palette);
 

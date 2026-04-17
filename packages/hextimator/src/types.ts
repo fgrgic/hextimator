@@ -146,9 +146,9 @@ export interface ThemeAdjustments {
 }
 
 /**
- * Options that affect color generation (the math)
+ * Options that control how the palette is generated from the input color.
  */
-export interface HextimateGenerationOptions {
+export interface HextimateStyleOptions {
 	/**
 	 * Preferred base color for dark and light mode.
 	 * It will be used as a baseline to generate the rest of base colors (strong, weak).
@@ -347,10 +347,9 @@ export interface HextimateFormatOptions {
 
 /**
  * Combined options for the convenience API.
- * Allows passing both generation and format options in one call.
+ * Allows passing both style and format options in one call.
  */
-export type HextimateOptions = HextimateGenerationOptions &
-	HextimateFormatOptions;
+export type HextimateOptions = HextimateStyleOptions & HextimateFormatOptions;
 
 /** How color values are serialized in the output (e.g. "hex", "rgb", "oklch", "hsl", "p3", and their "-raw" variants). */
 export type ColorFormat =

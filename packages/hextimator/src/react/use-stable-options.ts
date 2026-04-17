@@ -1,15 +1,12 @@
 import { type RefObject, useRef } from 'react';
 import type { HextimatePaletteBuilder } from '../HextimatePaletteBuilder';
 import type { HextimatePreset } from '../presets/types';
-import type {
-	HextimateFormatOptions,
-	HextimateGenerationOptions,
-} from '../types';
+import type { HextimateFormatOptions, HextimateStyleOptions } from '../types';
 import type { DarkModeStrategy } from './types';
 
 /**
  * Options for the `useHextimator` hook, which generates a color palette and injects CSS variables based on a given color and configuration.
- * - `generation`: Options for how the palette is generated (e.g., light/dark settings, contrast requirements).
+ * - `style`: Options for how the palette is generated (e.g., light/dark settings, contrast requirements).
  * - `format`: Options for how the generated palette is formatted (e.g., output format).
  * - `configure`: A callback to further customize the palette builder before formatting.
  * - `darkMode`: Strategy for handling dark mode variants in CSS variable injection.
@@ -18,7 +15,7 @@ import type { DarkModeStrategy } from './types';
  *
  */
 export interface UseHextimatorOptions {
-	generation?: HextimateGenerationOptions;
+	style?: HextimateStyleOptions;
 	presets?: HextimatePreset[];
 	format?: Omit<HextimateFormatOptions, 'as'>;
 	configure?: (builder: HextimatePaletteBuilder) => void;
@@ -30,7 +27,7 @@ export interface UseHextimatorOptions {
 export function useStableOptions(options?: UseHextimatorOptions) {
 	const ref = useRef(options);
 	const serialized = JSON.stringify({
-		generation: options?.generation,
+		style: options?.style,
 		presets: options?.presets,
 		format: options?.format,
 		darkMode: options?.darkMode,
@@ -40,7 +37,7 @@ export function useStableOptions(options?: UseHextimatorOptions) {
 	if (
 		serialized !==
 		JSON.stringify({
-			generation: ref.current?.generation,
+			style: ref.current?.style,
 			presets: ref.current?.presets,
 			format: ref.current?.format,
 			darkMode: ref.current?.darkMode,

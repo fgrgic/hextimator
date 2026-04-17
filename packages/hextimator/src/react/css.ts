@@ -10,22 +10,25 @@ export function buildStyleContent(
 	const lightEntries = Object.entries(palette.light as Record<string, string>);
 	const darkEntries = Object.entries(palette.dark as Record<string, string>);
 
-	const toVars = (entries: [string, string][]) =>
-		entries.map(([key, value]) => `${cssPrefix}${key}: ${value};`).join('\n  ');
+	const toVars = (entries: [string, string][], lineIndent: string) =>
+		entries
+			.map(([key, value]) => `${lineIndent}${cssPrefix}${key}: ${value};`)
+			.join('\n');
 
-	const lightVars = toVars(lightEntries);
-	const darkVars = toVars(darkEntries);
+	const lightVars = toVars(lightEntries, '\t');
+	const darkVars = toVars(darkEntries, '\t');
+	const darkVarsInMediaInner = toVars(darkEntries, '\t\t');
 
 	const isRoot = selector === ':root';
 
 	if (darkMode === false) {
-		return `${selector} {\n  ${lightVars}\n}`;
+		return `${selector} {\n${lightVars}\n}`;
 	}
 
 	if (darkMode.type === 'media') {
 		return [
-			`${selector} {\n  ${lightVars}\n}`,
-			`@media (prefers-color-scheme: dark) {\n  ${selector} {\n    ${darkVars}\n  }\n}`,
+			`${selector} {\n${lightVars}\n}`,
+			`@media (prefers-color-scheme: dark) {\n\t${selector} {\n${darkVarsInMediaInner}\n\t}\n}`,
 		].join('\n');
 	}
 
@@ -39,9 +42,9 @@ export function buildStyleContent(
 			? `:root:not(.${lightCls})`
 			: `:root:not(.${lightCls}) ${selector}`;
 		return [
-			`${selector} {\n  ${lightVars}\n}`,
-			`@media (prefers-color-scheme: dark) {\n  ${mediaDarkSelector} {\n    ${darkVars}\n  }\n}`,
-			`${darkClassSelector} {\n  ${darkVars}\n}`,
+			`${selector} {\n${lightVars}\n}`,
+			`@media (prefers-color-scheme: dark) {\n\t${mediaDarkSelector} {\n${darkVarsInMediaInner}\n\t}\n}`,
+			`${darkClassSelector} {\n${darkVars}\n}`,
 		].join('\n');
 	}
 
@@ -49,8 +52,8 @@ export function buildStyleContent(
 		const cls = darkMode.className ?? 'dark';
 		const darkSelector = isRoot ? `.${cls}` : `.${cls} ${selector}`;
 		return [
-			`${selector} {\n  ${lightVars}\n}`,
-			`${darkSelector} {\n  ${darkVars}\n}`,
+			`${selector} {\n${lightVars}\n}`,
+			`${darkSelector} {\n${darkVars}\n}`,
 		].join('\n');
 	}
 
@@ -59,8 +62,8 @@ export function buildStyleContent(
 		? `[${attr}="dark"]`
 		: `[${attr}="dark"] ${selector}`;
 	return [
-		`${selector} {\n  ${lightVars}\n}`,
-		`${darkSelector} {\n  ${darkVars}\n}`,
+		`${selector} {\n${lightVars}\n}`,
+		`${darkSelector} {\n${darkVars}\n}`,
 	].join('\n');
 }
 

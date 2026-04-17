@@ -2,10 +2,7 @@ import { useMemo } from 'react';
 import type { HextimatePaletteBuilder } from '../HextimatePaletteBuilder';
 import { hextimate } from '../index';
 import type { HextimatePreset } from '../presets/types';
-import type {
-	HextimateFormatOptions,
-	HextimateGenerationOptions,
-} from '../types';
+import type { HextimateFormatOptions, HextimateStyleOptions } from '../types';
 import { buildStyleContent } from './css';
 import type { DarkModeStrategy } from './types';
 import { useStableOptions } from './use-stable-options';
@@ -20,7 +17,7 @@ import { useStableOptions } from './use-stable-options';
  * multiple subtrees can carry different themes via CSS cascade.
  *
  * - `color`: The base color to generate the palette from.
- * - `generation`: Options for how the palette is generated.
+ * - `style`: Options for how the palette is generated.
  * - `format`: Options for how the generated palette is formatted.
  * - `configure`: A callback to further customize the palette builder before formatting.
  * - `darkMode`: Strategy for handling dark mode variants.
@@ -29,7 +26,7 @@ import { useStableOptions } from './use-stable-options';
  */
 export interface HextimatorStyleProps {
 	color: string;
-	generation?: HextimateGenerationOptions;
+	style?: HextimateStyleOptions;
 	presets?: HextimatePreset[];
 	format?: Omit<HextimateFormatOptions, 'as'>;
 	configure?: (builder: HextimatePaletteBuilder) => void;
@@ -57,7 +54,7 @@ export interface HextimatorStyleProps {
  */
 export function HextimatorStyle({
 	color,
-	generation,
+	style: styleOptions,
 	presets,
 	format: formatOpts,
 	configure,
@@ -66,7 +63,7 @@ export function HextimatorStyle({
 	selector,
 }: HextimatorStyleProps) {
 	const stable = useStableOptions({
-		generation,
+		style: styleOptions,
 		presets,
 		format: formatOpts,
 		darkMode,
@@ -74,7 +71,10 @@ export function HextimatorStyle({
 	});
 
 	const css = useMemo(() => {
-		const builder = hextimate(color, stable?.generation);
+		const builder = hextimate(color);
+		if (stable?.style && Object.keys(stable.style).length > 0) {
+			builder.style(stable.style);
+		}
 		for (const p of stable?.presets ?? []) builder.preset(p);
 		configure?.(builder);
 		const palette = builder.format({

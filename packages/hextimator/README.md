@@ -10,7 +10,7 @@ One color in, whole theme out.
 
 Your customers pick a brand color. Your app looks good. Every time. No manual tuning, no edge cases where "that shade of yellow" breaks your UI.
 
-- **Ship white-labeling without the design overhead** — generate per-tenant branded themes at runtime from a single input color. No design review per customer.
+- **Ship multi-tenant apps without the design overhead** — generate per-tenant branded themes at runtime from a single input color. No design review per customer.
 - **Every color just works** — perceptually uniform colors with OKLCH means that electric blue looks as balanced as muted olive.
 - **Accessible by default** — every foreground meets AAA contrast against its background, light and dark mode included.
 
@@ -27,7 +27,7 @@ npm i hextimator
 Or quickly get a one-off theme:
 
 ```bash
-npx hextimator "#FF6677"
+npx hextimator "#C0FFEE"
 ```
 
 ## Quick start
@@ -40,18 +40,18 @@ const theme = hextimate("#C0FFEE").format();
 
 ### With presets
 
-Presets are predefined configurations you can use as a starting point: whether for a specific framework or a particular style:
+Presets are partial or full themes. You can chain them together, [extend them](#extending-presets), or not use them at all. They provide a starting point: whether for a specific framework or a particular style:
 
 ```typescript
 import { hextimate, presets } from "hextimator";
 
-// Framework preset -- shadcn/ui tokens
-const theme = hextimate("#DEC0DE").preset(presets.shadcn).format();
+// shadcn/ui tokens
+const theme = hextimate("#0FF1CE").preset(presets.shadcn).format();
 
-// Style preset -- muted palette
-const theme = hextimate("#BADA55").preset(presets.muted).format();
+// muted palette
+const theme = hextimate("#0FF1CE").preset(presets.muted).format();
 
-// Chain them -- muted shadcn theme
+// muted shadcn theme
 const theme = hextimate("#0FF1CE")
   .preset(presets.shadcn)
   .preset(presets.muted)
@@ -61,10 +61,22 @@ const theme = hextimate("#0FF1CE")
 Presets are applied sequentially (last wins for conflicts) and you can override anything in `.format()`:
 
 ```typescript
-const theme = hextimate("#FACADE")
+const theme = hextimate("#BADA55")
   .preset(presets.muted)
   .preset(presets.shadcn)
   .format({ colors: "hsl-raw" }); // override preset's oklch default
+```
+
+### Extending presets
+
+Presets can bring their own **`style`** (contrast, chroma, and other generation options). **`.style(partial)`** after **`.preset()`** layers your tweaks on top—options merge along the chain, so you can refine a preset’s look for your product without forking the preset object:
+
+```typescript
+const theme = hextimate("#DEC0DE")
+  .preset(presets.tinted) // e.g. sets a looser baseMaxChroma
+  .style({ baseMaxChroma: 0.01 }) // tighten further for this app
+  .preset(presets.shadcn)
+  .format();
 ```
 
 See [Presets](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/presets.md) for the full list, chaining details, and how to create your own.
@@ -77,13 +89,25 @@ hextimator separates **palette generation** (color math) from **formatting** (ou
 const theme = hextimate("#0FF5E7").format({ as: "css", colors: "oklch" });
 ```
 
+### Palette options with `.style()`
+
+**`hextimate` only takes the color.** Everything that steers generation—contrast rules, chroma caps, hue tweaks, light/dark tweaks, and the rest—goes on **`.style(partial)`**. Call it once or stack several calls; each merges into the current options (later wins on the same keys).
+
+```typescript
+hextimate("#FACADE")
+  .style({ minContrastRatio: "AA", baseMaxChroma: 0.02 })
+  .format();
+```
+
+Preset **`style`** plus **`.style()`** on the builder is covered in [Extending presets](#extending-presets) above. For every option you can pass, see [Customization](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md). To reuse the same chain with another accent or options, see [Multiple themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md) (`.fork()` + `.style()`).
+
 ### Filtering output
 
 Use `excludeRoles` and `excludeVariants` in `.format()` (or in a preset's `format` field) to drop tokens you don't need:
 
 ```typescript
 // Drop the warning role and the strong/weak variants entirely
-hextimate("#6366F1").format({
+hextimate("#F11732").format({
   excludeRoles: ["warning"],
   excludeVariants: ["strong", "weak"],
 });
@@ -126,14 +150,11 @@ All formats return `{ light: { ... }, dark: { ... } }`.
 
 ### Flexible input
 
-```typescript
-hextimate("#FF6666"); // hex string
-hextimate("rgb(255, 102, 102)"); // CSS function
-hextimate([255, 102, 102]); // RGB tuple
-hextimate(0xff6666); // numeric hex
-```
+Besides hex, **`hextimate`** accepts CSS color strings, RGB tuples, and numeric `0xRRGGBB`—anything **`parseColor`** understands.
 
 > **Note on alpha**: Alpha values are intentionally ignored — `rgba(255, 0, 0, 0.5)` is treated as fully opaque `rgb(255, 0, 0)`. Alpha tokens undermine accessibility guarantees because contrast ratios depend on the background, which hextimator does not control.
+
+Before `.format()` you can still chain **`addRole` / `addVariant` / `addToken`**, **`.preset()`**, **`.fork()`**, **`.simulate()` / `.adaptFor()`**, and anything else in [Extending the palette](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/extending-the-palette.md) or [Presets](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/presets.md).
 
 ## How it works
 
@@ -177,10 +198,11 @@ Does not match **preset-only** token names (e.g. shadcn); use the CLI to generat
 
 ## Documentation
 
+- [Migrating from 0.2.x](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migrating-from-0.2.md) — breaking changes for 0.3.0
 - [Extending the palette](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/extending-the-palette.md) — `addRole`, `addVariant`, `addToken`
 - [Presets](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/presets.md) — drop-in configs for shadcn/ui, or create your own
 - [Multiple themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md) — dynamic theming and `.fork()`
-- [Customization](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md) — generation and format options reference
+- [Customization](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md) — style and format options reference
 - [Color vision deficiency](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/color-vision-deficiency.md) — simulate and adapt for CVD
 - [React](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/react.md) — hook, `HextimatorStyle`, provider, scoped themes, dark mode
 - [Tailwind CSS v4](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/tailwind.md) — setup and usage with Tailwind

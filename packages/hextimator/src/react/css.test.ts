@@ -7,7 +7,7 @@ const palette = hextimate('#6A5ACD').format({ as: 'css' });
 describe('buildStyleContent', () => {
 	it('darkMode false emits a single block with light tokens only', () => {
 		const css = buildStyleContent(palette, false, '', ':root');
-		expect(css).toBe(`:root {\n  ${lightVarsSnippet(palette)}\n}`);
+		expect(css).toBe(`:root {\n${lightVarsSnippet(palette)}\n}`);
 		expect(css).not.toContain('prefers-color-scheme');
 		expect(css).toContain('--accent:');
 	});
@@ -21,9 +21,9 @@ describe('buildStyleContent', () => {
 	it('media dark uses the same selector for light and @media dark', () => {
 		const sel = '[data-scope="a"]';
 		const css = buildStyleContent(palette, { type: 'media' }, '', sel);
-		expect(css).toContain(`${sel} {\n  ${lightVarsSnippet(palette)}\n}`);
+		expect(css).toContain(`${sel} {\n${lightVarsSnippet(palette)}\n}`);
 		expect(css).toContain(
-			`@media (prefers-color-scheme: dark) {\n  ${sel} {\n    ${darkVarsSnippet(palette)}\n  }\n}`,
+			`@media (prefers-color-scheme: dark) {\n\t${sel} {\n${darkVarsSnippet(palette)}\n\t}\n}`,
 		);
 	});
 
@@ -77,7 +77,7 @@ describe('buildStyleContent', () => {
 		expect(css).toContain('.card {\n');
 		expect(css).toContain(':root.dark .card {\n');
 		expect(css).toContain(
-			'@media (prefers-color-scheme: dark) {\n  :root:not(.light) .card {\n',
+			'@media (prefers-color-scheme: dark) {\n\t:root:not(.light) .card {\n',
 		);
 	});
 });
@@ -98,10 +98,10 @@ describe('buildTargetedVars', () => {
 
 function lightVarsSnippet(p: typeof palette): string {
 	const entries = Object.entries(p.light as Record<string, string>);
-	return entries.map(([k, v]) => `${k}: ${v};`).join('\n  ');
+	return entries.map(([k, v]) => `\t${k}: ${v};`).join('\n');
 }
 
 function darkVarsSnippet(p: typeof palette): string {
 	const entries = Object.entries(p.dark as Record<string, string>);
-	return entries.map(([k, v]) => `${k}: ${v};`).join('\n  ');
+	return entries.map(([k, v]) => `\t\t${k}: ${v};`).join('\n');
 }

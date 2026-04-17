@@ -11,10 +11,7 @@ import {
 import type { HextimatePaletteBuilder } from '../HextimatePaletteBuilder';
 import { hextimate } from '../index';
 import type { HextimatePreset } from '../presets/types';
-import type {
-	HextimateFormatOptions,
-	HextimateGenerationOptions,
-} from '../types';
+import type { HextimateFormatOptions, HextimateStyleOptions } from '../types';
 import { HextimatorContext, type HextimatorContextValue } from './context';
 import { buildStyleContent } from './css';
 import { useOsPrefersDark } from './mode';
@@ -45,14 +42,15 @@ export interface HextimatorScopeProps {
 	 * inherit parent roles, variants, or preset merges.
 	 */
 	isolated?: boolean;
-	generation?: HextimateGenerationOptions;
+	style?: HextimateStyleOptions;
 	presets?: HextimatePreset[];
 	format?: Omit<HextimateFormatOptions, 'as'>;
 	configure?: (builder: HextimatePaletteBuilder) => void;
 	darkMode?: DarkModeStrategy;
 	cssPrefix?: string;
 	className?: string;
-	style?: CSSProperties;
+	/** Inline styles for the scope wrapper element (not palette options; use `style` for those). */
+	wrapperStyle?: CSSProperties;
 	children?: ReactNode;
 }
 
@@ -91,21 +89,21 @@ export interface HextimatorScopeProps {
 export function HextimatorScope({
 	defaultColor,
 	isolated = false,
-	generation: initialGeneration,
+	style: initialStyle,
 	presets: initialPresets,
 	format: formatOpts,
 	configure: initialConfigure,
 	darkMode,
 	cssPrefix,
 	className,
-	style,
+	wrapperStyle,
 	children,
 }: HextimatorScopeProps) {
 	const id = useId();
 	const selector = `[data-hextimator-scope="${id}"]`;
 
 	const [color, setColor] = useState(defaultColor);
-	const [generation, setGeneration] = useState(initialGeneration);
+	const [style, setStyle] = useState(initialStyle);
 	const [presets, setPresets] = useState(initialPresets);
 	const [configure, setConfigureState] = useState<
 		((builder: HextimatePaletteBuilder) => void) | undefined
@@ -125,7 +123,7 @@ export function HextimatorScope({
 	const parent = useContext(HextimatorContext);
 
 	const stable = useStableOptions({
-		generation,
+		style,
 		presets,
 		format: formatOpts,
 		darkMode,
@@ -135,8 +133,11 @@ export function HextimatorScope({
 	const builder = useMemo(() => {
 		const b =
 			!isolated && parent?.builder
-				? parent.builder.fork(color, stable?.generation)
-				: hextimate(color, stable?.generation);
+				? parent.builder.fork(color)
+				: hextimate(color);
+		if (stable?.style && Object.keys(stable.style).length > 0) {
+			b.style(stable.style);
+		}
 		for (const p of presets ?? []) b.preset(p);
 		configure?.(b);
 		return b;
@@ -176,8 +177,8 @@ export function HextimatorScope({
 			mode,
 			modePreference,
 			setMode,
-			generation,
-			setGeneration,
+			style,
+			setStyle,
 			presets,
 			setPresets,
 			configure,
@@ -190,7 +191,7 @@ export function HextimatorScope({
 			mode,
 			modePreference,
 			setMode,
-			generation,
+			style,
 			presets,
 			configure,
 			setConfigure,
@@ -201,7 +202,11 @@ export function HextimatorScope({
 
 	return (
 		<HextimatorContext.Provider value={value}>
-			<div data-hextimator-scope={id} className={className} style={style}>
+			<div
+				data-hextimator-scope={id}
+				className={className}
+				style={wrapperStyle}
+			>
 				<style data-hextimator="">{css}</style>
 				{children}
 			</div>
