@@ -1,4 +1,4 @@
-## Unpublished
+## Not Released (0.3.0)
 
 - [#99](https://github.com/fgrgic/hextimator/pull/99): Adds option to chain presets. Presets are merged, last added wins if both touch the same tokens.
   - For example: `hextimate("#ff6677").preset(shadcn).preset(muted);`
