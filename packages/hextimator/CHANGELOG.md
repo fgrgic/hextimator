@@ -22,6 +22,8 @@
   <HextimatorScope style={s} /> → <HextimatorScope wrapperStyle={s} />
   ```
 
+  Migration checklist: [migrating-from-0.2.md](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migrating-from-0.2.md).
+
 ## 0.2.0
 
 - [#94](https://github.com/fgrgic/hextimator/pull/94): Adds scoped themes to React implementation. See [react.md](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/react.md) for more details:
