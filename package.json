@@ -6,7 +6,8 @@
 		"@codemirror/state": "^6.6.0",
 		"@codemirror/theme-one-dark": "^6.1.3",
 		"@codemirror/view": "^6.41.0",
-		"codemirror": "^6.0.2"
+		"codemirror": "^6.0.2",
+		"wrangler": "^4.83.0"
 	},
 	"private": true,
 	"scripts": {
@@ -16,7 +17,9 @@
 		"dev:playground": "bun run --filter hextimator dev & bun run --filter '@hextimator/playground' dev & bun run --filter playground dev",
 		"dev:website": "bun run --filter hextimator dev & bun run --filter '@hextimator/playground' dev & bun run --filter website dev",
 		"build:website": "bun run --filter hextimator build && bun run --filter '@hextimator/playground' build && bun run --filter website build",
-		"build:playground": "bun run --filter hextimator build && bun run --filter '@hextimator/playground' build && bun run --filter playground build"
+		"build:playground": "bun run --filter hextimator build && bun run --filter '@hextimator/playground' build && bun run --filter playground build",
+		"deploy:website": "bun run build:website && wrangler deploy --config apps/website/wrangler.jsonc",
+		"deploy:playground": "bun run build:playground && wrangler deploy --config apps/playground/wrangler.jsonc"
 	},
 	"workspaces": [
 		"packages/*",
