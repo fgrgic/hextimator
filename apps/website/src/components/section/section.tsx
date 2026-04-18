@@ -25,7 +25,7 @@ export function Section({
 					rest.className,
 				)}
 			>
-				<div className="flex flex-col">
+				<div className="flex flex-col gap-1">
 					<h2>{title}</h2>
 					<p className="font-light text-sm">{description}</p>
 				</div>

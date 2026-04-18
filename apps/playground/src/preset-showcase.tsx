@@ -18,27 +18,29 @@ const GENERATION_PRESETS = [
 	{ id: 'vibrant', label: 'Vibrant', preset: presets.vibrant },
 ] as const;
 
-export type GenerationPresetId = (typeof GENERATION_PRESETS)[number]['id'];
+type NamedGenerationPresetId = (typeof GENERATION_PRESETS)[number]['id'];
+
+export type GenerationPresetId = 'default' | NamedGenerationPresetId;
 
 export function activeGenerationPresetId(
 	activePresets: HextimatePreset[] | undefined,
-): GenerationPresetId | null {
+): GenerationPresetId {
 	const p = activePresets?.[0];
-	if (!p) return null;
+	if (!p) return 'default';
 	const match = GENERATION_PRESETS.find((entry) => entry.preset === p);
-	return match?.id ?? null;
+	return match?.id ?? 'default';
 }
 
 export function buildPlaygroundCode(
 	color: string,
-	presetId: GenerationPresetId | null,
+	presetId: GenerationPresetId,
 ): string {
 	const literal =
 		color.includes("'") || color.includes('"') || color.includes('\n')
 			? JSON.stringify(color)
 			: `'${color}'`;
 	const head =
-		presetId === null
+		presetId === 'default'
 			? `hextimate(${literal})`
 			: `hextimate(${literal})\n  .preset(presets.${presetId})`;
 	return `${head}
@@ -58,7 +60,8 @@ function PresetPreviewCard({
 	onSelect,
 }: {
 	color: string;
-	preset: (typeof GENERATION_PRESETS)[number]['preset'];
+	/** Omit for the default starting point (no generation preset). */
+	preset?: HextimatePreset;
 	label: string;
 	selected: boolean;
 	onSelect: () => void;
@@ -67,7 +70,7 @@ function PresetPreviewCard({
 		<HextimatorScope
 			isolated
 			defaultColor={color}
-			presets={[preset]}
+			presets={preset ? [preset] : undefined}
 			darkMode={{ type: 'media-or-class' }}
 			className="min-w-0"
 		>
@@ -132,6 +135,12 @@ export function PresetShowcase({ className }: { className?: string }) {
 				</p>
 			</div>
 			<div className="flex flex-col gap-3">
+				<PresetPreviewCard
+					color={color}
+					label="Default"
+					selected={selectedId === 'default'}
+					onSelect={() => setPresets(undefined)}
+				/>
 				{GENERATION_PRESETS.map((entry) => (
 					<PresetPreviewCard
 						key={entry.id}

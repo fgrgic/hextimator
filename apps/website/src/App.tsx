@@ -1,5 +1,9 @@
 import './App.css';
 
+import { useHextimatorTheme } from 'hextimator/react';
+import { ArrowUpRight } from 'iconoir-react/regular';
+import { useMemo } from 'react';
+import { Button } from './components/button';
 import {
 	Accessibility,
 	AIReady,
@@ -14,6 +18,47 @@ import {
 import { GetStarted } from './components/interactive/get-started';
 import { ThemeColorMeta } from './components/theme-color-meta';
 import { ThemePreview } from './components/theme-preview';
+import { themeColorToPlaygroundPathHex } from './utils/playground-url-hex';
+
+const externalLinkIcon = () => (
+	<ArrowUpRight strokeWidth={1} width="0.875rem" height="0.875rem" />
+);
+
+const PLAYGROUND_ORIGIN = 'https://playground.hextimator.com';
+
+function PlaygroundSection() {
+	const { color } = useHextimatorTheme();
+	const playgroundHref = useMemo(
+		() =>
+			`${PLAYGROUND_ORIGIN}/${themeColorToPlaygroundPathHex(color)}`,
+		[color],
+	);
+
+	return (
+		<Section
+			title="Try it out"
+			description="Edit the code below and watch the theme update live. Copy the snippet to start your own preset."
+			stacked
+			id="playground"
+		>
+			<div className="flex w-full flex-col items-end gap-3">
+				<div className="w-full">
+					<CodeEditor />
+				</div>
+				<Button
+					variant="navigation"
+					href={playgroundHref}
+					className="text-sm font-light transition-colors"
+					icon={externalLinkIcon}
+					target="_blank"
+					rel="noopener noreferrer"
+				>
+					Try the full playground
+				</Button>
+			</div>
+		</Section>
+	);
+}
 
 function App() {
 	return (
@@ -56,14 +101,7 @@ function App() {
 					>
 						<OtherFeatures />
 					</Section>
-					<Section
-						title="Try it out"
-						description="Edit the code below and watch the theme update live. Copy the snippet to start your own preset."
-						stacked
-						id="playground"
-					>
-						<CodeEditor />
-					</Section>
+					<PlaygroundSection />
 					<Section
 						title="Get started"
 						description="Add hextimator to your project and start building your theme."
