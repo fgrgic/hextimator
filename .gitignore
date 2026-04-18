@@ -22,6 +22,9 @@ bun-debug.log*
 .vscode/
 .idea/
 
+# cloudflare
+.wrangler/
+
 # vite
 apps/*/dist/
 apps/*/.vite/
