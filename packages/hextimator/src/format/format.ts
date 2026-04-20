@@ -13,14 +13,9 @@ import type { FormatOptions, FormatResult, TokenEntry } from './types';
 /**
  * Formats a single palette into the chosen output shape.
  *
- * Used for per-palette formats that don't combine light + dark:
- * `object`, `tailwind`, `scss`, `json`. The stylesheet formats
- * (`css`, `tailwind-css`) go through `formatStylesheet` instead since
- * they wrap both palettes with a dark-mode selector.
- *
- * @param palette The palette to format.
- * @param options Format options (`as`, `separator`, `roleNames`, `variantNames`, `colors`, `excludeRoles`, `excludeVariants`).
- * @param standaloneTokens Extra token entries appended after palette-derived entries.
+ * Handles the per-palette shapes (`object`, `tailwind`, `scss`, `json`).
+ * Stylesheet shapes (`css`, `tailwind-css`) go through `formatStylesheet`
+ * since they combine both palettes behind a dark-mode wrapper.
  */
 export function format(
 	palette: HextimatePalette,

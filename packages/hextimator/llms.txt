@@ -70,7 +70,7 @@ Output shape depends on `as`:
 - `"scss"` → `{ light, dark }` flat maps: `{ "$accent": "#...", "$accent-strong": "#..." }`
 - `"json"` → `{ light, dark }` JSON strings
 
-Stylesheet outputs (`css`, `tailwind-css`) combine light and dark into one string. Pick the wrapper with `darkMode`: `"media"` (default) wraps dark tokens in `@media (prefers-color-scheme: dark)`; `"class"` uses `.dark`; `"data-attribute"` uses `[data-theme="dark"]`; `false` omits dark entirely. For `as: "css"`, change the root selector with `selector` (e.g. `selector: "[data-theme]"`).
+Pick the dark wrapper with `darkMode`: `"media"` (default) wraps dark tokens in `@media (prefers-color-scheme: dark)`; `"class"` uses `.dark`; `"data-attribute"` uses `[data-theme="dark"]`; `false` omits dark entirely. For `as: "css"`, change the root selector with `selector` (e.g. `selector: "[data-theme]"`).
 
 ### Style options (`HextimateStyleOptions`)
 

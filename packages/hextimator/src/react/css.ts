@@ -3,11 +3,9 @@ import type { HextimateResult } from '../HextimatePaletteBuilder';
 import type { DarkModeStrategy } from './types';
 
 /**
- * React's internal serializer consumes the raw token map from
- * `format({ as: 'object' })` and prefixes each key with `--` to produce CSS
- * custom properties. This keeps React free to apply its own selector
- * strategies (`media-or-class`, custom class names, scoped selectors, etc.)
- * that the format layer's `darkMode` option doesn't expose.
+ * Takes the raw `{ role: value }` map from `format({ as: 'object' })` and
+ * adds `--` itself, so React can use selector strategies (e.g. `media-or-class`,
+ * scoped selectors) that the format-layer `darkMode` option doesn't expose.
  */
 export function buildStyleContent(
 	palette: HextimateResult<FlatTokenMap>,

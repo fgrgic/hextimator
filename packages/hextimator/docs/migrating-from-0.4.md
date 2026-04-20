@@ -67,7 +67,7 @@ Two new flags mirror the API:
 
 ## React
 
-No change. The hook, provider, `<HextimatorScope>`, and `<HextimatorStyle>` work as before. Internally they now use `as: "object"`, but that is an implementation detail.
+No change.
 
 ## Further reading
 
