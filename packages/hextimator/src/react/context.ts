@@ -8,9 +8,19 @@ import type { HextimateStyleOptions } from '../types';
 import type { ModePreference, ResolvedMode } from './types';
 
 export interface HextimatorContextValue {
+	/** Active brand color for the current mode. */
 	color: string;
+	/** Set the brand color for both modes at once. */
 	setColor: (color: string) => void;
+	/** Brand color used in light mode. */
+	lightColor: string;
+	setLightColor: (color: string) => void;
+	/** Brand color used in dark mode. */
+	darkColor: string;
+	setDarkColor: (color: string) => void;
+	/** Resolved mode (`'light'` or `'dark'`). */
 	mode: ResolvedMode;
+	/** Raw preference (`'light'`, `'dark'`, or `'system'`). */
 	modePreference: ModePreference;
 	setMode: (mode: ModePreference) => void;
 	style: HextimateStyleOptions | undefined;
@@ -21,12 +31,9 @@ export interface HextimatorContextValue {
 	setConfigure: (
 		fn: ((builder: HextimatePaletteBuilder) => void) | undefined,
 	) => void;
+	/** Generated `{ light, dark }` palette. */
 	palette: HextimateResult;
-	/**
-	 * The palette builder backing this provider or scope. Nested
-	 * `HextimatorScope`s fork from this builder so they inherit any custom
-	 * roles, variants, tokens, or presets without re-declaring them.
-	 */
+	/** Underlying palette builder. Nested scopes fork from it. */
 	builder: HextimatePaletteBuilder;
 }
 

@@ -12,6 +12,17 @@ function ThemeColor() {
 	return <span data-color={color} />;
 }
 
+function ThemeColors() {
+	const { color, lightColor, darkColor } = useHextimatorTheme();
+	return (
+		<span
+			data-color={color}
+			data-light={lightColor}
+			data-dark={darkColor}
+		/>
+	);
+}
+
 describe('HextimatorStyle (renderToString)', () => {
 	it('emits a style tag with hextimator marker and CSS variables', () => {
 		const html = renderToString(
@@ -102,5 +113,88 @@ describe('HextimatorProvider / Scope (renderToString)', () => {
 		expect(() => renderToString(<ThemeColor />)).toThrow(
 			'useHextimatorTheme must be used within',
 		);
+	});
+
+	it('string defaultColor seeds both lightColor and darkColor', () => {
+		const html = renderToString(
+			<HextimatorProvider defaultColor="#3366ff" darkMode={false}>
+				<ThemeColors />
+			</HextimatorProvider>,
+		);
+		expect(html).toContain('data-color="#3366ff"');
+		expect(html).toContain('data-light="#3366ff"');
+		expect(html).toContain('data-dark="#3366ff"');
+	});
+
+	it('object defaultColor seeds lightColor and darkColor independently', () => {
+		const html = renderToString(
+			<HextimatorProvider
+				defaultColor={{ light: '#3366ff', dark: '#ff6600' }}
+				darkMode={false}
+			>
+				<ThemeColors />
+			</HextimatorProvider>,
+		);
+		expect(html).toContain('data-light="#3366ff"');
+		expect(html).toContain('data-dark="#ff6600"');
+	});
+
+	it('provider exposes setColor / setLightColor / setDarkColor / setMode through context', () => {
+		// Smoke test: verify context shape is wired without invoking setters
+		// (setters require a real DOM event loop to observe state updates).
+		function CheckSetters() {
+			const ctx = useHextimatorTheme();
+			const wired =
+				typeof ctx.setColor === 'function' &&
+				typeof ctx.setLightColor === 'function' &&
+				typeof ctx.setDarkColor === 'function' &&
+				typeof ctx.setMode === 'function';
+			return <span data-wired={String(wired)} />;
+		}
+		const html = renderToString(
+			<HextimatorProvider defaultColor="#3366ff" darkMode={false}>
+				<CheckSetters />
+			</HextimatorProvider>,
+		);
+		expect(html).toContain('data-wired="true"');
+	});
+
+	it('scope accepts object defaultColor for per-mode colors', () => {
+		const html = renderToString(
+			<HextimatorScope
+				defaultColor={{ light: '#3366ff', dark: '#ff6600' }}
+				darkMode={{ type: 'class' }}
+			>
+				<ThemeColors />
+			</HextimatorScope>,
+		);
+		expect(html).toContain('data-light="#3366ff"');
+		expect(html).toContain('data-dark="#ff6600"');
+		// Both light and dark CSS blocks should be present in the scoped <style>
+		expect(html).toContain('--accent:');
+		expect(html).toContain('.dark');
+	});
+
+	it('scope with per-mode colors emits different accent values for light and dark blocks', () => {
+		const html = renderToString(
+			<HextimatorScope
+				defaultColor={{ light: '#3366ff', dark: '#ff6600' }}
+				darkMode={{ type: 'class' }}
+			>
+				<span />
+			</HextimatorScope>,
+		);
+		// Extract the two CSS blocks. Light is in the scope selector, dark is in .dark prefix.
+		const lightMatch = html.match(
+			/data-hextimator-scope="[^"]+"\]\s*\{([^}]+)\}/,
+		);
+		const darkMatch = html.match(/\.dark\s+\[data-hextimator-scope="[^"]+"\]\s*\{([^}]+)\}/);
+		expect(lightMatch).not.toBeNull();
+		expect(darkMatch).not.toBeNull();
+		const lightAccent = lightMatch?.[1].match(/--accent:\s*([^;]+);/)?.[1];
+		const darkAccent = darkMatch?.[1].match(/--accent:\s*([^;]+);/)?.[1];
+		expect(lightAccent).toBeDefined();
+		expect(darkAccent).toBeDefined();
+		expect(lightAccent).not.toBe(darkAccent);
 	});
 });
