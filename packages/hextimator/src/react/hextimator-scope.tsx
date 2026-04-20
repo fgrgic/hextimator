@@ -27,30 +27,10 @@ import {
 } from './types';
 import { useStableOptions } from './use-stable-options';
 
-/**
- * Props for `HextimatorScope`, a wrapper that creates a scoped theme for its
- * descendants via CSS cascade and React context.
- *
- * Unlike `HextimatorProvider` (which themes the whole document root),
- * `HextimatorScope` themes only its subtree. Scopes can nest freely, and the
- * nearest `HextimatorScope` or `HextimatorProvider` wins for
- * `useHextimatorTheme()`.
- *
- * Mode (light/dark) is inherited from the nearest parent context when present,
- * so a scope automatically follows the app's global dark-mode toggle. If you
- * pass `darkMode` explicitly, make sure it matches the strategy your root
- * `HextimatorProvider` uses (class, data, media, etc.) so the dark selectors
- * line up.
- */
 export interface HextimatorScopeProps {
-	/** Seeds initial color state. String sets both modes equal; object sets each explicitly. */
+	/** Brand color for this subtree. String sets the same color for both modes; object sets a different color for each mode. */
 	defaultColor: ColorInputProp;
-	/**
-	 * When true, builds from this scope's color and options only (via
-	 * `hextimate`), without forking the parent builder. Use for previews or
-	 * widgets where each scope must match exactly its presets and must not
-	 * inherit parent roles, variants, or preset merges.
-	 */
+	/** When true, ignores any parent provider/scope and builds the theme from scratch. */
 	isolated?: boolean;
 	style?: HextimateStyleOptions;
 	presets?: HextimatePreset[];
@@ -59,41 +39,20 @@ export interface HextimatorScopeProps {
 	darkMode?: DarkModeStrategy;
 	cssPrefix?: string;
 	className?: string;
-	/** Inline styles for the scope wrapper element (not palette options; use `style` for those). */
+	/** Inline styles for the wrapper `<div>`. */
 	wrapperStyle?: CSSProperties;
 	children?: ReactNode;
 }
 
 /**
- * Scoped theme wrapper. Auto-generates a unique selector via `useId()`, wraps
- * children in a `<div data-hextimator-scope={id}>`, and emits a scoped
- * `<style>` with the generated palette. Also pushes a nested
- * `HextimatorContext` so `useHextimatorTheme()` called from inside the wrapper
- * returns the scope's palette and color state, not the root provider's.
- *
- * When nested inside a `HextimatorProvider` or another `HextimatorScope`, the
- * scope inherits all custom roles, variants, tokens, and presets from its
- * parent by forking the parent's builder — so you only pass the new color.
- * Any per-scope `configure` callback is applied on top of the inherited shape.
+ * Themes a single subtree with its own brand color. Inherits the shape (roles,
+ * variants, presets) of any parent provider or scope unless `isolated` is set.
  *
  * @example
  * ```tsx
- * // Root provider defines the theme shape once
- * <HextimatorProvider
- *   defaultColor="#ff6600"
- *   darkMode={{ type: 'class' }}
- *   configure={(b) => b
- *     .addRole('cta', '#ff0066')
- *     .addVariant('hover', { from: 'strong' })
- *   }
- * >
- *   <App>
- *     // Scope inherits cta + hover, just swaps the base color
- *     <HextimatorScope defaultColor="#0066ff" darkMode={{ type: 'class' }}>
- *       <Card />
- *     </HextimatorScope>
- *   </App>
- * </HextimatorProvider>
+ * <HextimatorScope defaultColor="#0066ff">
+ *   <Card />
+ * </HextimatorScope>
  * ```
  */
 export function HextimatorScope({

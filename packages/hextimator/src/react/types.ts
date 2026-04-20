@@ -8,13 +8,10 @@ export type DarkModeStrategy =
 export type ModePreference = 'light' | 'dark' | 'system';
 export type ResolvedMode = 'light' | 'dark';
 
-/**
- * Color input for React components. Either a single color (used for both
- * light and dark modes) or an explicit per-mode pair.
- */
+/** A single color (used for both modes) or a per-mode pair. */
 export type ColorInputProp = string | { light: string; dark: string };
 
-/** Normalized per-mode color pair. */
+/** A per-mode color pair. */
 export interface ModeColors {
 	light: string;
 	dark: string;

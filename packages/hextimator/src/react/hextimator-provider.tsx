@@ -26,31 +26,14 @@ import {
 } from './types';
 import { useStableOptions } from './use-stable-options';
 
-/**
- * Props for the `HextimatorProvider` component, which manages the state of a
- * Hextimator-generated color palette and injects corresponding CSS variables
- * into the document.
- *
- * State model:
- * - `defaultColor` and `defaultMode` seed the provider's internal state on mount.
- * - The provider owns the live state from then on; subsequent prop changes are ignored.
- * - `onColorChange` and `onModePreferenceChange` always fire on user-driven updates,
- *   so persistence is just "wire a callback that writes to storage."
- *
- * Per-mode colors:
- * - Pass a string for `defaultColor` to use the same color for both modes.
- * - Pass `{ light, dark }` to use different brand colors per mode. The provider
- *   generates both palettes and stitches the CSS so `@media (prefers-color-scheme: dark)`
- *   serves the dark-color palette regardless of the user's current selection.
- */
 export interface HextimatorProviderProps {
-	/** Initial color. String sets both modes equal; object sets each explicitly. */
+	/** Brand color. String sets the same color for both modes; object sets a different color for each mode. */
 	defaultColor: ColorInputProp;
-	/** Fired when `setColor` / `setLightColor` / `setDarkColor` is called. Receives the next light+dark pair. Use for persistence. */
+	/** Called when the color changes. */
 	onColorChange?: (next: ModeColors) => void;
-	/** Initial mode preference. Defaults to `'system'`. */
+	/** Initial mode. Defaults to `'system'`. */
 	defaultMode?: ModePreference;
-	/** Fired when `setMode` is called. Use for persistence. */
+	/** Called when the mode changes. */
 	onModePreferenceChange?: (mode: ModePreference) => void;
 	style?: HextimateStyleOptions;
 	presets?: HextimatePreset[];
@@ -62,45 +45,13 @@ export interface HextimatorProviderProps {
 }
 
 /**
- * React context provider that manages a Hextimator-generated color palette and
- * injects corresponding CSS variables into the document.
+ * Provides a hextimator theme to its children.
  *
  * @example
  * ```tsx
- * // Basic
- * <HextimatorProvider defaultColor="#ff6600" darkMode={{ type: 'class' }}>
+ * <HextimatorProvider defaultColor="#ff6600">
  *   <App />
  * </HextimatorProvider>
- * ```
- *
- * @example
- * ```tsx
- * // Per-mode colors
- * <HextimatorProvider defaultColor={{ light: '#ff6600', dark: '#0088ff' }}>
- *   <App />
- * </HextimatorProvider>
- * ```
- *
- * @example
- * ```tsx
- * // Persistence — read once on mount, write on every change
- * const initial = useMemo(() => loadFromStorage() ?? '#ff6600', []);
- * return (
- *   <HextimatorProvider
- *     defaultColor={initial.color}
- *     defaultMode={initial.mode}
- *     onColorChange={(next) => saveColor(next)}
- *     onModePreferenceChange={(mode) => saveMode(mode)}
- *   >
- *     <App />
- *   </HextimatorProvider>
- * );
- * ```
- *
- * @example
- * ```tsx
- * // Forced override (rare): remount on key change
- * <HextimatorProvider key={urlColor} defaultColor={urlColor}>
  * ```
  */
 export function HextimatorProvider({
