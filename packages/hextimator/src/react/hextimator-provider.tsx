@@ -27,30 +27,30 @@ import {
 import { useStableOptions } from './use-stable-options';
 
 /**
- * Props for the `HextimatorProvider` component, which manages the state of a Hextimator-generated color palette and injects corresponding CSS variables into the document.
+ * Props for the `HextimatorProvider` component, which manages the state of a
+ * Hextimator-generated color palette and injects corresponding CSS variables
+ * into the document.
  *
- * Controlled vs uncontrolled:
- * - `defaultColor` / `defaultMode` seed the internal state (uncontrolled).
- * - `color` / `modePreference` make the provider controlled — pass them along with
- *   `onColorChange` / `onModePreferenceChange` to own state externally (e.g. persist
- *   to localStorage).
+ * State model:
+ * - `defaultColor` and `defaultMode` seed the provider's internal state on mount.
+ * - The provider owns the live state from then on; subsequent prop changes are ignored.
+ * - `onColorChange` and `onModePreferenceChange` always fire on user-driven updates,
+ *   so persistence is just "wire a callback that writes to storage."
  *
  * Per-mode colors:
- * - Pass a string to use the same color for both modes.
+ * - Pass a string for `defaultColor` to use the same color for both modes.
  * - Pass `{ light, dark }` to use different brand colors per mode. The provider
  *   generates both palettes and stitches the CSS so `@media (prefers-color-scheme: dark)`
  *   serves the dark-color palette regardless of the user's current selection.
  */
 export interface HextimatorProviderProps {
-	/** Seeds initial color state. String sets both modes equal; object sets each explicitly. */
+	/** Initial color. String sets both modes equal; object sets each explicitly. */
 	defaultColor: ColorInputProp;
-	/** Controlled color. If provided, internal color state is ignored — pair with `onColorChange`. */
-	color?: ColorInputProp;
-	/** Fired when `setColor` / `setLightColor` / `setDarkColor` is called. Receives the next light+dark pair. */
+	/** Fired when `setColor` / `setLightColor` / `setDarkColor` is called. Receives the next light+dark pair. Use for persistence. */
 	onColorChange?: (next: ModeColors) => void;
+	/** Initial mode preference. Defaults to `'system'`. */
 	defaultMode?: ModePreference;
-	/** Controlled mode preference. If provided, internal mode state is ignored — pair with `onModePreferenceChange`. */
-	modePreference?: ModePreference;
+	/** Fired when `setMode` is called. Use for persistence. */
 	onModePreferenceChange?: (mode: ModePreference) => void;
 	style?: HextimateStyleOptions;
 	presets?: HextimatePreset[];
@@ -67,6 +67,7 @@ export interface HextimatorProviderProps {
  *
  * @example
  * ```tsx
+ * // Basic
  * <HextimatorProvider defaultColor="#ff6600" darkMode={{ type: 'class' }}>
  *   <App />
  * </HextimatorProvider>
@@ -82,26 +83,31 @@ export interface HextimatorProviderProps {
  *
  * @example
  * ```tsx
- * // Controlled — app owns persistence
- * const [colors, setColors] = useState(() => loadFromStorage());
+ * // Persistence — read once on mount, write on every change
+ * const initial = useMemo(() => loadFromStorage() ?? '#ff6600', []);
  * return (
  *   <HextimatorProvider
- *     defaultColor="#ff6600"
- *     color={colors}
- *     onColorChange={(next) => { setColors(next); saveToStorage(next); }}
+ *     defaultColor={initial.color}
+ *     defaultMode={initial.mode}
+ *     onColorChange={(next) => saveColor(next)}
+ *     onModePreferenceChange={(mode) => saveMode(mode)}
  *   >
  *     <App />
  *   </HextimatorProvider>
  * );
  * ```
+ *
+ * @example
+ * ```tsx
+ * // Forced override (rare): remount on key change
+ * <HextimatorProvider key={urlColor} defaultColor={urlColor}>
+ * ```
  */
 export function HextimatorProvider({
 	children,
 	defaultColor,
-	color: controlledColor,
 	onColorChange,
 	defaultMode: initialMode = 'system',
-	modePreference: controlledMode,
 	onModePreferenceChange,
 	style: initialStyle,
 	presets: initialPresets,
@@ -111,30 +117,20 @@ export function HextimatorProvider({
 	cssPrefix,
 	target,
 }: PropsWithChildren<HextimatorProviderProps>) {
-	const [internalLight, setInternalLight] = useState(
+	const [lightColor, setLightColorState] = useState(
 		() => normalizeColorProp(defaultColor).light,
 	);
-	const [internalDark, setInternalDark] = useState(
+	const [darkColor, setDarkColorState] = useState(
 		() => normalizeColorProp(defaultColor).dark,
 	);
-	const [internalMode, setInternalMode] = useState<ModePreference>(initialMode);
+	const [modePreference, setModePreferenceState] =
+		useState<ModePreference>(initialMode);
 
 	const [style, setStyle] = useState(initialStyle);
 	const [presets, setPresets] = useState(initialPresets);
 	const [configure, setConfigureState] = useState<
 		((builder: HextimatePaletteBuilder) => void) | undefined
 	>(() => initialConfigure);
-
-	const isColorControlled = controlledColor !== undefined;
-	const isModeControlled = controlledMode !== undefined;
-
-	const activeColors: ModeColors = isColorControlled
-		? normalizeColorProp(controlledColor as ColorInputProp)
-		: { light: internalLight, dark: internalDark };
-
-	const modePreference: ModePreference = isModeControlled
-		? (controlledMode as ModePreference)
-		: internalMode;
 
 	const osDark = useOsPrefersDark();
 	const mode: ResolvedMode =
@@ -149,36 +145,35 @@ export function HextimatorProvider({
 		);
 	}, [modePreference, resolvedDarkMode]);
 
-	const emitColor = useCallback(
-		(next: ModeColors) => {
-			if (!isColorControlled) {
-				setInternalLight(next.light);
-				setInternalDark(next.dark);
-			}
-			onColorChange?.(next);
-		},
-		[isColorControlled, onColorChange],
-	);
-
 	const setColor = useCallback(
-		(c: string) => emitColor({ light: c, dark: c }),
-		[emitColor],
+		(c: string) => {
+			setLightColorState(c);
+			setDarkColorState(c);
+			onColorChange?.({ light: c, dark: c });
+		},
+		[onColorChange],
 	);
 	const setLightColor = useCallback(
-		(c: string) => emitColor({ light: c, dark: activeColors.dark }),
-		[emitColor, activeColors.dark],
+		(c: string) => {
+			setLightColorState(c);
+			onColorChange?.({ light: c, dark: darkColor });
+		},
+		[darkColor, onColorChange],
 	);
 	const setDarkColor = useCallback(
-		(c: string) => emitColor({ light: activeColors.light, dark: c }),
-		[emitColor, activeColors.light],
+		(c: string) => {
+			setDarkColorState(c);
+			onColorChange?.({ light: lightColor, dark: c });
+		},
+		[lightColor, onColorChange],
 	);
 
 	const setMode = useCallback(
 		(next: ModePreference) => {
-			if (!isModeControlled) setInternalMode(next);
+			setModePreferenceState(next);
 			onModePreferenceChange?.(next);
 		},
-		[isModeControlled, onModePreferenceChange],
+		[onModePreferenceChange],
 	);
 
 	const setConfigure = useCallback(
@@ -210,15 +205,12 @@ export function HextimatorProvider({
 	);
 
 	const lightBuilder = useMemo(
-		() => buildOne(activeColors.light),
-		[buildOne, activeColors.light],
+		() => buildOne(lightColor),
+		[buildOne, lightColor],
 	);
 	const darkBuilder = useMemo(
-		() =>
-			activeColors.light === activeColors.dark
-				? lightBuilder
-				: buildOne(activeColors.dark),
-		[buildOne, activeColors.light, activeColors.dark, lightBuilder],
+		() => (lightColor === darkColor ? lightBuilder : buildOne(darkColor)),
+		[buildOne, lightColor, darkColor, lightBuilder],
 	);
 
 	const palette = useMemo<HextimateResult>(() => {
@@ -272,11 +264,11 @@ export function HextimatorProvider({
 
 	const value = useMemo<HextimatorContextValue>(
 		() => ({
-			color: mode === 'dark' ? activeColors.dark : activeColors.light,
+			color: mode === 'dark' ? darkColor : lightColor,
 			setColor,
-			lightColor: activeColors.light,
+			lightColor,
 			setLightColor,
-			darkColor: activeColors.dark,
+			darkColor,
 			setDarkColor,
 			mode,
 			modePreference,
@@ -292,8 +284,8 @@ export function HextimatorProvider({
 		}),
 		[
 			mode,
-			activeColors.light,
-			activeColors.dark,
+			lightColor,
+			darkColor,
 			setColor,
 			setLightColor,
 			setDarkColor,

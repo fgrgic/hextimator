@@ -378,8 +378,10 @@ For app-wide theming with dynamic color changes:
 import { HextimatorProvider, useHextimatorTheme } from "hextimator/react";
 
 <HextimatorProvider
-  defaultColor="#6A5ACD"
-  defaultMode="system"       // "light" | "dark" | "system"
+  defaultColor="#6A5ACD"            // string OR { light: "#...", dark: "#..." }
+  defaultMode="system"              // "light" | "dark" | "system"
+  onColorChange={(next) => persist(next)}     // fires on every color change
+  onModePreferenceChange={(mode) => persist(mode)}
   style={styleOpts}
   presets={[presets.muted, presets.shadcn]}
   format={formatOpts}
@@ -391,13 +393,23 @@ import { HextimatorProvider, useHextimatorTheme } from "hextimator/react";
 </HextimatorProvider>
 ```
 
+**Per-mode colors:** pass `defaultColor={{ light: "#FF6600", dark: "#0088FF" }}` to use a different brand color per mode. Both palettes are built and stitched in CSS, so `@media (prefers-color-scheme: dark)` always serves the dark palette correctly. When `light === dark` (default for a string), only one palette is built.
+
+**Persistence:** `onColorChange` and `onModePreferenceChange` always fire on user-driven updates. Wire them to localStorage / cookies / etc. Restore by reading once on mount and passing the result to `defaultColor` / `defaultMode`. For forced overrides (URL-driven, server push), remount with `key={color}`.
+
+**FOUC:** the provider injects CSS in `useEffect` (after first paint). To avoid flash on SPAs, read storage synchronously in a lazy initializer so `defaultColor` is already correct on the first render. For SSR (Next.js, Remix), persist in a cookie and render `<HextimatorStyle>` server-side in the layout `<head>`.
+
 `useHextimatorTheme()` returns:
 
 | Property | Type | Description |
 |---|---|---|
-| `color` | `string` | Current input color |
-| `setColor` | `(color: string) => void` | Change the input color (triggers re-generation) |
-| `palette` | `HextimateResult` | The generated `{ light, dark }` palette |
+| `color` | `string` | Color active for the resolved mode (= `lightColor` in light, `darkColor` in dark) |
+| `setColor` | `(color: string) => void` | Sets BOTH `lightColor` and `darkColor` (one-color-in, whole-theme-out) |
+| `lightColor` | `string` | Color used to generate the light-mode palette |
+| `setLightColor` | `(color: string) => void` | Update only the light-mode color |
+| `darkColor` | `string` | Color used to generate the dark-mode palette |
+| `setDarkColor` | `(color: string) => void` | Update only the dark-mode color |
+| `palette` | `HextimateResult` | The generated `{ light, dark }` palette (light from `lightColor`, dark from `darkColor`) |
 | `mode` | `"light" \| "dark"` | Resolved color mode (accounts for OS preference) |
 | `modePreference` | `"light" \| "dark" \| "system"` | Raw preference before resolution |
 | `setMode` | `(mode: ModePreference) => void` | Change mode preference |
@@ -449,7 +461,7 @@ import { HextimatorProvider, HextimatorScope } from "hextimator/react";
 </HextimatorProvider>
 ```
 
-Props: `defaultColor`, `style?`, `presets?`, `format?`, `configure?`, `darkMode?`, `cssPrefix?`, `className?`, `wrapperStyle?` (inline styles for the scope element).
+Props: `defaultColor` (`string \| { light, dark }`), `isolated?`, `style?`, `presets?`, `format?`, `configure?`, `darkMode?`, `cssPrefix?`, `className?`, `wrapperStyle?` (inline styles for the scope element).
 
 ## `fallback.css`
 

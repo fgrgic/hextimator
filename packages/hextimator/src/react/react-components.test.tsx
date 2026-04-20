@@ -139,20 +139,24 @@ describe('HextimatorProvider / Scope (renderToString)', () => {
 		expect(html).toContain('data-dark="#ff6600"');
 	});
 
-	it('controlled color prop overrides defaultColor', () => {
+	it('provider exposes setColor / setLightColor / setDarkColor / setMode through context', () => {
+		// Smoke test: verify context shape is wired without invoking setters
+		// (setters require a real DOM event loop to observe state updates).
+		function CheckSetters() {
+			const ctx = useHextimatorTheme();
+			const wired =
+				typeof ctx.setColor === 'function' &&
+				typeof ctx.setLightColor === 'function' &&
+				typeof ctx.setDarkColor === 'function' &&
+				typeof ctx.setMode === 'function';
+			return <span data-wired={String(wired)} />;
+		}
 		const html = renderToString(
-			<HextimatorProvider
-				defaultColor="#000000"
-				color={{ light: '#3366ff', dark: '#ff6600' }}
-				onColorChange={() => {}}
-				darkMode={false}
-			>
-				<ThemeColors />
+			<HextimatorProvider defaultColor="#3366ff" darkMode={false}>
+				<CheckSetters />
 			</HextimatorProvider>,
 		);
-		expect(html).toContain('data-light="#3366ff"');
-		expect(html).toContain('data-dark="#ff6600"');
-		expect(html).not.toContain('data-light="#000000"');
+		expect(html).toContain('data-wired="true"');
 	});
 
 	it('scope accepts object defaultColor for per-mode colors', () => {
