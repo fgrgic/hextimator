@@ -15,11 +15,7 @@ function ThemeColor() {
 function ThemeColors() {
 	const { color, lightColor, darkColor } = useHextimatorTheme();
 	return (
-		<span
-			data-color={color}
-			data-light={lightColor}
-			data-dark={darkColor}
-		/>
+		<span data-color={color} data-light={lightColor} data-dark={darkColor} />
 	);
 }
 
@@ -188,7 +184,9 @@ describe('HextimatorProvider / Scope (renderToString)', () => {
 		const lightMatch = html.match(
 			/data-hextimator-scope="[^"]+"\]\s*\{([^}]+)\}/,
 		);
-		const darkMatch = html.match(/\.dark\s+\[data-hextimator-scope="[^"]+"\]\s*\{([^}]+)\}/);
+		const darkMatch = html.match(
+			/\.dark\s+\[data-hextimator-scope="[^"]+"\]\s*\{([^}]+)\}/,
+		);
 		expect(lightMatch).not.toBeNull();
 		expect(darkMatch).not.toBeNull();
 		const lightAccent = lightMatch?.[1].match(/--accent:\s*([^;]+);/)?.[1];

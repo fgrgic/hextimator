@@ -2,7 +2,7 @@ import { describe, expect, it } from 'bun:test';
 import { hextimate } from '../index';
 import { buildStyleContent, buildTargetedVars } from './css';
 
-const palette = hextimate('#6A5ACD').format({ as: 'css' });
+const palette = hextimate('#6A5ACD').format({ as: 'object' });
 
 describe('buildStyleContent', () => {
 	it('darkMode false emits a single block with light tokens only', () => {
@@ -97,11 +97,11 @@ describe('buildTargetedVars', () => {
 });
 
 function lightVarsSnippet(p: typeof palette): string {
-	const entries = Object.entries(p.light as Record<string, string>);
-	return entries.map(([k, v]) => `\t${k}: ${v};`).join('\n');
+	const entries = Object.entries(p.light);
+	return entries.map(([k, v]) => `\t--${k}: ${v};`).join('\n');
 }
 
 function darkVarsSnippet(p: typeof palette): string {
-	const entries = Object.entries(p.dark as Record<string, string>);
-	return entries.map(([k, v]) => `\t\t${k}: ${v};`).join('\n');
+	const entries = Object.entries(p.dark);
+	return entries.map(([k, v]) => `\t\t--${k}: ${v};`).join('\n');
 }

@@ -8,6 +8,7 @@ import {
 	useMemo,
 	useState,
 } from 'react';
+import type { FlatTokenMap } from '../format';
 import type {
 	HextimatePaletteBuilder,
 	HextimateResult,
@@ -136,15 +137,15 @@ export function HextimatorScope({
 		[buildOne, lightColor, darkColor, lightBuilder],
 	);
 
-	const palette = useMemo<HextimateResult>(() => {
+	const palette = useMemo<HextimateResult<FlatTokenMap>>(() => {
 		const lightResult = lightBuilder.format({
 			...stable?.format,
-			as: 'css',
+			as: 'object',
 		});
 		if (darkBuilder === lightBuilder) return lightResult;
 		const darkResult = darkBuilder.format({
 			...stable?.format,
-			as: 'css',
+			as: 'object',
 		});
 		return { light: lightResult.light, dark: darkResult.dark };
 	}, [lightBuilder, darkBuilder, stable?.format]);

@@ -7,7 +7,7 @@ import { buildStyleContent } from '../src/react/css';
 export const FALLBACK_BRAND_COLOR = '#737373';
 
 export function neutralFallbackCss(): string {
-	const palette = hextimate(FALLBACK_BRAND_COLOR).format({ as: 'css' });
+	const palette = hextimate(FALLBACK_BRAND_COLOR).format({ as: 'object' });
 	const body = buildStyleContent(
 		palette,
 		{ type: 'media-or-class' },

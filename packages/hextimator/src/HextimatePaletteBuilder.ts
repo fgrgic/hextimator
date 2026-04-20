@@ -1,7 +1,7 @@
 import { adaptPalette, type CVDType, simulatePalette } from './a11y';
 import { convert } from './convert';
 import type { FlatTokenMap, FormatResult, NestedTokenMap } from './format';
-import { format } from './format';
+import { format, formatStylesheet } from './format';
 import { serializeColor } from './format/serializeColor';
 import type { TokenEntry } from './format/types';
 import { generate } from './generate';
@@ -471,16 +471,20 @@ export class HextimatePaletteBuilder {
 	): HextimateResult<NestedTokenMap>;
 
 	format(
-		options: HextimateFormatOptions & { as: 'json' | 'tailwind-css' },
+		options: HextimateFormatOptions & { as: 'json' },
 	): HextimateResult<string>;
 
 	format(
-		options: HextimateFormatOptions & { as: 'object' | 'css' | 'scss' },
+		options: HextimateFormatOptions & { as: 'css' | 'tailwind-css' },
+	): string;
+
+	format(
+		options: HextimateFormatOptions & { as: 'object' | 'scss' },
 	): HextimateResult<FlatTokenMap>;
 
-	format(options?: HextimateFormatOptions): HextimateResult;
+	format(options?: HextimateFormatOptions): HextimateResult | string;
 
-	format(options?: HextimateFormatOptions): HextimateResult {
+	format(options?: HextimateFormatOptions): HextimateResult | string {
 		const mergedOptions = this.presetFormatDefaults
 			? {
 					...this.presetFormatDefaults,
@@ -508,6 +512,16 @@ export class HextimatePaletteBuilder {
 			this.darkPalette,
 			colorFormat,
 		);
+
+		if (mergedOptions?.as === 'css' || mergedOptions?.as === 'tailwind-css') {
+			return formatStylesheet(
+				this.lightPalette,
+				this.darkPalette,
+				mergedOptions,
+				lightTokens,
+				darkTokens,
+			);
+		}
 
 		return {
 			light: format(this.lightPalette, mergedOptions, lightTokens),

@@ -1,4 +1,4 @@
-export { format } from './format';
+export { format, formatStylesheet } from './format';
 export type {
 	FlatTokenMap,
 	FormatOptions,

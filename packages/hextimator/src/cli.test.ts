@@ -28,8 +28,12 @@ const FORMAT_OPTION_TO_CLI_FLAG: Record<string, string | null> = {
 	as: 'format',
 	colors: 'colors',
 	separator: 'separator',
+	darkMode: 'dark-mode',
+	selector: 'selector',
 	roleNames: null, // exposed only via presets in CLI
 	variantNames: null, // exposed only via presets in CLI
+	excludeRoles: null, // exposed only via presets in CLI
+	excludeVariants: null, // exposed only via presets in CLI
 };
 
 /**

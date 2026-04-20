@@ -1,4 +1,27 @@
-## 0.4.0 (Latest)
+## 0.5.0 (Latest)
+
+- [#108](https://github.com/fgrgic/hextimator/pull/106) **Breaking.** `.format({ as: "css" })` and `.format({ as: "tailwind-css" })` now return a ready-to-paste stylesheet **string** instead of a `{ light, dark }` map of CSS variable objects. Both themes are combined into one output and wrapped for dark mode according to the new `darkMode` option.
+
+  ```ts
+  // Before (0.4)
+  const { light, dark } = hextimate("#6A5ACD").format({ as: "css" });
+  // light = { "--accent": "#...", ... }
+  // you had to hand-build ":root {} @media {}" yourself
+
+  // After (0.5)
+  const css = hextimate("#6A5ACD").format({ as: "css" });
+  // css = ":root { --accent: #...; ... }\n@media (prefers-color-scheme: dark) { :root { ... } }"
+  ```
+
+- New format options for stylesheet outputs:
+  - `darkMode`: `"media"` (default) | `"class"` | `"data-attribute"` | `false`
+  - `selector`: root selector for `as: "css"` (default `":root"`); ignored for `as: "tailwind-css"` (always `@theme`)
+- New CLI flags mirroring the options: `--dark-mode <strategy>` and `--selector <css>`. The `--theme` flag is ignored for `css`/`tailwind-css` outputs (both themes always combine into one string).
+- React integration unchanged.
+
+  Migration checklist: [migrating-from-0.4.md](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migrating-from-0.4.md).
+
+## 0.4.0
 
 - [#106](https://github.com/fgrgic/hextimator/pull/106): add per-theme color for React
   - React provider and scope now accept per-mode brand colors (`defaultColor: string | { light, dark }`)
