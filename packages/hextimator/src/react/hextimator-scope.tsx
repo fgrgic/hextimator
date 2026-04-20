@@ -8,14 +8,23 @@ import {
 	useMemo,
 	useState,
 } from 'react';
-import type { HextimatePaletteBuilder } from '../HextimatePaletteBuilder';
+import type {
+	HextimatePaletteBuilder,
+	HextimateResult,
+} from '../HextimatePaletteBuilder';
 import { hextimate } from '../index';
 import type { HextimatePreset } from '../presets/types';
 import type { HextimateFormatOptions, HextimateStyleOptions } from '../types';
 import { HextimatorContext, type HextimatorContextValue } from './context';
 import { buildStyleContent } from './css';
 import { useOsPrefersDark } from './mode';
-import type { DarkModeStrategy, ModePreference, ResolvedMode } from './types';
+import {
+	type ColorInputProp,
+	type DarkModeStrategy,
+	type ModePreference,
+	normalizeColorProp,
+	type ResolvedMode,
+} from './types';
 import { useStableOptions } from './use-stable-options';
 
 /**
@@ -34,7 +43,8 @@ import { useStableOptions } from './use-stable-options';
  * line up.
  */
 export interface HextimatorScopeProps {
-	defaultColor: string;
+	/** Seeds initial color state. String sets both modes equal; object sets each explicitly. */
+	defaultColor: ColorInputProp;
 	/**
 	 * When true, builds from this scope's color and options only (via
 	 * `hextimate`), without forking the parent builder. Use for previews or
@@ -102,7 +112,12 @@ export function HextimatorScope({
 	const id = useId();
 	const selector = `[data-hextimator-scope="${id}"]`;
 
-	const [color, setColor] = useState(defaultColor);
+	const [lightColor, setLightColorState] = useState(
+		() => normalizeColorProp(defaultColor).light,
+	);
+	const [darkColor, setDarkColorState] = useState(
+		() => normalizeColorProp(defaultColor).dark,
+	);
 	const [style, setStyle] = useState(initialStyle);
 	const [presets, setPresets] = useState(initialPresets);
 	const [configure, setConfigureState] = useState<
@@ -110,8 +125,17 @@ export function HextimatorScope({
 	>(() => initialConfigure);
 
 	useEffect(() => {
-		setColor(defaultColor);
+		const next = normalizeColorProp(defaultColor);
+		setLightColorState(next.light);
+		setDarkColorState(next.dark);
 	}, [defaultColor]);
+
+	const setLightColor = setLightColorState;
+	const setDarkColor = setDarkColorState;
+	const setColor = useCallback((c: string) => {
+		setLightColorState(c);
+		setDarkColorState(c);
+	}, []);
 
 	const setConfigure = useCallback(
 		(fn: ((builder: HextimatePaletteBuilder) => void) | undefined) => {
@@ -130,27 +154,41 @@ export function HextimatorScope({
 		cssPrefix,
 	});
 
-	const builder = useMemo(() => {
-		const b =
-			!isolated && parent?.builder
-				? parent.builder.fork(color)
-				: hextimate(color);
-		if (stable?.style && Object.keys(stable.style).length > 0) {
-			b.style(stable.style);
-		}
-		for (const p of presets ?? []) b.preset(p);
-		configure?.(b);
-		return b;
-	}, [parent?.builder, color, presets, stable, configure, isolated]);
-
-	const palette = useMemo(
-		() =>
-			builder.format({
-				...stable?.format,
-				as: 'css',
-			}),
-		[builder, stable],
+	const buildOne = useCallback(
+		(c: string) => {
+			const b =
+				!isolated && parent?.builder ? parent.builder.fork(c) : hextimate(c);
+			if (stable?.style && Object.keys(stable.style).length > 0) {
+				b.style(stable.style);
+			}
+			for (const p of presets ?? []) b.preset(p);
+			configure?.(b);
+			return b;
+		},
+		[parent?.builder, isolated, stable?.style, presets, configure],
 	);
+
+	const lightBuilder = useMemo(
+		() => buildOne(lightColor),
+		[buildOne, lightColor],
+	);
+	const darkBuilder = useMemo(
+		() => (lightColor === darkColor ? lightBuilder : buildOne(darkColor)),
+		[buildOne, lightColor, darkColor, lightBuilder],
+	);
+
+	const palette = useMemo<HextimateResult>(() => {
+		const lightResult = lightBuilder.format({
+			...stable?.format,
+			as: 'css',
+		});
+		if (darkBuilder === lightBuilder) return lightResult;
+		const darkResult = darkBuilder.format({
+			...stable?.format,
+			as: 'css',
+		});
+		return { light: lightResult.light, dark: darkResult.dark };
+	}, [lightBuilder, darkBuilder, stable?.format]);
 
 	const css = useMemo(
 		() =>
@@ -160,7 +198,7 @@ export function HextimatorScope({
 				stable?.cssPrefix ?? '',
 				selector,
 			),
-		[palette, stable, selector],
+		[palette, stable?.darkMode, stable?.cssPrefix, selector],
 	);
 
 	const osDark = useOsPrefersDark();
@@ -170,10 +208,17 @@ export function HextimatorScope({
 	const modePreference: ModePreference = parent?.modePreference ?? 'system';
 	const setMode = parent?.setMode ?? noopSetMode;
 
+	const builder = mode === 'dark' ? darkBuilder : lightBuilder;
+	const activeColor = mode === 'dark' ? darkColor : lightColor;
+
 	const value = useMemo<HextimatorContextValue>(
 		() => ({
-			color,
+			color: activeColor,
 			setColor,
+			lightColor,
+			setLightColor,
+			darkColor,
+			setDarkColor,
 			mode,
 			modePreference,
 			setMode,
@@ -187,7 +232,10 @@ export function HextimatorScope({
 			builder,
 		}),
 		[
-			color,
+			activeColor,
+			setColor,
+			lightColor,
+			darkColor,
 			mode,
 			modePreference,
 			setMode,

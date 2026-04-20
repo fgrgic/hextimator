@@ -8,8 +8,16 @@ import type { HextimateStyleOptions } from '../types';
 import type { ModePreference, ResolvedMode } from './types';
 
 export interface HextimatorContextValue {
+	/** The color active for the resolved mode. Equal to `lightColor` in light mode, `darkColor` in dark mode. */
 	color: string;
+	/** Sets both `lightColor` and `darkColor` at once. Matches the "one color in → whole theme out" model. */
 	setColor: (color: string) => void;
+	/** The color used to generate the light-mode palette. */
+	lightColor: string;
+	setLightColor: (color: string) => void;
+	/** The color used to generate the dark-mode palette. */
+	darkColor: string;
+	setDarkColor: (color: string) => void;
 	mode: ResolvedMode;
 	modePreference: ModePreference;
 	setMode: (mode: ModePreference) => void;
