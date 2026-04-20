@@ -1,10 +1,10 @@
-## 0.4.0 (Latest)
+## 0.4.0 (Unreleased)
 
 - [#106](https://github.com/fgrgic/hextimator/pull/106): add per-theme color for React
   - React provider and scope now accept per-mode brand colors (`defaultColor: string | { light, dark }`)
   - expose `onColorChange` / `onModePreferenceChange` callbacks for persistence.
 
-## 0.3.2
+## 0.3.2 (Latest)
 
 - [#99](https://github.com/fgrgic/hextimator/pull/99): Adds option to chain presets. Presets are merged, last added wins if both touch the same tokens.
   - For example: `hextimate("#ff6677").preset(shadcn).preset(muted);`
