@@ -39,7 +39,7 @@ export function useHextimator(color: string, options?: UseHextimatorOptions) {
 		configure?.(builder);
 		return builder.format({
 			...stable?.format,
-			as: 'css',
+			as: 'object',
 		});
 	}, [color, stable?.style, presets, stable?.format, configure]);
 

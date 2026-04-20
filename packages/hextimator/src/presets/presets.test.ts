@@ -3,105 +3,104 @@ import { hextimate } from '../index';
 import { shadcn } from './shadcn';
 import type { HextimatePreset } from './types';
 
+function objectTheme(
+	builder: ReturnType<typeof hextimate>,
+	extra: Record<string, unknown> = {},
+) {
+	return builder.format({ as: 'object', ...extra }) as {
+		light: Record<string, string>;
+		dark: Record<string, string>;
+	};
+}
+
 describe('preset', () => {
 	test('applies format defaults from preset', () => {
-		const theme = hextimate('#6366F1').preset(shadcn).format();
-
-		// shadcn preset sets as: 'css', so keys should be CSS custom properties
-		expect(theme.light).toHaveProperty('--primary');
-		expect(theme.light).toHaveProperty('--background');
-		expect(theme.dark).toHaveProperty('--primary');
-		expect(theme.dark).toHaveProperty('--background');
+		// shadcn preset sets as: 'css' → stylesheet string
+		const css = hextimate('#6366F1').preset(shadcn).format();
+		expect(typeof css).toBe('string');
+		expect(css).toContain('--primary:');
+		expect(css).toContain('--background:');
+		// dark tokens land under the @media wrapper by default
+		expect(css).toContain('@media (prefers-color-scheme: dark)');
 	});
 
 	test('shadcn preset produces all expected variables', () => {
-		const theme = hextimate('#6366F1').preset(shadcn).format();
-		const lightKeys = Object.keys(theme.light);
-
-		// Core shadcn variables
+		// Inspect the palette shape via as: 'object' (bare keys, no --)
+		const theme = objectTheme(hextimate('#6366F1').preset(shadcn));
 		const expectedKeys = [
-			'--background',
-			'--background-foreground',
-			'--primary',
-			'--primary-foreground',
-			'--destructive',
-			'--destructive-foreground',
-			'--foreground',
-			'--card',
-			'--card-foreground',
-			'--popover',
-			'--popover-foreground',
-			'--secondary',
-			'--secondary-foreground',
-			'--muted',
-			'--muted-foreground',
-			'--accent',
-			'--accent-foreground',
-			'--border',
-			'--input',
-			'--ring',
+			'background',
+			'background-foreground',
+			'primary',
+			'primary-foreground',
+			'destructive',
+			'destructive-foreground',
+			'foreground',
+			'card',
+			'card-foreground',
+			'popover',
+			'popover-foreground',
+			'secondary',
+			'secondary-foreground',
+			'muted',
+			'muted-foreground',
+			'accent',
+			'accent-foreground',
+			'border',
+			'input',
+			'ring',
 		];
 
 		for (const key of expectedKeys) {
-			expect(lightKeys).toContain(key);
+			expect(theme.light).toHaveProperty(key);
 		}
 	});
 
 	test('shadcn preset uses oklch color format', () => {
-		const theme = hextimate('#6366F1').preset(shadcn).format();
-
-		const primaryValue = (theme.light as Record<string, string>)['--primary'];
-		expect(primaryValue).toMatch(/^oklch\(/);
+		const theme = objectTheme(hextimate('#6366F1').preset(shadcn));
+		expect(theme.light.primary).toMatch(/^oklch\(/);
 	});
 
 	test('format options override preset defaults', () => {
-		const theme = hextimate('#6366F1').preset(shadcn).format({ colors: 'hex' });
-
-		const primaryValue = (theme.light as Record<string, string>)['--primary'];
-		expect(primaryValue).toMatch(/^#/);
+		const theme = objectTheme(hextimate('#6366F1').preset(shadcn), {
+			colors: 'hex',
+		});
+		expect(theme.light.primary).toMatch(/^#/);
 	});
 
 	test('format as option overrides preset as', () => {
-		const theme = hextimate('#6366F1').preset(shadcn).format({ as: 'object' });
-
+		const theme = objectTheme(hextimate('#6366F1').preset(shadcn));
 		// object format uses bare keys (no --)
 		expect(theme.light).toHaveProperty('background');
-		expect(theme.light).not.toHaveProperty('--background');
 	});
 
 	test('roleNames merge between preset and format call', () => {
-		const theme = hextimate('#6366F1')
-			.preset(shadcn)
-			.format({ roleNames: { accent: 'brand' } });
-
-		const lightKeys = Object.keys(theme.light);
+		const theme = objectTheme(hextimate('#6366F1').preset(shadcn), {
+			roleNames: { accent: 'brand' },
+		});
 		// shadcn's renaming still applies for other roles
-		expect(lightKeys).toContain('--background');
+		expect(theme.light).toHaveProperty('background');
 		// user's override takes precedence over the preset's rename
-		expect(lightKeys).toContain('--brand');
-		expect(lightKeys).not.toContain('--primary');
+		expect(theme.light).toHaveProperty('brand');
+		expect(theme.light).not.toHaveProperty('primary');
 	});
 
 	test('fork preserves preset', () => {
 		const builder = hextimate('#6366F1').preset(shadcn);
-		const forked = builder.fork('#ff6600');
-		const theme = forked.format();
+		const theme = objectTheme(builder.fork('#ff6600'));
 
-		// Forked builder should have the same preset applied
-		expect(theme.light).toHaveProperty('--primary');
-		expect(theme.light).toHaveProperty('--background');
-		expect(theme.light).toHaveProperty('--foreground');
-		expect(theme.light).toHaveProperty('--ring');
+		expect(theme.light).toHaveProperty('primary');
+		expect(theme.light).toHaveProperty('background');
+		expect(theme.light).toHaveProperty('foreground');
+		expect(theme.light).toHaveProperty('ring');
 	});
 
 	test('fork does not double-apply preset tokens', () => {
 		const builder = hextimate('#6366F1').preset(shadcn);
-		const forked = builder.fork('#ff6600');
-		const theme = forked.format();
+		const theme = objectTheme(builder.fork('#ff6600'));
 
-		// Count occurrences of standalone token keys — should not be duplicated
-		const lightKeys = Object.keys(theme.light);
-		const ringCount = lightKeys.filter((k) => k === '--ring').length;
+		const ringCount = Object.keys(theme.light).filter(
+			(k) => k === 'ring',
+		).length;
 		expect(ringCount).toBe(1);
 	});
 
@@ -109,39 +108,40 @@ describe('preset', () => {
 		const original = hextimate('#6366F1').preset(shadcn);
 		const fork1 = original.fork('#ff6600');
 		const fork2 = fork1.fork('#00cc88');
-		const theme = fork2.format();
+		const theme = objectTheme(fork2);
 
-		const lightKeys = Object.keys(theme.light);
-		const ringCount = lightKeys.filter((k) => k === '--ring').length;
+		const ringCount = Object.keys(theme.light).filter(
+			(k) => k === 'ring',
+		).length;
 		expect(ringCount).toBe(1);
 
-		expect(lightKeys).toContain('--primary');
-		expect(lightKeys).toContain('--foreground');
+		expect(theme.light).toHaveProperty('primary');
+		expect(theme.light).toHaveProperty('foreground');
 	});
 
 	test('regenerate preserves preset (via light/dark options)', () => {
-		const theme = hextimate('#6366F1')
-			.style({ light: { lightness: 0.8 } })
-			.preset(shadcn)
-			.format();
+		const theme = objectTheme(
+			hextimate('#6366F1')
+				.style({ light: { lightness: 0.8 } })
+				.preset(shadcn),
+		);
 
-		expect(theme.light).toHaveProperty('--primary');
-		expect(theme.light).toHaveProperty('--foreground');
-		expect(theme.light).toHaveProperty('--ring');
+		expect(theme.light).toHaveProperty('primary');
+		expect(theme.light).toHaveProperty('foreground');
+		expect(theme.light).toHaveProperty('ring');
 	});
 
 	test('preset can be combined with addRole/addToken', () => {
-		const theme = hextimate('#6366F1')
-			.preset(shadcn)
-			.addRole('cta', '#ee2244')
-			.addToken('logo', '#000000')
-			.format();
+		const theme = objectTheme(
+			hextimate('#6366F1')
+				.preset(shadcn)
+				.addRole('cta', '#ee2244')
+				.addToken('logo', '#000000'),
+		);
 
-		const lightKeys = Object.keys(theme.light);
-		expect(lightKeys).toContain('--cta');
-		expect(lightKeys).toContain('--logo');
-		// shadcn tokens still present
-		expect(lightKeys).toContain('--primary');
+		expect(theme.light).toHaveProperty('cta');
+		expect(theme.light).toHaveProperty('logo');
+		expect(theme.light).toHaveProperty('primary');
 	});
 
 	test('custom preset with roles', () => {
@@ -150,13 +150,12 @@ describe('preset', () => {
 			format: { as: 'css' },
 		};
 
-		const theme = hextimate('#6366F1').preset(custom).format();
-		const lightKeys = Object.keys(theme.light);
-
-		expect(lightKeys).toContain('--cta');
-		expect(lightKeys).toContain('--cta-strong');
-		expect(lightKeys).toContain('--cta-weak');
-		expect(lightKeys).toContain('--cta-foreground');
+		// Override as: 'object' so we can inspect the palette shape
+		const theme = objectTheme(hextimate('#6366F1').preset(custom));
+		expect(theme.light).toHaveProperty('cta');
+		expect(theme.light).toHaveProperty('cta-strong');
+		expect(theme.light).toHaveProperty('cta-weak');
+		expect(theme.light).toHaveProperty('cta-foreground');
 	});
 
 	test('custom preset with variants', () => {
@@ -165,19 +164,17 @@ describe('preset', () => {
 			format: { as: 'object' },
 		};
 
-		const theme = hextimate('#6366F1').preset(custom).format();
+		const theme = hextimate('#6366F1').preset(custom).format() as {
+			light: Record<string, string>;
+		};
 		expect(theme.light).toHaveProperty('accent-hover');
 		expect(theme.light).toHaveProperty('base-hover');
 	});
 
 	test('preset values are independent across themes', () => {
-		const theme = hextimate('#6366F1').preset(shadcn).format();
-
-		const lightBorder = (theme.light as Record<string, string>)['--border'];
-		const darkBorder = (theme.dark as Record<string, string>)['--border'];
-
+		const theme = objectTheme(hextimate('#6366F1').preset(shadcn));
 		// Border should be different in light vs dark
-		expect(lightBorder).not.toBe(darkBorder);
+		expect(theme.light.border).not.toBe(theme.dark.border);
 	});
 });
 
@@ -187,20 +184,18 @@ describe('preset chaining', () => {
 			style: { light: { maxChroma: 0.06 }, dark: { maxChroma: 0.05 } },
 		};
 
-		const theme = hextimate('#6366F1').preset(muted).preset(shadcn).format();
+		const theme = objectTheme(
+			hextimate('#6366F1').preset(muted).preset(shadcn),
+		);
 
 		// shadcn tokens present
-		expect(theme.light).toHaveProperty('--primary');
-		expect(theme.light).toHaveProperty('--background');
-		expect(theme.light).toHaveProperty('--ring');
+		expect(theme.light).toHaveProperty('primary');
+		expect(theme.light).toHaveProperty('background');
+		expect(theme.light).toHaveProperty('ring');
 
 		// muted style applied (chroma is lower than default)
-		const defaultTheme = hextimate('#6366F1').preset(shadcn).format();
-		const mutedPrimary = (theme.light as Record<string, string>)['--primary'];
-		const defaultPrimary = (defaultTheme.light as Record<string, string>)[
-			'--primary'
-		];
-		expect(mutedPrimary).not.toBe(defaultPrimary);
+		const defaultTheme = objectTheme(hextimate('#6366F1').preset(shadcn));
+		expect(theme.light.primary).not.toBe(defaultTheme.light.primary);
 	});
 
 	test('second preset style deep-merges with first', () => {
@@ -216,69 +211,44 @@ describe('preset chaining', () => {
 			},
 		};
 
-		// A sets light.maxChroma + baseMaxChroma, B sets light.lightness
-		// After chaining, all three should be active
-		const chained = hextimate('#6366F1')
-			.preset(presetA)
-			.preset(presetB)
-			.format({ as: 'object' });
+		const chained = objectTheme(
+			hextimate('#6366F1').preset(presetA).preset(presetB),
+		);
+		const onlyA = objectTheme(hextimate('#6366F1').preset(presetA));
+		const onlyB = objectTheme(hextimate('#6366F1').preset(presetB));
 
-		const onlyA = hextimate('#6366F1').preset(presetA).format({ as: 'object' });
-		const onlyB = hextimate('#6366F1').preset(presetB).format({ as: 'object' });
-
-		// Result should differ from both individual presets
-		const chainedAccent = (chained.light as Record<string, string>)['accent'];
-		const aAccent = (onlyA.light as Record<string, string>)['accent'];
-		const bAccent = (onlyB.light as Record<string, string>)['accent'];
-		expect(chainedAccent).not.toBe(aAccent);
-		expect(chainedAccent).not.toBe(bAccent);
+		expect(chained.light.accent).not.toBe(onlyA.light.accent);
+		expect(chained.light.accent).not.toBe(onlyB.light.accent);
 	});
 
 	test('later preset overrides earlier preset for same key', () => {
-		const presetA: HextimatePreset = {
-			style: { baseMaxChroma: 0.03 },
-		};
-		const presetB: HextimatePreset = {
-			style: { baseMaxChroma: 0.08 },
-		};
+		const presetA: HextimatePreset = { style: { baseMaxChroma: 0.03 } };
+		const presetB: HextimatePreset = { style: { baseMaxChroma: 0.08 } };
 
-		const abTheme = hextimate('#6366F1')
-			.preset(presetA)
-			.preset(presetB)
-			.format({ as: 'object' });
-
-		const bOnlyTheme = hextimate('#6366F1')
-			.preset(presetB)
-			.format({ as: 'object' });
-
-		// A then B should produce same result as just B for the conflicting key
-		expect((abTheme.light as Record<string, string>)['base']).toBe(
-			(bOnlyTheme.light as Record<string, string>)['base'],
+		const abTheme = objectTheme(
+			hextimate('#6366F1').preset(presetA).preset(presetB),
 		);
+		const bOnlyTheme = objectTheme(hextimate('#6366F1').preset(presetB));
+
+		expect(abTheme.light.base).toBe(bOnlyTheme.light.base);
 	});
 
 	test('style() after presets overrides preset style for the same key', () => {
-		const presetA: HextimatePreset = {
-			style: { baseMaxChroma: 0.03 },
-		};
-		const presetB: HextimatePreset = {
-			style: { baseMaxChroma: 0.08 },
-		};
+		const presetA: HextimatePreset = { style: { baseMaxChroma: 0.03 } };
+		const presetB: HextimatePreset = { style: { baseMaxChroma: 0.08 } };
 
-		const theme = hextimate('#6366F1')
-			.preset(presetA)
-			.preset(presetB)
-			.style({ baseMaxChroma: 0.01 })
-			.format({ as: 'object' });
-
-		const userOnlyTheme = hextimate('#6366F1')
-			.style({ baseMaxChroma: 0.01 })
-			.format({ as: 'object' });
-
-		// Final .style() value (0.01) should match style-only theme
-		expect((theme.light as Record<string, string>)['base']).toBe(
-			(userOnlyTheme.light as Record<string, string>)['base'],
+		const theme = objectTheme(
+			hextimate('#6366F1')
+				.preset(presetA)
+				.preset(presetB)
+				.style({ baseMaxChroma: 0.01 }),
 		);
+
+		const userOnlyTheme = objectTheme(
+			hextimate('#6366F1').style({ baseMaxChroma: 0.01 }),
+		);
+
+		expect(theme.light.base).toBe(userOnlyTheme.light.base);
 	});
 
 	test('chained presets concatenate tokens', () => {
@@ -290,37 +260,35 @@ describe('preset chaining', () => {
 			tokens: [{ name: 'ring', value: { from: 'accent' } }],
 		};
 
-		const theme = hextimate('#6366F1').preset(presetA).preset(presetB).format();
+		const theme = hextimate('#6366F1')
+			.preset(presetA)
+			.preset(presetB)
+			.format() as { light: Record<string, string> };
 
-		// Both tokens present
 		expect(theme.light).toHaveProperty('surface');
 		expect(theme.light).toHaveProperty('ring');
 	});
 
 	test('chained presets merge format options', () => {
 		const presetA: HextimatePreset = {
-			format: {
-				as: 'css',
-				roleNames: { base: 'bg' },
-			},
+			format: { as: 'css', roleNames: { base: 'bg' } },
 		};
 		const presetB: HextimatePreset = {
-			format: {
-				colors: 'hex',
-				roleNames: { accent: 'brand' },
-			},
+			format: { colors: 'hex', roleNames: { accent: 'brand' } },
 		};
 
-		const theme = hextimate('#6366F1').preset(presetA).preset(presetB).format();
+		// Preserve preset's `as: 'css'` from presetA; override with 'object'
+		// so we can inspect renamed role keys directly.
+		const theme = objectTheme(
+			hextimate('#6366F1').preset(presetA).preset(presetB),
+		);
 
-		const keys = Object.keys(theme.light);
 		// presetA's roleNames
-		expect(keys).toContain('--bg');
+		expect(theme.light).toHaveProperty('bg');
 		// presetB's roleNames
-		expect(keys).toContain('--brand');
+		expect(theme.light).toHaveProperty('brand');
 		// presetB's color format
-		const bgValue = (theme.light as Record<string, string>)['--bg'];
-		expect(bgValue).toMatch(/^#/);
+		expect(theme.light.bg).toMatch(/^#/);
 	});
 
 	test('chained presets concatenate roles', () => {
@@ -331,10 +299,9 @@ describe('preset chaining', () => {
 			roles: [{ name: 'cta', color: '#ee2244' }],
 		};
 
-		const theme = hextimate('#6366F1')
-			.preset(presetA)
-			.preset(presetB)
-			.format({ as: 'object' });
+		const theme = objectTheme(
+			hextimate('#6366F1').preset(presetA).preset(presetB),
+		);
 
 		expect(theme.light).toHaveProperty('info');
 		expect(theme.light).toHaveProperty('cta');
@@ -346,10 +313,9 @@ describe('preset chaining', () => {
 		};
 
 		const builder = hextimate('#6366F1').preset(muted).preset(shadcn);
-		const forked = builder.fork('#ff6600');
-		const theme = forked.format();
+		const theme = objectTheme(builder.fork('#ff6600'));
 
-		expect(theme.light).toHaveProperty('--primary');
-		expect(theme.light).toHaveProperty('--ring');
+		expect(theme.light).toHaveProperty('primary');
+		expect(theme.light).toHaveProperty('ring');
 	});
 });

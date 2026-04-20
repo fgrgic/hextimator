@@ -3,7 +3,6 @@ import './App.css';
 import { useHextimatorTheme } from 'hextimator/react';
 import { ArrowUpRight } from 'iconoir-react/regular';
 import { useMemo } from 'react';
-import { Button } from './components/button';
 import {
 	Accessibility,
 	AIReady,
@@ -15,6 +14,7 @@ import {
 	Section,
 	ThemePreferences,
 } from './components';
+import { Button } from './components/button';
 import { GetStarted } from './components/interactive/get-started';
 import { ThemeColorMeta } from './components/theme-color-meta';
 import { ThemePreview } from './components/theme-preview';
@@ -29,8 +29,7 @@ const PLAYGROUND_ORIGIN = 'https://playground.hextimator.com';
 function PlaygroundSection() {
 	const { color } = useHextimatorTheme();
 	const playgroundHref = useMemo(
-		() =>
-			`${PLAYGROUND_ORIGIN}/${themeColorToPlaygroundPathHex(color)}`,
+		() => `${PLAYGROUND_ORIGIN}/${themeColorToPlaygroundPathHex(color)}`,
 		[color],
 	);
 

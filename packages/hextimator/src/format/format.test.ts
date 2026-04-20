@@ -1,13 +1,15 @@
 import { describe, expect, it } from 'bun:test';
 import { generate } from '../generate';
 import type { RGB } from '../types';
-import { format } from './format';
+import { format, formatStylesheet } from './format';
 
 const blue: RGB = { space: 'srgb', r: 59, g: 130, b: 246, alpha: 1 };
 
 // Use a real generated palette as the fixture so tests reflect actual usage.
 const palette = generate(blue, 'light');
 if (!palette) throw new Error('generate returned null');
+const darkPalette = generate(blue, 'dark');
+if (!darkPalette) throw new Error('generate returned null');
 
 describe('format() — default (no options)', () => {
 	it('returns a flat object', () => {
@@ -32,19 +34,6 @@ describe('format() — default (no options)', () => {
 		expect(result['base-strong']).toBeDefined();
 		expect(result['base-weak']).toBeDefined();
 		expect(result['base-foreground']).toBeDefined();
-	});
-});
-
-describe('format() — css', () => {
-	it('prefixes all keys with --', () => {
-		const result = format(palette, { as: 'css' }) as Record<string, string>;
-		expect(Object.keys(result).every((k) => k.startsWith('--'))).toBe(true);
-	});
-
-	it('includes --base and --base-strong', () => {
-		const result = format(palette, { as: 'css' }) as Record<string, string>;
-		expect(result['--base']).toBeDefined();
-		expect(result['--base-strong']).toBeDefined();
 	});
 });
 
@@ -76,6 +65,56 @@ describe('format() — tailwind', () => {
 		expect(result.positive).toBeDefined();
 		expect(result.negative).toBeDefined();
 		expect(result.warning).toBeDefined();
+	});
+});
+
+describe('formatStylesheet() — css', () => {
+	it('returns a ready-to-paste CSS string with :root by default', () => {
+		const css = formatStylesheet(palette, darkPalette, { as: 'css' });
+		expect(typeof css).toBe('string');
+		expect(css).toContain(':root {');
+		expect(css).toContain('--base:');
+		expect(css).toContain('@media (prefers-color-scheme: dark)');
+	});
+
+	it('respects darkMode: class', () => {
+		const css = formatStylesheet(palette, darkPalette, {
+			as: 'css',
+			darkMode: 'class',
+		});
+		expect(css).not.toContain('@media');
+		expect(css).toContain('.dark {');
+	});
+
+	it('respects custom selector', () => {
+		const css = formatStylesheet(palette, darkPalette, {
+			as: 'css',
+			selector: '[data-theme]',
+		});
+		expect(css).toContain('[data-theme] {');
+	});
+
+	it('omits dark block when darkMode is false', () => {
+		const css = formatStylesheet(palette, darkPalette, {
+			as: 'css',
+			darkMode: false,
+		});
+		expect(css).not.toContain('@media');
+		expect(css).not.toContain('.dark');
+	});
+});
+
+describe('formatStylesheet() — tailwind-css', () => {
+	it('returns a single @theme block with --color- prefix', () => {
+		const css = formatStylesheet(palette, darkPalette, { as: 'tailwind-css' });
+		expect(css).toContain('@theme {');
+		expect(css).toContain('--color-base:');
+		expect(css.match(/@theme/g) ?? []).toHaveLength(1);
+	});
+
+	it('emits dark overrides via @media by default', () => {
+		const css = formatStylesheet(palette, darkPalette, { as: 'tailwind-css' });
+		expect(css).toContain('@media (prefers-color-scheme: dark)');
 	});
 });
 

@@ -79,7 +79,7 @@ export function HextimatorStyle({
 		configure?.(builder);
 		const palette = builder.format({
 			...stable?.format,
-			as: 'css',
+			as: 'object',
 		});
 		return buildStyleContent(
 			palette,

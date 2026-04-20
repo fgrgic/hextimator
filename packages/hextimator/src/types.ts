@@ -305,13 +305,35 @@ export interface HextimateFormatOptions {
 	/**
 	 * Output format.
 	 * - "object" (default): { base: "#f2eee8", "base-strong": "#d4cfc8", ...}
-	 * - "css": { "--base": "#f2eee8", "--base-strong": "#d4cfc8", ...}
+	 * - "css": ready-to-paste CSS stylesheet string with `:root {}` and a dark-mode wrapper
 	 * - "tailwind": { base: { DEFAULT: "#f2eee8", strong: "#d4cfc8", weak: "#faf8f6" } }
 	 * - "scss": { $base: "#f2eee8", $base-strong: "#d4cfc8", ...}
 	 * - "json": '{ "base": "#f2eee8", "base-strong": "#d4cfc8", ...}'
-	 * - "tailwind-css": '@theme { --color-base: #f2eee8; --color-base-strong: #d4cfc8; ... }'
+	 * - "tailwind-css": Tailwind v4 stylesheet string with a single `@theme { ... }` block and dark-mode overrides
+	 *
+	 * Stylesheet outputs (`css`, `tailwind-css`) combine light + dark into one
+	 * string. Use `darkMode` to pick the strategy and `selector` (for `css`) to
+	 * change the root selector.
 	 */
 	as?: 'object' | 'css' | 'tailwind' | 'tailwind-css' | 'scss' | 'json';
+
+	/**
+	 * Dark-mode strategy for stylesheet outputs (`as: 'css'`, `as: 'tailwind-css'`).
+	 * Ignored for every other output format.
+	 *
+	 * - `'media'` (default): wraps dark tokens in `@media (prefers-color-scheme: dark)`
+	 * - `'class'`: dark tokens apply under `.dark` (and descendants)
+	 * - `'data-attribute'`: dark tokens apply under `[data-theme="dark"]`
+	 * - `false`: omit dark tokens entirely (light-only output)
+	 */
+	darkMode?: 'media' | 'class' | 'data-attribute' | false;
+
+	/**
+	 * Selector for the root rule in `as: 'css'` output. Default: `':root'`.
+	 *
+	 * Ignored for `as: 'tailwind-css'` (Tailwind v4's `@theme` is always root-scoped).
+	 */
+	selector?: string;
 
 	/**
 	 * How color values are serialized in the output.

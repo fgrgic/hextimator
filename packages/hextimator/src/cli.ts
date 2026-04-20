@@ -40,7 +40,9 @@ Presets:
 Format options:
   -f, --format <type>         css | object | tailwind | tailwind-css | scss | json  (default: css)
   -c, --colors <type>         hex | rgb | hsl | oklch | p3 and -raw variants        (default: hex)
-  -t, --theme <type>          light | dark | both                                   (default: both)
+  -t, --theme <type>          light | dark | both  (ignored for css/tailwind-css)   (default: both)
+      --dark-mode <strategy>  media | class | data-attribute | off  (css/tailwind-css only, default: media)
+      --selector <css>        Root selector for css output                           (default: :root)
       --separator <char>      Token separator                                       (default: -)
       --exclude-role <name>   Omit a role from output (repeatable)
       --exclude-variant <name> Omit a variant from output (repeatable)
@@ -99,6 +101,8 @@ function run(): void {
 			format: { type: 'string', short: 'f' },
 			colors: { type: 'string', short: 'c' },
 			theme: { type: 'string', short: 't', default: 'both' },
+			'dark-mode': { type: 'string' },
+			selector: { type: 'string' },
 			separator: { type: 'string' },
 			'exclude-role': { type: 'string', multiple: true },
 			'exclude-variant': { type: 'string', multiple: true },
@@ -301,12 +305,30 @@ function run(): void {
 	if (values['exclude-variant']?.length) {
 		formatOptions.excludeVariants = values['exclude-variant'];
 	}
+	if (values['dark-mode']) {
+		const dm = values['dark-mode'];
+		if (dm === 'off' || dm === 'false') {
+			formatOptions.darkMode = false;
+		} else if (dm === 'media' || dm === 'class' || dm === 'data-attribute') {
+			formatOptions.darkMode = dm;
+		} else {
+			console.error(
+				`Error: invalid --dark-mode "${dm}". Expected: media | class | data-attribute | off`,
+			);
+			process.exit(1);
+		}
+	}
+	if (values.selector) {
+		formatOptions.selector = values.selector;
+	}
 
 	const result = builder.format(formatOptions);
 	const themeFilter = values.theme as string;
 
 	let output: string;
-	if (themeFilter === 'light') {
+	if (typeof result === 'string') {
+		output = result;
+	} else if (themeFilter === 'light') {
 		output = serialize(result.light);
 	} else if (themeFilter === 'dark') {
 		output = serialize(result.dark);

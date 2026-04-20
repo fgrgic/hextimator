@@ -64,10 +64,23 @@ describe('HextimatePaletteBuilder: construction', () => {
 // 2. format() output formats
 // ──────────────────────────────────────────────
 describe('HextimatePaletteBuilder: format()', () => {
-	it('css format prefixes keys with --', () => {
+	it('css format returns a ready-to-paste stylesheet string', () => {
 		const result = hextimate('#ff6600').format({ as: 'css' });
-		const keys = Object.keys(result.light);
-		expect(keys.every((k) => k.startsWith('--'))).toBe(true);
+		expect(typeof result).toBe('string');
+		expect(result).toContain(':root {');
+		expect(result).toContain('--base:');
+		expect(result).toContain('@media (prefers-color-scheme: dark)');
+	});
+
+	it('css format respects darkMode and selector options', () => {
+		const result = hextimate('#ff6600').format({
+			as: 'css',
+			darkMode: 'class',
+			selector: '[data-root]',
+		});
+		expect(result).toContain('[data-root] {');
+		expect(result).toContain('.dark {');
+		expect(result).not.toContain('@media');
 	});
 
 	it('scss format prefixes keys with $', () => {
@@ -91,10 +104,12 @@ describe('HextimatePaletteBuilder: format()', () => {
 		expect(() => JSON.parse(result.light as string)).not.toThrow();
 	});
 
-	it('tailwind-css format returns a string', () => {
+	it('tailwind-css format returns a single combined stylesheet string', () => {
 		const result = hextimate('#ff6600').format({ as: 'tailwind-css' });
-		expect(typeof result.light).toBe('string');
-		expect(result.light as string).toContain('@theme');
+		expect(typeof result).toBe('string');
+		expect(result).toContain('@theme {');
+		expect(result).toContain('--color-base:');
+		expect(result.match(/@theme/g) ?? []).toHaveLength(1);
 	});
 
 	it('hex color format outputs hex values', () => {
@@ -700,11 +715,11 @@ describe('HextimatePaletteBuilder: preset()', () => {
 
 	it('preset format defaults are used when no format options given', () => {
 		const result = hextimate('#6366f1').preset(customPreset).format();
-		const keys = Object.keys(result.light);
-		// Preset sets as: 'css', so keys should have --
-		expect(keys.some((k) => k.startsWith('--'))).toBe(true);
-		// Preset renames accent → primary
-		expect(keys).toContain('--primary');
+		// Preset sets as: 'css' → full stylesheet string with `:root` wrapper
+		expect(typeof result).toBe('string');
+		expect(result).toContain(':root {');
+		// Preset renames accent → primary; declarations use `--primary`
+		expect(result).toContain('--primary:');
 	});
 
 	it('format options override preset defaults', () => {

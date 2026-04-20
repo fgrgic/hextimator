@@ -1,4 +1,5 @@
 import { createContext } from 'react';
+import type { FlatTokenMap } from '../format';
 import type {
 	HextimatePaletteBuilder,
 	HextimateResult,
@@ -31,8 +32,8 @@ export interface HextimatorContextValue {
 	setConfigure: (
 		fn: ((builder: HextimatePaletteBuilder) => void) | undefined,
 	) => void;
-	/** Generated `{ light, dark }` palette. */
-	palette: HextimateResult;
+	/** Generated `{ light, dark }` palette as flat token maps (e.g. `{ base: '#...', 'base-strong': '#...' }`). */
+	palette: HextimateResult<FlatTokenMap>;
 	/** Underlying palette builder. Nested scopes fork from it. */
 	builder: HextimatePaletteBuilder;
 }
