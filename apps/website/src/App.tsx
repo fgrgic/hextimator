@@ -103,7 +103,7 @@ function App() {
 					<PlaygroundSection />
 					<Section
 						title="Get started"
-						description="Add hextimator to your project and start building your theme."
+						description="Add hextimator to your project and start building your theme. Use it for B2B2C SaaS, white-label platforms, no-code builders, CMS themes, multi-brand design systems."
 					>
 						<GetStarted />
 					</Section>
