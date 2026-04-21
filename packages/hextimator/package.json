@@ -1,7 +1,7 @@
 {
 	"name": "hextimator",
 	"version": "0.5.0",
-	"description": "Generate perceptually uniform color palettes with light/dark themes and WCAG contrast guarantees from a single brand color. Outputs CSS vars, Tailwind, SCSS, or JSON.",
+	"description": "Runtime theming for multi-tenant apps: per-tenant branded themes from a single brand color, with WCAG contrast guarantees.",
 	"keywords": [
 		"color",
 		"palette",
