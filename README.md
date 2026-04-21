@@ -36,7 +36,22 @@ document.getElementById("tenant-theme").textContent = tenantTheme;
 
 That's the integration. Swap the color, the theme regenerates at runtime, and the UI stays readable.
 
-Using React? Even easier:
+## Quick start
+
+```bash
+npm install hextimator
+```
+
+### One-off theme
+
+```typescript
+import { hextimate } from "hextimator";
+
+const theme = hextimate("#6A5ACD").format();
+// theme.light / theme.dark each contain your full theme tokens
+```
+
+### Multi-tenant app with React
 
 ```jsx
 <HextimatorProvider defaultColor={tenant.brandColor}>
@@ -45,19 +60,6 @@ Using React? Even easier:
 ```
 
 See full React integration guide [here](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/react.md).
-
-## Quick start
-
-```bash
-npm install hextimator
-```
-
-```typescript
-import { hextimate } from "hextimator";
-
-const theme = hextimate("#6A5ACD").format();
-// theme.light / theme.dark each contain your full theme tokens
-```
 
 ## Documentation
 

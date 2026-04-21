@@ -54,19 +54,37 @@ Add to your project:
 npm i hextimator
 ```
 
-Or quickly get a one-off theme:
+**Using tailwind?**
+make sure to include
 
-```bash
-npx hextimator "#C0FFEE"
+```css
+@import "hextimator/tailwind.css";
 ```
 
+in your `index.css`
+
 ## Quick start
+
+```bash
+npm install hextimator
+```
 
 ```typescript
 import { hextimate } from "hextimator";
 
-const theme = hextimate("#C0FFEE").format();
+const theme = hextimate("#6A5ACD").format();
+// theme.light / theme.dark each contain your full theme tokens
 ```
+
+### Multi-tenant app with React
+
+```jsx
+<HextimatorProvider defaultColor={tenant.brandColor}>
+  <App />
+</HextimatorProvider>
+```
+
+See full React integration guide [here](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/react.md).
 
 ### With presets
 
@@ -204,6 +222,22 @@ import { parseColor, convertColor } from "hextimator";
 const color = parseColor("rgb(255, 102, 102)");
 const oklch = convertColor(color, "oklch");
 ```
+
+## CLI
+
+Quickly get one-off themes from the terminal:
+
+```sh
+npx hextimate "#ff6677";
+```
+
+Get the full help running:
+
+```
+npx hextimate -h
+```
+
+> Note: `hextimate` and `hextimator` are the same CLI; pick whichever you like typing.
 
 ## React
 
