@@ -101,7 +101,7 @@ export function Hero() {
 				</span>
 				<LongArrowRightDown className="size-4" strokeWidth={1} />
 			</div>
-			<h1 className="sr-only">Hextimator: one color in, whole theme out</h1>
+			<h1 className="sr-only">Hextimator: one color in, branded theme out</h1>
 			<div className="flex flex-col items-center">
 				<div className="flex flex-row gap-1 font-light text-4xl">
 					<span aria-hidden>One</span>
