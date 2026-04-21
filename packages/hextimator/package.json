@@ -51,6 +51,10 @@
 			"types": "./dist/react.d.ts",
 			"import": "./dist/react.js"
 		},
+		"./presets": {
+			"types": "./dist/presets.d.ts",
+			"import": "./dist/presets.js"
+		},
 		"./cli": "./dist/cli.js",
 		"./tailwind.css": "./tailwind.css",
 		"./fallback.css": "./fallback.css"
