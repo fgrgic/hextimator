@@ -1,6 +1,10 @@
-## 0.5.0 (Latest)
+## 0.5.1 (Latest)
 
-- [#108](https://github.com/fgrgic/hextimator/pull/106) **Breaking.** `.format({ as: "css" })` and `.format({ as: "tailwind-css" })` now return a ready-to-paste stylesheet **string** instead of a `{ light, dark }` map of CSS variable objects. Both themes are combined into one output and wrapped for dark mode according to the new `darkMode` option.
+- [#110](https://github.com/fgrgic/hextimator/pull/110): Add ./presets as a dedicated subpath export so `import { tinted } from 'hextimator/presets'` works
+
+## 0.5.0
+
+- [#108](https://github.com/fgrgic/hextimator/pull/108) **Breaking.** `.format({ as: "css" })` and `.format({ as: "tailwind-css" })` now return a ready-to-paste stylesheet **string** instead of a `{ light, dark }` map of CSS variable objects. Both themes are combined into one output and wrapped for dark mode according to the new `darkMode` option.
 
   ```ts
   // Before (0.4)
