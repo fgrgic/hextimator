@@ -34,9 +34,9 @@ For one-off tokens that don't need a full scale. Every token is derived from the
 
 ```typescript
 hextimate("#6A5ACD")
-  .addToken("border", { from: "base.weak", lightness: -0.05 })
+  .addToken("border", { from: "surface.weak", lightness: -0.05 })
   .addToken("ring", { from: "accent" })
-  .addToken("placeholder", { from: "base.foreground", lightness: +0.3 })
+  .addToken("placeholder", { from: "surface.foreground", lightness: +0.3 })
   .format({ as: "css" });
 // Adds: --border, --ring, --placeholder
 ```
@@ -45,7 +45,7 @@ You can also pass a raw color value instead of deriving from the palette:
 
 ```typescript
 .addToken("brand-exact", "#FF6600")
-.addToken("surface", {
+.addToken("page", {
   light: "#ffffff",
   dark: "#1a1a1a",
 })
@@ -55,8 +55,8 @@ When light and dark themes need different directions:
 
 ```typescript
 .addToken("border", {
-  light: { from: "base.weak", lightness: -0.05 },
-  dark: { from: "base.weak", lightness: +0.05 },
+  light: { from: "surface.weak", lightness: -0.05 },
+  dark: { from: "surface.weak", lightness: +0.05 },
 })
 ```
 
@@ -66,6 +66,6 @@ The `addToken` can be used to override any generated token from the palette as w
 
 ```typescript
 hextimate("#6A5ACD")
-  .addToken("base-strong", "#fafafa") // overrides the generated --base-strong at formatting time
+  .addToken("surface-strong", "#fafafa") // overrides the generated --surface-strong at formatting time
   .format({ as: "css" });
 ```

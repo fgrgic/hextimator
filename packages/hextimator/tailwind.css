@@ -3,10 +3,10 @@
 	--color-accent-strong: var(--accent-strong);
 	--color-accent-weak: var(--accent-weak);
 	--color-accent-foreground: var(--accent-foreground);
-	--color-base: var(--base);
-	--color-base-strong: var(--base-strong);
-	--color-base-weak: var(--base-weak);
-	--color-base-foreground: var(--base-foreground);
+	--color-surface: var(--surface);
+	--color-surface-strong: var(--surface-strong);
+	--color-surface-weak: var(--surface-weak);
+	--color-surface-foreground: var(--surface-foreground);
 	--color-positive: var(--positive);
 	--color-positive-strong: var(--positive-strong);
 	--color-positive-weak: var(--positive-weak);

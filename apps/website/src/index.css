@@ -88,7 +88,7 @@ html {
 }
 
 body {
-	background-color: var(--color-base);
+	background-color: var(--color-surface);
 }
 
 .cm-editor,

@@ -8,7 +8,7 @@ Since hextimator works at runtime, you can change the input color at any time an
 const theme = hextimate(userColor)
   .style({
     minContrastRatio: "AAA",
-    baseColor: "#FFFDF4",
+    surfaceColor: "#FFFDF4",
   })
   .format({ as: "css" });
 
@@ -16,7 +16,7 @@ const theme = hextimate(userColor)
 const updated = hextimate(newColor)
   .style({
     minContrastRatio: "AAA",
-    baseColor: "#FFFDF4",
+    surfaceColor: "#FFFDF4",
   })
   .format({ as: "css" });
 ```
@@ -26,12 +26,12 @@ const updated = hextimate(newColor)
 When you need multiple predefined themes that share the same structure — same roles, variants, tokens, and format options — but differ in color or style options, use `.fork()` to avoid duplicating the entire chain. Change style on a fork with `.style()`.
 
 ```typescript
-const base = hextimate("#52FE8C")
+const builder = hextimate("#52FE8C")
   .style({
     minContrastRatio: "AAA",
-    baseMaxChroma: 0.03,
-    baseColor: "#FEBA5D",
-    invertDarkModeBaseAccent: true,
+    surfaceMaxChroma: 0.03,
+    surfaceColor: "#FEBA5D",
+    invertDarkModeSurfaceAccent: true,
     light: { lightness: 0.6 },
   })
   .addRole("banner", "#ff006e")
@@ -44,14 +44,14 @@ const base = hextimate("#52FE8C")
 Then extend with `.fork()`:
 
 ```ts
-const warm = base.fork("#ff6677");
-const cool = base.fork("#3a86ff").style({ invertDarkModeBaseAccent: false });
-const muted = base.fork().style({ baseMaxChroma: 0.01, light: { lightness: 0.7 } });
+const warm = builder.fork("#ff6677");
+const cool = builder.fork("#3a86ff").style({ invertDarkModeSurfaceAccent: false });
+const muted = builder.fork().style({ surfaceMaxChroma: 0.01, light: { lightness: 0.7 } });
 
-const extended = base
+const extended = builder
   .fork("#ff6677")
   .addRole("extra", "#00cccc")
-  .addToken("divider", { from: "base.weak", lightness: -0.03 });
+  .addToken("divider", { from: "surface.weak", lightness: -0.03 });
 ```
 
 `.fork()` replays all recorded builder operations on a fresh builder. The original builder is not modified.

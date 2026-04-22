@@ -43,7 +43,7 @@ export function BentoCard({
 				} as React.CSSProperties
 			}
 			className={cn(
-				'group relative flex flex-col gap-4 rounded-xl border border-base-weak bg-base-strong hover:border-base hover:shadow-lg p-6 -mx-2 md:mx-0 text-base-foreground overflow-hidden hover:[transform:rotate(var(--card-rotation))]',
+				'group relative flex flex-col gap-4 rounded-xl border border-surface-weak bg-surface-strong hover:border-surface hover:shadow-lg p-6 -mx-2 md:mx-0 text-surface-foreground overflow-hidden hover:[transform:rotate(var(--card-rotation))]',
 				spanClasses[span],
 				rest.className,
 			)}

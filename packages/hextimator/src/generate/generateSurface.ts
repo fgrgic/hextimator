@@ -14,43 +14,50 @@ const STRONG_DELTA_LIGHT = 0.02;
 const WEAK_DELTA_DARK = 0.1;
 const WEAK_DELTA_LIGHT = -0.03;
 
-export function generateBase(
+export function generateSurface(
 	color: Color,
 	themeType: ThemeType,
 	options?: GenerateOptions,
 ): ColorScale {
-	const invertBaseAndAccent =
-		themeType === 'dark' && options?.invertDarkModeBaseAccent;
+	const invertSurfaceAndAccent =
+		themeType === 'dark' && options?.invertDarkModeSurfaceAccent;
 
-	const preferredBaseColorInput = invertBaseAndAccent
-		? (color ?? options?.baseColor)
-		: (options?.baseColor ?? color);
+	const preferredSurfaceColorInput = invertSurfaceAndAccent
+		? (color ?? options?.surfaceColor)
+		: (options?.surfaceColor ?? color);
 
 	const themeAdjustments =
 		themeType === 'light' ? options?.light : options?.dark;
-	const baselineMaxChroma =
-		themeAdjustments?.baseMaxChroma ??
-		options?.baseMaxChroma ??
+	const surfaceMaxChroma =
+		themeAdjustments?.surfaceMaxChroma ??
+		options?.surfaceMaxChroma ??
 		BASELINE_MAX_CHROMA;
 
-	const preferredBaseColor = convert(parse(preferredBaseColorInput), 'oklch');
+	const preferredSurfaceColor = convert(
+		parse(preferredSurfaceColorInput),
+		'oklch',
+	);
 
-	let baseHue = preferredBaseColor.h;
-	const baseChroma = Math.min(preferredBaseColor.c, baselineMaxChroma);
+	let surfaceHue = preferredSurfaceColor.h;
+	const surfaceChroma = Math.min(preferredSurfaceColor.c, surfaceMaxChroma);
 
-	const baseHueShift = options?.baseHueShift ?? 0;
-	if (baseHueShift !== 0 && !options?.baseColor && !invertBaseAndAccent) {
-		baseHue = wrapHue(convert(color, 'oklch').h + baseHueShift);
+	const surfaceHueShift = options?.surfaceHueShift ?? 0;
+	if (
+		surfaceHueShift !== 0 &&
+		!options?.surfaceColor &&
+		!invertSurfaceAndAccent
+	) {
+		surfaceHue = wrapHue(convert(color, 'oklch').h + surfaceHueShift);
 	}
 
-	const normalizedPreferredBaseColor = {
-		...preferredBaseColor,
-		h: baseHue,
-		c: baseChroma,
+	const normalizedPreferredSurfaceColor = {
+		...preferredSurfaceColor,
+		h: surfaceHue,
+		c: surfaceChroma,
 		l: themeType === 'light' ? BASELINE_LIGHT_L_VALUE : BASELINE_DARK_L_VALUE,
 	};
 
-	return expandColorToScale(normalizedPreferredBaseColor, themeType, {
+	return expandColorToScale(normalizedPreferredSurfaceColor, themeType, {
 		baselineLValueDark: BASELINE_DARK_L_VALUE,
 		baselineLValueLight: BASELINE_LIGHT_L_VALUE,
 		strongDeltaDark: STRONG_DELTA_DARK,

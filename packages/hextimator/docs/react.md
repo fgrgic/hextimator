@@ -4,7 +4,7 @@ hextimator’s React entry (`hextimator/react`) turns a brand color into light/d
 
 There are two ways to wire it up:
 
-- **`HextimatorProvider`** — React context for the base color (single or per-mode), dark-mode preference, and builder configuration. Injects the stylesheet into `document.head` (or a `target` ref). Child components use **`useHextimatorTheme()`** to read or update that state.
+- **`HextimatorProvider`** — React context for the brand color (single or per-mode), dark-mode preference, and builder configuration. Injects the stylesheet into `document.head` (or a `target` ref). Child components use **`useHextimatorTheme()`** to read or update that state.
 
 - **`useHextimator`** or **`HextimatorStyle`** — no context. They only compute the palette and emit CSS: the hook uses `useEffect` plus `document.head` or a `target` ref; the component renders a `<style>` node. There is no `useHextimatorTheme()`; you pass **`color`** and an optional options object (`style`, `darkMode`, `format`, …). That mirrors the core builder API: **`hextimate(color)`** only takes the color, and palette tuning uses **`.style()`** on the builder (here exposed as the hook/component **`style`** prop).
 
@@ -95,12 +95,12 @@ For a forced override (URL-driven theme, server push), remount with `key={color}
 
 ### Avoiding flash on first paint (FOUC)
 
-The provider injects its `<style>` tag in `useEffect`, which runs after the first paint. On a fresh page load this means there is a brief moment where the user sees the *default* theme before their persisted color takes effect. How visible this is depends on your setup:
+The provider injects its `<style>` tag in `useEffect`, which runs after the first paint. On a fresh page load this means there is a brief moment where the user sees the _default_ theme before their persisted color takes effect. How visible this is depends on your setup:
 
 **SPA (Vite, CRA)**: in practice the gap is one frame, because your `<App>` doesn't render anything meaningful until JS loads anyway. To avoid the flash entirely:
 
-1. Read storage *synchronously* in a lazy initializer (the `useMemo(() => load(), [])` pattern above) so `defaultColor` is already the persisted value on the very first render.
-2. Optionally include `hextimator/fallback.css` in your bundle so `--accent`, `--base`, etc. have neutral fallback values before any `<style>` is injected — prevents *invisible* (white-on-white) UI in the gap.
+1. Read storage _synchronously_ in a lazy initializer (the `useMemo(() => load(), [])` pattern above) so `defaultColor` is already the persisted value on the very first render.
+2. Optionally include `hextimator/fallback.css` in your bundle so `--accent`, `--surface`, etc. have neutral fallback values before any `<style>` is injected — prevents _invisible_ (white-on-white) UI in the gap.
 
 **SSR (Next.js, Remix)**: localStorage is unavailable on the server. Persist the color in a **cookie** instead, read it in your server layout, and render a server-side `<HextimatorStyle>` so the HTML response already includes the correct palette:
 
@@ -115,7 +115,7 @@ export default async function RootLayout({ children }) {
   const color = initial.color ?? "#6A5ACD";
 
   return (
-    <html lang="en">
+    <html lang='en'>
       <head>
         {/* Server-rendered: present in the initial HTML, no flash. */}
         <HextimatorStyle color={color} darkMode={{ type: "class" }} />
@@ -138,7 +138,7 @@ export default async function RootLayout({ children }) {
 
 The provider still mounts client-side and takes over once hydrated, but the initial paint is already correct.
 
-**Mode flicker is a separate concern**: when `defaultMode` is `"system"`, the resolved mode depends on `window.matchMedia` which only exists client-side. If you store the user's *resolved* mode in a cookie too, you can server-render the right `class="dark"` on `<html>` and avoid a light → dark flash. This is the standard `next-themes` approach.
+**Mode flicker is a separate concern**: when `defaultMode` is `"system"`, the resolved mode depends on `window.matchMedia` which only exists client-side. If you store the user's _resolved_ mode in a cookie too, you can server-render the right `class="dark"` on `<html>` and avoid a light → dark flash. This is the standard `next-themes` approach.
 
 ## `useHextimator` without a provider
 
@@ -246,7 +246,7 @@ Namespace CSS variables to avoid collisions with other libraries:
 
 ```typescript
 useHextimator("#6A5ACD", { cssPrefix: "ht-" });
-// → --ht-accent, --ht-base, etc.
+// → --ht-accent, --ht-surface, etc.
 ```
 
 ## Scoping themes
@@ -291,7 +291,7 @@ function App() {
       <main>
         <Card />
         <HextimatorScope defaultColor='#0D9488' darkMode={{ type: "class" }}>
-          <Card /> {/* same roles/variants as root, different base color */}
+          <Card /> {/* same roles/variants as root, different brand color */}
         </HextimatorScope>
       </main>
     </HextimatorProvider>
@@ -321,7 +321,7 @@ useHextimator("#6A5ACD", {
     builder
       .addRole("cta", "#EE2244")
       .addVariant("hover", { from: "strong" })
-      .addToken("border", { from: "base.weak", lightness: -0.05 });
+      .addToken("border", { from: "surface.weak", lightness: -0.05 });
   },
 });
 ```
@@ -336,7 +336,7 @@ function App() {
   useHextimator(color);
 
   return (
-    <div className="bg-base text-base-foreground">
+    <div className="bg-surface text-surface-foreground">
       <input type="color" value={color} onChange={(e) => setColor(e.target.value)} />
       {/* Everything re-themes instantly */}
     </div>
@@ -346,39 +346,39 @@ function App() {
 
 ## Hook options reference
 
-| Option       | Type                                                   | Default             | Description                                                   |
-| ------------ | ------------------------------------------------------ | ------------------- | ------------------------------------------------------------- |
-| `darkMode`   | `{ type: "media" \| "class" \| "data", ... } \| false` | `{ type: "media" }` | Dark mode strategy                                            |
-| `cssPrefix`  | `string`                                               | `""`                | Prefix for CSS variable names                                 |
-| `target`     | `RefObject<HTMLElement>`                               | —                   | Scope vars to an element instead of injecting a `<style>` tag |
-| `style` | `HextimateStyleOptions`                           | —                   | Palette style options                                    |
-| `format`     | `Omit<HextimateFormatOptions, "as">`                   | —                   | Color serialization options                                   |
-| `configure`  | `(builder) => void`                                    | —                   | Access the builder to add roles, variants, or tokens          |
+| Option      | Type                                                   | Default             | Description                                                   |
+| ----------- | ------------------------------------------------------ | ------------------- | ------------------------------------------------------------- |
+| `darkMode`  | `{ type: "media" \| "class" \| "data", ... } \| false` | `{ type: "media" }` | Dark mode strategy                                            |
+| `cssPrefix` | `string`                                               | `""`                | Prefix for CSS variable names                                 |
+| `target`    | `RefObject<HTMLElement>`                               | —                   | Scope vars to an element instead of injecting a `<style>` tag |
+| `style`     | `HextimateStyleOptions`                                | —                   | Palette style options                                         |
+| `format`    | `Omit<HextimateFormatOptions, "as">`                   | —                   | Color serialization options                                   |
+| `configure` | `(builder) => void`                                    | —                   | Access the builder to add roles, variants, or tokens          |
 
 ## `HextimatorStyle` props
 
-| Prop         | Type                                 | Default             | Description                         |
-| ------------ | ------------------------------------ | ------------------- | ----------------------------------- |
-| `color`      | `string`                             | (required)          | Base color                          |
-| `darkMode`   | same as hook                         | `{ type: "media" }` | Dark mode strategy                  |
-| `cssPrefix`  | `string`                             | `""`                | Variable prefix                     |
-| `selector`   | `string`                             | `":root"`           | CSS selector for the variable block |
-| `style` | `HextimateStyleOptions`         | —                   | Style options                  |
-| `format`     | `Omit<HextimateFormatOptions, "as">` | —                   | Format options                      |
-| `configure`  | `(builder) => void`                  | —                   | Builder callback                    |
+| Prop        | Type                                 | Default             | Description                         |
+| ----------- | ------------------------------------ | ------------------- | ----------------------------------- |
+| `color`     | `string`                             | (required)          | Brand color                         |
+| `darkMode`  | same as hook                         | `{ type: "media" }` | Dark mode strategy                  |
+| `cssPrefix` | `string`                             | `""`                | Variable prefix                     |
+| `selector`  | `string`                             | `":root"`           | CSS selector for the variable block |
+| `style`     | `HextimateStyleOptions`              | —                   | Style options                       |
+| `format`    | `Omit<HextimateFormatOptions, "as">` | —                   | Format options                      |
+| `configure` | `(builder) => void`                  | —                   | Builder callback                    |
 
 ## `HextimatorScope` props
 
-| Prop           | Type                                 | Default             | Description                               |
-| -------------- | ------------------------------------ | ------------------- | ----------------------------------------- |
-| `defaultColor` | `string \| { light, dark }`          | (required)          | Base color for this subtree (string sets both modes equal) |
-| `darkMode`     | same as hook                         | `{ type: "media" }` | Should match root strategy for class/data |
-| `cssPrefix`    | `string`                             | `""`                | Variable prefix                           |
-| `style`   | `HextimateStyleOptions`         | —                   | Merged with `.style()` after `fork()`            |
-| `format`       | `Omit<HextimateFormatOptions, "as">` | —                   | Format for this subtree’s palette         |
-| `configure`    | `(builder) => void`                  | —                   | Applied after fork (extra tokens, etc.)   |
-| `className`    | `string`                             | —                   | On the wrapper `div`                      |
-| `wrapperStyle` | `CSSProperties`                      | —                   | Inline styles on the wrapper `div`        |
+| Prop           | Type                                 | Default             | Description                                                |
+| -------------- | ------------------------------------ | ------------------- | ---------------------------------------------------------- |
+| `defaultColor` | `string \| { light, dark }`          | (required)          | Brand color for this subtree (string sets both modes equal) |
+| `darkMode`     | same as hook                         | `{ type: "media" }` | Should match root strategy for class/data                  |
+| `cssPrefix`    | `string`                             | `""`                | Variable prefix                                            |
+| `style`        | `HextimateStyleOptions`              | —                   | Merged with `.style()` after `fork()`                      |
+| `format`       | `Omit<HextimateFormatOptions, "as">` | —                   | Format for this subtree’s palette                          |
+| `configure`    | `(builder) => void`                  | —                   | Applied after fork (extra tokens, etc.)                    |
+| `className`    | `string`                             | —                   | On the wrapper `div`                                       |
+| `wrapperStyle` | `CSSProperties`                      | —                   | Inline styles on the wrapper `div`                         |
 
 ## Provider options and `useHextimatorTheme`
 
@@ -416,28 +416,28 @@ function ThemePicker() {
 }
 ```
 
-| Field                       | Description                                                            |
-| --------------------------- | ---------------------------------------------------------------------- |
-| `color`                     | Color active for the resolved mode (`lightColor` in light, `darkColor` in dark) |
-| `setColor(color)`           | Sets both `lightColor` and `darkColor` — palette regenerates           |
-| `lightColor` / `setLightColor` | Color used to generate the light-mode palette                       |
-| `darkColor` / `setDarkColor`   | Color used to generate the dark-mode palette                        |
-| `mode`                      | Resolved mode (`'light'` or `'dark'`)                                  |
-| `modePreference`            | Raw preference (`'light'`, `'dark'`, or `'system'`)                    |
-| `setMode(pref)`             | Update the mode preference                                             |
-| `style` / `setStyle`        | Style options                                                          |
-| `presets` / `setPresets`    | Active presets array                                                   |
-| `configure` / `setConfigure` | Builder configure function (e.g. toggle CVD adaptation)               |
-| `palette`                   | The current formatted palette result                                   |
-| `builder`                   | Current `HextimatePaletteBuilder` (forked by nested scopes)            |
+| Field                          | Description                                                                     |
+| ------------------------------ | ------------------------------------------------------------------------------- |
+| `color`                        | Color active for the resolved mode (`lightColor` in light, `darkColor` in dark) |
+| `setColor(color)`              | Sets both `lightColor` and `darkColor` — palette regenerates                    |
+| `lightColor` / `setLightColor` | Color used to generate the light-mode palette                                   |
+| `darkColor` / `setDarkColor`   | Color used to generate the dark-mode palette                                    |
+| `mode`                         | Resolved mode (`'light'` or `'dark'`)                                           |
+| `modePreference`               | Raw preference (`'light'`, `'dark'`, or `'system'`)                             |
+| `setMode(pref)`                | Update the mode preference                                                      |
+| `style` / `setStyle`           | Style options                                                                   |
+| `presets` / `setPresets`       | Active presets array                                                            |
+| `configure` / `setConfigure`   | Builder configure function (e.g. toggle CVD adaptation)                         |
+| `palette`                      | The current formatted palette result                                            |
+| `builder`                      | Current `HextimatePaletteBuilder` (forked by nested scopes)                     |
 
 ### Provider props
 
-| Prop                       | Type                                  | Default     | Description                                                  |
-| -------------------------- | ------------------------------------- | ----------- | ------------------------------------------------------------ |
-| `defaultColor`             | `string \| { light, dark }`           | (required)  | Initial color. String sets both modes equal.                 |
-| `defaultMode`              | `'light' \| 'dark' \| 'system'`       | `'system'`  | Initial mode preference                                      |
-| `onColorChange`            | `(next: { light, dark }) => void`     | —           | Fires on every color change. Use for persistence.            |
-| `onModePreferenceChange`   | `(mode) => void`                      | —           | Fires on every mode change. Use for persistence.             |
-| `darkMode`                 | `{ type: 'media' \| 'class' \| 'data', ... } \| false` | `{ type: 'media' }` | Dark mode strategy                  |
-| `style`, `presets`, `format`, `configure`, `cssPrefix`, `target` | (same as hook) | — | See hook options                              |
+| Prop                                                             | Type                                                   | Default             | Description                                       |
+| ---------------------------------------------------------------- | ------------------------------------------------------ | ------------------- | ------------------------------------------------- |
+| `defaultColor`                                                   | `string \| { light, dark }`                            | (required)          | Initial color. String sets both modes equal.      |
+| `defaultMode`                                                    | `'light' \| 'dark' \| 'system'`                        | `'system'`          | Initial mode preference                           |
+| `onColorChange`                                                  | `(next: { light, dark }) => void`                      | —                   | Fires on every color change. Use for persistence. |
+| `onModePreferenceChange`                                         | `(mode) => void`                                       | —                   | Fires on every mode change. Use for persistence.  |
+| `darkMode`                                                       | `{ type: 'media' \| 'class' \| 'data', ... } \| false` | `{ type: 'media' }` | Dark mode strategy                                |
+| `style`, `presets`, `format`, `configure`, `cssPrefix`, `target` | (same as hook)                                         | —                   | See hook options                                  |

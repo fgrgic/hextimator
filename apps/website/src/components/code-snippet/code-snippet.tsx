@@ -44,7 +44,7 @@ export function CodeSnippet({
 	}, [activeCode]);
 
 	return (
-		<div className={`bg-base-strong ${className ?? ''}`.trim()}>
+		<div className={`bg-surface-strong ${className ?? ''}`.trim()}>
 			{tabs && (
 				<div className="flex gap-1">
 					{tabs.map((tab, i) => (
@@ -54,8 +54,8 @@ export function CodeSnippet({
 							onClick={() => setActiveTab(i)}
 							className={`cursor-pointer rounded-t-sm px-3 py-1.5 font-mono transition-colors ${
 								i === activeTab
-									? 'bg-base-weak text-base-foreground'
-									: 'text-base-foreground hover:bg-base'
+									? 'bg-surface-weak text-surface-foreground'
+									: 'text-surface-foreground hover:bg-surface'
 							}`}
 						>
 							{tab.label}
@@ -65,7 +65,7 @@ export function CodeSnippet({
 			)}
 			<div
 				className={cn(
-					'group relative px-4 py-2.5 font-mono bg-base-weak text-base-foreground',
+					'group relative px-4 py-2.5 font-mono bg-surface-weak text-surface-foreground',
 					tabs && activeTab === 0 ? 'rounded-sm rounded-tl-none' : 'rounded-sm',
 				)}
 			>
@@ -88,7 +88,7 @@ export function CodeSnippet({
 				<button
 					type="button"
 					onClick={copy}
-					className="absolute top-2.5 right-4 cursor-pointer text-base-foreground opacity-0 transition-opacity hover:text-base-foreground group-hover:opacity-100"
+					className="absolute top-2.5 right-4 cursor-pointer text-surface-foreground opacity-0 transition-opacity hover:text-surface-foreground group-hover:opacity-100"
 					aria-label="Copy to clipboard"
 				>
 					{copied ? (

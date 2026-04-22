@@ -43,11 +43,11 @@ Desaturated, restrained palette. Caps accent chroma and pulls foreground colors 
 
 `vibrant`
 
-High-saturation palette with complementary tinted neutrals. Pushes chroma up, adds a slight hue shift across variants, and uses a complementary base hue. Think Figma, Spotify.
+High-saturation palette with complementary tinted neutrals. Pushes chroma up, adds a slight hue shift across variants, and uses a complementary surface hue. Think Figma, Spotify.
 
 `tinted`
 
-Neutrals pick up the accent hue for a cohesive, branded feel. Bumps base chroma and foreground chroma so backgrounds and text carry visible color instead of pure gray.
+Neutrals pick up the accent hue for a cohesive, branded feel. Bumps surface chroma and foreground chroma so backgrounds and text carry visible color instead of pure gray.
 
 ## Chaining presets
 
@@ -65,14 +65,14 @@ const theme = hextimate("#6366F1")
 - **Preset `style`**: nested keys `light`, `dark`, `semanticColors`, and `semanticColorRanges` shallow-merge per key; other keys overwrite. Later presets override earlier ones for the same key.
 - **Roles, variants, tokens**: concatenated (additive). A second preset never drops tokens from a previous one.
 - **Format options**: deep-merged. `roleNames` and `variantNames` are merged individually.
-- **`.style()` after presets**: call `.style({ ... })` after `.preset(...)` to override overlapping style keys (for example, tighten `baseMaxChroma` after chaining style presets).
+- **`.style()` after presets**: call `.style({ ... })` after `.preset(...)` to override overlapping style keys (for example, tighten `surfaceMaxChroma` after chaining style presets).
 
 ```typescript
 // Final .style() wins over preset style for the same keys
 const theme = hextimate("#6366F1")
   .preset(presets.tinted)
   .preset(presets.shadcn)
-  .style({ baseMaxChroma: 0.01 })
+  .style({ surfaceMaxChroma: 0.01 })
   .format();
 ```
 
@@ -102,7 +102,7 @@ const theme = hextimate("#6366F1")
   .preset(presets.muted)
   .preset(presets.shadcn)
   .addRole("cta", "#ee2244")
-  .addToken("sidebar-background", { from: "base.weak" })
+  .addToken("sidebar-background", { from: "surface.weak" })
   .format();
 ```
 
@@ -166,7 +166,7 @@ const myPreset: HextimatePreset = {
   // Style options (contrast, hue shifts, lightness, chroma)
   style: {
     minContrastRatio: "AA",
-    baseHueShift: 180,
+    surfaceHueShift: 180,
   },
 
   // Extra roles (each gets DEFAULT, strong, weak, foreground)
@@ -174,11 +174,11 @@ const myPreset: HextimatePreset = {
 
   // Standalone tokens
   tokens: [
-    { name: "foreground", value: { from: "base.foreground" } },
+    { name: "foreground", value: { from: "surface.foreground" } },
     {
       name: "border",
       value: {
-        from: "base",
+        from: "surface",
         emphasis: 0.1,
       },
     },
@@ -189,7 +189,7 @@ const myPreset: HextimatePreset = {
     as: "css",
     colors: "oklch",
     roleNames: {
-      base: "background",
+      surface: "background",
       accent: "primary",
     },
   },
@@ -230,7 +230,7 @@ const myPreset: HextimatePreset = {
   format: {
     as: "css",
     colors: "oklch",
-    roleNames: { base: "background", accent: "primary" },
+    roleNames: { surface: "background", accent: "primary" },
     // Drop roles and variants the preset doesn't map to anything
     excludeRoles: ["warning"],
     excludeVariants: ["strong", "weak"],

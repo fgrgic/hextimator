@@ -135,7 +135,7 @@ export function ColorPicker({
 			</Popover.Anchor>
 			<Popover.Portal>
 				<Popover.Content
-					className="rounded-xl bg-base-weak p-2 shadow-lg border border-base-strong z-50 flex flex-col gap-2 w-min"
+					className="rounded-xl bg-surface-weak p-2 shadow-lg border border-surface-strong z-50 flex flex-col gap-2 w-min"
 					sideOffset={8}
 					onOpenAutoFocus={(e) => e.preventDefault()}
 					onFocusOutside={(e) => e.preventDefault()}
@@ -159,7 +159,7 @@ export function ColorPicker({
 						/>
 						{hs && (
 							<div
-								className="absolute w-4 h-4 rounded-full border-2 border-base-weak shadow-md pointer-events-none -translate-x-1/2 -translate-y-1/2"
+								className="absolute w-4 h-4 rounded-full border-2 border-surface-weak shadow-md pointer-events-none -translate-x-1/2 -translate-y-1/2"
 								style={{
 									left: cursorX,
 									top: cursorY,
@@ -171,14 +171,14 @@ export function ColorPicker({
 					{showResume && (
 						<button
 							type="button"
-							className="flex items-center justify-center gap-1.5 text-xs text-base-foreground/70 hover:text-base-foreground cursor-pointer py-1 transition-colors"
+							className="flex items-center justify-center gap-1.5 text-xs text-surface-foreground/70 hover:text-surface-foreground cursor-pointer py-1 transition-colors"
 							onClick={onResume}
 						>
 							<PlaySolid width="0.6rem" />
 							Continue with random colors
 						</button>
 					)}
-					<Popover.Arrow className="fill-base-strong" />
+					<Popover.Arrow className="full-surface-strong" />
 				</Popover.Content>
 			</Popover.Portal>
 		</Popover.Root>

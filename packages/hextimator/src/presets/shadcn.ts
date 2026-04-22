@@ -26,41 +26,41 @@ import type { HextimatePreset } from './types';
 export const shadcn: HextimatePreset = {
 	tokens: [
 		// shadcn uses bare --foreground (not --background-foreground)
-		{ name: 'foreground', value: { from: 'base.foreground' } },
+		{ name: 'foreground', value: { from: 'surface.foreground' } },
 
 		// card / popover — same as background
-		{ name: 'card', value: { from: 'base' } },
-		{ name: 'card-foreground', value: { from: 'base.foreground' } },
-		{ name: 'popover', value: { from: 'base' } },
-		{ name: 'popover-foreground', value: { from: 'base.foreground' } },
+		{ name: 'card', value: { from: 'surface' } },
+		{ name: 'card-foreground', value: { from: 'surface.foreground' } },
+		{ name: 'popover', value: { from: 'surface' } },
+		{ name: 'popover-foreground', value: { from: 'surface.foreground' } },
 
 		// secondary — subtle contrast from background
-		{ name: 'secondary', value: { from: 'base' } },
-		{ name: 'secondary-foreground', value: { from: 'base.foreground' } },
+		{ name: 'secondary', value: { from: 'surface' } },
+		{ name: 'secondary-foreground', value: { from: 'surface.foreground' } },
 
 		// muted — similar to secondary, but with dimmer foreground
-		{ name: 'muted', value: { from: 'base' } },
+		{ name: 'muted', value: { from: 'surface' } },
 		{
 			name: 'muted-foreground',
 			value: {
-				from: 'base.foreground',
+				from: 'surface.foreground',
 				emphasis: -0.25,
 			},
 		},
 
 		// accent (shadcn meaning: subtle hover highlight, not the brand color)
-		{ name: 'accent', value: { from: 'base' } },
-		{ name: 'accent-foreground', value: { from: 'base.foreground' } },
+		{ name: 'accent', value: { from: 'surface' } },
+		{ name: 'accent-foreground', value: { from: 'surface.foreground' } },
 
 		// border / input
 		{
 			name: 'border',
-			value: { from: 'base', emphasis: +0.8 },
+			value: { from: 'surface', emphasis: +0.8 },
 		},
 		{
 			name: 'input',
 			value: {
-				from: 'base',
+				from: 'surface',
 				emphasis: +0.8,
 			},
 		},
@@ -79,7 +79,7 @@ export const shadcn: HextimatePreset = {
 		as: 'css',
 		colors: 'oklch',
 		roleNames: {
-			base: 'background',
+			surface: 'background',
 			accent: 'primary',
 			negative: 'destructive',
 			positive: 'success',

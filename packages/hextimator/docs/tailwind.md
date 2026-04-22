@@ -1,6 +1,6 @@
 # Tailwind CSS v4
 
-hextimator ships a ready-made CSS file that registers all built-in color tokens with Tailwind v4. This gives you utility classes like `bg-accent`, `text-base-foreground`, `border-negative`, etc.
+hextimator ships a ready-made CSS file that registers all built-in color tokens with Tailwind v4. This gives you utility classes like `bg-accent`, `text-surface-foreground`, `border-negative`, etc.
 
 ## Setup
 
@@ -27,7 +27,7 @@ export default defineConfig({
 @import "hextimator/tailwind.css";
 ```
 
-That's it. All 20 built-in tokens (accent, base, positive, negative, warning × DEFAULT/strong/weak/foreground) are available as Tailwind utilities.
+That's it. All 20 built-in tokens (accent, surface, positive, negative, warning × DEFAULT/strong/weak/foreground) are available as Tailwind utilities.
 
 ## How it works
 
@@ -41,7 +41,7 @@ That's it. All 20 built-in tokens (accent, base, positive, negative, warning × 
 }
 ```
 
-At runtime, you set the bare variables (`--accent`, `--base`, etc.) on any element — via JavaScript, inline styles, or the React hook — and Tailwind utilities resolve them automatically.
+At runtime, you set the bare variables (`--accent`, `--surface`, etc.) on any element — via JavaScript, inline styles, or the React hook — and Tailwind utilities resolve them automatically.
 
 The `inline` keyword means values are resolved where the class is applied, not at `:root`. This enables scoped theming — different parts of the page can have different brand colors.
 

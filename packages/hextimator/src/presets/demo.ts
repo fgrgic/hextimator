@@ -21,8 +21,8 @@ import type { HextimatePreset } from './types';
 export const demo: HextimatePreset = {
 	style: {
 		minContrastRatio: 'AA',
-		baseHueShift: 180,
-		baseMaxChroma: 0.025,
+		surfaceHueShift: 180,
+		surfaceMaxChroma: 0.025,
 		hueShift: 10,
 		light: { lightness: 0.55, maxChroma: 0.14 },
 		dark: { lightness: 0.35, maxChroma: 0.12 },
@@ -39,10 +39,10 @@ export const demo: HextimatePreset = {
 	],
 
 	tokens: [
-		{ name: 'surface', value: { from: 'base.weak' } },
-		{ name: 'surface-raised', value: { from: 'base', emphasis: -0.04 } },
-		{ name: 'border', value: { from: 'base', emphasis: 0.1 } },
-		{ name: 'border-subtle', value: { from: 'base', emphasis: 0.05 } },
+		{ name: 'canvas', value: { from: 'surface.weak' } },
+		{ name: 'canvas-raised', value: { from: 'surface', emphasis: -0.04 } },
+		{ name: 'border', value: { from: 'surface', emphasis: 0.1 } },
+		{ name: 'border-subtle', value: { from: 'surface', emphasis: 0.05 } },
 		{ name: 'ring', value: { from: 'accent' } },
 		{ name: 'cta-ring', value: { from: 'cta', chroma: -0.05 } },
 	],
@@ -51,7 +51,7 @@ export const demo: HextimatePreset = {
 		as: 'css',
 		colors: 'hex',
 		roleNames: {
-			base: 'bg',
+			surface: 'bg',
 			accent: 'brand',
 			positive: 'success',
 			negative: 'danger',

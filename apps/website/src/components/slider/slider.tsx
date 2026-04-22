@@ -14,12 +14,12 @@ export function Slider({
 			)}
 			{...props}
 		>
-			<SliderPrimitive.Track className="relative h-1 w-full grow overflow-hidden rounded-full bg-base cursor-pointer">
-				<SliderPrimitive.Range className="absolute h-full bg-base-weak" />
+			<SliderPrimitive.Track className="relative h-1 w-full grow overflow-hidden rounded-full bg-surface cursor-pointer">
+				<SliderPrimitive.Range className="absolute h-full bg-surface-weak" />
 			</SliderPrimitive.Track>
 			<SliderPrimitive.Thumb
 				aria-label={props['aria-label'] ?? 'slider thumb'}
-				className="block size-3 shrink-0 rounded-full bg-base-foreground ring-base-foreground/30 transition-shadow select-none hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3 cursor-pointer"
+				className="block size-3 shrink-0 rounded-full bg-surface-foreground ring-surface-foreground/30 transition-shadow select-none hover:ring-3 focus-visible:ring-3 focus-visible:outline-hidden active:ring-3 cursor-pointer"
 			/>
 		</SliderPrimitive.Root>
 	);
@@ -57,7 +57,7 @@ export function RangeSlider({
 					{label}:
 					<span
 						className={cn(
-							'bg-base ml-2 rounded-sm px-1 font-bold',
+							'bg-surface ml-2 rounded-sm px-1 font-bold',
 							valueClassName,
 						)}
 					>

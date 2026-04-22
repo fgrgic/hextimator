@@ -45,7 +45,7 @@ export function ThemePreview({
 
 	const tokens = palette[mode] as Record<string, string>;
 
-	const ROLE_ORDER = ['accent', 'base', 'positive', 'negative', 'warning'];
+	const ROLE_ORDER = ['accent', 'surface', 'positive', 'negative', 'warning'];
 
 	const entries = Object.entries(tokens)
 		.filter(([key]) => {
@@ -66,7 +66,7 @@ export function ThemePreview({
 		<div
 			{...props}
 			ref={containerRef}
-			className={`flex flex-row h-12 rounded-lg overflow-hidden w-full max-w-lg border border-base-weak shadow-xs ${props.className ?? ''}`}
+			className={`flex flex-row h-12 rounded-lg overflow-hidden w-full max-w-lg border border-surface-weak shadow-xs ${props.className ?? ''}`}
 		>
 			{entries.map(([token, color]) => {
 				const isActive = active === token;

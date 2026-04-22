@@ -168,7 +168,7 @@ describe('preset', () => {
 			light: Record<string, string>;
 		};
 		expect(theme.light).toHaveProperty('accent-hover');
-		expect(theme.light).toHaveProperty('base-hover');
+		expect(theme.light).toHaveProperty('surface-hover');
 	});
 
 	test('preset values are independent across themes', () => {
@@ -202,7 +202,7 @@ describe('preset chaining', () => {
 		const presetA: HextimatePreset = {
 			style: {
 				light: { maxChroma: 0.06 },
-				baseMaxChroma: 0.03,
+				surfaceMaxChroma: 0.03,
 			},
 		};
 		const presetB: HextimatePreset = {
@@ -222,38 +222,38 @@ describe('preset chaining', () => {
 	});
 
 	test('later preset overrides earlier preset for same key', () => {
-		const presetA: HextimatePreset = { style: { baseMaxChroma: 0.03 } };
-		const presetB: HextimatePreset = { style: { baseMaxChroma: 0.08 } };
+		const presetA: HextimatePreset = { style: { surfaceMaxChroma: 0.03 } };
+		const presetB: HextimatePreset = { style: { surfaceMaxChroma: 0.08 } };
 
 		const abTheme = objectTheme(
 			hextimate('#6366F1').preset(presetA).preset(presetB),
 		);
 		const bOnlyTheme = objectTheme(hextimate('#6366F1').preset(presetB));
 
-		expect(abTheme.light.base).toBe(bOnlyTheme.light.base);
+		expect(abTheme.light.surface).toBe(bOnlyTheme.light.surface);
 	});
 
 	test('style() after presets overrides preset style for the same key', () => {
-		const presetA: HextimatePreset = { style: { baseMaxChroma: 0.03 } };
-		const presetB: HextimatePreset = { style: { baseMaxChroma: 0.08 } };
+		const presetA: HextimatePreset = { style: { surfaceMaxChroma: 0.03 } };
+		const presetB: HextimatePreset = { style: { surfaceMaxChroma: 0.08 } };
 
 		const theme = objectTheme(
 			hextimate('#6366F1')
 				.preset(presetA)
 				.preset(presetB)
-				.style({ baseMaxChroma: 0.01 }),
+				.style({ surfaceMaxChroma: 0.01 }),
 		);
 
 		const userOnlyTheme = objectTheme(
-			hextimate('#6366F1').style({ baseMaxChroma: 0.01 }),
+			hextimate('#6366F1').style({ surfaceMaxChroma: 0.01 }),
 		);
 
-		expect(theme.light.base).toBe(userOnlyTheme.light.base);
+		expect(theme.light.surface).toBe(userOnlyTheme.light.surface);
 	});
 
 	test('chained presets concatenate tokens', () => {
 		const presetA: HextimatePreset = {
-			tokens: [{ name: 'surface', value: { from: 'base.weak' } }],
+			tokens: [{ name: 'surface', value: { from: 'surface.weak' } }],
 			format: { as: 'object' },
 		};
 		const presetB: HextimatePreset = {
@@ -271,7 +271,7 @@ describe('preset chaining', () => {
 
 	test('chained presets merge format options', () => {
 		const presetA: HextimatePreset = {
-			format: { as: 'css', roleNames: { base: 'bg' } },
+			format: { as: 'css', roleNames: { surface: 'bg' } },
 		};
 		const presetB: HextimatePreset = {
 			format: { colors: 'hex', roleNames: { accent: 'brand' } },

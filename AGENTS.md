@@ -90,7 +90,7 @@ The package source lives in `packages/hextimator/src/` with six modules:
 |---|---|
 | `parse/` | Accept any color input (hex, RGB, HSL, CSS functions, tuples, numeric) → normalized `Color` object |
 | `convert/` | Color space conversions (sRGB ↔ Linear RGB ↔ OKLab ↔ OKLCH, sRGB ↔ HSL) with OKLCH gamut mapping |
-| `generate/` | Build accent, base, and semantic (positive/negative/warning) color scales in OKLCH, ensuring perceptually uniform lightness |
+| `generate/` | Build accent, surface, and semantic (positive/negative/warning) color scales in OKLCH, ensuring perceptually uniform lightness |
 | `format/` | Serialize palettes to CSS vars, Tailwind tokens, SCSS vars, JSON, or plain objects in any color format (hex, rgb, hsl, oklch) |
 | `HextimatePaletteBuilder.ts` | Builder-pattern API — `hextimate()` returns a builder that supports `.addRole()`, `.addVariant()`, `.format()` chaining |
 | `react/` | React integration: `useHextimator`, provider, scoped themes, dark mode (class, data-attribute, or media query strategies) |

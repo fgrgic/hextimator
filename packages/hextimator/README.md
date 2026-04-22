@@ -121,8 +121,8 @@ Presets can bring their own **`style`** (contrast, chroma, and other generation 
 
 ```typescript
 const theme = hextimate("#DEC0DE")
-  .preset(presets.tinted) // e.g. sets a looser baseMaxChroma
-  .style({ baseMaxChroma: 0.01 }) // tighten further for this app
+  .preset(presets.tinted) // e.g. sets a looser surfaceMaxChroma
+  .style({ surfaceMaxChroma: 0.01 }) // tighten further for this app
   .preset(presets.shadcn)
   .format();
 ```
@@ -143,7 +143,7 @@ const theme = hextimate("#0FF5E7").format({ as: "css", colors: "oklch" });
 
 ```typescript
 hextimate("#FACADE")
-  .style({ minContrastRatio: "AA", baseMaxChroma: 0.02 })
+  .style({ minContrastRatio: "AA", surfaceMaxChroma: 0.02 })
   .format();
 ```
 
@@ -200,7 +200,7 @@ All formats return `{ light: { ... }, dark: { ... } }`.
 
 Besides hex, **`hextimate`** accepts CSS color strings, RGB tuples, and numeric `0xRRGGBB`—anything **`parseColor`** understands.
 
-> **Note on alpha**: Alpha values are intentionally ignored — `rgba(255, 0, 0, 0.5)` is treated as fully opaque `rgb(255, 0, 0)`. Alpha tokens undermine accessibility guarantees because contrast ratios depend on the background, which hextimator does not control. You can always add an opacity modifier later if you wish (e.g. `base-accent-weak/20` in tailwind).
+> **Note on alpha**: Alpha values are intentionally ignored — `rgba(255, 0, 0, 0.5)` is treated as fully opaque `rgb(255, 0, 0)`. Alpha tokens undermine accessibility guarantees because contrast ratios depend on the background, which hextimator does not control. You can always add an opacity modifier later if you wish (e.g. `accent-weak/20` in tailwind).
 
 Before `.format()` you can still chain **`addRole` / `addVariant` / `addToken`**, **`.preset()`**, **`.fork()`**, **`.simulate()` / `.adaptFor()`**, and anything else in [Extending the palette](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/extending-the-palette.md) or [Presets](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/presets.md).
 
@@ -208,7 +208,7 @@ Before `.format()` you can still chain **`addRole` / `addVariant` / `addToken`**
 
 1. **Parse** any color input into a normalized `Color` object.
 2. **Convert** to OKLCH (perceptual color space) so lightness and chroma adjustments look uniform across hues.
-3. **Generate** accent, base, and semantic color scales — each with DEFAULT, strong, weak, and foreground variants.
+3. **Generate** accent, surface, and semantic color scales — each with DEFAULT, strong, weak, and foreground variants.
 4. **Gamut-map** back to sRGB via binary-search chroma reduction (preserves lightness and hue).
 5. **Format** into your chosen output (CSS vars, Tailwind, SCSS, JSON, or plain object).
 
@@ -251,7 +251,7 @@ See **[React (full guide)](https://github.com/fgrgic/hextimator/blob/main/packag
 
 ### `fallback.css`
 
-Pre-JS placeholder: neutral values for the same variables as default `hextimate()` (and `hextimator/tailwind.css`). Use in **client-rendered** apps so the first paint is not missing `--accent`, `--base`, etc. before your bundle runs; runtime theme CSS then replaces them. Import **before** `tailwind.css` if you use it.
+Pre-JS placeholder: neutral values for the same variables as default `hextimate()` (and `hextimator/tailwind.css`). Use in **client-rendered** apps so the first paint is not missing `--accent`, `--surface`, etc. before your bundle runs; runtime theme CSS then replaces them. Import **before** `tailwind.css` if you use it.
 
 ```css
 @import "hextimator/fallback.css";
@@ -262,7 +262,7 @@ Does not match **preset-only** token names (e.g. shadcn); use the CLI to generat
 
 ## Documentation
 
-- [Migrating from 0.2.x](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migrating-from-0.2.md) — breaking changes for 0.3.0
+- [Migration guide](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md) — breaking changes by version
 - [Extending the palette](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/extending-the-palette.md) — `addRole`, `addVariant`, `addToken`
 - [Presets](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/presets.md) — drop-in configs for shadcn/ui, or create your own
 - [Multiple themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md) — dynamic theming and `.fork()`

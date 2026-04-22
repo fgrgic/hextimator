@@ -184,13 +184,13 @@ export function expandColorToScale(
 			l: normalizedColorOKLCH.l + wd,
 		};
 	} else {
-		// Strong = more contrast with base, weak = less contrast with base.
+		// Strong = more contrast with surface, weak = less contrast with surface.
 		// Light mode: strong darker (-1), weak lighter.
 		// Dark mode: strong lighter (+1), weak darker.
 		const contrastDirection = themeType === 'light' ? -1 : 1;
 
 		// If DEFAULT is too close to the contrast boundary with the
-		// foreground, shift it toward the base so strong has room.
+		// foreground, shift it toward the surface so strong has room.
 		let boundaryL = findContrastBoundaryLightness(
 			normalizedColorOKLCH,
 			foregroundColorOKLCH,

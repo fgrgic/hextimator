@@ -42,7 +42,7 @@ Tune how the palette is built with `.style(partial)` (`HextimateStyleOptions`, s
 | `.addVariant(name, placement)` | Add a lightness step to every role. `placement`: `{ from: "strong" }`, `{ from: "weak" }`, or `{ between: ["DEFAULT", "weak"] }` |
 | `.addToken(name, value)` | Add a standalone derived token. `value`: a color, `{ from: "role.variant", emphasis?, lightness?, chroma?, hue? }`, or `{ light: ..., dark: ... }` for per-theme values. `emphasis` is theme-aware (positive = more contrast, negative = softer) |
 | `.preset(preset)` | Apply a preset (chainable -- call multiple times to layer style + framework presets). Preset format defaults are overridden by `.format()` options |
-| `.style(partial)` | Merge style options into the builder, regenerate base palettes, and replay recorded operations |
+| `.style(partial)` | Merge style options into the builder, regenerate palettes, and replay recorded operations |
 | `.simulate(cvdType, severity?)` | Simulate color vision deficiency. Types: `protanopia`, `deuteranopia`, `tritanopia`, `achromatopsia` |
 | `.adaptFor(cvdType, severity?)` | Optimize palette for a CVD type (use instead of simulate for actual accessibility) |
 | `.fork(color?)` | Clone builder with optional new accent color. Chain `.style()` on the fork to change style options. Original unchanged |
@@ -76,12 +76,12 @@ Pick the dark wrapper with `darkMode`: `"media"` (default) wraps dark tokens in 
 
 | Option | Type | Default | Description |
 |---|---|---|---|
-| `baseColor` | color input | auto-derived | Override base/neutral baseline color |
-| `baseHueShift` | degrees | `0` | Rotate base hue relative to accent. Ignored if `baseColor` set |
-| `invertDarkModeBaseAccent` | boolean | `false` | Swap base/accent hues in dark mode. Useful when the accent should become the background in dark mode. Requires `baseColor` |
+| `surfaceColor` | color input | auto-derived | Override surface/neutral baseline color |
+| `surfaceHueShift` | degrees | `0` | Rotate surface hue relative to accent. Ignored if `surfaceColor` set |
+| `invertDarkModeSurfaceAccent` | boolean | `false` | Swap surface/accent hues in dark mode. Useful when the accent should become the background in dark mode. Requires `surfaceColor` |
 | `semanticColors` | `{ positive?, negative?, warning? }` | auto | Override semantic colors (green/red/amber) |
 | `semanticColorRanges` | `{ positive?: [start,end], ... }` | greens, reds, ambers | Hue ranges for semantic detection |
-| `baseMaxChroma` | number | `0.01` | Max chroma for base colors |
+| `surfaceMaxChroma` | number | `0.01` | Max chroma for surface colors |
 | `foregroundMaxChroma` | number | `0.01` | Max chroma for foreground colors |
 | `light` | `{ lightness?, maxChroma? }` | `{ lightness: 0.7 }` | Light theme adjustments |
 | `dark` | `{ lightness?, maxChroma? }` | `{ lightness: 0.6 }` | Dark theme adjustments |
@@ -92,11 +92,11 @@ Pick the dark wrapper with `darkMode`: `"media"` (default) wraps dark tokens in 
 
 Every palette includes 5 roles x 4 variants + 2 brand tokens = 22 tokens:
 
-- Roles: `base`, `accent`, `positive`, `negative`, `warning`
+- Roles: `surface`, `accent`, `positive`, `negative`, `warning`
 - Variants: `DEFAULT` (no suffix), `strong`, `weak`, `foreground`
 - Brand tokens: `brand-exact` (the exact input color, unmodified), `brand-exact-foreground` (best-contrast foreground for that color)
 
-Token keys: `accent`, `accent-strong`, `accent-weak`, `accent-foreground`, `base`, `base-strong`, ..., `brand-exact`, `brand-exact-foreground`
+Token keys: `accent`, `accent-strong`, `accent-weak`, `accent-foreground`, `surface`, `surface-strong`, ..., `brand-exact`, `brand-exact-foreground`
 
 ### Presets
 
@@ -163,15 +163,15 @@ interface HextimatePreset {
 - A derived reference: `{ from: "role.variant", emphasis?, lightness?, chroma?, hue? }`
 - Per-theme: `{ light: DerivedToken | ColorInput, dark: DerivedToken | ColorInput }`
 
-**`from` syntax**: `"role"` resolves to the DEFAULT variant, `"role.variant"` to a specific one. Valid built-in references: `base`, `base.strong`, `base.weak`, `base.foreground`, `accent`, `accent.strong`, etc. Custom roles/tokens added earlier in the preset can also be referenced.
+**`from` syntax**: `"role"` resolves to the DEFAULT variant, `"role.variant"` to a specific one. Valid built-in references: `surface`, `surface.strong`, `surface.weak`, `surface.foreground`, `accent`, `accent.strong`, etc. Custom roles/tokens added earlier in the preset can also be referenced.
 
 **`emphasis`** is theme-aware contrast adjustment. Positive values push the color *away* from the background (more contrast), negative values pull it *toward* the background (softer). The direction flips automatically between light and dark themes, so `emphasis: 0.12` always means "slightly more visible than the source" regardless of theme. Use this instead of per-theme `lightness` splits when you just want "a bit more/less contrast."
 
-**`roleNames` / `variantNames`** in format options remap output keys. This is how you match another framework's naming. For example, `roleNames: { base: "background", accent: "primary" }` turns `base-strong` into `background-strong` and `accent` into `primary` in the output. `variantNames: { DEFAULT: "main", foreground: "contrastText" }` turns `accent` (DEFAULT) into `primary-main` and `accent-foreground` into `primary-contrastText`.
+**`roleNames` / `variantNames`** in format options remap output keys. This is how you match another framework's naming. For example, `roleNames: { surface: "background", accent: "primary" }` turns `surface-strong` into `background-strong` and `accent` into `primary` in the output. `variantNames: { DEFAULT: "main", foreground: "contrastText" }` turns `accent` (DEFAULT) into `primary-main` and `accent-foreground` into `primary-contrastText`.
 
 **Role colors** can be derived from other roles: `{ from: "accent", hue: 180 }` creates a role whose hue is rotated 180 degrees from the accent.
 
-**Example - custom preset for a design system with "surface", "brand", and "danger" tokens:**
+**Example - custom preset for a design system with "bg", "brand", and "danger" tokens:**
 
 ```typescript
 const myPreset: HextimatePreset = {
@@ -182,25 +182,25 @@ const myPreset: HextimatePreset = {
     { name: "secondary", color: { from: "accent", hue: 180 } },
   ],
   tokens: [
-    // Surface tokens derived from base
-    { name: "surface", value: { from: "base" } },
-    { name: "surface-raised", value: { from: "base", emphasis: -0.025 } },
-    { name: "surface-overlay", value: { from: "base", emphasis: -0.05 } },
+    // Canvas tokens derived from surface
+    { name: "canvas", value: { from: "surface" } },
+    { name: "canvas-raised", value: { from: "surface", emphasis: -0.025 } },
+    { name: "canvas-overlay", value: { from: "surface", emphasis: -0.05 } },
 
     // Text with varying prominence
-    { name: "text-primary", value: { from: "base.foreground" } },
-    { name: "text-secondary", value: { from: "base.foreground", emphasis: -0.2 } },
-    { name: "text-disabled", value: { from: "base.foreground", emphasis: -0.4 } },
+    { name: "text-primary", value: { from: "surface.foreground" } },
+    { name: "text-secondary", value: { from: "surface.foreground", emphasis: -0.2 } },
+    { name: "text-disabled", value: { from: "surface.foreground", emphasis: -0.4 } },
 
     // Border that adjusts direction per theme
-    { name: "border", value: { from: "base", emphasis: 0.12 } },
+    { name: "border", value: { from: "surface", emphasis: 0.12 } },
 
     // Per-theme token when emphasis alone isn't enough
     {
       name: "divider",
       value: {
-        light: { from: "base.weak", lightness: -0.08 },
-        dark: { from: "base.weak", lightness: +0.08 },
+        light: { from: "surface.weak", lightness: -0.08 },
+        dark: { from: "surface.weak", lightness: +0.08 },
       },
     },
   ],
@@ -208,13 +208,13 @@ const myPreset: HextimatePreset = {
     as: "css",
     colors: "hex",
     roleNames: {
-      base: "surface",
+      surface: "bg",
       accent: "brand",
       negative: "danger",
       positive: "success",
     },
     variantNames: {
-      DEFAULT: "",        // no suffix for the base variant
+      DEFAULT: "",        // no suffix for the default variant
       strong: "bold",
       weak: "subtle",
       foreground: "on",   // e.g. --brand-on
@@ -240,7 +240,7 @@ const asScss = hextimate("#6366F1").preset(myPreset).format({ as: "scss" });
 2. Map each token to a hextimator source: which built-in role/variant is it closest to?
 3. Use `roleNames`/`variantNames` to rename the 20 built-in tokens to match the app's naming
 4. Use `tokens` for any extra tokens not covered by the built-in 5x4 grid, deriving them with `from` + `emphasis`/`lightness`/`chroma`/`hue` offsets
-5. Use `roles` if the app has color categories beyond base/accent/positive/negative/warning
+5. Use `roles` if the app has color categories beyond surface/accent/positive/negative/warning
 6. Set `format` defaults to match what the app expects (CSS vars, object, etc.)
 
 ### Standalone tokens with per-theme values
@@ -248,8 +248,8 @@ const asScss = hextimate("#6366F1").preset(myPreset).format({ as: "scss" });
 ```typescript
 hextimate("#6366F1")
   .addToken("border", {
-    light: { from: "base.weak", lightness: -0.08 },
-    dark: { from: "base.weak", lightness: +0.08 },
+    light: { from: "surface.weak", lightness: -0.08 },
+    dark: { from: "surface.weak", lightness: +0.08 },
   })
   .addToken("ring", { from: "accent" })
   .format({ as: "css" });
@@ -302,17 +302,17 @@ Both commands are identical. Use whichever you prefer.
 | `--selector` | Root selector for `--format css` | `:root` |
 | `--exclude-role` | Omit a role from output by internal name (repeatable) | — |
 | `--exclude-variant` | Omit a variant from output by internal name (repeatable) | — |
-| `--base-color` | Override base color | — |
-| `--base-hue-shift` | Degrees | `0` |
+| `--surface-color` | Override surface color | — |
+| `--surface-hue-shift` | Degrees | `0` |
 | `--hue-shift` | Per-variant hue shift | `0` |
-| `--base-max-chroma` | Max chroma for base | `0.01` |
+| `--surface-max-chroma` | Max chroma for surface | `0.01` |
 | `--fg-max-chroma` | Max chroma for foreground | `0.01` |
 | `--light-lightness` | Light theme lightness 0-1 | `0.7` |
 | `--light-max-chroma` | Light theme max chroma | — |
 | `--dark-lightness` | Dark theme lightness 0-1 | `0.6` |
 | `--dark-max-chroma` | Dark theme max chroma | — |
 | `--min-contrast` | `AAA`, `AA`, or number | `AAA` |
-| `--invert-dark` | Swap base/accent hues in dark mode (requires --base-color) | — |
+| `--invert-dark` | Swap surface/accent hues in dark mode (requires --surface-color) | — |
 | `--positive` | Override positive/success color | auto |
 | `--negative` | Override negative/error color | auto |
 | `--warning` | Override warning color | auto |
@@ -333,8 +333,8 @@ npx hextimator "#6366F1" --preset shadcn
 # Chained presets: muted style + shadcn framework
 npx hextimator "#6366F1" --preset muted --preset shadcn
 
-# Invert base/accent in dark mode
-npx hextimator "#6A5ACD" --base-color "#FEBA5D" --invert-dark
+# Invert surface/accent in dark mode
+npx hextimator "#6A5ACD" --surface-color "#FEBA5D" --invert-dark
 
 # Custom roles and variants
 npx hextimator "#22aa44" --role cta=#ee2244 --variant hover:from:strong -o theme.css
@@ -471,7 +471,7 @@ Props: `defaultColor` (`string \| { light, dark }`), `isolated?`, `style?`, `pre
 
 ## `fallback.css`
 
-Pre-JS placeholder: neutral values for the same variables as default `hextimate()` output. Use in client-rendered apps so the first paint has `--accent`, `--base`, etc. before the bundle runs. Runtime theme CSS then replaces them.
+Pre-JS placeholder: neutral values for the same variables as default `hextimate()` output. Use in client-rendered apps so the first paint has `--accent`, `--surface`, etc. before the bundle runs. Runtime theme CSS then replaces them.
 
 ```css
 @import "hextimator/fallback.css";
@@ -487,7 +487,7 @@ Does not cover preset-only token names (e.g. shadcn's `--ring`). Use the CLI to 
 @import "hextimator/tailwind.css";
 ```
 
-This registers all built-in tokens as Tailwind utilities (`bg-accent`, `text-base-foreground`, etc.).
+This registers all built-in tokens as Tailwind utilities (`bg-accent`, `text-surface-foreground`, etc.).
 
 ## Common recipes
 
@@ -496,11 +496,11 @@ This registers all built-in tokens as Tailwind utilities (`bg-accent`, `text-bas
 ```typescript
 const theme = hextimate("#52FE8C")
   .style({
-    baseColor: "#FEBA5D",
-    invertDarkModeBaseAccent: true,
+    surfaceColor: "#FEBA5D",
+    invertDarkModeSurfaceAccent: true,
   })
   .format({ as: "css" });
-// Dark mode uses the accent hue as background, base hue as accent
+// Dark mode uses the accent hue as background, surface hue as accent
 ```
 
 ### shadcn/ui theme
@@ -517,13 +517,13 @@ hextimate("#6366F1")
 ### Multi-tenant with `.fork()`
 
 ```typescript
-const base = hextimate("#52FE8C")
-  .style({ baseColor: "#FEBA5D" })
+const builder = hextimate("#52FE8C")
+  .style({ surfaceColor: "#FEBA5D" })
   .addRole("banner", "#ff006e")
   .addVariant("hover", { from: "strong" });
 
-const tenantA = base.fork("#ff6677").format({ as: "css" });
-const tenantB = base.fork("#3a86ff").format({ as: "css" });
+const tenantA = builder.fork("#ff6677").format({ as: "css" });
+const tenantB = builder.fork("#3a86ff").format({ as: "css" });
 ```
 
 ### Color vision deficiency

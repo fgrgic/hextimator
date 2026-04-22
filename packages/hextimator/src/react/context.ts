@@ -32,7 +32,7 @@ export interface HextimatorContextValue {
 	setConfigure: (
 		fn: ((builder: HextimatePaletteBuilder) => void) | undefined,
 	) => void;
-	/** Generated `{ light, dark }` palette as flat token maps (e.g. `{ base: '#...', 'base-strong': '#...' }`). */
+	/** Generated `{ light, dark }` palette as flat token maps (e.g. `{ surface: '#...', 'surface-strong': '#...' }`). */
 	palette: HextimateResult<FlatTokenMap>;
 	/** Underlying palette builder. Nested scopes fork from it. */
 	builder: HextimatePaletteBuilder;

@@ -20,7 +20,7 @@ import {
  * });
  * ```
  *
- * @param color - The base color to generate the palette from.
+ * @param color - The accent color to generate the palette from.
  * @param options - Configuration options for palette generation, formatting, and CSS variable injection.
  */
 export function useHextimator(color: string, options?: UseHextimatorOptions) {
