@@ -1,7 +1,7 @@
 {
 	"name": "hextimate",
-	"version": "0.5.1",
-	"description": "Shorthand for hextimator CLI — generate color palettes from a single color",
+	"version": "0.6.0",
+	"description": "Shorthand for hextimator CLI. Generate color palettes from a single color",
 	"keywords": [
 		"hextimator",
 		"color",
@@ -21,6 +21,6 @@
 		"cli.js"
 	],
 	"dependencies": {
-		"hextimator": "^0.5.1"
+		"hextimator": "^0.6.0"
 	}
 }

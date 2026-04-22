@@ -1,6 +1,6 @@
 {
 	"name": "hextimator",
-	"version": "0.5.1",
+	"version": "0.6.0",
 	"description": "Runtime theming for multi-tenant apps: per-tenant branded themes from a single brand color, with WCAG contrast guarantees.",
 	"keywords": [
 		"runtime-theming",
