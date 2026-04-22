@@ -1,4 +1,10 @@
-## 0.5.1 (Latest)
+## 0.6.0 (Latest)
+
+- [#114](https://github.com/fgrgic/hextimator/pull/114) **Breaking**. Uses `surface` instead of `base` for the background tokens (e.g. `base-strong` → `surface-strong`). This avoids a class-name collision with Tailwind's built-in text-base font-size utility and makes the token name match its semantic purpose (the surface behind your content).
+
+Migration checklist: [migration.md](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md).
+
+## 0.5.1
 
 - [#110](https://github.com/fgrgic/hextimator/pull/110): Add ./presets as a dedicated subpath export so `import { tinted } from 'hextimator/presets'` works
 
