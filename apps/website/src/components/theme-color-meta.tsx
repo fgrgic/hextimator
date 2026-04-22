@@ -4,17 +4,17 @@ import { useEffect } from 'react';
 export function ThemeColorMeta() {
 	const { palette, mode } = useHextimatorTheme();
 	const tokens = palette[mode] as Record<string, string>;
-	const base = tokens['--base'];
+	const surface = tokens['--surface'];
 
 	useEffect(() => {
-		if (!base) return;
+		if (!surface) return;
 		const existing = document.querySelector('meta[name="theme-color"]');
 		if (existing) existing.remove();
 		const meta = document.createElement('meta');
 		meta.name = 'theme-color';
-		meta.content = base;
+		meta.content = surface;
 		document.head.appendChild(meta);
-	}, [base]);
+	}, [surface]);
 
 	return null;
 }

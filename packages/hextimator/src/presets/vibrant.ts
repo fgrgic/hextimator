@@ -6,7 +6,7 @@ export const vibrant: HextimatePreset = {
 		light: { maxChroma: 0.2, lightness: 0.6 },
 		dark: { maxChroma: 0.18, lightness: 0.65 },
 		hueShift: 5,
-		baseHueShift: 180,
-		baseMaxChroma: 0.08,
+		surfaceHueShift: 180,
+		surfaceMaxChroma: 0.08,
 	},
 };

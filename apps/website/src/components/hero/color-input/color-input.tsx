@@ -12,7 +12,7 @@ export const ColorInput = forwardRef<HTMLDivElement, ColorInputProps>(
 		return (
 			<div
 				ref={ref}
-				className="flex bg-base-weak font-extrabold rounded-sm px-1 gap-1 cursor-text"
+				className="flex bg-surface-weak font-extrabold rounded-sm px-1 gap-1 cursor-text"
 			>
 				<HextimatorIcon className="my-2" scale={1.2} />
 				<div className="inline-grid">
@@ -27,7 +27,7 @@ export const ColorInput = forwardRef<HTMLDivElement, ColorInputProps>(
 						value={color}
 						onChange={onColorChange}
 						aria-label="Hex color code"
-						className="text-base-foreground col-start-1 row-start-1 focus:outline-none w-0 min-w-full underline"
+						className="text-surface-foreground col-start-1 row-start-1 focus:outline-none w-0 min-w-full underline"
 						maxLength={6}
 						spellCheck={false}
 						autoComplete="off"

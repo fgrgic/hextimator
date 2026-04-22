@@ -53,7 +53,7 @@ function FooterColumn({
 	);
 	return (
 		<div className="flex flex-col gap-3">
-			<h4 className="text-sm px-2 font-semibold text-base-foreground">
+			<h4 className="text-sm px-2 font-semibold text-surface-foreground">
 				{title}
 			</h4>
 			<ul className="flex flex-col gap-1">
@@ -78,12 +78,12 @@ function FooterColumn({
 
 export function Footer() {
 	return (
-		<footer className="border-t border-base-weak text-base-foreground">
+		<footer className="border-t border-surface-weak text-surface-foreground">
 			<div className="mx-auto max-w-5xl px-6 py-12">
 				<div className="grid grid-cols-2 gap-8 md:grid-cols-4">
 					<div className="col-span-2 md:col-span-1">
 						<HextimatorLogo scale={0.6} />
-						<p className="mt-3 text-sm font-light text-base-foreground">
+						<p className="mt-3 text-sm font-light text-surface-foreground">
 							Perceptually uniform color palettes from a single color.
 						</p>
 					</div>
@@ -93,7 +93,7 @@ export function Footer() {
 					<FooterColumn title="Support" links={support} />
 				</div>
 
-				<div className="mt-10 font-light border-t border-base-weak pt-6 text-center text-xs text-base-foreground">
+				<div className="mt-10 font-light border-t border-surface-weak pt-6 text-center text-xs text-surface-foreground">
 					&copy; {new Date().getFullYear()} hextimator
 				</div>
 			</div>

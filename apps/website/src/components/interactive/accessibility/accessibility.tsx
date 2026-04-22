@@ -111,17 +111,17 @@ export function Accessibility() {
 					}}
 				>
 					<Select.Trigger
-						className="flex items-center justify-between gap-2 text-xs px-2 py-1.5 rounded-lg bg-base cursor-pointer hover:bg-base-strong"
+						className="flex items-center justify-between gap-2 text-xs px-2 py-1.5 rounded-lg bg-surface cursor-pointer hover:bg-surface-strong"
 						aria-label="Color blindness simulation options"
 					>
 						<Select.Value />
-						<Select.Icon className="text-base-foreground">
+						<Select.Icon className="text-surface-foreground">
 							<NavArrowDown width="12" height="12" />
 						</Select.Icon>
 					</Select.Trigger>
 					<Select.Portal>
 						<Select.Content
-							className="rounded-lg bg-base p-1 shadow-lg border border-base-strong z-50 min-w-(--radix-select-trigger-width)"
+							className="rounded-lg bg-surface p-1 shadow-lg border border-surface-strong z-50 min-w-(--radix-select-trigger-width)"
 							position="popper"
 							sideOffset={4}
 						>
@@ -133,7 +133,7 @@ export function Accessibility() {
 									<Select.Item
 										key={opt.value}
 										value={opt.value}
-										className="flex items-center text-base-foreground gap-2 text-xs px-2 py-1.5 rounded cursor-pointer hover:bg-base-strong outline-none data-highlighted:bg-base-strong"
+										className="flex items-center text-surface-foreground gap-2 text-xs px-2 py-1.5 rounded cursor-pointer hover:bg-surface-strong outline-none data-highlighted:bg-surface-strong"
 									>
 										<Select.ItemText>{opt.label}</Select.ItemText>
 									</Select.Item>

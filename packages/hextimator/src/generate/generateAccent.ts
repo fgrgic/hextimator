@@ -9,28 +9,28 @@ export function generateAccent(
 	themeType: ThemeType,
 	options?: GenerateOptions,
 ): ColorScale {
-	const invertBaseAndAccent =
-		themeType === 'dark' && options?.invertDarkModeBaseAccent;
+	const invertSurfaceAndAccent =
+		themeType === 'dark' && options?.invertDarkModeSurfaceAccent;
 
-	if (invertBaseAndAccent) {
+	if (invertSurfaceAndAccent) {
 		const accentOklch = convert(accent, 'oklch');
-		const baseHueShift = options?.baseHueShift ?? 0;
+		const surfaceHueShift = options?.surfaceHueShift ?? 0;
 
-		let baseOklch = options?.baseColor
-			? convert(parse(options.baseColor), 'oklch')
+		let surfaceOklch = options?.surfaceColor
+			? convert(parse(options.surfaceColor), 'oklch')
 			: convert(accent, 'oklch');
 
-		// When inverted with baseHueShift, the accent gets the shifted hue
-		if (baseHueShift !== 0 && !options?.baseColor) {
-			baseOklch = {
-				...baseOklch,
-				h: wrapHue(accentOklch.h + baseHueShift),
+		// When inverted with surfaceHueShift, the accent gets the shifted hue
+		if (surfaceHueShift !== 0 && !options?.surfaceColor) {
+			surfaceOklch = {
+				...surfaceOklch,
+				h: wrapHue(accentOklch.h + surfaceHueShift),
 			};
 		}
 
 		const maxChroma = options?.dark?.maxChroma;
 		const invertedAccent = {
-			...baseOklch,
+			...surfaceOklch,
 			c:
 				maxChroma !== undefined
 					? Math.min(accentOklch.c, maxChroma)

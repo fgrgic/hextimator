@@ -14,20 +14,20 @@ function DarkModeSwitch() {
 		<Switch.Root
 			checked={isDark}
 			onCheckedChange={(checked) => setMode(checked ? 'dark' : 'light')}
-			className="relative h-6 w-11 cursor-pointer rounded-full bg-base-weak transition-colors duration-200 hover:bg-accent"
+			className="relative h-6 w-11 cursor-pointer rounded-full bg-surface-weak transition-colors duration-200 hover:bg-accent"
 			aria-label="Toggle dark mode"
 		>
 			<Switch.Thumb
-				className="flex h-5 w-5 items-center justify-center rounded-full bg-base-foreground"
+				className="flex h-5 w-5 items-center justify-center rounded-full bg-surface-foreground"
 				style={{
 					translate: isDark ? '1.375rem' : '0.125rem',
 					transition: 'translate 200ms ease-out',
 				}}
 			>
 				{isDark ? (
-					<HalfMoon width="0.75rem" className="text-base" />
+					<HalfMoon width="0.75rem" className="text-surface" />
 				) : (
-					<SunLight width="0.75rem" className="text-base" />
+					<SunLight width="0.75rem" className="text-surface" />
 				)}
 			</Switch.Thumb>
 		</Switch.Root>
@@ -79,9 +79,9 @@ export function NavBar() {
 		>
 			<nav
 				className={cn(
-					'md:grid md:grid-cols-[1fr_auto_1fr] flex items-center justify-between px-6 text-base-foreground transition-all duration-300',
+					'md:grid md:grid-cols-[1fr_auto_1fr] flex items-center justify-between px-6 text-surface-foreground transition-all duration-300',
 					scrolled
-						? 'py-2 pl-4 pr-3 -mx-2 md:mx-0 rounded-full bg-base/70 backdrop-blur-lg shadow-lg'
+						? 'py-2 pl-4 pr-3 -mx-2 md:mx-0 rounded-full bg-surface/70 backdrop-blur-lg shadow-lg'
 						: 'py-4 rounded-none bg-transparent',
 				)}
 			>
@@ -105,7 +105,7 @@ export function NavBar() {
 					<DarkModeSwitch />
 					<button
 						type="button"
-						className="text-base-foreground cursor-pointer"
+						className="text-surface-foreground cursor-pointer"
 						onClick={() => setOpen((v) => !v)}
 						aria-label={open ? 'Close menu' : 'Open menu'}
 					>
@@ -123,7 +123,7 @@ export function NavBar() {
 			)}
 			<div
 				className={cn(
-					'absolute left-0 right-0 z-50 mx-4 mt-2 flex flex-col gap-2 px-4 py-3 rounded-2xl bg-base/70 backdrop-blur-lg shadow-lg md:hidden transition-all duration-300',
+					'absolute left-0 right-0 z-50 mx-4 mt-2 flex flex-col gap-2 px-4 py-3 rounded-2xl bg-surface/70 backdrop-blur-lg shadow-lg md:hidden transition-all duration-300',
 					open
 						? 'opacity-100 translate-y-0'
 						: 'opacity-0 -translate-y-2 pointer-events-none',

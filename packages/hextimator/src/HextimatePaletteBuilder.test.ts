@@ -39,10 +39,16 @@ describe('HextimatePaletteBuilder: construction', () => {
 		expect(result).toHaveProperty('dark');
 	});
 
-	it('default palette has base, accent, positive, negative, warning roles', () => {
+	it('default palette has surface, accent, positive, negative, warning roles', () => {
 		const result = formatObject(hextimate('#ff6600'));
 		const keys = lightKeys(result);
-		for (const role of ['base', 'accent', 'positive', 'negative', 'warning']) {
+		for (const role of [
+			'surface',
+			'accent',
+			'positive',
+			'negative',
+			'warning',
+		]) {
 			expect(keys).toContain(role);
 			expect(keys).toContain(`${role}-strong`);
 			expect(keys).toContain(`${role}-weak`);
@@ -68,7 +74,7 @@ describe('HextimatePaletteBuilder: format()', () => {
 		const result = hextimate('#ff6600').format({ as: 'css' });
 		expect(typeof result).toBe('string');
 		expect(result).toContain(':root {');
-		expect(result).toContain('--base:');
+		expect(result).toContain('--surface:');
 		expect(result).toContain('@media (prefers-color-scheme: dark)');
 	});
 
@@ -108,7 +114,7 @@ describe('HextimatePaletteBuilder: format()', () => {
 		const result = hextimate('#ff6600').format({ as: 'tailwind-css' });
 		expect(typeof result).toBe('string');
 		expect(result).toContain('@theme {');
-		expect(result).toContain('--color-base:');
+		expect(result).toContain('--color-surface:');
 		expect(result.match(/@theme/g) ?? []).toHaveLength(1);
 	});
 
@@ -274,7 +280,13 @@ describe('HextimatePaletteBuilder: addVariant()', () => {
 			hextimate('#ff6600').addVariant('hover', { from: 'strong' }),
 		);
 		const keys = lightKeys(result);
-		for (const role of ['accent', 'base', 'positive', 'negative', 'warning']) {
+		for (const role of [
+			'accent',
+			'surface',
+			'positive',
+			'negative',
+			'warning',
+		]) {
 			expect(keys).toContain(`${role}-hover`);
 		}
 	});
@@ -286,7 +298,7 @@ describe('HextimatePaletteBuilder: addVariant()', () => {
 			}),
 		);
 		const keys = lightKeys(result);
-		for (const role of ['accent', 'base']) {
+		for (const role of ['accent', 'surface']) {
 			expect(keys).toContain(`${role}-mid`);
 		}
 	});
@@ -357,8 +369,8 @@ describe('HextimatePaletteBuilder: addToken()', () => {
 	it('per-theme token uses different values for light and dark', () => {
 		const result = formatObject(
 			hextimate('#ff6600').addToken('surface', {
-				light: { from: 'base.weak', lightness: 0.05 },
-				dark: { from: 'base.weak', lightness: -0.05 },
+				light: { from: 'surface.weak', lightness: 0.05 },
+				dark: { from: 'surface.weak', lightness: -0.05 },
 			}),
 		);
 		expect(result.light.surface).not.toBe(result.dark.surface);
@@ -380,13 +392,13 @@ describe('HextimatePaletteBuilder: addToken()', () => {
 	it('emphasis produces same result as manual light/dark split', () => {
 		const manual = formatObject(
 			hextimate('#ff6600').addToken('divider', {
-				light: { from: 'base', lightness: -0.12 },
-				dark: { from: 'base', lightness: +0.12 },
+				light: { from: 'surface', lightness: -0.12 },
+				dark: { from: 'surface', lightness: +0.12 },
 			}),
 		);
 		const withEmphasis = formatObject(
 			hextimate('#ff6600').addToken('divider', {
-				from: 'base',
+				from: 'surface',
 				emphasis: 0.12,
 			}),
 		);
@@ -397,13 +409,13 @@ describe('HextimatePaletteBuilder: addToken()', () => {
 	it('negative emphasis softens toward background', () => {
 		const manual = formatObject(
 			hextimate('#ff6600').addToken('text-secondary', {
-				light: { from: 'base.foreground', lightness: +0.2 },
-				dark: { from: 'base.foreground', lightness: -0.2 },
+				light: { from: 'surface.foreground', lightness: +0.2 },
+				dark: { from: 'surface.foreground', lightness: -0.2 },
 			}),
 		);
 		const withEmphasis = formatObject(
 			hextimate('#ff6600').addToken('text-secondary', {
-				from: 'base.foreground',
+				from: 'surface.foreground',
 				emphasis: -0.2,
 			}),
 		);
@@ -501,17 +513,17 @@ describe('HextimatePaletteBuilder: light / dark options', () => {
 		expect(overridden.dark.accent).toBe(global.dark.accent);
 	});
 
-	it('per-theme baseMaxChroma override affects only that theme', () => {
+	it('per-theme surfaceMaxChroma override affects only that theme', () => {
 		const normal = formatObject(hextimate('#ff6600'));
 		const adjusted = formatObject(
 			hextimate('#ff6600').style({
-				dark: { baseMaxChroma: 0.06 },
+				dark: { surfaceMaxChroma: 0.06 },
 			}),
 		);
-		// Dark base colors should be more chromatic
-		expect(adjusted.dark.base).not.toBe(normal.dark.base);
-		// Light base colors unchanged
-		expect(adjusted.light.base).toBe(normal.light.base);
+		// Dark surface colors should be more chromatic
+		expect(adjusted.dark.surface).not.toBe(normal.dark.surface);
+		// Light surface colors unchanged
+		expect(adjusted.light.surface).toBe(normal.light.surface);
 	});
 
 	it('per-theme foregroundMaxChroma override affects only that theme', () => {
@@ -531,18 +543,18 @@ describe('HextimatePaletteBuilder: light / dark options', () => {
 
 	it('per-theme override takes precedence over global value', () => {
 		const globalOnly = formatObject(
-			hextimate('#ff6600').style({ baseMaxChroma: 0.06 }),
+			hextimate('#ff6600').style({ surfaceMaxChroma: 0.06 }),
 		);
 		const withOverride = formatObject(
 			hextimate('#ff6600').style({
-				baseMaxChroma: 0.06,
-				light: { baseMaxChroma: 0.01 },
+				surfaceMaxChroma: 0.06,
+				light: { surfaceMaxChroma: 0.01 },
 			}),
 		);
 		// Light uses override (0.01), so differs from global-only (0.06)
-		expect(withOverride.light.base).not.toBe(globalOnly.light.base);
+		expect(withOverride.light.surface).not.toBe(globalOnly.light.surface);
 		// Dark uses global (0.06), so matches
-		expect(withOverride.dark.base).toBe(globalOnly.dark.base);
+		expect(withOverride.dark.surface).toBe(globalOnly.dark.surface);
 	});
 });
 
@@ -730,7 +742,7 @@ describe('HextimatePaletteBuilder: preset()', () => {
 		// as: 'object' overrides as: 'css'
 		expect(Object.keys(light).some((k) => k.startsWith('--'))).toBe(false);
 		// colors: 'hex' overrides colors: 'oklch'
-		expect(light.base).toMatch(/^#/);
+		expect(light.surface).toMatch(/^#/);
 	});
 
 	it('multiple presets can be applied sequentially', () => {
@@ -802,13 +814,13 @@ describe('HextimatePaletteBuilder: complex chaining', () => {
 	});
 
 	it('fork → add more operations on fork', () => {
-		const base = hextimate('#ff6600').addRole('cta', '#ee2244');
-		const forked = base
+		const original = hextimate('#ff6600').addRole('cta', '#ee2244');
+		const forked = original
 			.fork('#0000ff')
 			.addRole('info', '#3366cc')
 			.addVariant('hover', { from: 'strong' });
 
-		const baseResult = formatObject(base);
+		const baseResult = formatObject(original);
 		const forkResult = formatObject(forked);
 
 		// Base should not have info or hover

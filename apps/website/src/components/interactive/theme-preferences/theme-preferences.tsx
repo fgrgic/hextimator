@@ -63,24 +63,24 @@ export function ThemePreferences() {
 			<RangeSlider
 				label="Background hue shift"
 				aria-label="Hue shift applied to the background colors of both light and dark themes"
-				value={style?.baseHueShift ?? 0}
+				value={style?.surfaceHueShift ?? 0}
 				min={0}
 				max={360}
 				step={10}
 				unit="°"
 				onInteract={handleInteract}
-				onChange={(v) => setStyle({ ...style, baseHueShift: v })}
+				onChange={(v) => setStyle({ ...style, surfaceHueShift: v })}
 			/>
 
 			<RangeSlider
 				label="Background max chroma"
 				aria-label="Maximum chroma allowed for background colors in both light and dark themes"
-				value={style?.baseMaxChroma ?? 0.01}
+				value={style?.surfaceMaxChroma ?? 0.01}
 				min={0}
 				max={0.1}
 				step={0.005}
 				onInteract={handleInteract}
-				onChange={(v) => setStyle({ ...style, baseMaxChroma: v })}
+				onChange={(v) => setStyle({ ...style, surfaceMaxChroma: v })}
 			/>
 
 			<Button
@@ -100,8 +100,8 @@ export function ThemePreferences() {
 							...style?.dark,
 							lightness: DEFAULT_DARK_LIGHTNESS + lightness,
 						},
-						baseHueShift: hueShift,
-						baseMaxChroma: chroma,
+						surfaceHueShift: hueShift,
+						surfaceMaxChroma: chroma,
 					});
 				}}
 			>
@@ -122,8 +122,8 @@ export function ThemePreferences() {
 							...style?.dark,
 							lightness: DEFAULT_DARK_LIGHTNESS,
 						},
-						baseHueShift: 0,
-						baseMaxChroma: 0.01,
+						surfaceHueShift: 0,
+						surfaceMaxChroma: 0.01,
 					});
 				}}
 			>

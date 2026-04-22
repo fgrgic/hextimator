@@ -23,7 +23,7 @@
 - New CLI flags mirroring the options: `--dark-mode <strategy>` and `--selector <css>`. The `--theme` flag is ignored for `css`/`tailwind-css` outputs (both themes always combine into one string).
 - React integration unchanged.
 
-  Migration checklist: [migrating-from-0.4.md](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migrating-from-0.4.md).
+  Migration checklist: [migration.md](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md).
 
 ## 0.4.0
 
@@ -55,7 +55,7 @@
   <HextimatorScope style={s} /> → <HextimatorScope wrapperStyle={s} />
   ```
 
-  Migration checklist: [migrating-from-0.2.md](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migrating-from-0.2.md).
+  Migration checklist: [migration.md](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md).
 
 ## 0.2.0
 

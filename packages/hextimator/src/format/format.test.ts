@@ -25,15 +25,15 @@ describe('format() — default (no options)', () => {
 
 	it('collapses DEFAULT variant to just the role name', () => {
 		const result = format(palette) as Record<string, string>;
-		expect(result.base).toBeDefined();
+		expect(result.surface).toBeDefined();
 		expect(result.accent).toBeDefined();
 	});
 
 	it('includes non-DEFAULT variants as role-variant keys', () => {
 		const result = format(palette) as Record<string, string>;
-		expect(result['base-strong']).toBeDefined();
-		expect(result['base-weak']).toBeDefined();
-		expect(result['base-foreground']).toBeDefined();
+		expect(result['surface-strong']).toBeDefined();
+		expect(result['surface-weak']).toBeDefined();
+		expect(result['surface-foreground']).toBeDefined();
 	});
 });
 
@@ -50,9 +50,9 @@ describe('format() — tailwind', () => {
 			string,
 			Record<string, string>
 		>;
-		expect(typeof result.base).toBe('object');
-		expect(result.base.DEFAULT).toBeDefined();
-		expect(result.base.strong).toBeDefined();
+		expect(typeof result.surface).toBe('object');
+		expect(result.surface.DEFAULT).toBeDefined();
+		expect(result.surface.strong).toBeDefined();
 	});
 
 	it('groups all five roles at the top level', () => {
@@ -60,7 +60,7 @@ describe('format() — tailwind', () => {
 			string,
 			unknown
 		>;
-		expect(result.base).toBeDefined();
+		expect(result.surface).toBeDefined();
 		expect(result.accent).toBeDefined();
 		expect(result.positive).toBeDefined();
 		expect(result.negative).toBeDefined();
@@ -73,7 +73,7 @@ describe('formatStylesheet() — css', () => {
 		const css = formatStylesheet(palette, darkPalette, { as: 'css' });
 		expect(typeof css).toBe('string');
 		expect(css).toContain(':root {');
-		expect(css).toContain('--base:');
+		expect(css).toContain('--surface:');
 		expect(css).toContain('@media (prefers-color-scheme: dark)');
 	});
 
@@ -108,7 +108,7 @@ describe('formatStylesheet() — tailwind-css', () => {
 	it('returns a single @theme block with --color- prefix', () => {
 		const css = formatStylesheet(palette, darkPalette, { as: 'tailwind-css' });
 		expect(css).toContain('@theme {');
-		expect(css).toContain('--color-base:');
+		expect(css).toContain('--color-surface:');
 		expect(css.match(/@theme/g) ?? []).toHaveLength(1);
 	});
 
@@ -128,10 +128,10 @@ describe('format() — json', () => {
 		expect(() => JSON.parse(result)).not.toThrow();
 	});
 
-	it('contains base and base-strong keys', () => {
+	it('contains surface and surface-strong keys', () => {
 		const result = JSON.parse(format(palette, { as: 'json' }) as string);
-		expect(result.base).toBeDefined();
-		expect(result['base-strong']).toBeDefined();
+		expect(result.surface).toBeDefined();
+		expect(result['surface-strong']).toBeDefined();
 	});
 });
 
@@ -141,24 +141,24 @@ describe('format() — options', () => {
 			string,
 			string
 		>;
-		expect(result.base_strong).toBeDefined();
-		expect(result['base-strong']).toBeUndefined();
+		expect(result.surface_strong).toBeDefined();
+		expect(result['surface-strong']).toBeUndefined();
 	});
 
 	it('respects roleNames overrides', () => {
 		const result = format(palette, {
-			roleNames: { base: 'surface' },
+			roleNames: { surface: 'bg' },
 		}) as Record<string, string>;
-		expect(result.surface).toBeDefined();
-		expect(result.base).toBeUndefined();
+		expect(result.bg).toBeDefined();
+		expect(result.surface).toBeUndefined();
 	});
 
 	it('respects variantNames overrides', () => {
 		const result = format(palette, {
 			variantNames: { strong: 'dark' },
 		}) as Record<string, string>;
-		expect(result['base-dark']).toBeDefined();
-		expect(result['base-strong']).toBeUndefined();
+		expect(result['surface-dark']).toBeDefined();
+		expect(result['surface-strong']).toBeUndefined();
 	});
 
 	it('respects colors: rgb', () => {
@@ -197,7 +197,7 @@ describe('format() — options', () => {
 				(k) => k === 'positive' || k.startsWith('positive-'),
 			),
 		).toBe(false);
-		expect(result.base).toBeDefined();
+		expect(result.surface).toBeDefined();
 		expect(result.accent).toBeDefined();
 	});
 
@@ -207,8 +207,8 @@ describe('format() — options', () => {
 		}) as Record<string, string>;
 		expect(Object.keys(result).some((k) => k.endsWith('-strong'))).toBe(false);
 		expect(Object.keys(result).some((k) => k.endsWith('-weak'))).toBe(false);
-		expect(result.base).toBeDefined();
-		expect(result['base-foreground']).toBeDefined();
+		expect(result.surface).toBeDefined();
+		expect(result['surface-foreground']).toBeDefined();
 	});
 
 	it('excludeRoles and excludeVariants can be combined', () => {
@@ -222,7 +222,7 @@ describe('format() — options', () => {
 			),
 		).toBe(false);
 		expect(Object.keys(result).some((k) => k.endsWith('-strong'))).toBe(false);
-		expect(result.base).toBeDefined();
-		expect(result['base-weak']).toBeDefined();
+		expect(result.surface).toBeDefined();
+		expect(result['surface-weak']).toBeDefined();
 	});
 });

@@ -24,13 +24,13 @@ const theme = hextimate("#6366F1")
 
 ```typescript
 const theme = hextimate("#635BFF")
-  .addToken("text-secondary", { from: "base.foreground", lightness: +0.25 })
-  .addToken("text-placeholder", { from: "base.foreground", lightness: +0.4 })
-  .addToken("icon", { from: "base.foreground", lightness: +0.15 })
+  .addToken("text-secondary", { from: "surface.foreground", lightness: +0.25 })
+  .addToken("text-placeholder", { from: "surface.foreground", lightness: +0.4 })
+  .addToken("icon", { from: "surface.foreground", lightness: +0.15 })
   .format({
     roleNames: {
       accent: "primary",
-      base: "background",
+      surface: "background",
       positive: "success",
       negative: "danger",
       warning: "warning",
@@ -53,7 +53,7 @@ const theme = hextimate("#635BFF")
 const theme = hextimate("#4A154B")
   .format({
     roleNames: {
-      base: "column-bg",
+      surface: "column-bg",
       accent: "active-item",
       positive: "active-presence",
       negative: "mention-badge",

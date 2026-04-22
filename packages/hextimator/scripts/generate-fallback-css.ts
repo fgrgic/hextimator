@@ -3,7 +3,7 @@ import { join } from 'node:path';
 import { hextimate } from '../src/index';
 import { buildStyleContent } from '../src/react/css';
 
-/** Middle gray so accent/base scales read as neutral before the real brand color loads. */
+/** Middle gray so accent/surface scales read as neutral before the real brand color loads. */
 export const FALLBACK_BRAND_COLOR = '#737373';
 
 export function neutralFallbackCss(): string {

@@ -133,10 +133,10 @@ export interface ThemeAdjustments {
 	minContrastRatio?: 'AAA' | 'AA' | number;
 
 	/**
-	 * Maximum chroma for the baseline colors (base, strong, weak) in this theme.
-	 * Overrides the global `baseMaxChroma` for this theme only.
+	 * Maximum chroma for the surface colors (surface, strong, weak) in this theme.
+	 * Overrides the global `surfaceMaxChroma` for this theme only.
 	 */
-	baseMaxChroma?: number;
+	surfaceMaxChroma?: number;
 
 	/**
 	 * Maximum chroma for foreground colors in this theme.
@@ -150,24 +150,24 @@ export interface ThemeAdjustments {
  */
 export interface HextimateStyleOptions {
 	/**
-	 * Preferred base color for dark and light mode.
-	 * It will be used as a baseline to generate the rest of base colors (strong, weak).
+	 * Preferred surface color for dark and light mode.
+	 * It will be used as a baseline to generate the rest of surface colors (strong, weak).
 	 * If not provided, it will be derived from the main input color with very low chroma.
 	 *
-	 * Takes precedence over `baseHueShift` when both are set.
+	 * Takes precedence over `surfaceHueShift` when both are set.
 	 */
-	baseColor?: ColorInput;
+	surfaceColor?: ColorInput;
 
 	/**
-	 * Rotate the base color's hue relative to the accent color (in degrees).
+	 * Rotate the surface color's hue relative to the accent color (in degrees).
 	 *
 	 * Examples: 180 for complementary, 30 for analogous, -30 for the other direction.
 	 *
-	 * Ignored when an explicit `baseColor` is provided.
+	 * Ignored when an explicit `surfaceColor` is provided.
 	 *
 	 * Default: 0 (same hue as the accent).
 	 */
-	baseHueShift?: number;
+	surfaceHueShift?: number;
 
 	/**
 	 * Semantic colors to use for the theme
@@ -182,12 +182,12 @@ export interface HextimateStyleOptions {
 
 	/**
 	 * Invert the hue used for the accent color in dark mode.
-	 * Uses base hue as accent, and accent hue as base.
-	 * Only has effect if `baseColor` is provided alongside the main accent color
+	 * Uses surface hue as accent, and accent hue as surface.
+	 * Only has effect if `surfaceColor` is provided alongside the main accent color
 	 *
 	 * Default: false.
 	 */
-	invertDarkModeBaseAccent?: boolean;
+	invertDarkModeSurfaceAccent?: boolean;
 
 	/**
 	 * Degree ranges for the semantic colors.
@@ -204,15 +204,15 @@ export interface HextimateStyleOptions {
 	};
 
 	/**
-	 * Maximum chroma for the baseline colors (base, strong, weak).
-	 * Higher values will produce more colorful baseline colors, lower values will produce more gray baseline colors.
+	 * Maximum chroma for the surface colors (surface, strong, weak).
+	 * Higher values will produce more colorful surface colors, lower values will produce more gray surface colors.
 	 *
 	 * Default: 0.01.
 	 */
-	baseMaxChroma?: number;
+	surfaceMaxChroma?: number;
 
 	/**
-	 * Maximum chroma for all the foreground colors (e.g. base-accent-foreground)
+	 * Maximum chroma for all the foreground colors (e.g. surface-accent-foreground)
 	 * Higher values will produce more colorful foreground colors, lower values will produce more gray foreground colors.
 	 *
 	 * Default: 0.01.
@@ -265,7 +265,7 @@ export interface HextimateFormatOptions {
 	 * Internal name → your custom name.
 	 *
 	 * Examples:
-	 * - base: "bg"
+	 * - surface: "bg"
 	 * - accent: "button"
 	 * - positive: "success"
 	 * - negative: "error"
@@ -273,7 +273,7 @@ export interface HextimateFormatOptions {
 	 *
 	 * If not provided, the default role names will be used.
 	 * The default role names are:
-	 * - base: "base"
+	 * - surface: "surface"
 	 * - accent: "accent"
 	 * - positive: "positive"
 	 * - negative: "negative"
@@ -298,17 +298,17 @@ export interface HextimateFormatOptions {
 	 * If not provided, the default separator will be used.
 	 * The default separator is: "-"
 	 *
-	 * Use "_" for "base_strong", "/" for "base/strong", etc.
+	 * Use "_" for "surface_strong", "/" for "surface/strong", etc.
 	 */
 	separator?: string;
 
 	/**
 	 * Output format.
-	 * - "object" (default): { base: "#f2eee8", "base-strong": "#d4cfc8", ...}
+	 * - "object" (default): { surface: "#f2eee8", "surface-strong": "#d4cfc8", ...}
 	 * - "css": ready-to-paste CSS stylesheet string with `:root {}` and a dark-mode wrapper
-	 * - "tailwind": { base: { DEFAULT: "#f2eee8", strong: "#d4cfc8", weak: "#faf8f6" } }
-	 * - "scss": { $base: "#f2eee8", $base-strong: "#d4cfc8", ...}
-	 * - "json": '{ "base": "#f2eee8", "base-strong": "#d4cfc8", ...}'
+	 * - "tailwind": { surface: { DEFAULT: "#f2eee8", strong: "#d4cfc8", weak: "#faf8f6" } }
+	 * - "scss": { $surface: "#f2eee8", $surface-strong: "#d4cfc8", ...}
+	 * - "json": '{ "surface": "#f2eee8", "surface-strong": "#d4cfc8", ...}'
 	 * - "tailwind-css": Tailwind v4 stylesheet string with a single `@theme { ... }` block and dark-mode overrides
 	 *
 	 * Stylesheet outputs (`css`, `tailwind-css`) combine light + dark into one

@@ -57,8 +57,8 @@ body {
 	margin: 0;
 	min-width: 320px;
 	min-height: 100vh;
-	background-color: var(--base);
-	color: var(--base-foreground);
+	background-color: var(--surface);
+	color: var(--surface-foreground);
 }
 
 #root {

@@ -48,17 +48,17 @@ Format options:
       --exclude-variant <name> Omit a variant from output (repeatable)
 
 Style options:
-      --base-color <color>    Override base/neutral color
-      --base-hue-shift <deg>  Rotate base hue relative to accent
+      --surface-color <color>    Override surface/neutral color
+      --surface-hue-shift <deg>  Rotate surface hue relative to accent
       --hue-shift <deg>       Per-variant hue shift in degrees
-      --base-max-chroma <n>   Max chroma for base colors          (default: 0.01)
+      --surface-max-chroma <n>   Max chroma for surface colors        (default: 0.01)
       --fg-max-chroma <n>     Max chroma for foreground colors     (default: 0.01)
       --light-lightness <n>   Light theme lightness 0-1            (default: 0.7)
       --light-max-chroma <n>  Light theme max chroma
       --dark-lightness <n>    Dark theme lightness 0-1             (default: 0.6)
       --dark-max-chroma <n>   Dark theme max chroma
       --min-contrast <value>  AAA | AA | <number>                  (default: AAA)
-      --invert-dark           Swap base/accent hues in dark mode   (requires --base-color)
+      --invert-dark           Swap surface/accent hues in dark mode   (requires --surface-color)
 
 Semantic colors:
       --positive <color>      Override positive/success color      (default: auto green)
@@ -88,7 +88,7 @@ Examples:
   hextimator '#6366F1' --preset muted --preset shadcn
   hextimator '#6366F1' --preset shadcn --colors hsl-raw
   hextimator '#22aa44' --role cta=#ee2244 --variant hover:from:strong -o theme.css
-  hextimator '#6A5ACD' --base-color '#FEBA5D' --invert-dark
+  hextimator '#6A5ACD' --surface-color '#FEBA5D' --invert-dark
   hextimator '#ff6600' --simulate deuteranopia
   hextimator '#ff6600' --adapt deuteranopia --cvd-severity 0.8
 `.trim();
@@ -106,10 +106,10 @@ function run(): void {
 			separator: { type: 'string' },
 			'exclude-role': { type: 'string', multiple: true },
 			'exclude-variant': { type: 'string', multiple: true },
-			'base-color': { type: 'string' },
-			'base-hue-shift': { type: 'string' },
+			'surface-color': { type: 'string' },
+			'surface-hue-shift': { type: 'string' },
 			'hue-shift': { type: 'string' },
-			'base-max-chroma': { type: 'string' },
+			'surface-max-chroma': { type: 'string' },
 			'fg-max-chroma': { type: 'string' },
 			'light-lightness': { type: 'string' },
 			'light-max-chroma': { type: 'string' },
@@ -149,12 +149,13 @@ function run(): void {
 
 	const styleOptions: HextimateStyleOptions = {};
 
-	if (values['base-color']) styleOptions.baseColor = values['base-color'];
-	if (values['base-hue-shift'])
-		styleOptions.baseHueShift = Number(values['base-hue-shift']);
+	if (values['surface-color'])
+		styleOptions.surfaceColor = values['surface-color'];
+	if (values['surface-hue-shift'])
+		styleOptions.surfaceHueShift = Number(values['surface-hue-shift']);
 	if (values['hue-shift']) styleOptions.hueShift = Number(values['hue-shift']);
-	if (values['base-max-chroma'])
-		styleOptions.baseMaxChroma = Number(values['base-max-chroma']);
+	if (values['surface-max-chroma'])
+		styleOptions.surfaceMaxChroma = Number(values['surface-max-chroma']);
 	if (values['fg-max-chroma'])
 		styleOptions.foregroundMaxChroma = Number(values['fg-max-chroma']);
 
@@ -184,7 +185,7 @@ function run(): void {
 	}
 
 	if (values['invert-dark']) {
-		styleOptions.invertDarkModeBaseAccent = true;
+		styleOptions.invertDarkModeSurfaceAccent = true;
 	}
 
 	const semanticColors: HextimateStyleOptions['semanticColors'] = {};

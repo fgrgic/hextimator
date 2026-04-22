@@ -16,7 +16,7 @@ import { useStableOptions } from './use-stable-options';
  * cleanup), and supports scoping the palette to a specific selector so
  * multiple subtrees can carry different themes via CSS cascade.
  *
- * - `color`: The base color to generate the palette from.
+ * - `color`: The accent color to generate the palette from.
  * - `style`: Options for how the palette is generated.
  * - `format`: Options for how the generated palette is formatted.
  * - `configure`: A callback to further customize the palette builder before formatting.

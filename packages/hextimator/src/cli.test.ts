@@ -8,15 +8,15 @@ import { resolve } from 'node:path';
  * verify the flag exists in cli.ts and is documented in llms.txt.
  */
 const GENERATION_OPTION_TO_CLI_FLAG: Record<string, string | null> = {
-	baseColor: 'base-color',
-	baseHueShift: 'base-hue-shift',
+	surfaceColor: 'surface-color',
+	surfaceHueShift: 'surface-hue-shift',
 	hueShift: 'hue-shift',
-	baseMaxChroma: 'base-max-chroma',
+	surfaceMaxChroma: 'surface-max-chroma',
 	foregroundMaxChroma: 'fg-max-chroma',
 	light: 'light-lightness', // light.lightness exposed as --light-lightness
 	dark: 'dark-lightness', // dark.lightness exposed as --dark-lightness
 	minContrastRatio: 'min-contrast',
-	invertDarkModeBaseAccent: 'invert-dark',
+	invertDarkModeSurfaceAccent: 'invert-dark',
 	semanticColors: 'positive', // exposed as --positive, --negative, --warning
 	semanticColorRanges: null, // not exposed in CLI (advanced, rarely used)
 };

@@ -5,7 +5,7 @@ export const muted: HextimatePreset = {
 	style: {
 		light: { maxChroma: 0.08 },
 		dark: { maxChroma: 0.07 },
-		baseMaxChroma: 0.005,
+		surfaceMaxChroma: 0.005,
 		foregroundMaxChroma: 0.005,
 	},
 };

@@ -30,35 +30,35 @@ export const mui: HextimatePreset = {
 	],
 	tokens: [
 		// background
-		{ name: 'background-default', value: { from: 'base' } },
+		{ name: 'background-default', value: { from: 'surface' } },
 		{
 			name: 'background-paper',
-			value: { from: 'base', emphasis: -0.025 },
+			value: { from: 'surface', emphasis: -0.025 },
 		},
 
 		// text
-		{ name: 'text-primary', value: { from: 'base.foreground' } },
+		{ name: 'text-primary', value: { from: 'surface.foreground' } },
 		{
 			name: 'text-secondary',
-			value: { from: 'base.foreground', emphasis: -0.2 },
+			value: { from: 'surface.foreground', emphasis: -0.2 },
 		},
 		{
 			name: 'text-disabled',
-			value: { from: 'base.foreground', emphasis: -0.4 },
+			value: { from: 'surface.foreground', emphasis: -0.4 },
 		},
 
 		// divider
-		{ name: 'divider', value: { from: 'base', emphasis: 0.12 } },
+		{ name: 'divider', value: { from: 'surface', emphasis: 0.12 } },
 
 		// action tokens
-		{ name: 'action-hover', value: { from: 'base', emphasis: 0.04 } },
-		{ name: 'action-selected', value: { from: 'base', emphasis: 0.08 } },
-		{ name: 'action-disabled', value: { from: 'base', emphasis: 0.15 } },
+		{ name: 'action-hover', value: { from: 'surface', emphasis: 0.04 } },
+		{ name: 'action-selected', value: { from: 'surface', emphasis: 0.08 } },
+		{ name: 'action-disabled', value: { from: 'surface', emphasis: 0.15 } },
 		{
 			name: 'action-disabledBackground',
-			value: { from: 'base', emphasis: 0.06 },
+			value: { from: 'surface', emphasis: 0.06 },
 		},
-		{ name: 'action-focus', value: { from: 'base', emphasis: 0.06 } },
+		{ name: 'action-focus', value: { from: 'surface', emphasis: 0.06 } },
 	],
 	format: {
 		as: 'object',
@@ -75,6 +75,6 @@ export const mui: HextimatePreset = {
 			strong: 'dark',
 			foreground: 'contrastText',
 		},
-		excludeRoles: ['base'],
+		excludeRoles: ['surface'],
 	},
 };

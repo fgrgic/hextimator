@@ -49,10 +49,10 @@ export type VariantPlacement =
  * simple contrast adjustments.
  *
  * @example
- * { from: "base.weak", lightness: -0.05 }
+ * { from: "surface.weak", lightness: -0.05 }
  * { from: "accent", hue: -20 }
- * { from: "base", emphasis: 0.12 }
- * { from: "base.foreground", emphasis: -0.2 }
+ * { from: "surface", emphasis: 0.12 }
+ * { from: "surface.foreground", emphasis: -0.2 }
  */
 export interface DerivedToken {
 	from: string;
@@ -68,7 +68,7 @@ export interface DerivedToken {
  * @example
  * "#FF6600"
  * { from: "accent", lightness: +0.1 }
- * { light: { from: "base.weak", lightness: -0.05 }, dark: { from: "base.weak", lightness: +0.05 } }
+ * { light: { from: "surface.weak", lightness: -0.05 }, dark: { from: "surface.weak", lightness: +0.05 } }
  */
 export type TokenValue =
 	| ColorInput
@@ -145,7 +145,7 @@ export class HextimatePaletteBuilder {
 	}
 
 	/**
-	 * Merges style options into the builder and regenerates the base palettes,
+	 * Merges style options into the builder and regenerates the palettes,
 	 * then replays recorded operations so roles and variants reflect the new style.
 	 */
 	style(partial: Partial<HextimateStyleOptions>): this {
@@ -254,7 +254,7 @@ export class HextimatePaletteBuilder {
 	 *
 	 * The color can be a direct color value or a derived token referencing an existing role.
 	 *
-	 * e.g. `addRole('cta', '#ff0066')` adds a "cta" role with the specified hue as the base.
+	 * e.g. `addRole('cta', '#ff0066')` adds a "cta" role with the specified color.
 	 * `addRole('cta', { from: 'accent', hue: 180 })` adds a "cta" role with a complementary hue to accent.
 	 *
 	 * @param name Role name (e.g. "cta", "banner")
@@ -289,7 +289,7 @@ export class HextimatePaletteBuilder {
 	 * `addToken('brand', { light: '#3a86ff', dark: '#ff0066' })` adds a "brand" token with different colors in light and dark themes.
 	 *
 	 * It can also be used to override specific tokens after generation.
-	 * `addToken('base-strong', '#ff0066')` overrides the automatically generated "base-strong" variant with a custom color.
+	 * `addToken('surface-strong', '#ff0066')` overrides the automatically generated "surface-strong" variant with a custom color.
 	 *
 	 * @param name Token name (e.g. "brand", "logo")
 	 * @param value Token value, which can be an exact color, or derived from an existing role+variant.
@@ -304,7 +304,7 @@ export class HextimatePaletteBuilder {
 	 * Applies a preset that configures roles, tokens, and format defaults
 	 * for a specific framework or convention (e.g. shadcn/ui).
 	 *
-	 * Preset format defaults are used as a base in `.format()` — any options
+	 * Preset format defaults are used as defaults in `.format()` — any options
 	 * you pass to `.format()` will override the preset's defaults.
 	 *
 	 * @example
@@ -347,7 +347,7 @@ export class HextimatePaletteBuilder {
 		this.applyPresetRolesTokensFormat(preset);
 	}
 
-	/** Roles, variants, tokens, and format only — `this.options` and base palettes are already correct. */
+	/** Roles, variants, tokens, and format only — `this.options` and palettes are already correct. */
 	private applyPresetRolesTokensFormat(preset: HextimatePreset): void {
 		for (const role of preset.roles ?? []) {
 			this.applyRole(role.name, role.color);
@@ -420,7 +420,7 @@ export class HextimatePaletteBuilder {
 	}
 
 	/**
-	 * Creates a new builder instance with the same operations history, optionally from a different base color.
+	 * Creates a new builder instance with the same operations history, optionally from a different accent color.
 	 * To change style options on the fork, chain `.style()` after `.fork()`.
 	 *
 	 * @param color Optional new accent/brand color. If omitted, the fork uses the same color as this builder.
@@ -710,7 +710,7 @@ export class HextimatePaletteBuilder {
 			// Determine contrast direction for this theme:
 			// In light mode, more contrast = darker (negative L), so emphasis > 0 → L decreases.
 			// In dark mode, more contrast = lighter (positive L), so emphasis > 0 → L increases.
-			// This works for both base (background-like) and accent roles because
+			// This works for both surface (background-like) and accent roles because
 			// we use the theme direction, not the role's foreground direction.
 			const contrastDirection = themeType === 'light' ? -1 : 1;
 			emphasisOffset = token.emphasis * contrastDirection;
@@ -776,7 +776,9 @@ export class HextimatePaletteBuilder {
 			return this.strongSideVariants;
 		}
 
-		const sampleRole = Object.keys(this.lightPalette).find((r) => r !== 'base');
+		const sampleRole = Object.keys(this.lightPalette).find(
+			(r) => r !== 'surface',
+		);
 		if (!sampleRole) return null;
 
 		const scale = this.lightPalette[sampleRole];
@@ -815,8 +817,8 @@ export class HextimatePaletteBuilder {
 
 				// Determine sideDirection per-role by observing where existing
 				// variants on this side actually sit relative to DEFAULT.
-				// This is necessary because base colors move opposite to accent
-				// colors (base weak = darker in light mode, accent weak = lighter).
+				// This is necessary because surface colors move opposite to accent
+				// colors (surface weak = darker in light mode, accent weak = lighter).
 				const existingVariant = sideVariants.find((v) => scale[v]);
 				let sideDirection: number;
 				if (existingVariant) {

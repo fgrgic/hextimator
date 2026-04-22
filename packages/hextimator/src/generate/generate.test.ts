@@ -103,7 +103,7 @@ describe('contrast: added variants still meet AAA with foreground', () => {
 //    Strong moves toward the foreground, weak moves away. We verify
 //    this by comparing OKLCH lightness distances to the foreground.
 // ──────────────────────────────────────────────
-describe('lightness ordering: strong has more contrast with base than weak', () => {
+describe('lightness ordering: strong has more contrast with surface than weak', () => {
 	for (const color of TEST_COLORS) {
 		for (const theme of THEME_TYPES) {
 			it(`${color} – ${theme}`, () => {
@@ -112,10 +112,10 @@ describe('lightness ordering: strong has more contrast with base than weak', () 
 				const palette = result[theme] as Record<string, string>;
 				const roleScales = groupByRole(palette);
 
-				const baseL = convert(parse(palette.base), 'oklch').l;
+				const baseL = convert(parse(palette.surface), 'oklch').l;
 
 				for (const [role, scale] of Object.entries(roleScales)) {
-					if (role === 'base') continue;
+					if (role === 'surface') continue;
 					if (
 						!scale.strong ||
 						!scale.weak ||
@@ -132,7 +132,7 @@ describe('lightness ordering: strong has more contrast with base than weak', () 
 
 					if (strongDistToBase < weakDistToBase) {
 						throw new Error(
-							`${role}: strong (dist=${strongDistToBase.toFixed(4)}) should have more contrast with base than weak (dist=${weakDistToBase.toFixed(4)}) in ${theme} for ${color}`,
+							`${role}: strong (dist=${strongDistToBase.toFixed(4)}) should have more contrast with surface than weak (dist=${weakDistToBase.toFixed(4)}) in ${theme} for ${color}`,
 						);
 					}
 				}
@@ -231,7 +231,13 @@ describe('addVariant: applies to roles, not tokens', () => {
 
 		const lightScales = groupByRole(result.light as Record<string, string>);
 
-		const defaultRoles = ['base', 'accent', 'positive', 'negative', 'warning'];
+		const defaultRoles = [
+			'surface',
+			'accent',
+			'positive',
+			'negative',
+			'warning',
+		];
 
 		for (const role of defaultRoles) {
 			expect(lightScales[role]?.stronger).toBeDefined();
@@ -240,16 +246,16 @@ describe('addVariant: applies to roles, not tokens', () => {
 
 	it('new variant does NOT appear on standalone tokens', () => {
 		const result = hextimate('#ff6600')
-			.addToken('surface', '#fafafa')
+			.addToken('canvas', '#fafafa')
 			.addVariant('stronger', { from: 'strong' })
 			.format({ as: 'object', colors: 'hex' });
 
 		const tokens = result.light as Record<string, string>;
 
-		// Token "surface" should exist as a flat value
-		expect(tokens.surface).toBeDefined();
-		// But "surface-stronger" should not
-		expect(tokens['surface-stronger']).toBeUndefined();
+		// Token "canvas" should exist as a flat value
+		expect(tokens.canvas).toBeDefined();
+		// But "canvas-stronger" should not
+		expect(tokens['canvas-stronger']).toBeUndefined();
 	});
 });
 
@@ -611,7 +617,7 @@ describe('end-to-end: output shape', () => {
 			const tokens = result[theme] as Record<string, string>;
 			for (const role of [
 				'accent',
-				'base',
+				'surface',
 				'positive',
 				'negative',
 				'warning',
@@ -629,71 +635,73 @@ describe('end-to-end: output shape', () => {
 		const light = result.light as Record<string, string>;
 		const dark = result.dark as Record<string, string>;
 		expect(light.accent).not.toBe(dark.accent);
-		expect(light.base).not.toBe(dark.base);
+		expect(light.surface).not.toBe(dark.surface);
 	});
 });
 
 // ──────────────────────────────────────────────
-// 11. baseHueShift
+// 11. surfaceHueShift
 // ──────────────────────────────────────────────
-describe('baseHueShift: rotates base hue relative to accent', () => {
-	it('180 shifts base hue ~180° from accent', () => {
+describe('surfaceHueShift: rotates surface hue relative to accent', () => {
+	it('180 shifts surface hue ~180° from accent', () => {
 		const accentHue = convert(parse('#ff6600'), 'oklch').h;
-		const result = hextimate('#ff6600').style({ baseHueShift: 180 }).format({
+		const result = hextimate('#ff6600').style({ surfaceHueShift: 180 }).format({
 			as: 'object',
 			colors: 'oklch',
 		});
 
 		for (const theme of THEME_TYPES) {
 			const palette = result[theme] as Record<string, string>;
-			const baseH = parseOklchHue(palette.base);
+			const baseH = parseOklchHue(palette.surface);
 			const diff = Math.abs(hueDiff(baseH, accentHue));
 			expect(diff).toBeGreaterThan(170);
 			expect(diff).toBeLessThanOrEqual(180);
 		}
 	});
 
-	it('30 shifts base hue ~+30° from accent', () => {
+	it('30 shifts surface hue ~+30° from accent', () => {
 		const accentHue = convert(parse('#ff6600'), 'oklch').h;
-		const result = hextimate('#ff6600').style({ baseHueShift: 30 }).format({
+		const result = hextimate('#ff6600').style({ surfaceHueShift: 30 }).format({
 			as: 'object',
 			colors: 'oklch',
 		});
 
 		for (const theme of THEME_TYPES) {
 			const palette = result[theme] as Record<string, string>;
-			const baseH = parseOklchHue(palette.base);
+			const baseH = parseOklchHue(palette.surface);
 			const diff = hueDiff(baseH, accentHue);
 			expect(Math.abs(diff - 30)).toBeLessThan(5);
 		}
 	});
 
-	it('0 behaves the same as no baseHueShift', () => {
+	it('0 behaves the same as no surfaceHueShift', () => {
 		const without = hextimate('#ff6600').format({
 			as: 'object',
 			colors: 'hex',
 		});
-		const withShift = hextimate('#ff6600').style({ baseHueShift: 0 }).format({
-			as: 'object',
-			colors: 'hex',
-		});
+		const withShift = hextimate('#ff6600')
+			.style({ surfaceHueShift: 0 })
+			.format({
+				as: 'object',
+				colors: 'hex',
+			});
 
 		expect(withShift.light).toEqual(without.light);
 		expect(withShift.dark).toEqual(without.dark);
 	});
 
-	it('explicit baseColor takes precedence over baseHueShift', () => {
+	it('explicit surfaceColor takes precedence over surfaceHueShift', () => {
 		const result = hextimate('#ff6600')
 			.style({
-				baseColor: '#0000ff',
-				baseHueShift: 90,
+				surfaceColor: '#0000ff',
+				surfaceHueShift: 90,
 			})
 			.format({ as: 'object', colors: 'oklch' });
 
 		const blueHue = convert(parse('#0000ff'), 'oklch').h;
 		for (const theme of THEME_TYPES) {
 			const palette = result[theme] as Record<string, string>;
-			const baseH = parseOklchHue(palette.base);
+			const baseH = parseOklchHue(palette.surface);
 			const diff = Math.abs(hueDiff(baseH, blueHue));
 			expect(diff).toBeLessThan(5);
 		}
@@ -706,7 +714,7 @@ describe('baseHueShift: rotates base hue relative to accent', () => {
 			for (const color of TEST_COLORS) {
 				for (const theme of THEME_TYPES) {
 					const result = hextimate(color)
-						.style({ baseHueShift: shift })
+						.style({ surfaceHueShift: shift })
 						.format({
 							as: 'object',
 							colors: 'hex',
@@ -723,7 +731,7 @@ describe('baseHueShift: rotates base hue relative to accent', () => {
 							const cr = contrast(value, fg);
 							if (cr < MIN_CONTRAST) {
 								throw new Error(
-									`${role}.${variant} (${value}) vs foreground (${fg}) = ${cr.toFixed(2)} in ${theme} for ${color} with baseHueShift: ${shift}`,
+									`${role}.${variant} (${value}) vs foreground (${fg}) = ${cr.toFixed(2)} in ${theme} for ${color} with surfaceHueShift: ${shift}`,
 								);
 							}
 						}

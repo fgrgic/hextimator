@@ -9,9 +9,9 @@ const buttonVariants = cva(
 				primary:
 					'px-4 py-3 bg-accent text-accent-foreground min-w-32 hover:bg-accent-weak',
 				ghost:
-					'flex-row-reverse px-2 py-0 bg-transparent text-base-foreground text-sm justify-center',
+					'flex-row-reverse px-2 py-0 bg-transparent text-surface-foreground text-sm justify-center',
 				navigation:
-					'flex-row px-2 py-1 bg-transparent text-base-foreground text-sm justify-center hover:bg-base-weak whitespace-nowrap',
+					'flex-row px-2 py-1 bg-transparent text-surface-foreground text-sm justify-center hover:bg-surface-weak whitespace-nowrap',
 			},
 		},
 		defaultVariants: {

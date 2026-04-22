@@ -80,12 +80,12 @@ function PresetPreviewCard({
 				aria-pressed={selected}
 				className={
 					selected
-						? 'flex w-full flex-col gap-2 rounded-xl border-2 border-accent p-3 text-left transition-[border-color,filter,transform] bg-base text-base-foreground shadow-xs hover:brightness-[1.02] active:scale-[0.99]'
-						: 'flex w-full flex-col gap-2 rounded-xl border-2 border-base-weak p-3 text-left transition-[border-color,filter,transform] bg-base text-base-foreground shadow-xs hover:brightness-[1.02] active:scale-[0.99]'
+						? 'flex w-full flex-col gap-2 rounded-xl border-2 border-accent p-3 text-left transition-[border-color,filter,transform] bg-surface text-surface-foreground shadow-xs hover:brightness-[1.02] active:scale-[0.99]'
+						: 'flex w-full flex-col gap-2 rounded-xl border-2 border-surface-weak p-3 text-left transition-[border-color,filter,transform] bg-surface text-surface-foreground shadow-xs hover:brightness-[1.02] active:scale-[0.99]'
 				}
 			>
 				<span className="text-sm font-medium">{label}</span>
-				<div className="flex h-9 w-full overflow-hidden rounded-md border border-base-weak">
+				<div className="flex h-9 w-full overflow-hidden rounded-md border border-surface-weak">
 					<span
 						className="min-w-0 flex-1"
 						style={{ backgroundColor: 'var(--accent)' }}
@@ -96,11 +96,11 @@ function PresetPreviewCard({
 					/>
 					<span
 						className="min-w-0 flex-1"
-						style={{ backgroundColor: 'var(--base-weak)' }}
+						style={{ backgroundColor: 'var(--surface-weak)' }}
 					/>
 					<span
 						className="min-w-0 flex-1"
-						style={{ backgroundColor: 'var(--base-strong)' }}
+						style={{ backgroundColor: 'var(--surface-strong)' }}
 					/>
 				</div>
 			</button>
@@ -119,7 +119,7 @@ export function PresetShowcase({ className }: { className?: string }) {
 
 	return (
 		<section
-			className={`flex flex-col gap-4 px-0.5 text-base-foreground ${className ?? ''}`}
+			className={`flex flex-col gap-4 px-0.5 text-surface-foreground ${className ?? ''}`}
 			aria-label="Generation presets"
 		>
 			<HextimatorStyle

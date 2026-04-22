@@ -93,21 +93,21 @@ const BUILDER_METHODS: CompletionEntry[] = [
 
 const STYLE_OPTIONS: CompletionEntry[] = [
 	{
-		label: 'baseColor',
+		label: 'surfaceColor',
 		type: 'property',
-		info: 'Base color for the theme. Takes precedence over baseHueShift',
+		info: 'Surface color for the theme. Takes precedence over surfaceHueShift',
 		detail: 'ColorInput',
 	},
 	{
-		label: 'baseHueShift',
+		label: 'surfaceHueShift',
 		type: 'property',
-		info: 'Rotate base hue relative to accent (degrees). Default: 0',
+		info: 'Rotate surface hue relative to accent (degrees). Default: 0',
 		detail: 'number',
 	},
 	{
-		label: 'baseMaxChroma',
+		label: 'surfaceMaxChroma',
 		type: 'property',
-		info: 'Max chroma for base colors. Default: 0.01',
+		info: 'Max chroma for surface colors. Default: 0.01',
 		detail: 'number',
 	},
 	{
@@ -129,9 +129,9 @@ const STYLE_OPTIONS: CompletionEntry[] = [
 		detail: 'number',
 	},
 	{
-		label: 'invertDarkModeBaseAccent',
+		label: 'invertDarkModeSurfaceAccent',
 		type: 'property',
-		info: 'Swap base/accent hues in dark mode. Default: false',
+		info: 'Swap surface/accent hues in dark mode. Default: false',
 		detail: 'boolean',
 	},
 	{
@@ -183,9 +183,9 @@ const THEME_ADJUSTMENTS: CompletionEntry[] = [
 		detail: "'AAA' | 'AA' | number",
 	},
 	{
-		label: 'baseMaxChroma',
+		label: 'surfaceMaxChroma',
 		type: 'property',
-		info: 'Override global baseMaxChroma for this theme',
+		info: 'Override global surfaceMaxChroma for this theme',
 		detail: 'number',
 	},
 	{
