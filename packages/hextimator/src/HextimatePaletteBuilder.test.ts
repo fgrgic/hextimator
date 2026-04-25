@@ -946,10 +946,10 @@ describe('HextimatePaletteBuilder: edge cases', () => {
 });
 
 // ──────────────────────────────────────────────
-// persistentVariants
+// invertedVariants
 // ──────────────────────────────────────────────
-describe('HextimatePaletteBuilder: persistentVariants', () => {
-	it('emits -light and -dark copies for every role and variant in object output', () => {
+describe('HextimatePaletteBuilder: invertedVariants', () => {
+	it('emits an -inverted copy for every role and variant in object output', () => {
 		const base = hextimate('#ff6600').format({
 			as: 'object',
 			colors: 'hex',
@@ -957,7 +957,7 @@ describe('HextimatePaletteBuilder: persistentVariants', () => {
 		const result = hextimate('#ff6600').format({
 			as: 'object',
 			colors: 'hex',
-			persistentVariants: true,
+			invertedVariants: true,
 		}) as { light: Record<string, string>; dark: Record<string, string> };
 
 		for (const role of [
@@ -969,165 +969,177 @@ describe('HextimatePaletteBuilder: persistentVariants', () => {
 		]) {
 			for (const variant of ['', '-strong', '-weak', '-foreground']) {
 				const key = `${role}${variant}`;
-				expect(result.light[`${key}-light`]).toBe(base.light[key]);
-				expect(result.light[`${key}-dark`]).toBe(base.dark[key]);
-				expect(result.dark[`${key}-light`]).toBe(base.light[key]);
-				expect(result.dark[`${key}-dark`]).toBe(base.dark[key]);
+				// Light block carries dark values under -inverted
+				expect(result.light[`${key}-inverted`]).toBe(base.dark[key]);
+				// Dark block carries light values under -inverted
+				expect(result.dark[`${key}-inverted`]).toBe(base.light[key]);
 			}
 		}
 	});
 
-	it('persistent values are identical in both light and dark result objects', () => {
+	it('inverted value differs from the regular value within the same block', () => {
 		const result = hextimate('#6A5ACD').format({
 			as: 'object',
 			colors: 'hex',
-			persistentVariants: true,
+			invertedVariants: true,
 		}) as { light: Record<string, string>; dark: Record<string, string> };
 
-		for (const key of Object.keys(result.light)) {
-			if (!key.endsWith('-light') && !key.endsWith('-dark')) continue;
-			expect(result.dark[key]).toBe(result.light[key]);
-		}
+		expect(result.light.accent).not.toBe(result.light['accent-inverted']);
+		expect(result.dark.accent).not.toBe(result.dark['accent-inverted']);
 	});
 
-	it('does not emit persistent keys when persistentVariants is false', () => {
+	it('inverted value in light equals the regular value in dark (and vice versa)', () => {
+		const result = hextimate('#6A5ACD').format({
+			as: 'object',
+			colors: 'hex',
+			invertedVariants: true,
+		}) as { light: Record<string, string>; dark: Record<string, string> };
+
+		expect(result.light['accent-inverted']).toBe(result.dark.accent);
+		expect(result.dark['accent-inverted']).toBe(result.light.accent);
+		expect(result.light['surface-strong-inverted']).toBe(
+			result.dark['surface-strong'],
+		);
+	});
+
+	it('does not emit -inverted keys when invertedVariants is false', () => {
 		const result = hextimate('#ff6600').format({
 			as: 'object',
 			colors: 'hex',
 		}) as { light: Record<string, string>; dark: Record<string, string> };
 
 		for (const key of Object.keys(result.light)) {
-			expect(key.endsWith('-light')).toBe(false);
-			expect(key.endsWith('-dark')).toBe(false);
+			expect(key.endsWith('-inverted')).toBe(false);
 		}
 	});
 
-	it('includes standalone tokens in persistent output', () => {
+	it('includes standalone tokens in inverted output', () => {
 		const result = hextimate('#ff6600').format({
 			as: 'object',
 			colors: 'hex',
-			persistentVariants: true,
+			invertedVariants: true,
 		}) as { light: Record<string, string>; dark: Record<string, string> };
 
-		expect(result.light['brand-exact-light']).toMatch(/^#[0-9a-f]{6}$/);
-		expect(result.light['brand-exact-dark']).toMatch(/^#[0-9a-f]{6}$/);
-		expect(result.light['brand-exact-foreground-light']).toMatch(
-			/^#[0-9a-f]{6}$/,
-		);
-		expect(result.light['brand-exact-foreground-dark']).toMatch(
+		expect(result.light['brand-exact-inverted']).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light['brand-exact-foreground-inverted']).toMatch(
 			/^#[0-9a-f]{6}$/,
 		);
 	});
 
-	it('includes custom roles added via addRole in persistent output', () => {
+	it('includes custom roles added via addRole in inverted output', () => {
 		const result = hextimate('#ff6600').addRole('cta', '#ee2244').format({
 			as: 'object',
 			colors: 'hex',
-			persistentVariants: true,
+			invertedVariants: true,
 		}) as { light: Record<string, string>; dark: Record<string, string> };
 
-		expect(result.light['cta-light']).toMatch(/^#[0-9a-f]{6}$/);
-		expect(result.light['cta-dark']).toMatch(/^#[0-9a-f]{6}$/);
-		expect(result.light['cta-strong-light']).toMatch(/^#[0-9a-f]{6}$/);
-		expect(result.light['cta-foreground-dark']).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light['cta-inverted']).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light['cta-strong-inverted']).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light['cta-foreground-inverted']).toMatch(/^#[0-9a-f]{6}$/);
 	});
 
-	it('respects excludeRoles and excludeVariants for persistent entries', () => {
+	it('respects excludeRoles and excludeVariants for inverted entries', () => {
 		const result = hextimate('#ff6600').format({
 			as: 'object',
 			colors: 'hex',
-			persistentVariants: true,
+			invertedVariants: true,
 			excludeRoles: ['warning'],
 			excludeVariants: ['weak'],
 		}) as { light: Record<string, string>; dark: Record<string, string> };
 
 		const keys = Object.keys(result.light);
 		expect(keys.some((k) => k.startsWith('warning-'))).toBe(false);
-		expect(keys.some((k) => k === 'warning-light')).toBe(false);
-		expect(keys.some((k) => k.includes('-weak-light'))).toBe(false);
-		expect(keys.some((k) => k.includes('-weak-dark'))).toBe(false);
-		expect(result.light['accent-light']).toMatch(/^#[0-9a-f]{6}$/);
+		expect(keys.some((k) => k === 'warning-inverted')).toBe(false);
+		expect(keys.some((k) => k.includes('-weak-inverted'))).toBe(false);
+		expect(result.light['accent-inverted']).toMatch(/^#[0-9a-f]{6}$/);
 	});
 
-	it('respects custom separator in persistent keys', () => {
+	it('respects custom separator in inverted keys', () => {
 		const result = hextimate('#ff6600').format({
 			as: 'object',
 			colors: 'hex',
-			persistentVariants: true,
+			invertedVariants: true,
 			separator: '_',
 		}) as { light: Record<string, string>; dark: Record<string, string> };
 
-		expect(result.light.accent_light).toMatch(/^#[0-9a-f]{6}$/);
-		expect(result.light.accent_strong_light).toMatch(/^#[0-9a-f]{6}$/);
-		expect(result.light.accent_dark).toMatch(/^#[0-9a-f]{6}$/);
-		expect(result.light.accent_strong_dark).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light.accent_inverted).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light.accent_strong_inverted).toMatch(/^#[0-9a-f]{6}$/);
 	});
 
-	it('respects roleNames and variantNames remapping in persistent keys', () => {
+	it('respects roleNames and variantNames remapping in inverted keys', () => {
 		const result = hextimate('#ff6600').format({
 			as: 'object',
 			colors: 'hex',
-			persistentVariants: true,
+			invertedVariants: true,
 			roleNames: { accent: 'brand' },
 			variantNames: { strong: 'primary' },
 		}) as { light: Record<string, string>; dark: Record<string, string> };
 
-		expect(result.light['brand-light']).toMatch(/^#[0-9a-f]{6}$/);
-		expect(result.light['brand-primary-light']).toMatch(/^#[0-9a-f]{6}$/);
-		expect(result.light['brand-primary-dark']).toMatch(/^#[0-9a-f]{6}$/);
-		expect(result.light['accent-light']).toBeUndefined();
-		expect(result.light['brand-strong-light']).toBeUndefined();
+		expect(result.light['brand-inverted']).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light['brand-primary-inverted']).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light['accent-inverted']).toBeUndefined();
+		expect(result.light['brand-strong-inverted']).toBeUndefined();
 	});
 
-	it('tailwind format nests persistent entries under the role key', () => {
+	it('tailwind format nests inverted entries under the role key', () => {
 		const result = hextimate('#ff6600').format({
 			as: 'tailwind',
 			colors: 'hex',
-			persistentVariants: true,
+			invertedVariants: true,
 		}) as {
 			light: Record<string, Record<string, string>>;
 			dark: Record<string, Record<string, string>>;
 		};
 
-		expect(result.light.accent.light).toMatch(/^#[0-9a-f]{6}$/);
-		expect(result.light.accent.dark).toMatch(/^#[0-9a-f]{6}$/);
-		expect(result.light.accent['strong-light']).toMatch(/^#[0-9a-f]{6}$/);
-		expect(result.light.accent['foreground-dark']).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light.accent.inverted).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light.accent['strong-inverted']).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light.accent['foreground-inverted']).toMatch(
+			/^#[0-9a-f]{6}$/,
+		);
 	});
 
-	it('scss format prefixes persistent keys with $', () => {
+	it('scss format prefixes inverted keys with $', () => {
 		const result = hextimate('#ff6600').format({
 			as: 'scss',
 			colors: 'hex',
-			persistentVariants: true,
+			invertedVariants: true,
 		}) as { light: Record<string, string>; dark: Record<string, string> };
 
-		expect(result.light['$accent-light']).toMatch(/^#[0-9a-f]{6}$/);
-		expect(result.light['$accent-dark']).toMatch(/^#[0-9a-f]{6}$/);
-		expect(result.light['$accent-strong-light']).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light['$accent-inverted']).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light['$accent-strong-inverted']).toMatch(/^#[0-9a-f]{6}$/);
 	});
 
-	it('css stylesheet emits persistent vars only in the root block', () => {
+	it('css stylesheet emits -inverted in both root and dark blocks with swapped values', () => {
+		const base = hextimate('#ff6600').format({
+			as: 'object',
+			colors: 'hex',
+		}) as { light: Record<string, string>; dark: Record<string, string> };
 		const css = hextimate('#ff6600').format({
 			as: 'css',
-			persistentVariants: true,
+			invertedVariants: true,
 			darkMode: 'class',
 		}) as string;
 
 		const [rootBlock, darkBlock] = css.split('.dark {');
-		expect(rootBlock).toContain('--accent-light:');
-		expect(rootBlock).toContain('--accent-dark:');
-		expect(rootBlock).toContain('--accent-strong-light:');
-		expect(rootBlock).toContain('--accent-foreground-dark:');
+		expect(rootBlock).toContain(`--accent-inverted: ${base.dark.accent};`);
 		expect(darkBlock).toBeDefined();
-		expect(darkBlock).not.toContain('--accent-light:');
-		expect(darkBlock).not.toContain('--accent-dark:');
+		expect(darkBlock).toContain(`--accent-inverted: ${base.light.accent};`);
+		expect(rootBlock).toContain(
+			`--accent-strong-inverted: ${base.dark['accent-strong']};`,
+		);
+		expect(darkBlock).toContain(
+			`--accent-strong-inverted: ${base.light['accent-strong']};`,
+		);
 	});
 
-	it('css stylesheet persistent vars are not overridden inside @media dark', () => {
+	it('css stylesheet @media dark redefines inverted vars with light values', () => {
+		const base = hextimate('#ff6600').format({
+			as: 'object',
+			colors: 'hex',
+		}) as { light: Record<string, string>; dark: Record<string, string> };
 		const css = hextimate('#ff6600').format({
 			as: 'css',
-			persistentVariants: true,
+			invertedVariants: true,
 		}) as string;
 
 		const mediaIdx = css.indexOf('@media (prefers-color-scheme: dark)');
@@ -1135,54 +1147,35 @@ describe('HextimatePaletteBuilder: persistentVariants', () => {
 		const rootBlock = css.slice(0, mediaIdx);
 		const mediaBlock = css.slice(mediaIdx);
 
-		expect(rootBlock).toContain('--accent-light:');
-		expect(rootBlock).toContain('--accent-dark:');
-		expect(mediaBlock).not.toContain('--accent-light:');
-		expect(mediaBlock).not.toContain('--accent-dark:');
+		expect(rootBlock).toContain(`--accent-inverted: ${base.dark.accent};`);
+		expect(mediaBlock).toContain(`--accent-inverted: ${base.light.accent};`);
 	});
 
-	it('css persistent --accent-dark value matches the dark palette accent', () => {
+	it('tailwind-css stylesheet emits inverted vars in both blocks', () => {
+		const css = hextimate('#ff6600').format({
+			as: 'tailwind-css',
+			invertedVariants: true,
+			darkMode: 'class',
+		}) as string;
+
+		const [themeBlock, darkBlock] = css.split('.dark {');
+		expect(themeBlock).toContain('--color-accent-inverted:');
+		expect(darkBlock).toBeDefined();
+		expect(darkBlock).toContain('--color-accent-inverted:');
+	});
+
+	it('darkMode: false still emits inverted vars (one block, dark values under -inverted)', () => {
 		const base = hextimate('#ff6600').format({
 			as: 'object',
 			colors: 'hex',
 		}) as { light: Record<string, string>; dark: Record<string, string> };
 		const css = hextimate('#ff6600').format({
 			as: 'css',
-			persistentVariants: true,
-			darkMode: 'class',
-		}) as string;
-
-		expect(css).toContain(`--accent-light: ${base.light.accent};`);
-		expect(css).toContain(`--accent-dark: ${base.dark.accent};`);
-		expect(css).toContain(
-			`--accent-strong-dark: ${base.dark['accent-strong']};`,
-		);
-	});
-
-	it('tailwind-css stylesheet emits persistent vars only in the @theme block', () => {
-		const css = hextimate('#ff6600').format({
-			as: 'tailwind-css',
-			persistentVariants: true,
-			darkMode: 'class',
-		}) as string;
-
-		const [themeBlock, darkBlock] = css.split('.dark {');
-		expect(themeBlock).toContain('--color-accent-light:');
-		expect(themeBlock).toContain('--color-accent-dark:');
-		expect(darkBlock).toBeDefined();
-		expect(darkBlock).not.toContain('--color-accent-light:');
-		expect(darkBlock).not.toContain('--color-accent-dark:');
-	});
-
-	it('still emits persistent vars when darkMode is false on the stylesheet', () => {
-		const css = hextimate('#ff6600').format({
-			as: 'css',
-			persistentVariants: true,
+			invertedVariants: true,
 			darkMode: false,
 		}) as string;
 
-		expect(css).toContain('--accent-light:');
-		expect(css).toContain('--accent-dark:');
+		expect(css).toContain(`--accent-inverted: ${base.dark.accent};`);
 		expect(css).not.toContain('@media');
 		expect(css).not.toContain('.dark');
 	});

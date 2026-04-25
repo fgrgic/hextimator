@@ -149,26 +149,37 @@ hextimate("#FACADE")
 
 Preset **`style`** plus **`.style()`** on the builder is covered in [Extending presets](#extending-presets) above. For every option you can pass, see [Customization](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md). To reuse the same chain with another accent or options, see [Multiple themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md) (`.fork()` + `.style()`).
 
-### Persistent mode-locked tokens
+### Inverted contrast sections
 
-For sections that should always render in light (or always in dark) regardless of the active theme — marketing spotlights, always-dark navbars, opposite-mode previews — pass `persistentVariants: true`:
+For sections that intentionally contrast with their surroundings — testimonials, hero callouts, alternating stripes — pass `invertedVariants: true`:
 
 ```ts
 hextimate("#6A5ACD").format({
   as: "css",
-  persistentVariants: true,
+  invertedVariants: true,
   darkMode: "class",
 });
 ```
 
-This adds a `-light` and `-dark` copy of every token (`--accent-light`, `--accent-strong-dark`, …) that is not redefined by the dark-mode wrapper. Tailwind users add the companion stylesheet to get `bg-accent-dark`, `text-surface-foreground-light`, etc.:
+This adds an `-inverted` copy of every token (`--accent-inverted`, `--surface-strong-inverted`, …). Each one holds the opposite mode's value, so `bg-surface-inverted` is dark in light mode and light in dark mode — one class, both directions.
+
+Tailwind users add the companion stylesheet:
 
 ```css
 @import "hextimator/tailwind.css";
-@import "hextimator/tailwind-persistent.css";
+@import "hextimator/tailwind-inverted.css";
 ```
 
-See [Persistent variants](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md#persistent-variants) for details and tradeoffs.
+```jsx
+<section className="bg-surface-inverted text-surface-foreground-inverted">
+  Contrast section, flips with mode.
+</section>
+
+{/* Always-dark by composing with dark:  */}
+<nav className="bg-surface-inverted dark:bg-surface">Always dark.</nav>
+```
+
+See [Inverted variants](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md#inverted-variants) for the full guide and "always this mode" recipes.
 
 ### Filtering output
 

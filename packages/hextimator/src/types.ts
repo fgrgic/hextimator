@@ -377,30 +377,29 @@ export interface HextimateFormatOptions {
 	excludeVariants?: string[];
 
 	/**
-	 * Emit an extra `-light` and `-dark` copy of every token that always
-	 * resolves to that mode's value, regardless of the active dark-mode
-	 * strategy. Use for "always dark" or "always light" sections (navbars,
-	 * hero spots, testimonials) that should not follow the surrounding theme.
+	 * Emit an extra `-inverted` copy of every token whose value is the
+	 * opposite mode's value (light tokens get dark values, dark tokens get
+	 * light values). Inverted tokens flip with the active mode, just like
+	 * regular tokens.
 	 *
-	 * For stylesheet outputs (`as: 'css'`, `as: 'tailwind-css'`), the
-	 * persistent tokens live in the root block only and are never overridden
-	 * by the dark-mode wrapper.
+	 * Use for sections that intentionally contrast with the surrounding
+	 * theme: testimonials, alternating stripes, hero callouts, "spotlight"
+	 * panels. One class (`bg-surface-inverted`) flips both ways.
 	 *
-	 * For per-palette outputs (`object`, `scss`, `json`, `tailwind`), both
-	 * the `light` and `dark` result objects include the persistent tokens
-	 * with identical values.
+	 * For "always this mode" sections, compose with the dark-mode variant:
+	 * - Always dark: `bg-surface-inverted dark:bg-surface`
+	 * - Always light: `bg-surface dark:bg-surface-inverted`
 	 *
 	 * Example output (flat keys):
-	 * - `accent-light`, `accent-strong-light`, `accent-foreground-light`
-	 * - `accent-dark`, `accent-strong-dark`, `accent-foreground-dark`
+	 * - `accent-inverted`, `accent-strong-inverted`, `accent-foreground-inverted`
 	 *
 	 * Tailwind users need to pair this with the companion stylesheet:
-	 * `@import "hextimator/tailwind-persistent.css";` to get
-	 * `bg-accent-light`, `text-accent-foreground-dark`, etc.
+	 * `@import "hextimator/tailwind-inverted.css";` to get utilities like
+	 * `bg-accent-inverted`, `text-accent-foreground-inverted`.
 	 *
 	 * Default: `false`.
 	 */
-	persistentVariants?: boolean;
+	invertedVariants?: boolean;
 }
 
 /**

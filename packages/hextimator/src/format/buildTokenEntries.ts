@@ -43,23 +43,18 @@ export function buildTokenEntries(
 }
 
 /**
- * Returns a copy of `entry` whose flat key carries a `-light` or `-dark`
- * suffix. Used by `persistentVariants` to emit mode-locked tokens that
- * never change with the dark-mode wrapper.
+ * Returns a copy of `entry` whose flat key carries an `-inverted` suffix.
+ * Used by `invertedVariants` to emit a contrast copy of every token.
  *
  * The suffix is joined to the variant using the current separator, so the
- * flat key for role `accent`, variant `strong`, suffix `light` becomes
- * `accent-strong-light` (default sep) or `accent_strong_light` (sep `_`).
+ * flat key for role `accent`, variant `strong` becomes `accent-strong-inverted`
+ * (default sep) or `accent_strong_inverted` (sep `_`).
  *
- * For the DEFAULT variant the flat key collapses to `role-suffix`.
+ * For the DEFAULT variant the flat key collapses to `role-inverted`.
  */
-export function withModeSuffix(
-	entry: TokenEntry,
-	suffix: 'light' | 'dark',
-	sep: string,
-): TokenEntry {
+export function withInvertedSuffix(entry: TokenEntry, sep: string): TokenEntry {
 	if (entry.isDefault && entry.variant === 'DEFAULT') {
-		return { ...entry, isDefault: false, variant: suffix };
+		return { ...entry, isDefault: false, variant: 'inverted' };
 	}
-	return { ...entry, variant: `${entry.variant}${sep}${suffix}` };
+	return { ...entry, variant: `${entry.variant}${sep}inverted` };
 }

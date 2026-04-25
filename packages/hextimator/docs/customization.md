@@ -33,18 +33,18 @@ Passed to `.format()` — these affect the output shape.
 | `excludeVariants` | `string[]` | `[]` | Variant keys to omit from every role's output (internal names, before `variantNames`) |
 | `darkMode` | `"media" \| "class" \| "data-attribute" \| false` | `"media"` | Dark-mode strategy for stylesheet outputs (`as: 'css'`, `as: 'tailwind-css'`) |
 | `selector` | `string` | `":root"` | Root selector for `as: 'css'` output |
-| `persistentVariants` | `boolean` | `false` | Emit extra `-light` / `-dark` copies of every token that always resolve to that mode's value regardless of dark-mode state. See [Persistent variants](#persistent-variants) |
+| `invertedVariants` | `boolean` | `false` | Emit an extra `-inverted` copy of every token whose value is the opposite mode's. Flips with the active mode. See [Inverted variants](#inverted-variants) |
 
-## Persistent variants
+## Inverted variants
 
-`persistentVariants: true` emits an extra `-light` and `-dark` copy of every token. They always resolve to that mode's value, regardless of the active theme.
+`invertedVariants: true` emits an extra `-inverted` copy of every token. The value is the opposite mode's value: in light mode `--accent-inverted` holds the dark accent; in dark mode it holds the light accent. Inverted tokens flip with the active mode just like regular tokens, so a single class gives you a "contrast" section that always inverts.
 
-Use for sections that should not follow the surrounding dark-mode state: an always-dark navbar, an always-light card inside a dark app, marketing "spotlight" sections, or previews of the opposite mode.
+Use for sections that intentionally contrast with their surroundings: testimonials, alternating stripes, hero callouts, "spotlight" panels, opposite-mode previews.
 
 ```ts
 hextimate("#6A5ACD").format({
   as: "css",
-  persistentVariants: true,
+  invertedVariants: true,
   darkMode: "class",
 });
 ```
@@ -55,37 +55,65 @@ Produces (abridged):
 :root {
   --accent: #6a5acd;
   /* ... normal tokens ... */
-  --accent-light: #6a5acd;
-  --accent-strong-light: #5a4abc;
-  --accent-dark: #9c8fe8;
-  --accent-strong-dark: #b3a9ef;
-  /* ... -light / -dark for every role and variant ... */
+  --accent-inverted: #9c8fe8;     /* dark value while in light mode */
+  --accent-strong-inverted: #b3a9ef;
+  /* ... -inverted for every role and variant ... */
 }
 .dark {
   --accent: #9c8fe8;
-  /* normal tokens flip; -light / -dark are NOT redefined here */
+  /* ... */
+  --accent-inverted: #6a5acd;     /* light value while in dark mode */
+  --accent-strong-inverted: #5a4abc;
 }
 ```
 
 ### Tailwind
 
-Pair with the companion stylesheet so `bg-accent-dark`, `text-surface-foreground-light`, etc. resolve:
+Pair with the companion stylesheet so `bg-accent-inverted`, `text-surface-foreground-inverted`, etc. resolve:
 
 ```css
 @import "hextimator/tailwind.css";
-@import "hextimator/tailwind-persistent.css";
+@import "hextimator/tailwind-inverted.css";
 ```
 
 ```jsx
-<div className="bg-surface-dark text-surface-foreground-dark">
-  Always dark, even in light mode.
-</div>
+{/* One class, flips with mode */}
+<section className="bg-surface-inverted text-surface-foreground-inverted">
+  Contrast section: dark on a light page, light on a dark page.
+</section>
+```
+
+### Always-dark or always-light sections
+
+Inverted tokens compose with Tailwind's `dark:` variant to lock a section to one mode:
+
+```jsx
+{/* Always dark: inverted in light mode + regular in dark mode = always dark */}
+<nav
+  className="
+    bg-surface-inverted dark:bg-surface
+    text-surface-foreground-inverted dark:text-surface-foreground
+  "
+>
+  Always-dark navbar.
+</nav>
+
+{/* Always light: regular in light mode + inverted in dark mode = always light */}
+<aside
+  className="
+    bg-surface dark:bg-surface-inverted
+    text-surface-foreground dark:text-surface-foreground-inverted
+  "
+>
+  Always-light card on a dark app.
+</aside>
 ```
 
 ### Notes
 
-- Persistent tokens respect `excludeRoles`, `excludeVariants`, `roleNames`, `variantNames`, and `separator` just like regular tokens.
-- For per-palette outputs (`object`, `scss`, `json`, `tailwind`), both `result.light` and `result.dark` contain the persistent tokens with identical values.
-- For stylesheet outputs, persistent tokens appear only in the root block; the dark-mode wrapper intentionally never redefines them.
-- `hextimator/fallback.css` does not include persistent variants. If you rely on the fallback for pre-JS paint, generate a custom fallback with `hextimate(...).format({ as: 'css', persistentVariants: true })` and ship that instead.
-- The companion `tailwind-persistent.css` maps the five built-in roles (`surface`, `accent`, `positive`, `negative`, `warning`). Custom roles added via `addRole` work in JSON/CSS output but need their own `@theme inline` mappings to be usable as Tailwind utilities.
+- Inverted tokens respect `excludeRoles`, `excludeVariants`, `roleNames`, `variantNames`, and `separator` just like regular tokens.
+- For per-palette outputs (`object`, `scss`, `json`, `tailwind`), `result.light['accent-inverted']` equals `result.dark.accent`, and vice versa.
+- For stylesheet outputs the inverted tokens appear in both the root and dark-mode blocks with swapped values, using normal CSS cascade.
+- With `darkMode: false`, only the root block is emitted and `-inverted` simply holds the dark palette's values (a useful "give me dark colors in a light-only app" escape hatch).
+- `hextimator/fallback.css` does not include inverted variants. If you rely on the fallback for pre-JS paint, generate a custom fallback with `hextimate(...).format({ as: 'css', invertedVariants: true })` and ship that instead.
+- The companion `tailwind-inverted.css` maps the five built-in roles (`surface`, `accent`, `positive`, `negative`, `warning`). Custom roles added via `addRole` need their own `@theme inline` mappings to be usable as Tailwind utilities.

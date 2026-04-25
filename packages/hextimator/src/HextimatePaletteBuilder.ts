@@ -2,7 +2,10 @@ import { adaptPalette, type CVDType, simulatePalette } from './a11y';
 import { convert } from './convert';
 import type { FlatTokenMap, FormatResult, NestedTokenMap } from './format';
 import { format, formatStylesheet } from './format';
-import { buildTokenEntries, withModeSuffix } from './format/buildTokenEntries';
+import {
+	buildTokenEntries,
+	withInvertedSuffix,
+} from './format/buildTokenEntries';
 import { serializeColor } from './format/serializeColor';
 import type { TokenEntry } from './format/types';
 import { generate } from './generate';
@@ -514,49 +517,55 @@ export class HextimatePaletteBuilder {
 			colorFormat,
 		);
 
-		const persistentEntries = mergedOptions?.persistentVariants
-			? this.buildPersistentEntries(mergedOptions, lightTokens, darkTokens)
-			: [];
+		// Inverted tokens use the standard cascade: each block carries its
+		// opposite palette's values suffixed with `-inverted`. Mode flip
+		// causes them to swap, giving you a one-class "contrast" section.
+		const inverted = mergedOptions?.invertedVariants
+			? this.buildInvertedEntries(mergedOptions, lightTokens, darkTokens)
+			: { lightBlock: [], darkBlock: [] };
 
 		if (mergedOptions?.as === 'css' || mergedOptions?.as === 'tailwind-css') {
-			// Persistent tokens live in the light (root) block only; the dark
-			// override block intentionally does not redefine them so they stay
-			// pinned to their mode value regardless of the active theme.
 			return formatStylesheet(
 				this.lightPalette,
 				this.darkPalette,
 				mergedOptions,
-				[...lightTokens, ...persistentEntries],
-				darkTokens,
+				[...lightTokens, ...inverted.lightBlock],
+				[...darkTokens, ...inverted.darkBlock],
 			);
 		}
 
 		return {
 			light: format(this.lightPalette, mergedOptions, [
 				...lightTokens,
-				...persistentEntries,
+				...inverted.lightBlock,
 			]),
 			dark: format(this.darkPalette, mergedOptions, [
 				...darkTokens,
-				...persistentEntries,
+				...inverted.darkBlock,
 			]),
 		};
 	}
 
-	private buildPersistentEntries(
+	private buildInvertedEntries(
 		options: HextimateFormatOptions,
 		lightStandalone: TokenEntry[],
 		darkStandalone: TokenEntry[],
-	): TokenEntry[] {
+	): { lightBlock: TokenEntry[]; darkBlock: TokenEntry[] } {
 		const sep = options.separator ?? '-';
 		const lightBase = buildTokenEntries(this.lightPalette, options);
 		const darkBase = buildTokenEntries(this.darkPalette, options);
-		return [
-			...lightBase.map((e) => withModeSuffix(e, 'light', sep)),
-			...lightStandalone.map((e) => withModeSuffix(e, 'light', sep)),
-			...darkBase.map((e) => withModeSuffix(e, 'dark', sep)),
-			...darkStandalone.map((e) => withModeSuffix(e, 'dark', sep)),
-		];
+		return {
+			// Light block carries dark values under -inverted suffix.
+			lightBlock: [
+				...darkBase.map((e) => withInvertedSuffix(e, sep)),
+				...darkStandalone.map((e) => withInvertedSuffix(e, sep)),
+			],
+			// Dark block carries light values under -inverted suffix.
+			darkBlock: [
+				...lightBase.map((e) => withInvertedSuffix(e, sep)),
+				...lightStandalone.map((e) => withInvertedSuffix(e, sep)),
+			],
+		};
 	}
 
 	private applyRole(name: string, color: ColorInput | DerivedToken): void {
