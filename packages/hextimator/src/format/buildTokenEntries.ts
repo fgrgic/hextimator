@@ -41,3 +41,25 @@ export function buildTokenEntries(
 
 	return entries;
 }
+
+/**
+ * Returns a copy of `entry` whose flat key carries a `-light` or `-dark`
+ * suffix. Used by `persistentVariants` to emit mode-locked tokens that
+ * never change with the dark-mode wrapper.
+ *
+ * The suffix is joined to the variant using the current separator, so the
+ * flat key for role `accent`, variant `strong`, suffix `light` becomes
+ * `accent-strong-light` (default sep) or `accent_strong_light` (sep `_`).
+ *
+ * For the DEFAULT variant the flat key collapses to `role-suffix`.
+ */
+export function withModeSuffix(
+	entry: TokenEntry,
+	suffix: 'light' | 'dark',
+	sep: string,
+): TokenEntry {
+	if (entry.isDefault && entry.variant === 'DEFAULT') {
+		return { ...entry, isDefault: false, variant: suffix };
+	}
+	return { ...entry, variant: `${entry.variant}${sep}${suffix}` };
+}

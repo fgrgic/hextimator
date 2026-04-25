@@ -2,6 +2,7 @@ import { adaptPalette, type CVDType, simulatePalette } from './a11y';
 import { convert } from './convert';
 import type { FlatTokenMap, FormatResult, NestedTokenMap } from './format';
 import { format, formatStylesheet } from './format';
+import { buildTokenEntries, withModeSuffix } from './format/buildTokenEntries';
 import { serializeColor } from './format/serializeColor';
 import type { TokenEntry } from './format/types';
 import { generate } from './generate';
@@ -513,20 +514,49 @@ export class HextimatePaletteBuilder {
 			colorFormat,
 		);
 
+		const persistentEntries = mergedOptions?.persistentVariants
+			? this.buildPersistentEntries(mergedOptions, lightTokens, darkTokens)
+			: [];
+
 		if (mergedOptions?.as === 'css' || mergedOptions?.as === 'tailwind-css') {
+			// Persistent tokens live in the light (root) block only; the dark
+			// override block intentionally does not redefine them so they stay
+			// pinned to their mode value regardless of the active theme.
 			return formatStylesheet(
 				this.lightPalette,
 				this.darkPalette,
 				mergedOptions,
-				lightTokens,
+				[...lightTokens, ...persistentEntries],
 				darkTokens,
 			);
 		}
 
 		return {
-			light: format(this.lightPalette, mergedOptions, lightTokens),
-			dark: format(this.darkPalette, mergedOptions, darkTokens),
+			light: format(this.lightPalette, mergedOptions, [
+				...lightTokens,
+				...persistentEntries,
+			]),
+			dark: format(this.darkPalette, mergedOptions, [
+				...darkTokens,
+				...persistentEntries,
+			]),
 		};
+	}
+
+	private buildPersistentEntries(
+		options: HextimateFormatOptions,
+		lightStandalone: TokenEntry[],
+		darkStandalone: TokenEntry[],
+	): TokenEntry[] {
+		const sep = options.separator ?? '-';
+		const lightBase = buildTokenEntries(this.lightPalette, options);
+		const darkBase = buildTokenEntries(this.darkPalette, options);
+		return [
+			...lightBase.map((e) => withModeSuffix(e, 'light', sep)),
+			...lightStandalone.map((e) => withModeSuffix(e, 'light', sep)),
+			...darkBase.map((e) => withModeSuffix(e, 'dark', sep)),
+			...darkStandalone.map((e) => withModeSuffix(e, 'dark', sep)),
+		];
 	}
 
 	private applyRole(name: string, color: ColorInput | DerivedToken): void {

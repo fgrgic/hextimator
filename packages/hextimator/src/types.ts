@@ -365,6 +365,32 @@ export interface HextimateFormatOptions {
 	 * Example: `['strong', 'weak']` removes those variants from all roles.
 	 */
 	excludeVariants?: string[];
+
+	/**
+	 * Emit an extra `-light` and `-dark` copy of every token that always
+	 * resolves to that mode's value, regardless of the active dark-mode
+	 * strategy. Use for "always dark" or "always light" sections (navbars,
+	 * hero spots, testimonials) that should not follow the surrounding theme.
+	 *
+	 * For stylesheet outputs (`as: 'css'`, `as: 'tailwind-css'`), the
+	 * persistent tokens live in the root block only and are never overridden
+	 * by the dark-mode wrapper.
+	 *
+	 * For per-palette outputs (`object`, `scss`, `json`, `tailwind`), both
+	 * the `light` and `dark` result objects include the persistent tokens
+	 * with identical values.
+	 *
+	 * Example output (flat keys):
+	 * - `accent-light`, `accent-strong-light`, `accent-foreground-light`
+	 * - `accent-dark`, `accent-strong-dark`, `accent-foreground-dark`
+	 *
+	 * Tailwind users need to pair this with the companion stylesheet:
+	 * `@import "hextimator/tailwind-persistent.css";` to get
+	 * `bg-accent-light`, `text-accent-foreground-dark`, etc.
+	 *
+	 * Default: `false`.
+	 */
+	persistentVariants?: boolean;
 }
 
 /**

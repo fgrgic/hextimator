@@ -63,11 +63,13 @@
 		},
 		"./cli": "./dist/cli.js",
 		"./tailwind.css": "./tailwind.css",
+		"./tailwind-persistent.css": "./tailwind-persistent.css",
 		"./fallback.css": "./fallback.css"
 	},
 	"files": [
 		"dist",
 		"tailwind.css",
+		"tailwind-persistent.css",
 		"fallback.css",
 		"llms.txt",
 		"CHANGELOG.md"
