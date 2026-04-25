@@ -149,38 +149,6 @@ hextimate("#FACADE")
 
 Preset **`style`** plus **`.style()`** on the builder is covered in [Extending presets](#extending-presets) above. For every option you can pass, see [Customization](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md). To reuse the same chain with another accent or options, see [Multiple themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md) (`.fork()` + `.style()`).
 
-### Inverted contrast sections
-
-For sections that intentionally contrast with their surroundings — testimonials, hero callouts, alternating stripes — pass `invertedVariants: true`:
-
-```ts
-hextimate("#6A5ACD").format({
-  as: "css",
-  invertedVariants: true,
-  darkMode: "class",
-});
-```
-
-This adds an `-inverted` copy of every token (`--accent-inverted`, `--surface-strong-inverted`, …). Each one holds the opposite mode's value, so `bg-surface-inverted` is dark in light mode and light in dark mode — one class, both directions.
-
-Tailwind users add the companion stylesheet:
-
-```css
-@import "hextimator/tailwind.css";
-@import "hextimator/tailwind-inverted.css";
-```
-
-```jsx
-<section className="bg-surface-inverted text-surface-foreground-inverted">
-  Contrast section, flips with mode.
-</section>
-
-{/* Always-dark by composing with dark:  */}
-<nav className="bg-surface-inverted dark:bg-surface">Always dark.</nav>
-```
-
-See [Inverted variants](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md#inverted-variants) for the full guide and "always this mode" recipes.
-
 ### Filtering output
 
 Use `excludeRoles` and `excludeVariants` in `.format()` (or in a preset's `format` field) to drop tokens you don't need:
@@ -294,15 +262,18 @@ Does not match **preset-only** token names (e.g. shadcn); use the CLI to generat
 
 ## Documentation
 
-- [Migration guide](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md) — breaking changes by version
+- [Customization](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md) — style and format options reference
 - [Extending the palette](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/extending-the-palette.md) — `addRole`, `addVariant`, `addToken`
 - [Presets](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/presets.md) — drop-in configs for shadcn/ui, or create your own
 - [Multiple themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md) — dynamic theming and `.fork()`
-- [Customization](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md) — style and format options reference
 - [Color vision deficiency](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/color-vision-deficiency.md) — simulate and adapt for CVD
 - [React](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/react.md) — hook, `HextimatorStyle`, provider, scoped themes, dark mode
 - [Tailwind CSS v4](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/tailwind.md) — setup and usage with Tailwind
 - [Real-world examples](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/examples.md) — shadcn/ui, Stripe, Slack configurations
+
+### For migrating from previous versions
+
+- [Migration guide](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md) — breaking changes by version
 
 ## Contributing
 

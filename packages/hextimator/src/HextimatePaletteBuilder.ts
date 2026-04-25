@@ -517,9 +517,6 @@ export class HextimatePaletteBuilder {
 			colorFormat,
 		);
 
-		// Inverted tokens use the standard cascade: each block carries its
-		// opposite palette's values suffixed with `-inverted`. Mode flip
-		// causes them to swap, giving you a one-class "contrast" section.
 		const inverted = mergedOptions?.invertedVariants
 			? this.buildInvertedEntries(mergedOptions, lightTokens, darkTokens)
 			: { lightBlock: [], darkBlock: [] };

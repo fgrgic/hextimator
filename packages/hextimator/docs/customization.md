@@ -13,10 +13,22 @@ Passed to `.style()` on the palette builder (and to the `style` field on presets
 | `semanticColorRanges` | `{ positive?: [start, end], ... }` | `positive: [135,160]`, `negative: [5,25]`, `warning: [45,65]` | Hue degree ranges for finding semantic colors. Ranges are clockwise arcs; `[350, 10]` wraps through 0°. |
 | `surfaceMaxChroma` | `number` | `0.01` | Max chroma for surface colors (higher = more colorful) |
 | `foregroundMaxChroma` | `number` | `0.01` | Max chroma for foreground colors (higher = more colorful) |
-| `light` | `ThemeAdjustments` | (see types) | Per-light-theme overrides: `baseLightness`, `maxChroma`, `minContrastRatio`, `surfaceMaxChroma`, `foregroundMaxChroma` |
-| `dark` | `ThemeAdjustments` | (see types) | Per-dark-theme overrides (same shape as `light`) |
+| `light` | [`ThemeAdjustments`](#themeadjustments) | — | Per-light-theme overrides.  |
+| `dark` | [`ThemeAdjustments`](#themeadjustments) | — | Per-dark-theme overrides (same shape as `light`) |
 | `minContrastRatio` | `"AAA" \| "AA" \| number` | `"AAA"` | Minimum WCAG contrast ratio between variants and foreground. `"AAA"` = 7, `"AA"` = 4.5, or pass any number |
 | `invertDarkModeSurfaceAccent` | `boolean` | `false` | Swap surface and accent hues in dark mode. Requires `surfaceColor` to be set |
+
+### `ThemeAdjustments`
+
+Fields on `HextimateStyleOptions.light` and `.dark` (see `ThemeAdjustments` in `hextimator`’s public types). All properties are optional; unset fields inherit from the parent `HextimateStyleOptions` or the library defaults.
+
+| Field | Type | Default (when not set) | Description |
+| --- | --- | --- | --- |
+| `baseLightness` | `number` (0–1) | `0.7` (light) / `0.6` (dark) for generation | OKLCH lightness anchor for this theme’s accent (baseline the palette is built around) |
+| `maxChroma` | `number` | Global / generator default | Max chroma for accent and semantic colors in this theme; higher chroma is clamped |
+| `minContrastRatio` | `"AAA" \| "AA" \| number` | Inherits from top-level `minContrastRatio` | Minimum WCAG contrast for this theme only (`"AAA"` = 7, `"AA"` = 4.5) |
+| `surfaceMaxChroma` | `number` | Inherits from top-level `surfaceMaxChroma` | Max chroma for surface (`surface`, `strong`, `weak`) in this theme |
+| `foregroundMaxChroma` | `number` | Inherits from top-level `foregroundMaxChroma` | Max chroma for foreground colors in this theme |
 
 ## Format options
 
