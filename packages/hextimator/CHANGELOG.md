@@ -1,4 +1,28 @@
-## 0.6.0 (Latest)
+## 0.7.0 (Latest)
+
+- Renamed `ThemeAdjustments.lightness` → `baseLightness` to disambiguate it from the *relative* `lightness` offset used by `addToken({ from, lightness })`. Same word was doing two different jobs (absolute theme anchor vs. relative offset), which made the API confusing.
+
+  ```ts
+  // Before (0.6)
+  hextimate(color).style({
+    light: { lightness: 0.7 },
+    dark:  { lightness: 0.6 },
+  });
+
+  // After (0.7)
+  hextimate(color).style({
+    light: { baseLightness: 0.7 },
+    dark:  { baseLightness: 0.6 },
+  });
+  ```
+
+  Relative offsets in derived tokens are unchanged: `addToken('x', { from: 'accent', lightness: -0.2 })` still means "0.2 lower OKLCH lightness than accent".
+
+  The old `lightness` field still works as a deprecated alias and emits a one-time `console.warn`. It will be removed in a future release. CLI flags (`--light-lightness`, `--dark-lightness`) are unchanged.
+
+  Migration checklist: [migration.md](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md).
+
+## 0.6.0
 
 - [#114](https://github.com/fgrgic/hextimator/pull/114) **Breaking**. Uses `surface` instead of `base` for the background tokens (e.g. `base-strong` → `surface-strong`). This avoids a class-name collision with Tailwind's built-in text-base font-size utility and makes the token name match its semantic purpose (the surface behind your content).
 

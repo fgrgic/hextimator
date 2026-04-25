@@ -24,8 +24,8 @@ export const demo: HextimatePreset = {
 		surfaceHueShift: 180,
 		surfaceMaxChroma: 0.025,
 		hueShift: 10,
-		light: { lightness: 0.55, maxChroma: 0.14 },
-		dark: { lightness: 0.35, maxChroma: 0.12 },
+		light: { baseLightness: 0.55, maxChroma: 0.14 },
+		dark: { baseLightness: 0.35, maxChroma: 0.12 },
 	},
 
 	roles: [

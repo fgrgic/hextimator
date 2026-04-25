@@ -32,7 +32,7 @@ const builder = hextimate("#52FE8C")
     surfaceMaxChroma: 0.03,
     surfaceColor: "#FEBA5D",
     invertDarkModeSurfaceAccent: true,
-    light: { lightness: 0.6 },
+    light: { baseLightness: 0.6 },
   })
   .addRole("banner", "#ff006e")
   .addRole("sidebar", "bb00ff")
@@ -46,7 +46,7 @@ Then extend with `.fork()`:
 ```ts
 const warm = builder.fork("#ff6677");
 const cool = builder.fork("#3a86ff").style({ invertDarkModeSurfaceAccent: false });
-const muted = builder.fork().style({ surfaceMaxChroma: 0.01, light: { lightness: 0.7 } });
+const muted = builder.fork().style({ surfaceMaxChroma: 0.01, light: { baseLightness: 0.7 } });
 
 const extended = builder
   .fork("#ff6677")

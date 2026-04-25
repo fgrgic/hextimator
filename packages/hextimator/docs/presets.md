@@ -203,8 +203,8 @@ A style-only preset is even simpler -- just style params:
 ```typescript
 const pastel: HextimatePreset = {
   style: {
-    light: { maxChroma: 0.1, lightness: 0.8 },
-    dark: { maxChroma: 0.09, lightness: 0.7 },
+    light: { maxChroma: 0.1, baseLightness: 0.8 },
+    dark: { maxChroma: 0.09, baseLightness: 0.7 },
   },
 };
 ```

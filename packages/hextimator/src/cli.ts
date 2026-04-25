@@ -162,7 +162,7 @@ function run(): void {
 	if (values['light-lightness'] || values['light-max-chroma']) {
 		styleOptions.light = {};
 		if (values['light-lightness'])
-			styleOptions.light.lightness = Number(values['light-lightness']);
+			styleOptions.light.baseLightness = Number(values['light-lightness']);
 		if (values['light-max-chroma'])
 			styleOptions.light.maxChroma = Number(values['light-max-chroma']);
 	}
@@ -170,7 +170,7 @@ function run(): void {
 	if (values['dark-lightness'] || values['dark-max-chroma']) {
 		styleOptions.dark = {};
 		if (values['dark-lightness'])
-			styleOptions.dark.lightness = Number(values['dark-lightness']);
+			styleOptions.dark.baseLightness = Number(values['dark-lightness']);
 		if (values['dark-max-chroma'])
 			styleOptions.dark.maxChroma = Number(values['dark-max-chroma']);
 	}

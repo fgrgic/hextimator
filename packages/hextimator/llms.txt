@@ -83,8 +83,8 @@ Pick the dark wrapper with `darkMode`: `"media"` (default) wraps dark tokens in 
 | `semanticColorRanges` | `{ positive?: [start,end], ... }` | greens, reds, ambers | Hue ranges for semantic detection |
 | `surfaceMaxChroma` | number | `0.01` | Max chroma for surface colors |
 | `foregroundMaxChroma` | number | `0.01` | Max chroma for foreground colors |
-| `light` | `{ lightness?, maxChroma? }` | `{ lightness: 0.7 }` | Light theme adjustments |
-| `dark` | `{ lightness?, maxChroma? }` | `{ lightness: 0.6 }` | Dark theme adjustments |
+| `light` | `{ baseLightness?, maxChroma? }` | `{ baseLightness: 0.7 }` | Light theme adjustments. `baseLightness` is the absolute OKLCH anchor for the accent (distinct from the relative `lightness` offset on derived tokens) |
+| `dark` | `{ baseLightness?, maxChroma? }` | `{ baseLightness: 0.6 }` | Dark theme adjustments |
 | `minContrastRatio` | `"AAA"`, `"AA"`, or number | `"AAA"` | WCAG contrast target (AAA=7, AA=4.5) |
 | `hueShift` | degrees | `0` | Per-variant hue rotation |
 
