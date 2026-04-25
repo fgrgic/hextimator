@@ -122,7 +122,7 @@ describe('preset', () => {
 	test('regenerate preserves preset (via light/dark options)', () => {
 		const theme = objectTheme(
 			hextimate('#6366F1')
-				.style({ light: { lightness: 0.8 } })
+				.style({ light: { baseLightness: 0.8 } })
 				.preset(shadcn),
 		);
 
@@ -207,7 +207,7 @@ describe('preset chaining', () => {
 		};
 		const presetB: HextimatePreset = {
 			style: {
-				light: { lightness: 0.8 },
+				light: { baseLightness: 0.8 },
 			},
 		};
 

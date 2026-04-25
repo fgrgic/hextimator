@@ -110,9 +110,19 @@ export type ConvertColor = <S extends ColorSpace>(
  */
 export interface ThemeAdjustments {
 	/**
-	 * Absolute OKLCH lightness for this theme (0–1).
+	 * Absolute OKLCH lightness anchor for this theme's accent color (0–1).
+	 *
+	 * This is the *baseline* the palette is generated around — distinct from
+	 * the *relative* `lightness` offsets used by `addToken({ from, lightness })`.
 	 *
 	 * Default: 0.7 for light, 0.6 for dark.
+	 */
+	baseLightness?: number;
+
+	/**
+	 * @deprecated Renamed to `baseLightness` in 0.7.0 to disambiguate it from
+	 * the relative `lightness` offset used by `addToken({ from, lightness })`.
+	 * Still works as a fallback. Will be removed in a future release.
 	 */
 	lightness?: number;
 

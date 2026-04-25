@@ -2,6 +2,51 @@
 
 Breaking changes by release. Each section is a checklist; see the [CHANGELOG](../CHANGELOG.md) for release notes and PR links.
 
+## 0.6.x → 0.7.0
+
+0.7.0 renames `ThemeAdjustments.lightness` to **`baseLightness`** to disambiguate it from the *relative* `lightness` offset used by `addToken({ from, lightness })` and other derived-token APIs. Same word was doing two different jobs:
+
+- `style({ light: { lightness: 0.7 } })` — **absolute** OKLCH lightness for the theme's accent.
+- `addToken('x', { from: 'accent', lightness: -0.2 })` — **relative** offset from the source.
+
+After this release:
+
+- `style({ light: { baseLightness: 0.7 } })` — absolute, theme-level anchor.
+- `addToken('x', { from: 'accent', lightness: -0.2 })` — unchanged. `lightness` always means "relative offset" now.
+
+### Style options
+
+| Before (0.6) | After (0.7) |
+|---|---|
+| `style({ light: { lightness: 0.7 } })` | `style({ light: { baseLightness: 0.7 } })` |
+| `style({ dark: { lightness: 0.6 } })` | `style({ dark: { baseLightness: 0.6 } })` |
+
+```ts
+hextimate("#ff8d80").style({
+  surfaceHueShift: 200,
+  light: { baseLightness: 0.7, surfaceMaxChroma: 0.02 },
+  dark:  { baseLightness: 0.7, surfaceMaxChroma: 0.02 },
+});
+```
+
+The old `lightness` field still works in 0.7 — it forwards to `baseLightness` and emits a one-time `console.warn`. It will be removed in a future release.
+
+### Search and replace checklist
+
+Whole-word search inside any `style({ ... })`, `light: { ... }`, `dark: { ... }`, or preset `style: { ... }` blocks:
+
+- `lightness:` (inside `light` / `dark` only) → `baseLightness:`
+
+Do **not** rename `lightness:` inside `addToken`, `addRole`, `addVariant`, or any `{ from: ... }` derived-token object — those stay as relative offsets.
+
+### CLI
+
+CLI flags are unchanged. `--light-lightness` and `--dark-lightness` continue to work and now set `baseLightness` internally.
+
+### React
+
+If you read `style.light.lightness` / `style.dark.lightness` directly (e.g. inside a custom theme-preferences UI), rename to `baseLightness`. The deprecated alias is still readable on `style` objects you set yourself, but new code (and the React provider's defaults) emit `baseLightness`.
+
 ## 0.5.x → 0.6.0
 
 0.6.0 renames the neutral/background role from **`base`** to **`surface`**. This avoids a class-name collision with Tailwind's built-in `text-base` font-size utility and makes the token name match its semantic purpose (the surface behind your content).

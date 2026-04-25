@@ -13,10 +13,11 @@ function getLightnessOffset(
 	style: ReturnType<typeof useHextimatorTheme>['style'],
 ): number {
 	const lightDelta =
-		(style?.light?.lightness ?? DEFAULT_LIGHT_LIGHTNESS) -
+		(style?.light?.baseLightness ?? DEFAULT_LIGHT_LIGHTNESS) -
 		DEFAULT_LIGHT_LIGHTNESS;
 	const darkDelta =
-		(style?.dark?.lightness ?? DEFAULT_DARK_LIGHTNESS) - DEFAULT_DARK_LIGHTNESS;
+		(style?.dark?.baseLightness ?? DEFAULT_DARK_LIGHTNESS) -
+		DEFAULT_DARK_LIGHTNESS;
 	return Math.round(((lightDelta + darkDelta) / 2) * 100) / 100;
 }
 
@@ -50,11 +51,11 @@ export function ThemePreferences() {
 						...style,
 						light: {
 							...style?.light,
-							lightness: DEFAULT_LIGHT_LIGHTNESS + v,
+							baseLightness: DEFAULT_LIGHT_LIGHTNESS + v,
 						},
 						dark: {
 							...style?.dark,
-							lightness: DEFAULT_DARK_LIGHTNESS + v,
+							baseLightness: DEFAULT_DARK_LIGHTNESS + v,
 						},
 					})
 				}
@@ -94,11 +95,11 @@ export function ThemePreferences() {
 						...style,
 						light: {
 							...style?.light,
-							lightness: DEFAULT_LIGHT_LIGHTNESS + lightness,
+							baseLightness: DEFAULT_LIGHT_LIGHTNESS + lightness,
 						},
 						dark: {
 							...style?.dark,
-							lightness: DEFAULT_DARK_LIGHTNESS + lightness,
+							baseLightness: DEFAULT_DARK_LIGHTNESS + lightness,
 						},
 						surfaceHueShift: hueShift,
 						surfaceMaxChroma: chroma,
@@ -116,11 +117,11 @@ export function ThemePreferences() {
 						...style,
 						light: {
 							...style?.light,
-							lightness: DEFAULT_LIGHT_LIGHTNESS,
+							baseLightness: DEFAULT_LIGHT_LIGHTNESS,
 						},
 						dark: {
 							...style?.dark,
-							lightness: DEFAULT_DARK_LIGHTNESS,
+							baseLightness: DEFAULT_DARK_LIGHTNESS,
 						},
 						surfaceHueShift: 0,
 						surfaceMaxChroma: 0.01,
