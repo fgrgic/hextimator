@@ -262,15 +262,18 @@ Does not match **preset-only** token names (e.g. shadcn); use the CLI to generat
 
 ## Documentation
 
-- [Migration guide](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md) — breaking changes by version
+- [Customization](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md) — style and format options reference
 - [Extending the palette](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/extending-the-palette.md) — `addRole`, `addVariant`, `addToken`
 - [Presets](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/presets.md) — drop-in configs for shadcn/ui, or create your own
 - [Multiple themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md) — dynamic theming and `.fork()`
-- [Customization](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md) — style and format options reference
 - [Color vision deficiency](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/color-vision-deficiency.md) — simulate and adapt for CVD
 - [React](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/react.md) — hook, `HextimatorStyle`, provider, scoped themes, dark mode
 - [Tailwind CSS v4](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/tailwind.md) — setup and usage with Tailwind
 - [Real-world examples](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/examples.md) — shadcn/ui, Stripe, Slack configurations
+
+### For migrating from previous versions
+
+- [Migration guide](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md) — breaking changes by version
 
 ## Contributing
 

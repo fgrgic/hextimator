@@ -45,7 +45,7 @@ export class HextimateError extends Error {
  * @example
  * // Extended: add roles and variants before formatting
  * const theme = hextimate('#ff6600')
- *   .style({ light: { lightness: 0.5 }, dark: { lightness: 0.65, maxChroma: 0.1 } })
+ *   .style({ light: { baseLightness: 0.5 }, dark: { baseLightness: 0.65, maxChroma: 0.1 } })
  *   .addRole('cta', '#ee2244')
  *   .addVariant('hover', { from: 'strong' })
  *   .format({ as: 'tailwind' });

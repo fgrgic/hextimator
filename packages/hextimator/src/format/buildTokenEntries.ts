@@ -41,3 +41,20 @@ export function buildTokenEntries(
 
 	return entries;
 }
+
+/**
+ * Returns a copy of `entry` whose flat key carries an `-inverted` suffix.
+ * Used by `invertedVariants` to emit a contrast copy of every token.
+ *
+ * The suffix is joined to the variant using the current separator, so the
+ * flat key for role `accent`, variant `strong` becomes `accent-strong-inverted`
+ * (default sep) or `accent_strong_inverted` (sep `_`).
+ *
+ * For the DEFAULT variant the flat key collapses to `role-inverted`.
+ */
+export function withInvertedSuffix(entry: TokenEntry, sep: string): TokenEntry {
+	if (entry.isDefault && entry.variant === 'DEFAULT') {
+		return { ...entry, isDefault: false, variant: 'inverted' };
+	}
+	return { ...entry, variant: `${entry.variant}${sep}inverted` };
+}

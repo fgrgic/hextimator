@@ -308,6 +308,8 @@ export function expandColorToScale(
 const LIGHT_THEME_LIGHTNESS_RANGE = [0.4, 0.99] as const;
 const DARK_THEME_LIGHTNESS_RANGE = [0.2, 0.8] as const;
 
+let warnedLegacyLightness = false;
+
 export function resolveThemeLightness(
 	themeType: ThemeType,
 	options?: Pick<HextimateStyleOptions, 'light' | 'dark'>,
@@ -319,8 +321,25 @@ export function resolveThemeLightness(
 			? LIGHT_THEME_LIGHTNESS_RANGE
 			: DARK_THEME_LIGHTNESS_RANGE;
 
-	if (themeAdjustments?.lightness !== undefined) {
-		return Math.min(Math.max(themeAdjustments.lightness, range[0]), range[1]);
+	const value = themeAdjustments?.baseLightness ?? themeAdjustments?.lightness;
+
+	if (
+		themeAdjustments?.baseLightness === undefined &&
+		themeAdjustments?.lightness !== undefined &&
+		!warnedLegacyLightness &&
+		typeof console !== 'undefined'
+	) {
+		warnedLegacyLightness = true;
+		console.warn(
+			'[hextimator] `style({ light/dark: { lightness } })` is deprecated. ' +
+				'Rename to `baseLightness` to disambiguate from the relative ' +
+				'`lightness` offset used by `addToken({ from, lightness })`. ' +
+				'Will be removed in a future release.',
+		);
+	}
+
+	if (value !== undefined) {
+		return Math.min(Math.max(value, range[0]), range[1]);
 	}
 
 	return themeType === 'light'

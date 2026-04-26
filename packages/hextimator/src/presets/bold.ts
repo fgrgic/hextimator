@@ -6,8 +6,8 @@ import type { HextimatePreset } from './types';
  */
 export const bold: HextimatePreset = {
 	style: {
-		light: { lightness: 0.5 },
-		dark: { lightness: 0.8 },
+		light: { baseLightness: 0.5 },
+		dark: { baseLightness: 0.8 },
 		surfaceMaxChroma: 0.06,
 		foregroundMaxChroma: 0.02,
 	},

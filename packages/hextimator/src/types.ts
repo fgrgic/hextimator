@@ -110,9 +110,19 @@ export type ConvertColor = <S extends ColorSpace>(
  */
 export interface ThemeAdjustments {
 	/**
-	 * Absolute OKLCH lightness for this theme (0–1).
+	 * Absolute OKLCH lightness anchor for this theme's accent color (0–1).
+	 *
+	 * This is the *baseline* the palette is generated around — distinct from
+	 * the *relative* `lightness` offsets used by `addToken({ from, lightness })`.
 	 *
 	 * Default: 0.7 for light, 0.6 for dark.
+	 */
+	baseLightness?: number;
+
+	/**
+	 * @deprecated Renamed to `baseLightness` in 0.7.0 to disambiguate it from
+	 * the relative `lightness` offset used by `addToken({ from, lightness })`.
+	 * Still works as a fallback. Will be removed in a future release.
 	 */
 	lightness?: number;
 
@@ -365,6 +375,31 @@ export interface HextimateFormatOptions {
 	 * Example: `['strong', 'weak']` removes those variants from all roles.
 	 */
 	excludeVariants?: string[];
+
+	/**
+	 * Emit an extra `-inverted` copy of every token whose value is the
+	 * opposite mode's value (light tokens get dark values, dark tokens get
+	 * light values). Inverted tokens flip with the active mode, just like
+	 * regular tokens.
+	 *
+	 * Use for sections that intentionally contrast with the surrounding
+	 * theme: testimonials, alternating stripes, hero callouts, "spotlight"
+	 * panels. One class (`bg-surface-inverted`) flips both ways.
+	 *
+	 * For "always this mode" sections, compose with the dark-mode variant:
+	 * - Always dark: `bg-surface-inverted dark:bg-surface`
+	 * - Always light: `bg-surface dark:bg-surface-inverted`
+	 *
+	 * Example output (flat keys):
+	 * - `accent-inverted`, `accent-strong-inverted`, `accent-foreground-inverted`
+	 *
+	 * Tailwind users need to pair this with the companion stylesheet:
+	 * `@import "hextimator/tailwind-inverted.css";` to get utilities like
+	 * `bg-accent-inverted`, `text-accent-foreground-inverted`.
+	 *
+	 * Default: `false`.
+	 */
+	invertedVariants?: boolean;
 }
 
 /**

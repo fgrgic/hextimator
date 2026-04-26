@@ -1,6 +1,6 @@
 {
 	"name": "hextimator",
-	"version": "0.6.0",
+	"version": "0.7.0",
 	"description": "Runtime theming for multi-tenant apps: per-tenant branded themes from a single brand color, with WCAG contrast guarantees.",
 	"keywords": [
 		"runtime-theming",
@@ -63,11 +63,13 @@
 		},
 		"./cli": "./dist/cli.js",
 		"./tailwind.css": "./tailwind.css",
+		"./tailwind-inverted.css": "./tailwind-inverted.css",
 		"./fallback.css": "./fallback.css"
 	},
 	"files": [
 		"dist",
 		"tailwind.css",
+		"tailwind-inverted.css",
 		"fallback.css",
 		"llms.txt",
 		"CHANGELOG.md"

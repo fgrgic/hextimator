@@ -2,6 +2,10 @@ import { adaptPalette, type CVDType, simulatePalette } from './a11y';
 import { convert } from './convert';
 import type { FlatTokenMap, FormatResult, NestedTokenMap } from './format';
 import { format, formatStylesheet } from './format';
+import {
+	buildTokenEntries,
+	withInvertedSuffix,
+} from './format/buildTokenEntries';
 import { serializeColor } from './format/serializeColor';
 import type { TokenEntry } from './format/types';
 import { generate } from './generate';
@@ -513,19 +517,51 @@ export class HextimatePaletteBuilder {
 			colorFormat,
 		);
 
+		const inverted = mergedOptions?.invertedVariants
+			? this.buildInvertedEntries(mergedOptions, lightTokens, darkTokens)
+			: { lightBlock: [], darkBlock: [] };
+
 		if (mergedOptions?.as === 'css' || mergedOptions?.as === 'tailwind-css') {
 			return formatStylesheet(
 				this.lightPalette,
 				this.darkPalette,
 				mergedOptions,
-				lightTokens,
-				darkTokens,
+				[...lightTokens, ...inverted.lightBlock],
+				[...darkTokens, ...inverted.darkBlock],
 			);
 		}
 
 		return {
-			light: format(this.lightPalette, mergedOptions, lightTokens),
-			dark: format(this.darkPalette, mergedOptions, darkTokens),
+			light: format(this.lightPalette, mergedOptions, [
+				...lightTokens,
+				...inverted.lightBlock,
+			]),
+			dark: format(this.darkPalette, mergedOptions, [
+				...darkTokens,
+				...inverted.darkBlock,
+			]),
+		};
+	}
+
+	private buildInvertedEntries(
+		options: HextimateFormatOptions,
+		lightStandalone: TokenEntry[],
+		darkStandalone: TokenEntry[],
+	): { lightBlock: TokenEntry[]; darkBlock: TokenEntry[] } {
+		const sep = options.separator ?? '-';
+		const lightBase = buildTokenEntries(this.lightPalette, options);
+		const darkBase = buildTokenEntries(this.darkPalette, options);
+		return {
+			// Light block carries dark values under -inverted suffix.
+			lightBlock: [
+				...darkBase.map((e) => withInvertedSuffix(e, sep)),
+				...darkStandalone.map((e) => withInvertedSuffix(e, sep)),
+			],
+			// Dark block carries light values under -inverted suffix.
+			darkBlock: [
+				...lightBase.map((e) => withInvertedSuffix(e, sep)),
+				...lightStandalone.map((e) => withInvertedSuffix(e, sep)),
+			],
 		};
 	}
 

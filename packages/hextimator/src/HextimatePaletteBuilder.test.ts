@@ -450,7 +450,7 @@ describe('HextimatePaletteBuilder: light / dark options', () => {
 	it('light adjustments change light theme output', () => {
 		const normal = formatObject(hextimate('#ff6600'));
 		const adjusted = formatObject(
-			hextimate('#ff6600').style({ light: { lightness: 0.8 } }),
+			hextimate('#ff6600').style({ light: { baseLightness: 0.8 } }),
 		);
 		expect(adjusted.light.accent).not.toBe(normal.light.accent);
 	});
@@ -458,7 +458,7 @@ describe('HextimatePaletteBuilder: light / dark options', () => {
 	it('light adjustments do not change dark theme', () => {
 		const normal = formatObject(hextimate('#ff6600'));
 		const adjusted = formatObject(
-			hextimate('#ff6600').style({ light: { lightness: 0.8 } }),
+			hextimate('#ff6600').style({ light: { baseLightness: 0.8 } }),
 		);
 		expect(adjusted.dark.accent).toBe(normal.dark.accent);
 	});
@@ -466,7 +466,7 @@ describe('HextimatePaletteBuilder: light / dark options', () => {
 	it('dark adjustments change dark theme output', () => {
 		const normal = formatObject(hextimate('#ff6600'));
 		const adjusted = formatObject(
-			hextimate('#ff6600').style({ dark: { lightness: 0.5 } }),
+			hextimate('#ff6600').style({ dark: { baseLightness: 0.5 } }),
 		);
 		expect(adjusted.dark.accent).not.toBe(normal.dark.accent);
 	});
@@ -474,7 +474,7 @@ describe('HextimatePaletteBuilder: light / dark options', () => {
 	it('dark adjustments do not change light theme', () => {
 		const normal = formatObject(hextimate('#ff6600'));
 		const adjusted = formatObject(
-			hextimate('#ff6600').style({ dark: { lightness: 0.5 } }),
+			hextimate('#ff6600').style({ dark: { baseLightness: 0.5 } }),
 		);
 		expect(adjusted.light.accent).toBe(normal.light.accent);
 	});
@@ -491,7 +491,7 @@ describe('HextimatePaletteBuilder: light / dark options', () => {
 	it('adjustments work alongside addRole', () => {
 		const result = formatObject(
 			hextimate('#ff6600')
-				.style({ light: { lightness: 0.8 } })
+				.style({ light: { baseLightness: 0.8 } })
 				.addRole('cta', '#ee2244'),
 		);
 		expect(result.light.cta).toBeDefined();
@@ -511,6 +511,40 @@ describe('HextimatePaletteBuilder: light / dark options', () => {
 		expect(overridden.light.accent).not.toBe(global.light.accent);
 		// Dark theme unchanged (still AAA)
 		expect(overridden.dark.accent).toBe(global.dark.accent);
+	});
+
+	it('deprecated `lightness` alias still maps to baseLightness', () => {
+		const warn = console.warn;
+		console.warn = () => {};
+		try {
+			const viaNew = formatObject(
+				hextimate('#ff6600').style({ light: { baseLightness: 0.8 } }),
+			);
+			const viaOld = formatObject(
+				hextimate('#ff6600').style({ light: { lightness: 0.8 } }),
+			);
+			expect(viaOld.light.accent).toBe(viaNew.light.accent);
+		} finally {
+			console.warn = warn;
+		}
+	});
+
+	it('baseLightness wins when both are set', () => {
+		const warn = console.warn;
+		console.warn = () => {};
+		try {
+			const viaNew = formatObject(
+				hextimate('#ff6600').style({ light: { baseLightness: 0.8 } }),
+			);
+			const viaBoth = formatObject(
+				hextimate('#ff6600').style({
+					light: { baseLightness: 0.8, lightness: 0.4 },
+				}),
+			);
+			expect(viaBoth.light.accent).toBe(viaNew.light.accent);
+		} finally {
+			console.warn = warn;
+		}
 	});
 
 	it('per-theme surfaceMaxChroma override affects only that theme', () => {
@@ -597,7 +631,9 @@ describe('HextimatePaletteBuilder: fork()', () => {
 	});
 
 	it('fork preserves theme adjustments from options', () => {
-		const builder = hextimate('#ff6600').style({ light: { lightness: 0.8 } });
+		const builder = hextimate('#ff6600').style({
+			light: { baseLightness: 0.8 },
+		});
 		const normal = formatObject(hextimate('#ff6600'));
 		const forked = formatObject(builder.fork());
 		// Forked should have light adjustments, different from unadjusted
@@ -617,7 +653,7 @@ describe('HextimatePaletteBuilder: fork()', () => {
 
 	it('fork().style() overrides style options', () => {
 		const builder = hextimate('#ff6600');
-		const forked = builder.fork().style({ light: { lightness: 0.85 } });
+		const forked = builder.fork().style({ light: { baseLightness: 0.85 } });
 		const normal = formatObject(builder);
 		const forkedResult = formatObject(forked);
 		expect(forkedResult.light.accent).not.toBe(normal.light.accent);
@@ -627,10 +663,10 @@ describe('HextimatePaletteBuilder: fork()', () => {
 		const builder = hextimate('#ff6600');
 		const forked = builder
 			.fork('#0000ff')
-			.style({ light: { lightness: 0.85 } });
+			.style({ light: { baseLightness: 0.85 } });
 		const result = formatObject(forked);
 		expect(result.light.accent).toBeDefined();
-		// Should differ from both the original color and default lightness
+		// Should differ from both the original color and default base lightness
 		expect(result.light.accent).not.toBe(formatObject(builder).light.accent);
 	});
 });
@@ -804,8 +840,8 @@ describe('HextimatePaletteBuilder: complex chaining', () => {
 		const result = formatObject(
 			hextimate('#ff6600')
 				.style({
-					light: { lightness: 0.75 },
-					dark: { lightness: 0.55 },
+					light: { baseLightness: 0.75 },
+					dark: { baseLightness: 0.55 },
 				})
 				.addRole('cta', '#ee2244')
 				.addVariant('hover', { from: 'strong' }),
@@ -906,5 +942,241 @@ describe('HextimatePaletteBuilder: edge cases', () => {
 			}),
 		);
 		expect(result.light.muted).toMatch(/^#[0-9a-f]{6}$/);
+	});
+});
+
+// ──────────────────────────────────────────────
+// invertedVariants
+// ──────────────────────────────────────────────
+describe('HextimatePaletteBuilder: invertedVariants', () => {
+	it('emits an -inverted copy for every role and variant in object output', () => {
+		const base = hextimate('#ff6600').format({
+			as: 'object',
+			colors: 'hex',
+		}) as { light: Record<string, string>; dark: Record<string, string> };
+		const result = hextimate('#ff6600').format({
+			as: 'object',
+			colors: 'hex',
+			invertedVariants: true,
+		}) as { light: Record<string, string>; dark: Record<string, string> };
+
+		for (const role of [
+			'surface',
+			'accent',
+			'positive',
+			'negative',
+			'warning',
+		]) {
+			for (const variant of ['', '-strong', '-weak', '-foreground']) {
+				const key = `${role}${variant}`;
+				// Light block carries dark values under -inverted
+				expect(result.light[`${key}-inverted`]).toBe(base.dark[key]);
+				// Dark block carries light values under -inverted
+				expect(result.dark[`${key}-inverted`]).toBe(base.light[key]);
+			}
+		}
+	});
+
+	it('inverted value differs from the regular value within the same block', () => {
+		const result = hextimate('#6A5ACD').format({
+			as: 'object',
+			colors: 'hex',
+			invertedVariants: true,
+		}) as { light: Record<string, string>; dark: Record<string, string> };
+
+		expect(result.light.accent).not.toBe(result.light['accent-inverted']);
+		expect(result.dark.accent).not.toBe(result.dark['accent-inverted']);
+	});
+
+	it('inverted value in light equals the regular value in dark (and vice versa)', () => {
+		const result = hextimate('#6A5ACD').format({
+			as: 'object',
+			colors: 'hex',
+			invertedVariants: true,
+		}) as { light: Record<string, string>; dark: Record<string, string> };
+
+		expect(result.light['accent-inverted']).toBe(result.dark.accent);
+		expect(result.dark['accent-inverted']).toBe(result.light.accent);
+		expect(result.light['surface-strong-inverted']).toBe(
+			result.dark['surface-strong'],
+		);
+	});
+
+	it('does not emit -inverted keys when invertedVariants is false', () => {
+		const result = hextimate('#ff6600').format({
+			as: 'object',
+			colors: 'hex',
+		}) as { light: Record<string, string>; dark: Record<string, string> };
+
+		for (const key of Object.keys(result.light)) {
+			expect(key.endsWith('-inverted')).toBe(false);
+		}
+	});
+
+	it('includes standalone tokens in inverted output', () => {
+		const result = hextimate('#ff6600').format({
+			as: 'object',
+			colors: 'hex',
+			invertedVariants: true,
+		}) as { light: Record<string, string>; dark: Record<string, string> };
+
+		expect(result.light['brand-exact-inverted']).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light['brand-exact-foreground-inverted']).toMatch(
+			/^#[0-9a-f]{6}$/,
+		);
+	});
+
+	it('includes custom roles added via addRole in inverted output', () => {
+		const result = hextimate('#ff6600').addRole('cta', '#ee2244').format({
+			as: 'object',
+			colors: 'hex',
+			invertedVariants: true,
+		}) as { light: Record<string, string>; dark: Record<string, string> };
+
+		expect(result.light['cta-inverted']).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light['cta-strong-inverted']).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light['cta-foreground-inverted']).toMatch(/^#[0-9a-f]{6}$/);
+	});
+
+	it('respects excludeRoles and excludeVariants for inverted entries', () => {
+		const result = hextimate('#ff6600').format({
+			as: 'object',
+			colors: 'hex',
+			invertedVariants: true,
+			excludeRoles: ['warning'],
+			excludeVariants: ['weak'],
+		}) as { light: Record<string, string>; dark: Record<string, string> };
+
+		const keys = Object.keys(result.light);
+		expect(keys.some((k) => k.startsWith('warning-'))).toBe(false);
+		expect(keys.some((k) => k === 'warning-inverted')).toBe(false);
+		expect(keys.some((k) => k.includes('-weak-inverted'))).toBe(false);
+		expect(result.light['accent-inverted']).toMatch(/^#[0-9a-f]{6}$/);
+	});
+
+	it('respects custom separator in inverted keys', () => {
+		const result = hextimate('#ff6600').format({
+			as: 'object',
+			colors: 'hex',
+			invertedVariants: true,
+			separator: '_',
+		}) as { light: Record<string, string>; dark: Record<string, string> };
+
+		expect(result.light.accent_inverted).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light.accent_strong_inverted).toMatch(/^#[0-9a-f]{6}$/);
+	});
+
+	it('respects roleNames and variantNames remapping in inverted keys', () => {
+		const result = hextimate('#ff6600').format({
+			as: 'object',
+			colors: 'hex',
+			invertedVariants: true,
+			roleNames: { accent: 'brand' },
+			variantNames: { strong: 'primary' },
+		}) as { light: Record<string, string>; dark: Record<string, string> };
+
+		expect(result.light['brand-inverted']).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light['brand-primary-inverted']).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light['accent-inverted']).toBeUndefined();
+		expect(result.light['brand-strong-inverted']).toBeUndefined();
+	});
+
+	it('tailwind format nests inverted entries under the role key', () => {
+		const result = hextimate('#ff6600').format({
+			as: 'tailwind',
+			colors: 'hex',
+			invertedVariants: true,
+		}) as {
+			light: Record<string, Record<string, string>>;
+			dark: Record<string, Record<string, string>>;
+		};
+
+		expect(result.light.accent.inverted).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light.accent['strong-inverted']).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light.accent['foreground-inverted']).toMatch(
+			/^#[0-9a-f]{6}$/,
+		);
+	});
+
+	it('scss format prefixes inverted keys with $', () => {
+		const result = hextimate('#ff6600').format({
+			as: 'scss',
+			colors: 'hex',
+			invertedVariants: true,
+		}) as { light: Record<string, string>; dark: Record<string, string> };
+
+		expect(result.light['$accent-inverted']).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light['$accent-strong-inverted']).toMatch(/^#[0-9a-f]{6}$/);
+	});
+
+	it('css stylesheet emits -inverted in both root and dark blocks with swapped values', () => {
+		const base = hextimate('#ff6600').format({
+			as: 'object',
+			colors: 'hex',
+		}) as { light: Record<string, string>; dark: Record<string, string> };
+		const css = hextimate('#ff6600').format({
+			as: 'css',
+			invertedVariants: true,
+			darkMode: 'class',
+		}) as string;
+
+		const [rootBlock, darkBlock] = css.split('.dark {');
+		expect(rootBlock).toContain(`--accent-inverted: ${base.dark.accent};`);
+		expect(darkBlock).toBeDefined();
+		expect(darkBlock).toContain(`--accent-inverted: ${base.light.accent};`);
+		expect(rootBlock).toContain(
+			`--accent-strong-inverted: ${base.dark['accent-strong']};`,
+		);
+		expect(darkBlock).toContain(
+			`--accent-strong-inverted: ${base.light['accent-strong']};`,
+		);
+	});
+
+	it('css stylesheet @media dark redefines inverted vars with light values', () => {
+		const base = hextimate('#ff6600').format({
+			as: 'object',
+			colors: 'hex',
+		}) as { light: Record<string, string>; dark: Record<string, string> };
+		const css = hextimate('#ff6600').format({
+			as: 'css',
+			invertedVariants: true,
+		}) as string;
+
+		const mediaIdx = css.indexOf('@media (prefers-color-scheme: dark)');
+		expect(mediaIdx).toBeGreaterThan(-1);
+		const rootBlock = css.slice(0, mediaIdx);
+		const mediaBlock = css.slice(mediaIdx);
+
+		expect(rootBlock).toContain(`--accent-inverted: ${base.dark.accent};`);
+		expect(mediaBlock).toContain(`--accent-inverted: ${base.light.accent};`);
+	});
+
+	it('tailwind-css stylesheet emits inverted vars in both blocks', () => {
+		const css = hextimate('#ff6600').format({
+			as: 'tailwind-css',
+			invertedVariants: true,
+			darkMode: 'class',
+		}) as string;
+
+		const [themeBlock, darkBlock] = css.split('.dark {');
+		expect(themeBlock).toContain('--color-accent-inverted:');
+		expect(darkBlock).toBeDefined();
+		expect(darkBlock).toContain('--color-accent-inverted:');
+	});
+
+	it('darkMode: false still emits inverted vars (one block, dark values under -inverted)', () => {
+		const base = hextimate('#ff6600').format({
+			as: 'object',
+			colors: 'hex',
+		}) as { light: Record<string, string>; dark: Record<string, string> };
+		const css = hextimate('#ff6600').format({
+			as: 'css',
+			invertedVariants: true,
+			darkMode: false,
+		}) as string;
+
+		expect(css).toContain(`--accent-inverted: ${base.dark.accent};`);
+		expect(css).not.toContain('@media');
+		expect(css).not.toContain('.dark');
 	});
 });
