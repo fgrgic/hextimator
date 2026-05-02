@@ -1,8 +1,8 @@
-## Unreleased
+## 0.8.0 (Latest)
 
 - Adds optional `keyPrefix` on `HextimateFormatOptions` for flat `as: "object"` and `as: "json"` output (CLI: `--key-prefix`). Use `keyPrefix: "--"` when you want CSS custom property names as object keys without using stylesheet output.
 
-## 0.7.0 (Latest)
+## 0.7.0
 
 - Adds an opt-in `invertedVariants: true` format option that emits an -inverted copy of every token holding the opposite mode's value, plus a companion hextimator/tailwind-inverted.css so utilities like `bg-surface-inverted` just work.
 
@@ -68,6 +68,7 @@ Migration checklist: [migration.md](https://github.com/fgrgic/hextimator/blob/ma
 ## 0.3.2
 
 - [#99](https://github.com/fgrgic/hextimator/pull/99): Adds option to chain presets. Presets are merged, last added wins if both touch the same tokens.
+
   - For example: `hextimate("#ff6677").preset(shadcn).preset(muted);`
   - It also works with cli: `npx hextimate "#ff6677" -p shadcn -p vibrant`
 
