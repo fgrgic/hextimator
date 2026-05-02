@@ -153,7 +153,7 @@ hextimator '#6366F1' --preset vibrant --preset mui --format object
 hextimator '#6366F1' --preset shadcn --colors hsl-raw
 ```
 
-When a preset is active, its format defaults apply unless you explicitly override them with `--format`, `--colors`, or `--separator`.
+When a preset is active, its format defaults apply unless you explicitly override them with `--format`, `--colors`, `--separator`, or `--key-prefix`.
 
 ## Custom presets
 

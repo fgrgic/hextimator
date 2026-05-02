@@ -313,8 +313,19 @@ export interface HextimateFormatOptions {
 	separator?: string;
 
 	/**
+	 * String prepended to every flat token key in `as: "object"` and `as: "json"`.
+	 * Use `"--"` for CSS custom property names (`"--surface"`, `"--accent-strong"`).
+	 *
+	 * Ignored for `scss` (`$` prefix), nested `tailwind`, and stylesheet outputs
+	 * (`css`, `tailwind-css` already declare variables with `--`).
+	 *
+	 * Default: `""` (no prefix).
+	 */
+	keyPrefix?: string;
+
+	/**
 	 * Output format.
-	 * - "object" (default): { surface: "#f2eee8", "surface-strong": "#d4cfc8", ...}
+	 * - "object" (default): { surface: "#f2eee8", "surface-strong": "#d4cfc8", ...} or with keyPrefix "--": { "--surface": "...", "--surface-strong": "..." }
 	 * - "css": ready-to-paste CSS stylesheet string with `:root {}` and a dark-mode wrapper
 	 * - "tailwind": { surface: { DEFAULT: "#f2eee8", strong: "#d4cfc8", weak: "#faf8f6" } }
 	 * - "scss": { $surface: "#f2eee8", $surface-strong: "#d4cfc8", ...}

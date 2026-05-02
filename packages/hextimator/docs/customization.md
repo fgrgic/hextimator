@@ -41,6 +41,7 @@ Passed to `.format()` — these affect the output shape.
 | `roleNames` | `Record<string, string>` | Built-in names | Rename roles in output keys (e.g. `{ accent: "brand", surface: "background" }`) |
 | `variantNames` | `Record<string, string>` | Built-in names | Rename variant suffixes in output keys (e.g. `{ strong: "primary", foreground: "text" }`) |
 | `separator` | `string` | `"-"` | Separator between role and variant in token keys |
+| `keyPrefix` | `string` | `""` | Prepended to each flat key for `as: "object"` and `as: "json"` only (e.g. `"--"` for CSS custom property names). Ignored for `scss`, nested `tailwind`, and stylesheet outputs |
 | `excludeRoles` | `string[]` | `[]` | Role keys to omit from the output entirely (internal names, before `roleNames`) |
 | `excludeVariants` | `string[]` | `[]` | Variant keys to omit from every role's output (internal names, before `variantNames`) |
 | `darkMode` | `"media" \| "class" \| "data-attribute" \| false` | `"media"` | Dark-mode strategy for stylesheet outputs (`as: 'css'`, `as: 'tailwind-css'`) |
@@ -123,7 +124,7 @@ Inverted tokens compose with Tailwind's `dark:` variant to lock a section to one
 
 ### Notes
 
-- Inverted tokens respect `excludeRoles`, `excludeVariants`, `roleNames`, `variantNames`, and `separator` just like regular tokens.
+- Inverted tokens respect `excludeRoles`, `excludeVariants`, `roleNames`, `variantNames`, `separator`, and `keyPrefix` just like regular tokens.
 - For per-palette outputs (`object`, `scss`, `json`, `tailwind`), `result.light['accent-inverted']` equals `result.dark.accent`, and vice versa.
 - For stylesheet outputs the inverted tokens appear in both the root and dark-mode blocks with swapped values, using normal CSS cascade.
 - With `darkMode: false`, only the root block is emitted and `-inverted` simply holds the dark palette's values (a useful "give me dark colors in a light-only app" escape hatch).

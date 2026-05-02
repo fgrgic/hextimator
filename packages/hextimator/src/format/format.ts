@@ -26,6 +26,7 @@ export function format(
 	if (standaloneTokens) entries.push(...standaloneTokens);
 
 	const sep = options?.separator ?? '-';
+	const keyPrefix = options?.keyPrefix ?? '';
 
 	switch (options?.as) {
 		case 'scss':
@@ -33,9 +34,9 @@ export function format(
 		case 'tailwind':
 			return formatTailwind(entries);
 		case 'json':
-			return formatJSON(entries, sep);
+			return formatJSON(entries, sep, keyPrefix);
 		default:
-			return formatObject(entries, sep);
+			return formatObject(entries, sep, keyPrefix);
 	}
 }
 

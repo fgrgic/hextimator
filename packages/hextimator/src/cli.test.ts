@@ -28,6 +28,7 @@ const FORMAT_OPTION_TO_CLI_FLAG: Record<string, string | null> = {
 	as: 'format',
 	colors: 'colors',
 	separator: 'separator',
+	keyPrefix: 'key-prefix',
 	darkMode: 'dark-mode',
 	selector: 'selector',
 	roleNames: null, // exposed only via presets in CLI
