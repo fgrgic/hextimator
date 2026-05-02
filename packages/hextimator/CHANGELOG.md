@@ -1,3 +1,7 @@
+## Unreleased
+
+- Adds optional `keyPrefix` on `HextimateFormatOptions` for flat `as: "object"` and `as: "json"` output (CLI: `--key-prefix`). Use `keyPrefix: "--"` when you want CSS custom property names as object keys without using stylesheet output.
+
 ## 0.7.0 (Latest)
 
 - Adds an opt-in `invertedVariants: true` format option that emits an -inverted copy of every token holding the opposite mode's value, plus a companion hextimator/tailwind-inverted.css so utilities like `bg-surface-inverted` just work.

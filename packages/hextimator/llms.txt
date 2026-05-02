@@ -64,12 +64,12 @@ Tune how the palette is built with `.style(partial)` (`HextimateStyleOptions`, s
 | `excludeVariants` | `string[]` — variant keys to omit from every role's output (by internal name, before `variantNames`) | `[]` |
 
 Output shape depends on `as`:
-- `"object"` → `{ light, dark }` flat maps: `{ accent: "#...", "accent-strong": "#..." }`
+- `"object"` → `{ light, dark }` flat maps: `{ accent: "#...", "accent-strong": "#..." }` (with `keyPrefix: "--"`: `{ "--accent": "...", "--accent-strong": "..." }`)
 - `"css"` → `string` — ready-to-paste CSS stylesheet with `:root {}` and a dark-mode wrapper
 - `"tailwind"` → `{ light, dark }` nested maps: `{ accent: { DEFAULT: "#...", strong: "#..." } }`
 - `"tailwind-css"` → `string` — Tailwind v4 stylesheet: single `@theme { --color-accent: #...; }` block plus dark overrides
 - `"scss"` → `{ light, dark }` flat maps: `{ "$accent": "#...", "$accent-strong": "#..." }`
-- `"json"` → `{ light, dark }` JSON strings
+- `"json"` → `{ light, dark }` JSON strings (`keyPrefix` applies like `"object"`)
 
 Pick the dark wrapper with `darkMode`: `"media"` (default) wraps dark tokens in `@media (prefers-color-scheme: dark)`; `"class"` uses `.dark`; `"data-attribute"` uses `[data-theme="dark"]`; `false` omits dark entirely. For `as: "css"`, change the root selector with `selector` (e.g. `selector: "[data-theme]"`).
 

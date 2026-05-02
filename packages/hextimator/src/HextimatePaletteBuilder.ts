@@ -468,7 +468,7 @@ export class HextimatePaletteBuilder {
 	 * When a preset has been applied, its format options are used as defaults.
 	 * Any options passed here override the preset's defaults.
 	 *
-	 * @param options Format options controlling output shape (`as`), color serialization (`colors`), role/variant renaming, and separator.
+	 * @param options Format options controlling output shape (`as`), color serialization (`colors`), role/variant renaming, separator, and optional flat-key `keyPrefix`.
 	 */
 	format(
 		options: HextimateFormatOptions & { as: 'tailwind' },

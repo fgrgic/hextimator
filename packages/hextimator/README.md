@@ -175,12 +175,12 @@ Both options use internal names (before any `roleNames`/`variantNames` remapping
 
 All formats return `{ light: { ... }, dark: { ... } }`.
 
-- **`"object"`** (default) — plain keys: `accent`, `accent-strong`, …
+- **`"object"`** (default) — plain keys: `accent`, `accent-strong`, … Optional **`keyPrefix: "--"`** gives `--accent`, `--accent-strong`, … when you need CSS-style names without stylesheet output.
 - **`"css"`** — CSS custom properties: `--accent`, `--accent-strong`, …
 - **`"tailwind"`** — nested tokens: `{ accent: { DEFAULT, strong, … } }`
 - **`"tailwind-css"`** — `@theme` block with `--color-accent`, `--color-accent-strong`, …
 - **`"scss"`** — SCSS variables: `$accent`, `$accent-strong`, …
-- **`"json"`** — JSON string of the plain object
+- **`"json"`** — JSON string of the plain object (supports **`keyPrefix`** the same way as **`object`**)
 
 ### Color value formats
 
