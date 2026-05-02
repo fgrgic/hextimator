@@ -5,10 +5,14 @@ function toFlatKey(entry: TokenEntry, sep: string): string {
 	return `${entry.role}${sep}${entry.variant}`;
 }
 
-export function formatObject(entries: TokenEntry[], sep: string): FlatTokenMap {
+export function formatObject(
+	entries: TokenEntry[],
+	sep: string,
+	keyPrefix = '',
+): FlatTokenMap {
 	const result: FlatTokenMap = {};
 	for (const entry of entries) {
-		result[toFlatKey(entry, sep)] = entry.value;
+		result[`${keyPrefix}${toFlatKey(entry, sep)}`] = entry.value;
 	}
 	return result;
 }
@@ -30,8 +34,12 @@ export function formatTailwind(entries: TokenEntry[]): NestedTokenMap {
 	return result;
 }
 
-export function formatJSON(entries: TokenEntry[], sep: string): string {
-	return JSON.stringify(formatObject(entries, sep), null, 2);
+export function formatJSON(
+	entries: TokenEntry[],
+	sep: string,
+	keyPrefix = '',
+): string {
+	return JSON.stringify(formatObject(entries, sep, keyPrefix), null, 2);
 }
 
 export type StylesheetDarkMode = 'media' | 'class' | 'data-attribute' | false;

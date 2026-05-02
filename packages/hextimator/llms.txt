@@ -57,6 +57,7 @@ Tune how the palette is built with `.style(partial)` (`HextimateStyleOptions`, s
 | `roleNames` | `Record<string, string>` — rename roles in output keys | built-in names |
 | `variantNames` | `Record<string, string>` — rename variant suffixes | built-in names |
 | `separator` | `string` — between role and variant in keys | `"-"` |
+| `keyPrefix` | `string` — prepended to each key (`object` / `json` only); e.g. `"--"` for CSS vars | `""` |
 | `darkMode` | `"media"`, `"class"`, `"data-attribute"`, `false` (stylesheet outputs only) | `"media"` |
 | `selector` | `string` — root selector for `as: "css"` | `":root"` |
 | `excludeRoles` | `string[]` — role keys to omit entirely from output (by internal name, before `roleNames`) | `[]` |
@@ -298,6 +299,7 @@ Both commands are identical. Use whichever you prefer.
 | `-t, --theme` | `light`, `dark`, `both` (ignored for `css`/`tailwind-css` — both always combine into one string) | `both` |
 | `-p, --preset` | Apply preset (repeatable, applied in order): `shadcn`, `mui`, `muted`, `vibrant`, `tinted` | — |
 | `--separator` | Token separator between role and variant | `-` |
+| `--key-prefix` | Prepend to keys (`object` / `json` only); pass `--` for CSS custom properties | empty |
 | `--dark-mode` | `media`, `class`, `data-attribute`, `false` (stylesheet outputs only) | `media` |
 | `--selector` | Root selector for `--format css` | `:root` |
 | `--exclude-role` | Omit a role from output by internal name (repeatable) | — |

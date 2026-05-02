@@ -35,6 +35,22 @@ describe('format() — default (no options)', () => {
 		expect(result['surface-weak']).toBeDefined();
 		expect(result['surface-foreground']).toBeDefined();
 	});
+
+	it('prepends keyPrefix for flat object keys', () => {
+		const result = format(palette, {
+			keyPrefix: '--',
+		}) as Record<string, string>;
+		expect(result['--surface']).toBeDefined();
+		expect(result['--surface-strong']).toBeDefined();
+		expect(Object.keys(result).every((k) => k.startsWith('--'))).toBe(true);
+	});
+
+	it('prepends keyPrefix for json output', () => {
+		const json = format(palette, { as: 'json', keyPrefix: '--' });
+		expect(typeof json).toBe('string');
+		const parsed = JSON.parse(json) as Record<string, string>;
+		expect(parsed['--accent']).toBeDefined();
+	});
 });
 
 describe('format() — scss', () => {

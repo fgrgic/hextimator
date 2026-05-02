@@ -44,6 +44,7 @@ Format options:
       --dark-mode <strategy>  media | class | data-attribute | off  (css/tailwind-css only, default: media)
       --selector <css>        Root selector for css output                           (default: :root)
       --separator <char>      Token separator                                       (default: -)
+      --key-prefix <str>      Prepend to keys (object/json only); use -- for CSS vars (default: empty)
       --exclude-role <name>   Omit a role from output (repeatable)
       --exclude-variant <name> Omit a variant from output (repeatable)
 
@@ -104,6 +105,7 @@ function run(): void {
 			'dark-mode': { type: 'string' },
 			selector: { type: 'string' },
 			separator: { type: 'string' },
+			'key-prefix': { type: 'string' },
 			'exclude-role': { type: 'string', multiple: true },
 			'exclude-variant': { type: 'string', multiple: true },
 			'surface-color': { type: 'string' },
@@ -299,6 +301,9 @@ function run(): void {
 		formatOptions.separator = values.separator;
 	} else if (!hasPreset) {
 		formatOptions.separator = '-';
+	}
+	if (values['key-prefix'] !== undefined) {
+		formatOptions.keyPrefix = values['key-prefix'];
 	}
 	if (values['exclude-role']?.length) {
 		formatOptions.excludeRoles = values['exclude-role'];
