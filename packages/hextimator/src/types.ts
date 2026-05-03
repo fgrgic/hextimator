@@ -203,7 +203,7 @@ export interface HextimateStyleOptions {
 	 * Degree ranges for the semantic colors.
 	 * Determines where to look for "green", "red", "yellow" in the color space.
 	 * If not provided, the default ranges will be used:
-	 * - positive: [115, 160]  greens
+	 * - positive: [120, 160]  greens
 	 * - negative: [5, 30]      reds
 	 * - warning: [45, 70]      ambers
 	 */
