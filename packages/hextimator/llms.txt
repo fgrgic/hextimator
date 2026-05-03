@@ -182,6 +182,10 @@ const myPreset: HextimatePreset = {
     // Derive a secondary role by rotating the accent hue
     { name: "secondary", color: { from: "accent", hue: 180 } },
   ],
+  variants: [
+    { name: "muted", placement: { from: "weak" } },
+    { name: "emphasis", placement: { from: "strong" } },
+  ],
   tokens: [
     // Canvas tokens derived from surface
     { name: "canvas", value: { from: "surface" } },

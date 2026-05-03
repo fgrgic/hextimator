@@ -157,48 +157,39 @@ When a preset is active, its format defaults apply unless you explicitly overrid
 
 ## Custom presets
 
-A preset is a plain object -- you can create your own:
+A preset is a plain object with optional `style`, `roles`, `variants`, `tokens`, and `format`.
 
 ```typescript
-import type { HextimatePreset } from "hextimator";
+import { hextimate, type HextimatePreset } from "hextimator";
 
 const myPreset: HextimatePreset = {
-  // Style options (contrast, hue shifts, lightness, chroma)
   style: {
     minContrastRatio: "AA",
     surfaceHueShift: 180,
   },
-
-  // Extra roles (each gets DEFAULT, strong, weak, foreground)
-  roles: [{ name: "cta", color: "#ee2244" }],
-
-  // Standalone tokens
-  tokens: [
-    { name: "foreground", value: { from: "surface.foreground" } },
-    {
-      name: "border",
-      value: {
-        from: "surface",
-        emphasis: 0.1,
-      },
-    },
+  roles: [
+    { name: "cta", color: "#ee2244" },
+    { name: "secondary", color: { from: "accent", hue: 180 } },
   ],
-
-  // Default format options
+  variants: [
+    { name: "muted", placement: { from: "weak" } },
+    { name: "emphasis", placement: { from: "strong" } },
+  ],
+  tokens: [{ name: "border", value: { from: "surface", emphasis: 0.1 } }],
   format: {
     as: "css",
     colors: "oklch",
-    roleNames: {
-      surface: "background",
-      accent: "primary",
-    },
+    roleNames: { surface: "background", accent: "primary" },
   },
 };
 
-const theme = hextimate("#3a86ff").preset(myPreset).format();
+// then use the preset
+hextimate("#6366f1").preset(myPreset).format();
 ```
 
-A style-only preset is even simpler -- just style params:
+`color` on a role accepts the same `{ from: "role.variant", hue?, chroma?, lightness? }` shape as standalone tokens; `hue` is in degrees around OKLCH (for example `180` with `from: "accent"` gives a complementary secondary).
+
+A style-only preset is just `style`:
 
 ```typescript
 const pastel: HextimatePreset = {
