@@ -1,7 +1,7 @@
 ## 0.8.1 (Latest)
 
 - Adds optional `keyPrefix` on `HextimateFormatOptions` for flat `as: "object"` and `as: "json"` output (CLI: `--key-prefix`). Use `keyPrefix: "--"` when you want CSS custom property names as object keys without using stylesheet output.
-- Updates default semantic color ranges to be more flexible
+- Updates default semantic color ranges to be more flexible (`positive` [115,160], `negative` [5,30], `warning` [45,70])
 
 ## 0.7.0
 
