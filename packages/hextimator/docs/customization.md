@@ -10,7 +10,7 @@ Passed to `.style()` on the palette builder (and to the `style` field on presets
 | `surfaceHueShift` | `number` (degrees) | `0` | Rotate surface hue relative to accent. Ignored when `surfaceColor` is set |
 | `hueShift` | `number` (degrees) | `0` | Per-variant hue rotation across the palette |
 | `semanticColors` | `{ positive?: color, negative?: color, warning?: color }` | Auto-generated from seed | Override specific semantic colors instead of deriving them |
-| `semanticColorRanges` | `{ positive?: [start, end], ... }` | `positive: [135,160]`, `negative: [5,25]`, `warning: [45,65]` | Hue degree ranges for finding semantic colors. Ranges are clockwise arcs; `[350, 10]` wraps through 0°. |
+| `semanticColorRanges` | `{ positive?: [start, end], ... }` | `positive: [115,160]`, `negative: [5,30]`, `warning: [45,70]` | Hue degree ranges for finding semantic colors. Ranges are clockwise arcs; `[350, 10]` wraps through 0°. |
 | `surfaceMaxChroma` | `number` | `0.01` | Max chroma for surface colors (higher = more colorful) |
 | `foregroundMaxChroma` | `number` | `0.01` | Max chroma for foreground colors (higher = more colorful) |
 | `light` | [`ThemeAdjustments`](#themeadjustments) | — | Per-light-theme overrides.  |

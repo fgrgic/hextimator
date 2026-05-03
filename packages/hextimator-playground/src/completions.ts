@@ -218,11 +218,6 @@ const PRESETS: CompletionEntry[] = [
 		type: 'variable',
 		info: 'shadcn/ui-compatible preset',
 	},
-	{
-		label: 'presets.demo',
-		type: 'variable',
-		info: 'Demo preset with extra roles and variants',
-	},
 ];
 
 function matchContext(text: string): CompletionEntry[] | null {

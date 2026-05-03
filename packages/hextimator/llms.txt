@@ -81,7 +81,7 @@ Pick the dark wrapper with `darkMode`: `"media"` (default) wraps dark tokens in 
 | `surfaceHueShift` | degrees | `0` | Rotate surface hue relative to accent. Ignored if `surfaceColor` set |
 | `invertDarkModeSurfaceAccent` | boolean | `false` | Swap surface/accent hues in dark mode. Useful when the accent should become the background in dark mode. Requires `surfaceColor` |
 | `semanticColors` | `{ positive?, negative?, warning? }` | auto | Override semantic colors (green/red/amber) |
-| `semanticColorRanges` | `{ positive?: [start,end], ... }` | greens, reds, ambers | Hue ranges for semantic detection |
+| `semanticColorRanges` | `{ positive?: [start,end], ... }` | `positive: [115,160]`, `negative: [5,30]`, `warning: [45,70]` | OKLCH hue degree arcs for picking semantic bases (clockwise; `[350,10]` wraps) |
 | `surfaceMaxChroma` | number | `0.01` | Max chroma for surface colors |
 | `foregroundMaxChroma` | number | `0.01` | Max chroma for foreground colors |
 | `light` | `{ baseLightness?, maxChroma? }` | `{ baseLightness: 0.7 }` | Light theme adjustments. `baseLightness` is the absolute OKLCH anchor for the accent (distinct from the relative `lightness` offset on derived tokens) |
@@ -181,6 +181,10 @@ const myPreset: HextimatePreset = {
     { name: "info", color: "#0288d1" },
     // Derive a secondary role by rotating the accent hue
     { name: "secondary", color: { from: "accent", hue: 180 } },
+  ],
+  variants: [
+    { name: "muted", placement: { from: "weak" } },
+    { name: "emphasis", placement: { from: "strong" } },
   ],
   tokens: [
     // Canvas tokens derived from surface

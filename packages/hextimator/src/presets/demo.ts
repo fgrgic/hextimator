@@ -1,22 +1,7 @@
 import type { HextimatePreset } from './types';
 
 /**
- * Demo preset that exercises every `HextimatePreset` capability:
- * style options, extra roles, extra variants, standalone tokens,
- * and format defaults.
- *
- * Use this as a reference when building your own presets.
- *
- * @example
- * import { hextimate, presets } from 'hextimator';
- *
- * const theme = hextimate('#e63946').preset(presets.demo).format();
- *
- * // Override any preset default:
- * const theme = hextimate('#e63946')
- *   .style({ minContrastRatio: 'AAA' })
- *   .preset(presets.demo)
- *   .format({ colors: 'rgb' });
+ * Reference preset covering all fields; not exported.
  */
 export const demo: HextimatePreset = {
 	style: {
