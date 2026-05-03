@@ -4,7 +4,7 @@ import type { Color } from '../types';
 import type { GenerateOptions, HextimatePalette, ThemeType } from './types';
 import { expandColorToScale } from './utils';
 
-const POSITIVE_RANGE: [number, number] = [115, 160]; // green range in hue values
+const POSITIVE_RANGE: [number, number] = [120, 160]; // green range in hue values
 const NEGATIVE_RANGE: [number, number] = [5, 30]; // red range in hue values
 const WARNING_RANGE: [number, number] = [45, 70]; // yellow/amber range in hue values
 

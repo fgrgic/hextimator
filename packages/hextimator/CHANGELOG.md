@@ -1,6 +1,6 @@
 ## 0.9.0 (Latest)
 
-- Widens default semantic hue ranges (`positive` [115,160], `negative` [5,30], `warning` [45,70] OKLCH arcs). Themes using library defaults may get different semantic scales.
+- Widens default semantic hue ranges (`positive` [120,160], `negative` [5,30], `warning` [45,70] OKLCH arcs). Themes using library defaults may get different semantic scales.
 
 ## 0.8.0
 
