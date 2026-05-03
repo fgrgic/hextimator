@@ -1,8 +1,8 @@
-## Unreleased
+## 0.9.0 (Latest)
 
 - Widens default semantic hue ranges (`positive` [115,160], `negative` [5,30], `warning` [45,70] OKLCH arcs). Themes using library defaults may get different semantic scales.
 
-## 0.8.0 (Latest)
+## 0.8.0
 
 - Adds optional `keyPrefix` on `HextimateFormatOptions` for flat `as: "object"` and `as: "json"` output (CLI: `--key-prefix`). Use `keyPrefix: "--"` when you want CSS custom property names as object keys without using stylesheet output.
 
