@@ -21,7 +21,7 @@ const VARIANT_DELTA = 0.1;
 const EXACT_CHIP_MIN_STRONG_DELTA_OKLCH = VARIANT_DELTA / 2;
 
 /** Clamp for theme anchor lightness; aligns with AAA-style contrast reasoning in docs. */
-const LIGHT_THEME_LIGHTNESS_RANGE = [0.4, 0.92] as const;
+const LIGHT_THEME_LIGHTNESS_RANGE = [0.4, 0.9] as const;
 const DARK_THEME_LIGHTNESS_RANGE = [0.2, 0.8] as const;
 
 /** Light accent/semantic fills: ceiling below OKLCH 1 so `weak` does not flatten to pure white (~surface). Ignored when `baselineLValueLight` is set (surface scale). */
@@ -161,11 +161,7 @@ function constrainLightVariant(
 interface ExpandColorToScaleOptions
 	extends Pick<
 		HextimateStyleOptions,
-		| 'minContrastRatio'
-		| 'hueShift'
-		| 'light'
-		| 'dark'
-		| 'baseLightnessRange'
+		'minContrastRatio' | 'hueShift' | 'light' | 'dark' | 'baseLightnessRange'
 	> {
 	/** Set by `generate()`; omitted only in narrow internal call sites that use surface baselines. */
 	inputLightness?: number;
@@ -559,7 +555,10 @@ export function resolveBaseLightnessClampRange(
 
 export function resolveThemeLightness(
 	themeType: ThemeType,
-	options?: Pick<HextimateStyleOptions, 'light' | 'dark' | 'baseLightnessRange'> & {
+	options?: Pick<
+		HextimateStyleOptions,
+		'light' | 'dark' | 'baseLightnessRange'
+	> & {
 		inputLightness?: number;
 	},
 ): number {

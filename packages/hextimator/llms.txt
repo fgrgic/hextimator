@@ -314,7 +314,7 @@ Both commands are identical. Use whichever you prefer.
 | `--surface-max-chroma` | Max chroma for surface | `0.01` |
 | `--fg-max-chroma` | Max chroma for foreground | `0.01` |
 | `--light-lightness` | Sets `light.baseLightness` | Omit: **0.10.0+** derives from input OKLCH `l`; **≤0.9.x** `0.7` |
-| `--light-base-lightness-range` | Sets `light.baseLightnessRange` as `min,max` (OKLCH 0–1) | default light `0.4,0.92` |
+| `--light-base-lightness-range` | Sets `light.baseLightnessRange` as `min,max` (OKLCH 0–1) | default light `0.4,0.9` |
 | `--base-lightness-range` | Sets top-level `baseLightnessRange` for both themes (`min,max`) | per-theme defaults or overridden by `--light-*` / `--dark-*` |
 | `--light-max-chroma` | Light theme max chroma | — |
 | `--dark-lightness` | Sets `dark.baseLightness` | Omit: **0.10.0+** derives from input OKLCH `l`; **≤0.9.x** `0.6` |

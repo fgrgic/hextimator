@@ -55,7 +55,7 @@ Style options:
       --surface-max-chroma <n>   Max chroma for surface colors        (default: 0.01)
       --fg-max-chroma <n>     Max chroma for foreground colors     (default: 0.01)
       --light-lightness <n>   Light theme lightness 0-1            (default: from input OKLCH L)
-      --light-base-lightness-range <min,max>  Clamp input/base L for light theme (default: 0.4,0.92)
+      --light-base-lightness-range <min,max>  Clamp input/base L for light theme (default: 0.4,0.9)
       --light-max-chroma <n>  Light theme max chroma
       --dark-lightness <n>    Dark theme lightness 0-1             (default: from input OKLCH L)
       --dark-base-lightness-range <min,max> Clamp input/base L for dark theme (default: 0.2,0.8)

@@ -764,10 +764,10 @@ describe('surfaceHueShift: rotates surface hue relative to accent', () => {
 });
 
 describe('baseLightnessRange and light anchor clamp', () => {
-	it('super-light input uses default light-theme max (0.92) for accent', () => {
+	it('super-light input uses default light-theme max (0.9) for accent', () => {
 		const c = parse('#c0ffee');
 		const p = generate(c, 'light');
-		expect(convert(p.accent.DEFAULT, 'oklch').l).toBeCloseTo(0.92, 5);
+		expect(convert(p.accent.DEFAULT, 'oklch').l).toBeCloseTo(0.9, 5);
 	});
 
 	it('top-level baseLightnessRange widens light theme like light-only option', () => {
