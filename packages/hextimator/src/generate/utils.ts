@@ -138,23 +138,22 @@ function computeStrongWeakWithoutBoundaryShift(
 	return { strong, weak };
 }
 
-function finalizeLightAccentBodyVariants(
+/** Light accent fills: cap high L, then satisfy contrast vs fg. No-op for surface baselines (skipSurfaceCap). */
+function constrainLightVariant(
 	themeType: ThemeType,
-	variants: OKLCH,
+	variant: OKLCH,
 	foreground: OKLCH,
 	contrastTarget: number,
-	skipCap: boolean,
+	skipSurfaceCap: boolean,
 ): OKLCH {
-	if (themeType !== 'light' || skipCap) return variants;
+	if (themeType !== 'light' || skipSurfaceCap) return variant;
 
 	let v =
-		variants.l > LIGHT_ACCENT_MAX_LIGHTNESS
-			? { ...variants, l: LIGHT_ACCENT_MAX_LIGHTNESS }
-			: variants;
+		variant.l > LIGHT_ACCENT_MAX_LIGHTNESS
+			? { ...variant, l: LIGHT_ACCENT_MAX_LIGHTNESS }
+			: variant;
 	v = ensureContrast(v, foreground, contrastTarget);
-	if (v.l > LIGHT_ACCENT_MAX_LIGHTNESS) {
-		v = { ...v, l: LIGHT_ACCENT_MAX_LIGHTNESS };
-	}
+	if (v.l > LIGHT_ACCENT_MAX_LIGHTNESS) v = { ...v, l: LIGHT_ACCENT_MAX_LIGHTNESS };
 	return v;
 }
 
@@ -263,21 +262,21 @@ export function expandColorToScale(
 							themeType,
 							contrastTarget,
 						);
-					const defF = finalizeLightAccentBodyVariants(
+					const defF = constrainLightVariant(
 						themeType,
 						chipOKLCH,
 						chipFg,
 						contrastTarget,
 						false,
 					);
-					const sF = finalizeLightAccentBodyVariants(
+					const sF = constrainLightVariant(
 						themeType,
 						strongSim,
 						chipFg,
 						contrastTarget,
 						false,
 					);
-					const wF = finalizeLightAccentBodyVariants(
+					const wF = constrainLightVariant(
 						themeType,
 						weakSim,
 						chipFg,
@@ -454,7 +453,7 @@ export function expandColorToScale(
 		};
 	}
 
-	const skipLightBodyCap = baselineLValueLight !== undefined;
+	const skipSurfaceCap = baselineLValueLight !== undefined;
 
 	if (rawHueShift !== 0) {
 		const clamped = clampHueShift(rawHueShift, 2);
@@ -480,26 +479,26 @@ export function expandColorToScale(
 		);
 	}
 
-	normalizedColorOKLCH = finalizeLightAccentBodyVariants(
+	normalizedColorOKLCH = constrainLightVariant(
 		themeType,
 		normalizedColorOKLCH,
 		foregroundColorOKLCH,
 		contrastTarget,
-		skipLightBodyCap,
+		skipSurfaceCap,
 	);
-	strongColorOKLCH = finalizeLightAccentBodyVariants(
+	strongColorOKLCH = constrainLightVariant(
 		themeType,
 		strongColorOKLCH,
 		foregroundColorOKLCH,
 		contrastTarget,
-		skipLightBodyCap,
+		skipSurfaceCap,
 	);
-	weakColorOKLCH = finalizeLightAccentBodyVariants(
+	weakColorOKLCH = constrainLightVariant(
 		themeType,
 		weakColorOKLCH,
 		foregroundColorOKLCH,
 		contrastTarget,
-		skipLightBodyCap,
+		skipSurfaceCap,
 	);
 
 	return {

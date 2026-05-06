@@ -17,14 +17,14 @@ export function generate(
 	themeType: ThemeType,
 	options?: GenerateOptions,
 ): HextimatePalette {
-	const resolved: GenerateOptions = {
+	const resolvedOptions: GenerateOptions = {
 		...options,
 		inputLightness: convert(color, 'oklch').l,
 	};
 
 	return {
-		surface: generateSurface(color, themeType, resolved),
-		accent: generateAccent(color, themeType, resolved),
-		...generateSemanticColors(color, themeType, resolved),
+		surface: generateSurface(color, themeType, resolvedOptions),
+		accent: generateAccent(color, themeType, resolvedOptions),
+		...generateSemanticColors(color, themeType, resolvedOptions),
 	};
 }
