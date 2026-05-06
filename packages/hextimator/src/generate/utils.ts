@@ -45,7 +45,7 @@ export function wrapHue(h: number): number {
 interface ExpandColorToScaleOptions
 	extends Pick<
 		GenerateOptions,
-		'minContrastRatio' | 'hueShift' | 'light' | 'dark'
+		'minContrastRatio' | 'hueShift' | 'light' | 'dark' | 'inputLightness'
 	> {
 	baselineLValueDark?: number;
 	baselineLValueLight?: number;
@@ -312,7 +312,7 @@ let warnedLegacyLightness = false;
 
 export function resolveThemeLightness(
 	themeType: ThemeType,
-	options?: Pick<HextimateStyleOptions, 'light' | 'dark'>,
+	options?: Pick<HextimateStyleOptions, 'light' | 'dark' | 'inputLightness'>,
 ): number {
 	const themeAdjustments =
 		themeType === 'light' ? options?.light : options?.dark;
@@ -340,6 +340,10 @@ export function resolveThemeLightness(
 
 	if (value !== undefined) {
 		return Math.min(Math.max(value, range[0]), range[1]);
+	}
+
+	if (options?.inputLightness !== undefined) {
+		return Math.min(Math.max(options.inputLightness, range[0]), range[1]);
 	}
 
 	return themeType === 'light'

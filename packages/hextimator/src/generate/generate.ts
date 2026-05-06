@@ -1,3 +1,4 @@
+import { convert } from '../convert';
 import type { Color } from '../types';
 import { generateAccent } from './generateAccent';
 import { generateSemanticColors } from './generateSemanticColors';
@@ -16,9 +17,14 @@ export function generate(
 	themeType: ThemeType,
 	options?: GenerateOptions,
 ): HextimatePalette {
+	const resolved: GenerateOptions = {
+		...options,
+		inputLightness: convert(color, 'oklch').l,
+	};
+
 	return {
-		surface: generateSurface(color, themeType, options),
-		accent: generateAccent(color, themeType, options),
-		...generateSemanticColors(color, themeType, options),
+		surface: generateSurface(color, themeType, resolved),
+		accent: generateAccent(color, themeType, resolved),
+		...generateSemanticColors(color, themeType, resolved),
 	};
 }

@@ -54,9 +54,9 @@ Style options:
       --hue-shift <deg>       Per-variant hue shift in degrees
       --surface-max-chroma <n>   Max chroma for surface colors        (default: 0.01)
       --fg-max-chroma <n>     Max chroma for foreground colors     (default: 0.01)
-      --light-lightness <n>   Light theme lightness 0-1            (default: 0.7)
+      --light-lightness <n>   Light theme lightness 0-1            (default: from input OKLCH L)
       --light-max-chroma <n>  Light theme max chroma
-      --dark-lightness <n>    Dark theme lightness 0-1             (default: 0.6)
+      --dark-lightness <n>    Dark theme lightness 0-1             (default: from input OKLCH L)
       --dark-max-chroma <n>   Dark theme max chroma
       --min-contrast <value>  AAA | AA | <number>                  (default: AAA)
       --invert-dark           Swap surface/accent hues in dark mode   (requires --surface-color)

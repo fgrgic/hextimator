@@ -1,3 +1,7 @@
+## Unreleased
+
+- **Breaking.** When `light.baseLightness` and `dark.baseLightness` are omitted, accent and semantic scales use the **input color's OKLCH lightness** (clamped per theme). Light and dark share that seed unless you set explicit per-theme overrides.
+
 ## 0.9.0 (Latest)
 
 - Widens default semantic hue ranges (`positive` [120,160], `negative` [5,30], `warning` [45,70] OKLCH arcs). Themes using library defaults may get different semantic scales.

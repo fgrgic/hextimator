@@ -84,8 +84,8 @@ Pick the dark wrapper with `darkMode`: `"media"` (default) wraps dark tokens in 
 | `semanticColorRanges` | `{ positive?: [start,end], ... }` | `positive: [120,160]`, `negative: [5,30]`, `warning: [45,70]` | OKLCH hue degree arcs for picking semantic bases (clockwise; `[350,10]` wraps) |
 | `surfaceMaxChroma` | number | `0.01` | Max chroma for surface colors |
 | `foregroundMaxChroma` | number | `0.01` | Max chroma for foreground colors |
-| `light` | `{ baseLightness?, maxChroma? }` | `{ baseLightness: 0.7 }` | Light theme adjustments. `baseLightness` is the absolute OKLCH anchor for the accent (distinct from the relative `lightness` offset on derived tokens) |
-| `dark` | `{ baseLightness?, maxChroma? }` | `{ baseLightness: 0.6 }` | Dark theme adjustments |
+| `light` | `{ baseLightness?, maxChroma? }` | input OKLCH L (clamped) | Light theme adjustments. `baseLightness` is the absolute OKLCH anchor for the accent when set; otherwise the input color's OKLCH lightness is used (distinct from the relative `lightness` offset on derived tokens) |
+| `dark` | `{ baseLightness?, maxChroma? }` | same seed as light | Dark theme adjustments; same default seed as light unless you set `dark.baseLightness` |
 | `minContrastRatio` | `"AAA"`, `"AA"`, or number | `"AAA"` | WCAG contrast target (AAA=7, AA=4.5) |
 | `hueShift` | degrees | `0` | Per-variant hue rotation |
 

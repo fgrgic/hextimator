@@ -355,6 +355,8 @@ function App() {
 | `format`    | `Omit<HextimateFormatOptions, "as">`                   | —                   | Color serialization options                                   |
 | `configure` | `(builder) => void`                                    | —                   | Access the builder to add roles, variants, or tokens          |
 
+Omitted per-theme `baseLightness` uses the brand color's OKLCH lightness as the shared anchor; see [Customization: ThemeAdjustments](customization.md#themeadjustments).
+
 ## `HextimatorStyle` props
 
 | Prop        | Type                                 | Default             | Description                         |

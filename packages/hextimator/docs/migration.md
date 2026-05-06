@@ -2,6 +2,12 @@
 
 Breaking changes by release. Each section is a checklist; see the [CHANGELOG](../CHANGELOG.md) for release notes and PR links.
 
+## 0.8.x → 0.9.0
+
+When `baseLightness` is **omitted** on `light` / `dark`, the library no longer uses fixed `0.7` (light) and `0.6` (dark). It anchors both themes to **the brand color's OKLCH lightness** (clamped separately for each theme). Explicit `light.baseLightness` / `dark.baseLightness` behave the same as before.
+
+Theme UIs that stored an "offset from defaults" using `0.7` / `0.6` should base the offset on `parseColor(color)` → OKLCH `l` instead. See [Customization](customization.md#themeadjustments).
+
 ## 0.6.x → 0.7.0
 
 0.7.0 renames `ThemeAdjustments.lightness` to **`baseLightness`** to disambiguate it from the *relative* `lightness` offset used by `addToken({ from, lightness })` and other derived-token APIs. Same word was doing two different jobs:
@@ -45,7 +51,9 @@ CLI flags are unchanged. `--light-lightness` and `--dark-lightness` continue to 
 
 ### React
 
-If you read `style.light.lightness` / `style.dark.lightness` directly (e.g. inside a custom theme-preferences UI), rename to `baseLightness`. The deprecated alias is still readable on `style` objects you set yourself, but new code (and the React provider's defaults) emit `baseLightness`.
+If you read `style.light.lightness` / `style.dark.lightness` directly (e.g. inside a custom theme-preferences UI), rename to `baseLightness`. The deprecated alias is still readable on `style` objects you set yourself, but new code should emit `baseLightness`.
+
+For sliders that adjust lightness relative to "the default", derive the baseline from the active brand color (`parseColor` → convert to OKLCH → `l`), not from fixed `0.7` / `0.6`.
 
 ## 0.5.x → 0.6.0
 
