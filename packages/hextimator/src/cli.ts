@@ -60,6 +60,7 @@ Style options:
       --dark-lightness <n>    Dark theme lightness 0-1             (default: from input OKLCH L)
       --dark-base-lightness-range <min,max> Clamp input/base L for dark theme (default: 0.2,0.8)
       --dark-max-chroma <n>   Dark theme max chroma
+      --base-lightness-range <min,max>     Default clamp for both themes (overridden by per-theme flags)
       --min-contrast <value>  AAA | AA | <number>                  (default: AAA)
       --invert-dark           Swap surface/accent hues in dark mode   (requires --surface-color)
 
@@ -132,6 +133,7 @@ function run(): void {
 			'dark-lightness': { type: 'string' },
 			'dark-base-lightness-range': { type: 'string' },
 			'dark-max-chroma': { type: 'string' },
+			'base-lightness-range': { type: 'string' },
 			'min-contrast': { type: 'string' },
 			'invert-dark': { type: 'boolean' },
 			positive: { type: 'string' },
@@ -208,6 +210,11 @@ function run(): void {
 			const pair = parseBaseLightnessRange(values['dark-base-lightness-range']);
 			if (pair) styleOptions.dark.baseLightnessRange = pair;
 		}
+	}
+
+	if (values['base-lightness-range']) {
+		const pair = parseBaseLightnessRange(values['base-lightness-range']);
+		if (pair) styleOptions.baseLightnessRange = pair;
 	}
 
 	if (values['min-contrast']) {

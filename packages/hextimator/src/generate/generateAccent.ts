@@ -14,14 +14,18 @@ export function generateAccent(
 
 	if (invertSurfaceAndAccent) {
 		const accentOklch = convert(accent, 'oklch');
-		const surfaceHueShift = options?.surfaceHueShift ?? 0;
+		const themeAdj = options?.dark;
+		const surfaceHueShift =
+			themeAdj?.surfaceHueShift ?? options?.surfaceHueShift ?? 0;
 
-		let surfaceOklch = options?.surfaceColor
-			? convert(parse(options.surfaceColor), 'oklch')
+		const effectiveSurface = themeAdj?.surfaceColor ?? options?.surfaceColor;
+
+		let surfaceOklch = effectiveSurface
+			? convert(parse(effectiveSurface), 'oklch')
 			: convert(accent, 'oklch');
 
 		// When inverted with surfaceHueShift, the accent gets the shifted hue
-		if (surfaceHueShift !== 0 && !options?.surfaceColor) {
+		if (surfaceHueShift !== 0 && !effectiveSurface) {
 			surfaceOklch = {
 				...surfaceOklch,
 				h: wrapHue(accentOklch.h + surfaceHueShift),

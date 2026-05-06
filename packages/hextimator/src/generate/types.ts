@@ -12,6 +12,9 @@ export interface HextimatePalette {
 	[role: string]: ColorScale;
 }
 
-export type GenerateOptions = HextimateStyleOptions;
+/** Style options plus values derived when building a palette (e.g. from the brand color). */
+export type GenerateOptions = HextimateStyleOptions & {
+	inputLightness: number;
+};
 
 export type ThemeType = 'light' | 'dark';

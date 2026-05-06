@@ -770,16 +770,77 @@ describe('baseLightnessRange and light anchor clamp', () => {
 		expect(convert(p.accent.DEFAULT, 'oklch').l).toBeCloseTo(0.92, 5);
 	});
 
-	it('wider baseLightnessRange preserves higher input L', () => {
+	it('top-level baseLightnessRange widens light theme like light-only option', () => {
 		const c = parse('#c0ffee');
-		const narrow = generate(c, 'light');
-		const wide = generate(c, 'light', {
+		const top = generate(c, 'light', {
+			baseLightnessRange: [0.4, 0.99],
+		});
+		const nested = generate(c, 'light', {
 			light: { baseLightnessRange: [0.4, 0.99] },
 		});
-		expect(convert(wide.accent.DEFAULT, 'oklch').l).toBeGreaterThan(
-			convert(narrow.accent.DEFAULT, 'oklch').l,
+		expect(convert(top.accent.DEFAULT, 'oklch').l).toBeCloseTo(
+			convert(nested.accent.DEFAULT, 'oklch').l,
+			4,
 		);
-		expect(convert(wide.accent.DEFAULT, 'oklch').l).toBeCloseTo(0.953, 2);
+	});
+
+	it('per-theme baseLightnessRange overrides global for that theme', () => {
+		const c = parse('#c0ffee');
+		const withOverride = generate(c, 'dark', {
+			baseLightnessRange: [0.4, 0.99],
+			dark: { baseLightnessRange: [0.2, 0.8] },
+		});
+		expect(convert(withOverride.accent.DEFAULT, 'oklch').l).toBeCloseTo(0.8, 2);
+	});
+});
+
+describe('ThemeAdjustments: surface, hue, and semantic overrides', () => {
+	it('per-theme hueShift overrides top-level for that theme only', () => {
+		const c = parse('#6366f1');
+		const baseline = generate(c, 'light', { hueShift: 0 });
+		const withLight = generate(c, 'light', {
+			hueShift: 0,
+			light: { hueShift: 22 },
+		});
+		const h0 = convert(baseline.accent.strong, 'oklch').h;
+		const h1 = convert(withLight.accent.strong, 'oklch').h;
+		expect(Math.abs(((h1 - h0 + 540) % 360) - 180)).toBeGreaterThan(8);
+
+		const darkBaseline = generate(c, 'dark', { hueShift: 0 });
+		const darkWithLightHueOnly = generate(c, 'dark', {
+			hueShift: 0,
+			light: { hueShift: 22 },
+		});
+		expect(convert(darkBaseline.accent.strong, 'oklch').h).toBeCloseTo(
+			convert(darkWithLightHueOnly.accent.strong, 'oklch').h,
+			3,
+		);
+	});
+
+	it('per-theme semanticColors.positive overrides for that theme', () => {
+		const c = parse('#6366f1');
+		const custom = generate(c, 'light', {
+			light: { semanticColors: { positive: '#15803d' } },
+		});
+		const plain = generate(c, 'light', {});
+		expect(convert(custom.positive.DEFAULT, 'oklch').h).not.toBeCloseTo(
+			convert(plain.positive.DEFAULT, 'oklch').h,
+			0,
+		);
+	});
+
+	it('per-theme surfaceColor overrides top-level for that theme', () => {
+		const c = parse('#6366f1');
+		const lightPal = generate(c, 'light', {
+			surfaceColor: '#e5e5e5',
+			dark: { surfaceColor: '#1a1a1a' },
+		});
+		const darkPal = generate(c, 'dark', {
+			surfaceColor: '#e5e5e5',
+			dark: { surfaceColor: '#1a1a1a' },
+		});
+		expect(convert(lightPal.surface.DEFAULT, 'oklch').l).toBeGreaterThan(0.9);
+		expect(convert(darkPal.surface.DEFAULT, 'oklch').l).toBeLessThan(0.25);
 	});
 });
 

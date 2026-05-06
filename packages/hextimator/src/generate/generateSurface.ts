@@ -22,12 +22,15 @@ export function generateSurface(
 	const invertSurfaceAndAccent =
 		themeType === 'dark' && options?.invertDarkModeSurfaceAccent;
 
-	const preferredSurfaceColorInput = invertSurfaceAndAccent
-		? (color ?? options?.surfaceColor)
-		: (options?.surfaceColor ?? color);
-
 	const themeAdjustments =
 		themeType === 'light' ? options?.light : options?.dark;
+	const effectiveSurfaceColor =
+		themeAdjustments?.surfaceColor ?? options?.surfaceColor;
+
+	const preferredSurfaceColorInput = invertSurfaceAndAccent
+		? (color ?? effectiveSurfaceColor)
+		: (effectiveSurfaceColor ?? color);
+
 	const surfaceMaxChroma =
 		themeAdjustments?.surfaceMaxChroma ??
 		options?.surfaceMaxChroma ??
@@ -41,10 +44,11 @@ export function generateSurface(
 	let surfaceHue = preferredSurfaceColor.h;
 	const surfaceChroma = Math.min(preferredSurfaceColor.c, surfaceMaxChroma);
 
-	const surfaceHueShift = options?.surfaceHueShift ?? 0;
+	const surfaceHueShift =
+		themeAdjustments?.surfaceHueShift ?? options?.surfaceHueShift ?? 0;
 	if (
 		surfaceHueShift !== 0 &&
-		!options?.surfaceColor &&
+		!effectiveSurfaceColor &&
 		!invertSurfaceAndAccent
 	) {
 		surfaceHue = wrapHue(convert(color, 'oklch').h + surfaceHueShift);
@@ -67,6 +71,8 @@ export function generateSurface(
 		minContrastRatio: options?.minContrastRatio,
 		hueShift: options?.hueShift,
 		foregroundMaxChroma: options?.foregroundMaxChroma,
+		baseLightnessRange: options?.baseLightnessRange,
+		inputLightness: options?.inputLightness,
 		light: options?.light,
 		dark: options?.dark,
 	});

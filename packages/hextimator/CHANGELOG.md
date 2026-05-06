@@ -2,7 +2,11 @@
 
 - **Breaking.** When `light.baseLightness` and `dark.baseLightness` are omitted, accent and semantic scales use the **input color's OKLCH lightness** (clamped per theme). Light and dark share that seed unless you set explicit per-theme overrides. Previously (through 0.9.x) omitted anchors used fixed `0.7` (light) and `0.6` (dark).
 
-- Exposes `baseLightnessRange` which allows defining tha min and max lightness values of non-surface tokens. Defaults are: light theme `[0.4, 0.92]`, dark theme `[0.2, 0.8]`.
+- `HextimateStyleOptions` now **extends** `ThemeAdjustments` so shared knobs are declared once; `light` / `dark` use the same shape.
+
+- `ThemeAdjustments` can override top-level generation for **`surfaceColor`**, **`surfaceHueShift`**, **`hueShift`**, **`semanticColors`**, and **`semanticColorRanges`** per theme (unset nested fields still inherit the top-level style).
+
+- Exposes `baseLightnessRange` at the top level and under `light` / `dark` to bound OKLCH **L** for accent and semantic anchors. Defaults: light `[0.4,0.9]`, dark `[0.2, 0.8]`. CLI: `--base-lightness-range`, `--light-base-lightness-range`, `--dark-base-lightness-range`.
 
   Migration checklist: [migration.md](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md) (section _0.9.x → 0.10.0_).
 

@@ -13,38 +13,57 @@ export function generateSemanticColors(
 	themeType: ThemeType,
 	options?: GenerateOptions,
 ): Pick<HextimatePalette, 'positive' | 'negative' | 'warning'> {
+	const themeAdj = themeType === 'light' ? options?.light : options?.dark;
+
+	const semanticColors = {
+		positive:
+			themeAdj?.semanticColors?.positive ?? options?.semanticColors?.positive,
+		negative:
+			themeAdj?.semanticColors?.negative ?? options?.semanticColors?.negative,
+		warning:
+			themeAdj?.semanticColors?.warning ?? options?.semanticColors?.warning,
+	};
+
+	const semanticColorRanges = {
+		positive:
+			themeAdj?.semanticColorRanges?.positive ??
+			options?.semanticColorRanges?.positive ??
+			POSITIVE_RANGE,
+		negative:
+			themeAdj?.semanticColorRanges?.negative ??
+			options?.semanticColorRanges?.negative ??
+			NEGATIVE_RANGE,
+		warning:
+			themeAdj?.semanticColorRanges?.warning ??
+			options?.semanticColorRanges?.warning ??
+			WARNING_RANGE,
+	};
+
 	const positiveBaseColor = parse(
-		options?.semanticColors?.positive ??
-			_determineBaseColorFromRange(
-				color,
-				options?.semanticColorRanges?.positive ?? POSITIVE_RANGE,
-				{ includeInputAsCandidate: true },
-			),
+		semanticColors.positive ??
+			_determineBaseColorFromRange(color, semanticColorRanges.positive, {
+				includeInputAsCandidate: true,
+			}),
 	);
 
 	const negativeBaseColor = parse(
-		options?.semanticColors?.negative ??
-			_determineBaseColorFromRange(
-				color,
-				options?.semanticColorRanges?.negative ?? NEGATIVE_RANGE,
-			),
+		semanticColors.negative ??
+			_determineBaseColorFromRange(color, semanticColorRanges.negative),
 	);
 
 	const warningBaseColor = parse(
-		options?.semanticColors?.warning ??
-			_determineBaseColorFromRange(
-				color,
-				options?.semanticColorRanges?.warning ?? WARNING_RANGE,
-			),
+		semanticColors.warning ??
+			_determineBaseColorFromRange(color, semanticColorRanges.warning),
 	);
 
 	const scaleOptions = {
 		light: options?.light,
 		dark: options?.dark,
 		minContrastRatio: options?.minContrastRatio,
-		hueShift: options?.hueShift,
+		hueShift: themeAdj?.hueShift ?? options?.hueShift,
 		foregroundMaxChroma: options?.foregroundMaxChroma,
 		inputLightness: options?.inputLightness,
+		baseLightnessRange: options?.baseLightnessRange,
 	};
 	const positiveColorScale = expandColorToScale(
 		positiveBaseColor,

@@ -106,18 +106,21 @@ export type ConvertColor = <S extends ColorSpace>(
 ) => ColorInSpace<S>;
 
 /**
- * Per-theme adjustments for lightness and chroma.
+ * Generation knobs shared by top-level {@link HextimateStyleOptions} and by
+ * `light` / `dark`. On the top level they are defaults for both themes; nested
+ * under `light` or `dark` they override that theme only (omitted nested fields
+ * still inherit from the top-level value).
+ *
+ * Same shape as `style.light` and `style.dark`.
  */
 export interface ThemeAdjustments {
 	/**
-	 * Absolute OKLCH lightness anchor for this theme's accent color (0–1).
+	 * Absolute OKLCH lightness anchor for accent fills (0–1). Distinct from
+	 * the relative `lightness` offsets used by `addToken({ from, lightness })`.
 	 *
-	 * This is the *baseline* the palette is generated around — distinct from
-	 * the *relative* `lightness` offsets used by `addToken({ from, lightness })`.
-	 *
-	 * When omitted, it is seeded from the accent input color's
-	 * OKLCH lightness (clamped per theme using `baseLightnessRange` or default ranges:
-	 * light `[0.4, 0.92]`, dark `[0.2, 0.8]`).
+	 * Omitted: seed from the brand color's OKLCH **L**, clamped via
+	 * `baseLightnessRange` (per theme object, then top-level, then built-ins:
+	 * light `[0.4,0.9]`, dark `[0.2, 0.8]`).
 	 */
 	baseLightness?: number;
 
@@ -129,71 +132,50 @@ export interface ThemeAdjustments {
 	lightness?: number;
 
 	/**
-	 * Maximum chroma for accent/semantic colors in this theme.
-	 * Colors with higher chroma will be clamped to this value.
+	 * Max chroma for accent and semantic fills in scope. Higher chroma is clamped.
 	 */
 	maxChroma?: number;
 
 	/**
-	 * OKLCH lightness bounds [min, max] (0–1) for clamping `baseLightness` and for
-	 * seeding from the input color when `baseLightness` is omitted.
-	 *
-	 * Defaults when omitted: light theme `[0.4, 0.92]`, dark theme `[0.2, 0.8]`.
+	 * OKLCH **L** bounds `[min, max]` (0–1) for `baseLightness` and input-derived anchors.
+	 * Top-level: use one tuple for both themes unless `light` / `dark` set their own.
 	 */
 	baseLightnessRange?: readonly [number, number];
 
 	/**
-	 * Minimum WCAG contrast ratio for this theme.
-	 * Overrides the global `minContrastRatio` for this theme only.
-	 *
-	 * - `"AAA"` → 7
-	 * - `"AA"` → 4.5
-	 * - any number → exact ratio
+	 * Minimum contrast between non-foreground variants and foreground.
+	 * `"AAA"` → 7, `"AA"` → 4.5, or a number.
 	 */
 	minContrastRatio?: 'AAA' | 'AA' | number;
 
 	/**
-	 * Maximum chroma for the surface colors (surface, strong, weak) in this theme.
-	 * Overrides the global `surfaceMaxChroma` for this theme only.
+	 * Max chroma for surface (`surface`, `strong`, `weak`). Default `0.01`.
 	 */
 	surfaceMaxChroma?: number;
 
 	/**
-	 * Maximum chroma for foreground colors in this theme.
-	 * Overrides the global `foregroundMaxChroma` for this theme only.
+	 * Max chroma for foreground variants (e.g. `accent-foreground`). Default `0.01`.
 	 */
 	foregroundMaxChroma?: number;
-}
 
-/**
- * Options that control how the palette is generated from the input color.
- */
-export interface HextimateStyleOptions {
 	/**
-	 * Preferred surface color for dark and light mode.
-	 * It will be used as a baseline to generate the rest of surface colors (strong, weak).
-	 * If not provided, it will be derived from the main input color with very low chroma.
-	 *
-	 * Takes precedence over `surfaceHueShift` when both are set.
+	 * Surface baseline. Top-level: both themes unless `light.surfaceColor` / `dark.surfaceColor`.
+	 * Omitted: derived from the brand color with low chroma.
 	 */
 	surfaceColor?: ColorInput;
 
 	/**
-	 * Rotate the surface color's hue relative to the accent color (in degrees).
-	 *
-	 * Examples: 180 for complementary, 30 for analogous, -30 for the other direction.
-	 *
-	 * Ignored when an explicit `surfaceColor` is provided.
-	 *
-	 * Default: 0 (same hue as the accent).
+	 * Rotate surface hue vs accent (degrees). Ignored when `surfaceColor` is set for that scope.
 	 */
 	surfaceHueShift?: number;
 
 	/**
-	 * Semantic colors to use for the theme
-	 * If not provided, they will be generated from the provided main color,
-	 * and the semantic color ranges.
+	 * Per-variant hue shift on accent and semantic scales. Strong-side shifts toward higher hue,
+	 * weak-side toward lower; each step stacks. Clamped to `360 / (totalVariants + 1)`.
 	 */
+	hueShift?: number;
+
+	/** Semantic role overrides; nested maps merge per slot with the top-level map. */
 	semanticColors?: {
 		positive?: ColorInput;
 		negative?: ColorInput;
@@ -201,86 +183,30 @@ export interface HextimateStyleOptions {
 	};
 
 	/**
-	 * Invert the hue used for the accent color in dark mode.
-	 * Uses surface hue as accent, and accent hue as surface.
-	 * Only has effect if `surfaceColor` is provided alongside the main accent color
-	 *
-	 * Default: false.
+	 * OKLCH hue arcs for semantic discovery. Defaults: positive [120,160], negative [5,30], warning [45,70].
+	 */
+	semanticColorRanges?: {
+		positive?: [number, number];
+		negative?: [number, number];
+		warning?: [number, number];
+	};
+}
+
+/**
+ * Options that control how the palette is generated from the input color.
+ *
+ * Inherits {@link ThemeAdjustments} as global defaults; set `light` / `dark`
+ * to override per theme.
+ */
+export interface HextimateStyleOptions extends ThemeAdjustments {
+	/**
+	 * In dark mode: surface hue becomes accent and accent hue becomes surface.
+	 * Requires a `surfaceColor` on the invert path (top-level or `dark`).
 	 */
 	invertDarkModeSurfaceAccent?: boolean;
 
-	/**
-	 * Degree ranges for the semantic colors.
-	 * Determines where to look for "green", "red", "yellow" in the color space.
-	 * If not provided, the default ranges will be used:
-	 * - positive: [120, 160]  greens
-	 * - negative: [5, 30]      reds
-	 * - warning: [45, 70]      ambers
-	 */
-	semanticColorRanges?: {
-		positive?: [number, number]; // [start, end]
-		negative?: [number, number]; // [start, end]
-		warning?: [number, number]; // [start, end]
-	};
-
-	/**
-	 * Maximum chroma for the surface colors (surface, strong, weak).
-	 * Higher values will produce more colorful surface colors, lower values will produce more gray surface colors.
-	 *
-	 * Default: 0.01.
-	 */
-	surfaceMaxChroma?: number;
-
-	/**
-	 * Maximum chroma for all the foreground colors (e.g. surface-accent-foreground)
-	 * Higher values will produce more colorful foreground colors, lower values will produce more gray foreground colors.
-	 *
-	 * Default: 0.01.
-	 */
-	foregroundMaxChroma?: number;
-
-	/**
-	 * Per-theme adjustments for the light theme.
-	 */
 	light?: ThemeAdjustments;
-
-	/**
-	 * Per-theme adjustments for the dark theme.
-	 */
 	dark?: ThemeAdjustments;
-
-	/**
-	 * Minimum WCAG contrast ratio between non-foreground variants and the
-	 * foreground variant.
-	 *
-	 * - `"AAA"` (default) → 7
-	 * - `"AA"` → 4.5
-	 * - any number → exact ratio (e.g. 3 for large text)
-	 */
-	minContrastRatio?: 'AAA' | 'AA' | number;
-
-	/**
-	 * Shift the hue (in degrees) from variant to variant.
-	 *
-	 * - Positive value: strong-side variants shift toward higher hues,
-	 *   weak-side variants shift toward lower hues.
-	 * - Negative value: flips the direction.
-	 * - Each successive variant on a side shifts by an additional step
-	 *   (e.g. hueShift: 5 → strong +5°, stronger +10°, weak −5°, weaker −10°).
-	 *
-	 * Clamped to `360 / (totalVariants + 1)` so the palette never wraps
-	 * past a full rotation.
-	 *
-	 * Default: 0 (no hue shift).
-	 */
-	hueShift?: number;
-
-	/**
-	 * OKLCH lightness of the accent input (0-1). Set during palette generation
-	 * when per-theme `baseLightness` is omitted (**0.10.0+**). Not intended for
-	 * manual configuration.
-	 */
-	inputLightness?: number;
 }
 
 /**

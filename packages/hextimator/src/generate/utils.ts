@@ -4,7 +4,7 @@ import {
 	DEFAULT_DARK_THEME_LIGHTNESS,
 	DEFAULT_LIGHT_THEME_LIGHTNESS,
 } from './consts';
-import type { ColorScale, GenerateOptions, ThemeType } from './types';
+import type { ColorScale, ThemeType } from './types';
 
 const FOREGROUND_DARK_L_VALUE = 0.97;
 const FOREGROUND_LIGHT_L_VALUE = 0.1;
@@ -160,9 +160,15 @@ function constrainLightVariant(
 
 interface ExpandColorToScaleOptions
 	extends Pick<
-		GenerateOptions,
-		'minContrastRatio' | 'hueShift' | 'light' | 'dark' | 'inputLightness'
+		HextimateStyleOptions,
+		| 'minContrastRatio'
+		| 'hueShift'
+		| 'light'
+		| 'dark'
+		| 'baseLightnessRange'
 	> {
+	/** Set by `generate()`; omitted only in narrow internal call sites that use surface baselines. */
+	inputLightness?: number;
 	baselineLValueDark?: number;
 	baselineLValueLight?: number;
 	foregroundLValueDark?: number;
@@ -228,7 +234,7 @@ export function expandColorToScale(
 	const isSurfaceScale =
 		baselineLValueLight !== undefined || baselineLValueDark !== undefined;
 
-	const rawHueShift = options?.hueShift ?? 0;
+	const rawHueShift = themeAdjustments?.hueShift ?? options?.hueShift ?? 0;
 
 	let useExactChip = false;
 	if (!isSurfaceScale && !hasExplicitDeltas && rawHueShift === 0) {
@@ -509,9 +515,25 @@ export function expandColorToScale(
 
 let warnedLegacyLightness = false;
 
+function normalizeBaseLightnessRange(
+	custom: readonly [number, number],
+): readonly [number, number] | undefined {
+	let lo = Number(custom[0]);
+	let hi = Number(custom[1]);
+	if (!Number.isFinite(lo) || !Number.isFinite(hi)) return undefined;
+	if (lo > hi) [lo, hi] = [hi, lo];
+	lo = Math.max(0, Math.min(1, lo));
+	hi = Math.max(0, Math.min(1, hi));
+	if (lo > hi) return undefined;
+	return [lo, hi] as const;
+}
+
 export function resolveBaseLightnessClampRange(
 	themeType: ThemeType,
-	options?: Pick<HextimateStyleOptions, 'light' | 'dark'>,
+	options?: Pick<
+		HextimateStyleOptions,
+		'light' | 'dark' | 'baseLightnessRange'
+	>,
 ): readonly [number, number] {
 	const themeAdjustments =
 		themeType === 'light' ? options?.light : options?.dark;
@@ -519,22 +541,27 @@ export function resolveBaseLightnessClampRange(
 		themeType === 'light'
 			? LIGHT_THEME_LIGHTNESS_RANGE
 			: DARK_THEME_LIGHTNESS_RANGE;
-	const custom = themeAdjustments?.baseLightnessRange;
-	if (!custom || custom.length !== 2) return fallback;
 
-	let lo = Number(custom[0]);
-	let hi = Number(custom[1]);
-	if (!Number.isFinite(lo) || !Number.isFinite(hi)) return fallback;
-	if (lo > hi) [lo, hi] = [hi, lo];
-	lo = Math.max(0, Math.min(1, lo));
-	hi = Math.max(0, Math.min(1, hi));
-	if (lo > hi) return fallback;
-	return [lo, hi] as const;
+	const fromTheme = themeAdjustments?.baseLightnessRange;
+	if (fromTheme && fromTheme.length === 2) {
+		const t = normalizeBaseLightnessRange(fromTheme);
+		if (t) return t;
+	}
+
+	const global = options?.baseLightnessRange;
+	if (global && global.length === 2) {
+		const g = normalizeBaseLightnessRange(global);
+		if (g) return g;
+	}
+
+	return fallback;
 }
 
 export function resolveThemeLightness(
 	themeType: ThemeType,
-	options?: Pick<HextimateStyleOptions, 'light' | 'dark' | 'inputLightness'>,
+	options?: Pick<HextimateStyleOptions, 'light' | 'dark' | 'baseLightnessRange'> & {
+		inputLightness?: number;
+	},
 ): number {
 	const themeAdjustments =
 		themeType === 'light' ? options?.light : options?.dark;
