@@ -115,10 +115,9 @@ export interface ThemeAdjustments {
 	 * This is the *baseline* the palette is generated around — distinct from
 	 * the *relative* `lightness` offsets used by `addToken({ from, lightness })`.
 	 *
-	 * When omitted, the anchor was fixed per theme through 0.9.x (`0.7` light,
-	 * `0.6` dark). **From 0.10.0** it is seeded from the accent input color's
-	 * OKLCH lightness (clamped per theme). Light and dark use the same seed unless
-	 * you set an explicit value for each theme.
+	 * When omitted, it is seeded from the accent input color's
+	 * OKLCH lightness (clamped per theme using `baseLightnessRange` or default ranges:
+	 * light `[0.4, 0.92]`, dark `[0.2, 0.8]`).
 	 */
 	baseLightness?: number;
 
@@ -134,6 +133,14 @@ export interface ThemeAdjustments {
 	 * Colors with higher chroma will be clamped to this value.
 	 */
 	maxChroma?: number;
+
+	/**
+	 * OKLCH lightness bounds [min, max] (0–1) for clamping `baseLightness` and for
+	 * seeding from the input color when `baseLightness` is omitted.
+	 *
+	 * Defaults when omitted: light theme `[0.4, 0.92]`, dark theme `[0.2, 0.8]`.
+	 */
+	baseLightnessRange?: readonly [number, number];
 
 	/**
 	 * Minimum WCAG contrast ratio for this theme.

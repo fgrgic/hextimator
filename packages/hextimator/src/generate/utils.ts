@@ -21,7 +21,7 @@ const VARIANT_DELTA = 0.1;
 const EXACT_CHIP_MIN_STRONG_DELTA_OKLCH = VARIANT_DELTA / 2;
 
 /** Clamp for theme anchor lightness; aligns with AAA-style contrast reasoning in docs. */
-const LIGHT_THEME_LIGHTNESS_RANGE = [0.4, 0.99] as const;
+const LIGHT_THEME_LIGHTNESS_RANGE = [0.4, 0.92] as const;
 const DARK_THEME_LIGHTNESS_RANGE = [0.2, 0.8] as const;
 
 /** Light accent/semantic fills: ceiling below OKLCH 1 so `weak` does not flatten to pure white (~surface). Ignored when `baselineLValueLight` is set (surface scale). */
@@ -232,10 +232,7 @@ export function expandColorToScale(
 
 	let useExactChip = false;
 	if (!isSurfaceScale && !hasExplicitDeltas && rawHueShift === 0) {
-		const range =
-			themeType === 'light'
-				? LIGHT_THEME_LIGHTNESS_RANGE
-				: DARK_THEME_LIGHTNESS_RANGE;
+		const range = resolveBaseLightnessClampRange(themeType, options);
 		if (chipOKLCH.l >= range[0] && chipOKLCH.l <= range[1]) {
 			const chipFg = pickAccentForegroundPair(
 				chipOKLCH,
@@ -512,16 +509,36 @@ export function expandColorToScale(
 
 let warnedLegacyLightness = false;
 
+export function resolveBaseLightnessClampRange(
+	themeType: ThemeType,
+	options?: Pick<HextimateStyleOptions, 'light' | 'dark'>,
+): readonly [number, number] {
+	const themeAdjustments =
+		themeType === 'light' ? options?.light : options?.dark;
+	const fallback =
+		themeType === 'light'
+			? LIGHT_THEME_LIGHTNESS_RANGE
+			: DARK_THEME_LIGHTNESS_RANGE;
+	const custom = themeAdjustments?.baseLightnessRange;
+	if (!custom || custom.length !== 2) return fallback;
+
+	let lo = Number(custom[0]);
+	let hi = Number(custom[1]);
+	if (!Number.isFinite(lo) || !Number.isFinite(hi)) return fallback;
+	if (lo > hi) [lo, hi] = [hi, lo];
+	lo = Math.max(0, Math.min(1, lo));
+	hi = Math.max(0, Math.min(1, hi));
+	if (lo > hi) return fallback;
+	return [lo, hi] as const;
+}
+
 export function resolveThemeLightness(
 	themeType: ThemeType,
 	options?: Pick<HextimateStyleOptions, 'light' | 'dark' | 'inputLightness'>,
 ): number {
 	const themeAdjustments =
 		themeType === 'light' ? options?.light : options?.dark;
-	const range =
-		themeType === 'light'
-			? LIGHT_THEME_LIGHTNESS_RANGE
-			: DARK_THEME_LIGHTNESS_RANGE;
+	const range = resolveBaseLightnessClampRange(themeType, options);
 
 	const value = themeAdjustments?.baseLightness ?? themeAdjustments?.lightness;
 

@@ -3,6 +3,7 @@ import { convert } from '../convert';
 import { hextimate } from '../index';
 import { parse } from '../parse';
 import type { ColorInput } from '../types';
+import { generate } from './generate';
 import { calculateContrast } from './utils';
 
 /**
@@ -759,6 +760,26 @@ describe('surfaceHueShift: rotates surface hue relative to accent', () => {
 				}
 			}
 		}
+	});
+});
+
+describe('baseLightnessRange and light anchor clamp', () => {
+	it('super-light input uses default light-theme max (0.92) for accent', () => {
+		const c = parse('#c0ffee');
+		const p = generate(c, 'light');
+		expect(convert(p.accent.DEFAULT, 'oklch').l).toBeCloseTo(0.92, 5);
+	});
+
+	it('wider baseLightnessRange preserves higher input L', () => {
+		const c = parse('#c0ffee');
+		const narrow = generate(c, 'light');
+		const wide = generate(c, 'light', {
+			light: { baseLightnessRange: [0.4, 0.99] },
+		});
+		expect(convert(wide.accent.DEFAULT, 'oklch').l).toBeGreaterThan(
+			convert(narrow.accent.DEFAULT, 'oklch').l,
+		);
+		expect(convert(wide.accent.DEFAULT, 'oklch').l).toBeCloseTo(0.953, 2);
 	});
 });
 
