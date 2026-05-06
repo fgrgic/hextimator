@@ -106,21 +106,17 @@ export type ConvertColor = <S extends ColorSpace>(
 ) => ColorInSpace<S>;
 
 /**
- * Generation knobs shared by top-level {@link HextimateStyleOptions} and by
- * `light` / `dark`. On the top level they are defaults for both themes; nested
- * under `light` or `dark` they override that theme only (omitted nested fields
- * still inherit from the top-level value).
- *
- * Same shape as `style.light` and `style.dark`.
+ * Modifiers to the generation process. Used by {@link HextimateStyleOptions} for
+ * global or per-theme (dark/light) settings
  */
 export interface ThemeAdjustments {
 	/**
 	 * Absolute OKLCH lightness anchor for accent fills (0–1). Distinct from
 	 * the relative `lightness` offsets used by `addToken({ from, lightness })`.
 	 *
-	 * Omitted: seed from the brand color's OKLCH **L**, clamped via
+	 * If omitted, seed from the brand color's OKLCH **L**, clamped via
 	 * `baseLightnessRange` (per theme object, then top-level, then built-ins:
-	 * light `[0.4,0.9]`, dark `[0.2, 0.8]`).
+	 * light `[0.4, 0.9]`, dark `[0.2, 0.8]`).
 	 */
 	baseLightness?: number;
 
@@ -355,12 +351,6 @@ export interface HextimateFormatOptions {
 	 */
 	invertedVariants?: boolean;
 }
-
-/**
- * Combined options for the convenience API.
- * Allows passing both style and format options in one call.
- */
-export type HextimateOptions = HextimateStyleOptions & HextimateFormatOptions;
 
 /** How color values are serialized in the output (e.g. "hex", "rgb", "oklch", "hsl", "p3", and their "-raw" variants). */
 export type ColorFormat =

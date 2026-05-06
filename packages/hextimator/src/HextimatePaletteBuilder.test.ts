@@ -984,8 +984,6 @@ describe('HextimatePaletteBuilder: invertedVariants', () => {
 			invertedVariants: true,
 		}) as { light: Record<string, string>; dark: Record<string, string> };
 
-		// Surface always differs across themes; accent DEFAULT can match when light/dark
-		// share the same input-derived lightness seed.
 		expect(result.light.surface).not.toBe(result.light['surface-inverted']);
 		expect(result.dark.surface).not.toBe(result.dark['surface-inverted']);
 	});

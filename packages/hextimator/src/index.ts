@@ -2,13 +2,13 @@ import { HextimatePaletteBuilder } from './HextimatePaletteBuilder';
 import { parse } from './parse';
 import type { ColorInput } from './types';
 
-export type { CVDType } from './a11y';
 export { daltonizeColor, simulateColor } from './a11y';
+export type { CVDType } from './a11y';
 export { convert as convertColor } from './convert';
 export type { FlatTokenMap, FormatResult, NestedTokenMap } from './format';
 export {
-	type DerivedToken,
 	HextimatePaletteBuilder,
+	type DerivedToken,
 	type HextimateResult,
 	type TokenValue,
 	type VariantPlacement,
@@ -18,7 +18,6 @@ export * as presets from './presets';
 export type { HextimatePreset } from './presets/types';
 export type {
 	HextimateFormatOptions,
-	HextimateOptions,
 	HextimateStyleOptions,
 	ThemeAdjustments,
 } from './types';
