@@ -17,6 +17,9 @@ const FALLBACK_WEAK_DELTA_LIGHT = 0.05;
 
 const VARIANT_DELTA = 0.1;
 
+/** Light accent/semantic fills: ceiling below OKLCH 1 so `weak` does not flatten to pure white (~surface). Ignored when `baselineLValueLight` is set (surface scale). */
+const LIGHT_ACCENT_MAX_LIGHTNESS = 0.98;
+
 /**
  * Small buffer above the target to absorb gamut-mapping drift.
  * gamut mapping can shift perceived lightness by up to ~0.1, so 0.15 provides safety
@@ -40,6 +43,26 @@ export function clampHueShift(hueShift: number, totalVariants: number): number {
 
 export function wrapHue(h: number): number {
 	return ((h % 360) + 360) % 360;
+}
+
+function finalizeLightAccentBodyVariants(
+	themeType: ThemeType,
+	variants: OKLCH,
+	foreground: OKLCH,
+	contrastTarget: number,
+	skipCap: boolean,
+): OKLCH {
+	if (themeType !== 'light' || skipCap) return variants;
+
+	let v =
+		variants.l > LIGHT_ACCENT_MAX_LIGHTNESS
+			? { ...variants, l: LIGHT_ACCENT_MAX_LIGHTNESS }
+			: variants;
+	v = ensureContrast(v, foreground, contrastTarget);
+	if (v.l > LIGHT_ACCENT_MAX_LIGHTNESS) {
+		v = { ...v, l: LIGHT_ACCENT_MAX_LIGHTNESS };
+	}
+	return v;
 }
 
 interface ExpandColorToScaleOptions
@@ -101,7 +124,7 @@ export function expandColorToScale(
 			? options?.light?.maxChroma
 			: options?.dark?.maxChroma;
 
-	const normalizedColorOKLCH = {
+	let normalizedColorOKLCH = {
 		...colorOKLCH,
 		l:
 			themeType === 'light'
@@ -267,6 +290,8 @@ export function expandColorToScale(
 	}
 
 	const rawHueShift = options?.hueShift ?? 0;
+	const skipLightBodyCap = baselineLValueLight !== undefined;
+
 	if (rawHueShift !== 0) {
 		const clamped = clampHueShift(rawHueShift, 2);
 		strongColorOKLCH = {
@@ -290,6 +315,28 @@ export function expandColorToScale(
 			contrastTarget,
 		);
 	}
+
+	normalizedColorOKLCH = finalizeLightAccentBodyVariants(
+		themeType,
+		normalizedColorOKLCH,
+		foregroundColorOKLCH,
+		contrastTarget,
+		skipLightBodyCap,
+	);
+	strongColorOKLCH = finalizeLightAccentBodyVariants(
+		themeType,
+		strongColorOKLCH,
+		foregroundColorOKLCH,
+		contrastTarget,
+		skipLightBodyCap,
+	);
+	weakColorOKLCH = finalizeLightAccentBodyVariants(
+		themeType,
+		weakColorOKLCH,
+		foregroundColorOKLCH,
+		contrastTarget,
+		skipLightBodyCap,
+	);
 
 	return {
 		DEFAULT: { ...normalizedColorOKLCH },

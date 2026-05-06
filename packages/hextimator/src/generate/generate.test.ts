@@ -638,7 +638,12 @@ describe('end-to-end: output shape', () => {
 		const dark = result.dark as Record<string, string>;
 		// Accent can match across themes when both use the same input L seed.
 		expect(light.surface).not.toBe(dark.surface);
-		expect(light.surface).not.toBe(dark.surface);
+	});
+
+	it('light accent-weak avoids pure white when the brand swatch is very light', () => {
+		const light = hextimate('#c0ffee').format({ as: 'object', colors: 'hex' })
+			.light as Record<string, string>;
+		expect(light['accent-weak']).not.toBe('#ffffff');
 	});
 });
 
