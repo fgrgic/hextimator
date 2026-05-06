@@ -153,7 +153,8 @@ function constrainLightVariant(
 			? { ...variant, l: LIGHT_ACCENT_MAX_LIGHTNESS }
 			: variant;
 	v = ensureContrast(v, foreground, contrastTarget);
-	if (v.l > LIGHT_ACCENT_MAX_LIGHTNESS) v = { ...v, l: LIGHT_ACCENT_MAX_LIGHTNESS };
+	if (v.l > LIGHT_ACCENT_MAX_LIGHTNESS)
+		v = { ...v, l: LIGHT_ACCENT_MAX_LIGHTNESS };
 	return v;
 }
 

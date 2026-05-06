@@ -44,6 +44,7 @@ export function generateSemanticColors(
 		minContrastRatio: options?.minContrastRatio,
 		hueShift: options?.hueShift,
 		foregroundMaxChroma: options?.foregroundMaxChroma,
+		inputLightness: options?.inputLightness,
 	};
 	const positiveColorScale = expandColorToScale(
 		positiveBaseColor,
