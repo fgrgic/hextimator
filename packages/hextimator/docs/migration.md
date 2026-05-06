@@ -4,6 +4,12 @@ Breaking changes by release. Each section is a checklist; see the [CHANGELOG](..
 
 ## 0.8.x → 0.9.0
 
+0.9.0 widens the default OKLCH hue arcs used to pick auto-generated semantic colors (`semanticColorRanges`: `positive` [120,160], `negative` [5,30], `warning` [45,70]). Themes that relied on the older built-in ranges may get different `positive` / `negative` / `warning` bases.
+
+To keep previous semantic hues, set `semanticColorRanges` to match the values from a build before upgrading, or copy them from your lockfile / generated theme snapshot.
+
+## 0.9.x → 0.10.0
+
 When `baseLightness` is **omitted** on `light` / `dark`, the library no longer uses fixed `0.7` (light) and `0.6` (dark). It anchors both themes to **the brand color's OKLCH lightness** (clamped separately for each theme). Explicit `light.baseLightness` / `dark.baseLightness` behave the same as before.
 
 Theme UIs that stored an "offset from defaults" using `0.7` / `0.6` should base the offset on `parseColor(color)` → OKLCH `l` instead. See [Customization](customization.md#themeadjustments).
@@ -52,8 +58,6 @@ CLI flags are unchanged. `--light-lightness` and `--dark-lightness` continue to 
 ### React
 
 If you read `style.light.lightness` / `style.dark.lightness` directly (e.g. inside a custom theme-preferences UI), rename to `baseLightness`. The deprecated alias is still readable on `style` objects you set yourself, but new code should emit `baseLightness`.
-
-For sliders that adjust lightness relative to "the default", derive the baseline from the active brand color (`parseColor` → convert to OKLCH → `l`), not from fixed `0.7` / `0.6`.
 
 ## 0.5.x → 0.6.0
 

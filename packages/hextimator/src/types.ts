@@ -115,8 +115,9 @@ export interface ThemeAdjustments {
 	 * This is the *baseline* the palette is generated around — distinct from
 	 * the *relative* `lightness` offsets used by `addToken({ from, lightness })`.
 	 *
-	 * When omitted, the anchor is seeded from the accent input color's OKLCH
-	 * lightness (clamped per theme). Light and dark use the same seed unless
+	 * When omitted, the anchor was fixed per theme through 0.9.x (`0.7` light,
+	 * `0.6` dark). **From 0.10.0** it is seeded from the accent input color's
+	 * OKLCH lightness (clamped per theme). Light and dark use the same seed unless
 	 * you set an explicit value for each theme.
 	 */
 	baseLightness?: number;
@@ -269,8 +270,8 @@ export interface HextimateStyleOptions {
 
 	/**
 	 * OKLCH lightness of the accent input (0-1). Set during palette generation
-	 * from the brand color; used when `baseLightness` is omitted for a theme.
-	 * Not intended for manual configuration.
+	 * when per-theme `baseLightness` is omitted (**0.10.0+**). Not intended for
+	 * manual configuration.
 	 */
 	inputLightness?: number;
 }

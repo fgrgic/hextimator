@@ -56,11 +56,7 @@ function oklchBodyClose(a: OKLCH, b: OKLCH): boolean {
 	const eps = 1e-5;
 	let dh = Math.abs(a.h - b.h) % 360;
 	if (dh > 180) dh = 360 - dh;
-	return (
-		Math.abs(a.l - b.l) < eps &&
-		Math.abs(a.c - b.c) < eps &&
-		dh < 0.05
-	);
+	return Math.abs(a.l - b.l) < eps && Math.abs(a.c - b.c) < eps && dh < 0.05;
 }
 
 function pickAccentForegroundPair(
@@ -88,9 +84,8 @@ function pickAccentForegroundPair(
 			? [candidateA, candidateB]
 			: [candidateB, candidateA];
 
-	const foreground = calculateContrast(base, preferred) > minContrast
-		? preferred
-		: fallback;
+	const foreground =
+		calculateContrast(base, preferred) > minContrast ? preferred : fallback;
 	return { foreground, preferred };
 }
 
@@ -107,8 +102,7 @@ function computeStrongWeakWithoutBoundaryShift(
 		foreground,
 		contrastTarget,
 	);
-	const distToBoundary =
-		boundaryL !== null ? Math.abs(base.l - boundaryL) : 0;
+	const distToBoundary = boundaryL !== null ? Math.abs(base.l - boundaryL) : 0;
 
 	const strongDelta = Math.min(VARIANT_DELTA, distToBoundary);
 
@@ -258,13 +252,8 @@ export function expandColorToScale(
 					contrastTarget,
 				);
 				const chipDistToBoundary =
-					chipBoundaryL !== null
-						? Math.abs(chipOKLCH.l - chipBoundaryL)
-						: 0;
-				const chipStrongDelta = Math.min(
-					VARIANT_DELTA,
-					chipDistToBoundary,
-				);
+					chipBoundaryL !== null ? Math.abs(chipOKLCH.l - chipBoundaryL) : 0;
+				const chipStrongDelta = Math.min(VARIANT_DELTA, chipDistToBoundary);
 
 				if (chipStrongDelta >= EXACT_CHIP_MIN_STRONG_DELTA_OKLCH) {
 					const { strong: strongSim, weak: weakSim } =

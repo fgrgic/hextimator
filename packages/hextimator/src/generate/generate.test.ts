@@ -653,10 +653,8 @@ describe('end-to-end: output shape', () => {
 	});
 
 	it('accent nudges off brand-exact when the chip is too close to the contrast boundary for strong', () => {
-		const light = hextimate('#056').format({ as: 'object', colors: 'hex' }).light as Record<
-			string,
-			string
-		>;
+		const light = hextimate('#056').format({ as: 'object', colors: 'hex' })
+			.light as Record<string, string>;
 		expect(light.accent).not.toBe(light['brand-exact']);
 	});
 });

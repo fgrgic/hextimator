@@ -1,10 +1,14 @@
-## Unreleased
+## 0.10.0
 
-- **Breaking.** When `light.baseLightness` and `dark.baseLightness` are omitted, accent and semantic scales use the **input color's OKLCH lightness** (clamped per theme). Light and dark share that seed unless you set explicit per-theme overrides.
+- **Breaking.** When `light.baseLightness` and `dark.baseLightness` are omitted, accent and semantic scales use the **input color's OKLCH lightness** (clamped per theme). Light and dark share that seed unless you set explicit per-theme overrides. Previously (through 0.9.x) omitted anchors used fixed `0.7` (light) and `0.6` (dark).
+
+  Migration checklist: [migration.md](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md) (section *0.9.x → 0.10.0*).
 
 ## 0.9.0 (Latest)
 
 - Widens default semantic hue ranges (`positive` [120,160], `negative` [5,30], `warning` [45,70] OKLCH arcs). Themes using library defaults may get different semantic scales.
+
+  Migration note: [migration.md](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md) (section *0.8.x → 0.9.0*).
 
 ## 0.8.0
 

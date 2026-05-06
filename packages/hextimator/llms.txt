@@ -84,8 +84,8 @@ Pick the dark wrapper with `darkMode`: `"media"` (default) wraps dark tokens in 
 | `semanticColorRanges` | `{ positive?: [start,end], ... }` | `positive: [120,160]`, `negative: [5,30]`, `warning: [45,70]` | OKLCH hue degree arcs for picking semantic bases (clockwise; `[350,10]` wraps) |
 | `surfaceMaxChroma` | number | `0.01` | Max chroma for surface colors |
 | `foregroundMaxChroma` | number | `0.01` | Max chroma for foreground colors |
-| `light` | `{ baseLightness?, maxChroma? }` | input OKLCH L (clamped) | Light theme adjustments. `baseLightness` is the absolute OKLCH anchor for the accent when set; otherwise the input color's OKLCH lightness is used (distinct from the relative `lightness` offset on derived tokens) |
-| `dark` | `{ baseLightness?, maxChroma? }` | same seed as light | Dark theme adjustments; same default seed as light unless you set `dark.baseLightness` |
+| `light` | `{ baseLightness?, maxChroma? }` | **0.10.0+:** input OKLCH `l` (clamped). **≤0.9.x:** implicit `0.7` when omitted. | Light theme adjustments. `baseLightness` is the absolute OKLCH anchor for the accent when set; otherwise the default above applies (distinct from the relative `lightness` offset on derived tokens) |
+| `dark` | `{ baseLightness?, maxChroma? }` | Same seed as light (**0.10.0+**) or implicit `0.6` (**≤0.9.x**) when omitted unless `dark.baseLightness` is set | Dark theme adjustments |
 | `minContrastRatio` | `"AAA"`, `"AA"`, or number | `"AAA"` | WCAG contrast target (AAA=7, AA=4.5) |
 | `hueShift` | degrees | `0` | Per-variant hue rotation |
 
@@ -313,9 +313,9 @@ Both commands are identical. Use whichever you prefer.
 | `--hue-shift` | Per-variant hue shift | `0` |
 | `--surface-max-chroma` | Max chroma for surface | `0.01` |
 | `--fg-max-chroma` | Max chroma for foreground | `0.01` |
-| `--light-lightness` | Light theme lightness 0-1 | `0.7` |
+| `--light-lightness` | Sets `light.baseLightness` | Omit: **0.10.0+** derives from input OKLCH `l`; **≤0.9.x** `0.7` |
 | `--light-max-chroma` | Light theme max chroma | — |
-| `--dark-lightness` | Dark theme lightness 0-1 | `0.6` |
+| `--dark-lightness` | Sets `dark.baseLightness` | Omit: **0.10.0+** derives from input OKLCH `l`; **≤0.9.x** `0.6` |
 | `--dark-max-chroma` | Dark theme max chroma | — |
 | `--min-contrast` | `AAA`, `AA`, or number | `AAA` |
 | `--invert-dark` | Swap surface/accent hues in dark mode (requires --surface-color) | — |

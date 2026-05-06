@@ -52,14 +52,14 @@ const BUILDER_METHODS: CompletionEntry[] = [
 		type: 'method',
 		detail: '(adjustments)',
 		info: 'Light theme overrides (baseLightness, maxChroma)',
-		apply: "style({ light: { baseLightness: 0.65 } })",
+		apply: 'style({ light: { baseLightness: 0.65 } })',
 	},
 	{
 		label: 'dark',
 		type: 'method',
 		detail: '(adjustments)',
 		info: 'Dark theme overrides (baseLightness, maxChroma)',
-		apply: "style({ dark: { baseLightness: 0.55 } })",
+		apply: 'style({ dark: { baseLightness: 0.55 } })',
 	},
 	{
 		label: 'simulate',

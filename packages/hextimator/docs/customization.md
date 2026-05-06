@@ -24,7 +24,7 @@ Fields on `HextimateStyleOptions.light` and `.dark` (see `ThemeAdjustments` in `
 
 | Field | Type | Default (when not set) | Description |
 | --- | --- | --- | --- |
-| `baseLightness` | `number` (0–1) | Input color's OKLCH lightness (clamped per theme; same seed for light and dark unless you set each explicitly) | OKLCH lightness anchor for this theme's accent (baseline the palette is built around) |
+| `baseLightness` | `number` (0–1) | **0.10.0+:** input color's OKLCH lightness (clamped per theme; same seed for light and dark unless you set each explicitly). **0.9.x and earlier:** `0.7` (light) / `0.6` (dark) when omitted. | OKLCH lightness anchor for this theme's accent (baseline the palette is built around) |
 | `maxChroma` | `number` | Global / generator default | Max chroma for accent and semantic colors in this theme; higher chroma is clamped |
 | `minContrastRatio` | `"AAA" \| "AA" \| number` | Inherits from top-level `minContrastRatio` | Minimum WCAG contrast for this theme only (`"AAA"` = 7, `"AA"` = 4.5) |
 | `surfaceMaxChroma` | `number` | Inherits from top-level `surfaceMaxChroma` | Max chroma for surface (`surface`, `strong`, `weak`) in this theme |
