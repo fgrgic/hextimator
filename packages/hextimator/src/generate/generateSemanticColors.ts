@@ -1,6 +1,7 @@
 import { convert } from '../convert';
 import { parse } from '../parse';
 import type { Color } from '../types';
+import { resolveMergedThemeAdjustments } from './mergeThemeAdjustments';
 import type { GenerateOptions, HextimatePalette, ThemeType } from './types';
 import { expandColorToScale } from './utils';
 
@@ -13,30 +14,21 @@ export function generateSemanticColors(
 	themeType: ThemeType,
 	options?: GenerateOptions,
 ): Pick<HextimatePalette, 'positive' | 'negative' | 'warning'> {
-	const themeAdj = themeType === 'light' ? options?.light : options?.dark;
+	const themeAdjustments = resolveMergedThemeAdjustments(
+		themeType,
+		options ?? {},
+	);
 
 	const semanticColors = {
-		positive:
-			themeAdj?.semanticColors?.positive ?? options?.semanticColors?.positive,
-		negative:
-			themeAdj?.semanticColors?.negative ?? options?.semanticColors?.negative,
-		warning:
-			themeAdj?.semanticColors?.warning ?? options?.semanticColors?.warning,
+		positive: themeAdjustments.semanticColors?.positive,
+		negative: themeAdjustments.semanticColors?.negative,
+		warning: themeAdjustments.semanticColors?.warning,
 	};
 
 	const semanticColorRanges = {
-		positive:
-			themeAdj?.semanticColorRanges?.positive ??
-			options?.semanticColorRanges?.positive ??
-			POSITIVE_RANGE,
-		negative:
-			themeAdj?.semanticColorRanges?.negative ??
-			options?.semanticColorRanges?.negative ??
-			NEGATIVE_RANGE,
-		warning:
-			themeAdj?.semanticColorRanges?.warning ??
-			options?.semanticColorRanges?.warning ??
-			WARNING_RANGE,
+		positive: themeAdjustments.semanticColorRanges?.positive ?? POSITIVE_RANGE,
+		negative: themeAdjustments.semanticColorRanges?.negative ?? NEGATIVE_RANGE,
+		warning: themeAdjustments.semanticColorRanges?.warning ?? WARNING_RANGE,
 	};
 
 	const positiveBaseColor = parse(
@@ -56,29 +48,20 @@ export function generateSemanticColors(
 			_determineBaseColorFromRange(color, semanticColorRanges.warning),
 	);
 
-	const scaleOptions = {
-		light: options?.light,
-		dark: options?.dark,
-		minContrastRatio: options?.minContrastRatio,
-		hueShift: themeAdj?.hueShift ?? options?.hueShift,
-		foregroundMaxChroma: options?.foregroundMaxChroma,
-		inputLightness: options?.inputLightness,
-		baseLightnessRange: options?.baseLightnessRange,
-	};
 	const positiveColorScale = expandColorToScale(
 		positiveBaseColor,
 		themeType,
-		scaleOptions,
+		options,
 	);
 	const negativeColorScale = expandColorToScale(
 		negativeBaseColor,
 		themeType,
-		scaleOptions,
+		options,
 	);
 	const warningColorScale = expandColorToScale(
 		warningBaseColor,
 		themeType,
-		scaleOptions,
+		options,
 	);
 
 	return {

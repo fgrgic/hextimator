@@ -1,6 +1,7 @@
 import { convert } from '../convert';
 import { parse } from '../parse';
 import type { Color } from '../types';
+import { resolveMergedThemeAdjustments } from './mergeThemeAdjustments';
 import type { ColorScale, GenerateOptions, ThemeType } from './types';
 import { expandColorToScale, wrapHue } from './utils';
 
@@ -22,19 +23,18 @@ export function generateSurface(
 	const invertSurfaceAndAccent =
 		themeType === 'dark' && options?.invertDarkModeSurfaceAccent;
 
-	const themeAdjustments =
-		themeType === 'light' ? options?.light : options?.dark;
-	const effectiveSurfaceColor =
-		themeAdjustments?.surfaceColor ?? options?.surfaceColor;
+	const themeAdjustments = resolveMergedThemeAdjustments(
+		themeType,
+		options ?? {},
+	);
+	const effectiveSurfaceColor = themeAdjustments.surfaceColor;
 
 	const preferredSurfaceColorInput = invertSurfaceAndAccent
 		? (color ?? effectiveSurfaceColor)
 		: (effectiveSurfaceColor ?? color);
 
 	const surfaceMaxChroma =
-		themeAdjustments?.surfaceMaxChroma ??
-		options?.surfaceMaxChroma ??
-		BASELINE_MAX_CHROMA;
+		themeAdjustments.surfaceMaxChroma ?? BASELINE_MAX_CHROMA;
 
 	const preferredSurfaceColor = convert(
 		parse(preferredSurfaceColorInput),
@@ -44,8 +44,7 @@ export function generateSurface(
 	let surfaceHue = preferredSurfaceColor.h;
 	const surfaceChroma = Math.min(preferredSurfaceColor.c, surfaceMaxChroma);
 
-	const surfaceHueShift =
-		themeAdjustments?.surfaceHueShift ?? options?.surfaceHueShift ?? 0;
+	const surfaceHueShift = themeAdjustments.surfaceHueShift ?? 0;
 	if (
 		surfaceHueShift !== 0 &&
 		!effectiveSurfaceColor &&
@@ -62,18 +61,12 @@ export function generateSurface(
 	};
 
 	return expandColorToScale(normalizedPreferredSurfaceColor, themeType, {
+		...(options ?? {}),
 		baselineLValueDark: BASELINE_DARK_L_VALUE,
 		baselineLValueLight: BASELINE_LIGHT_L_VALUE,
 		strongDeltaDark: STRONG_DELTA_DARK,
 		strongDeltaLight: STRONG_DELTA_LIGHT,
 		weakDeltaDark: WEAK_DELTA_DARK,
 		weakDeltaLight: WEAK_DELTA_LIGHT,
-		minContrastRatio: options?.minContrastRatio,
-		hueShift: options?.hueShift,
-		foregroundMaxChroma: options?.foregroundMaxChroma,
-		baseLightnessRange: options?.baseLightnessRange,
-		inputLightness: options?.inputLightness,
-		light: options?.light,
-		dark: options?.dark,
 	});
 }

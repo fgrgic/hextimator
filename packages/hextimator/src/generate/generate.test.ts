@@ -18,8 +18,8 @@ function contrast(a: ColorInput, b: ColorInput) {
  * Tests run against every color to ensure the guarantees are hue-independent.
  */
 const TEST_COLORS = [
-	'#0000ff', // blue  – notoriously dark in sRGB
-	'#ffff00', // yellow – very light
+	'#0000ff', // blue  – perceptually very dark
+	'#ffff00', // yellow – perceptually very light
 	'#ff0000', // red
 	'#00ff00', // green
 	'#ff6600', // orange
@@ -767,7 +767,7 @@ describe('baseLightnessRange and light anchor clamp', () => {
 	it('super-light input uses default light-theme max (0.9) for accent', () => {
 		const c = parse('#c0ffee');
 		const p = generate(c, 'light');
-		expect(convert(p.accent.DEFAULT, 'oklch').l).toBeCloseTo(0.9, 5);
+		expect(convert(parse(p.accent.DEFAULT), 'oklch').l).toBeCloseTo(0.9, 5);
 	});
 
 	it('top-level baseLightnessRange widens light theme like light-only option', () => {
@@ -778,8 +778,8 @@ describe('baseLightnessRange and light anchor clamp', () => {
 		const nested = generate(c, 'light', {
 			light: { baseLightnessRange: [0.4, 0.99] },
 		});
-		expect(convert(top.accent.DEFAULT, 'oklch').l).toBeCloseTo(
-			convert(nested.accent.DEFAULT, 'oklch').l,
+		expect(convert(parse(top.accent.DEFAULT), 'oklch').l).toBeCloseTo(
+			convert(parse(nested.accent.DEFAULT), 'oklch').l,
 			4,
 		);
 	});
@@ -790,7 +790,10 @@ describe('baseLightnessRange and light anchor clamp', () => {
 			baseLightnessRange: [0.4, 0.99],
 			dark: { baseLightnessRange: [0.2, 0.8] },
 		});
-		expect(convert(withOverride.accent.DEFAULT, 'oklch').l).toBeCloseTo(0.8, 2);
+		expect(convert(parse(withOverride.accent.DEFAULT), 'oklch').l).toBeCloseTo(
+			0.8,
+			2,
+		);
 	});
 });
 
@@ -802,8 +805,8 @@ describe('ThemeAdjustments: surface, hue, and semantic overrides', () => {
 			hueShift: 0,
 			light: { hueShift: 22 },
 		});
-		const h0 = convert(baseline.accent.strong, 'oklch').h;
-		const h1 = convert(withLight.accent.strong, 'oklch').h;
+		const h0 = convert(parse(baseline.accent.strong), 'oklch').h;
+		const h1 = convert(parse(withLight.accent.strong), 'oklch').h;
 		expect(Math.abs(((h1 - h0 + 540) % 360) - 180)).toBeGreaterThan(8);
 
 		const darkBaseline = generate(c, 'dark', { hueShift: 0 });
@@ -811,8 +814,8 @@ describe('ThemeAdjustments: surface, hue, and semantic overrides', () => {
 			hueShift: 0,
 			light: { hueShift: 22 },
 		});
-		expect(convert(darkBaseline.accent.strong, 'oklch').h).toBeCloseTo(
-			convert(darkWithLightHueOnly.accent.strong, 'oklch').h,
+		expect(convert(parse(darkBaseline.accent.strong), 'oklch').h).toBeCloseTo(
+			convert(parse(darkWithLightHueOnly.accent.strong), 'oklch').h,
 			3,
 		);
 	});
@@ -823,8 +826,8 @@ describe('ThemeAdjustments: surface, hue, and semantic overrides', () => {
 			light: { semanticColors: { positive: '#15803d' } },
 		});
 		const plain = generate(c, 'light', {});
-		expect(convert(custom.positive.DEFAULT, 'oklch').h).not.toBeCloseTo(
-			convert(plain.positive.DEFAULT, 'oklch').h,
+		expect(convert(parse(custom.positive.DEFAULT), 'oklch').h).not.toBeCloseTo(
+			convert(parse(plain.positive.DEFAULT), 'oklch').h,
 			0,
 		);
 	});
@@ -839,8 +842,12 @@ describe('ThemeAdjustments: surface, hue, and semantic overrides', () => {
 			surfaceColor: '#e5e5e5',
 			dark: { surfaceColor: '#1a1a1a' },
 		});
-		expect(convert(lightPal.surface.DEFAULT, 'oklch').l).toBeGreaterThan(0.9);
-		expect(convert(darkPal.surface.DEFAULT, 'oklch').l).toBeLessThan(0.25);
+		expect(convert(parse(lightPal.surface.DEFAULT), 'oklch').l).toBeGreaterThan(
+			0.9,
+		);
+		expect(convert(parse(darkPal.surface.DEFAULT), 'oklch').l).toBeLessThan(
+			0.25,
+		);
 	});
 });
 

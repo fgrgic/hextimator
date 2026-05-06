@@ -60,12 +60,12 @@ export function withMergedThemeBranch<
 	O extends HextimateStyleOptions & { inputLightness?: number },
 >(options: O | undefined, themeType: ThemeType): O {
 	const base = options ?? ({} as O);
-	const merged = resolveMergedThemeAdjustments(
+	const themeAdjustments = resolveMergedThemeAdjustments(
 		themeType,
 		base as GenerateOptions | HextimateStyleOptions,
 	);
 	if (themeType === 'light') {
-		return { ...base, light: merged };
+		return { ...base, light: themeAdjustments };
 	}
-	return { ...base, dark: merged };
+	return { ...base, dark: themeAdjustments };
 }

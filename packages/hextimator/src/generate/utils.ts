@@ -4,6 +4,7 @@ import {
 	DEFAULT_DARK_THEME_LIGHTNESS,
 	DEFAULT_LIGHT_THEME_LIGHTNESS,
 } from './consts';
+import { resolveMergedThemeAdjustments } from './mergeThemeAdjustments';
 import type { ColorScale, ThemeType } from './types';
 
 const FOREGROUND_DARK_L_VALUE = 0.97;
@@ -184,24 +185,23 @@ export function expandColorToScale(
 	const {
 		baselineLValueDark,
 		baselineLValueLight,
-		minContrastRatio: minContrastRatioOption,
 		foregroundLValueDark = FOREGROUND_DARK_L_VALUE,
 		foregroundLValueLight = FOREGROUND_LIGHT_L_VALUE,
-		foregroundMaxChroma: foregroundMaxChromaOption = FOREGROUND_MAX_CHROMA,
 		strongDeltaDark,
 		strongDeltaLight,
 		weakDeltaDark,
 		weakDeltaLight,
 	} = options ?? {};
 
-	const themeAdjustments =
-		themeType === 'light' ? options?.light : options?.dark;
-	const foregroundMaxChroma =
-		themeAdjustments?.foregroundMaxChroma ?? foregroundMaxChromaOption;
-
-	const minContrast = resolveContrastRatio(
-		themeAdjustments?.minContrastRatio ?? minContrastRatioOption,
+	const themeAdjustments = resolveMergedThemeAdjustments(
+		themeType,
+		(options ?? {}) as HextimateStyleOptions & { inputLightness?: number },
 	);
+
+	const foregroundMaxChroma =
+		themeAdjustments.foregroundMaxChroma ?? FOREGROUND_MAX_CHROMA;
+
+	const minContrast = resolveContrastRatio(themeAdjustments.minContrastRatio);
 	const contrastTarget = minContrast + CONTRAST_MARGIN;
 
 	const hasExplicitDeltas =
@@ -214,10 +214,7 @@ export function expandColorToScale(
 
 	const colorOKLCH = convert(color, 'oklch');
 
-	const maxChroma =
-		themeType === 'light'
-			? options?.light?.maxChroma
-			: options?.dark?.maxChroma;
+	const maxChroma = themeAdjustments.maxChroma;
 
 	const chipOKLCH: OKLCH = {
 		...colorOKLCH,
@@ -230,7 +227,7 @@ export function expandColorToScale(
 	const isSurfaceScale =
 		baselineLValueLight !== undefined || baselineLValueDark !== undefined;
 
-	const rawHueShift = themeAdjustments?.hueShift ?? options?.hueShift ?? 0;
+	const rawHueShift = themeAdjustments.hueShift ?? 0;
 
 	let useExactChip = false;
 	if (!isSurfaceScale && !hasExplicitDeltas && rawHueShift === 0) {
@@ -562,15 +559,18 @@ export function resolveThemeLightness(
 		inputLightness?: number;
 	},
 ): number {
-	const themeAdjustments =
-		themeType === 'light' ? options?.light : options?.dark;
+	const branch = themeType === 'light' ? options?.light : options?.dark;
+	const themeAdjustments = resolveMergedThemeAdjustments(
+		themeType,
+		(options ?? {}) as HextimateStyleOptions & { inputLightness?: number },
+	);
 	const range = resolveBaseLightnessClampRange(themeType, options);
 
-	const value = themeAdjustments?.baseLightness ?? themeAdjustments?.lightness;
+	const value = themeAdjustments.baseLightness ?? themeAdjustments.lightness;
 
 	if (
-		themeAdjustments?.baseLightness === undefined &&
-		themeAdjustments?.lightness !== undefined &&
+		branch?.baseLightness === undefined &&
+		branch?.lightness !== undefined &&
 		!warnedLegacyLightness &&
 		typeof console !== 'undefined'
 	) {
