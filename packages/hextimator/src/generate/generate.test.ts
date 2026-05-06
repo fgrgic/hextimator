@@ -645,6 +645,20 @@ describe('end-to-end: output shape', () => {
 			.light as Record<string, string>;
 		expect(light['accent-weak']).not.toBe('#ffffff');
 	});
+
+	it('accent matches brand-exact when the chip fits contrast and strong has enough OKLCH headroom', () => {
+		const result = hextimate('#00bcd4').format({ as: 'object', colors: 'hex' });
+		const light = result.light as Record<string, string>;
+		expect(light.accent).toBe(light['brand-exact']);
+	});
+
+	it('accent nudges off brand-exact when the chip is too close to the contrast boundary for strong', () => {
+		const light = hextimate('#056').format({ as: 'object', colors: 'hex' }).light as Record<
+			string,
+			string
+		>;
+		expect(light.accent).not.toBe(light['brand-exact']);
+	});
 });
 
 // ──────────────────────────────────────────────

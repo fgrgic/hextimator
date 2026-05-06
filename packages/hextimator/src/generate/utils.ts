@@ -17,6 +17,13 @@ const FALLBACK_WEAK_DELTA_LIGHT = 0.05;
 
 const VARIANT_DELTA = 0.1;
 
+// Skip exact chip when strong would be capped to a tiny OKLCH step (distToBoundary).
+const EXACT_CHIP_MIN_STRONG_DELTA_OKLCH = VARIANT_DELTA / 2;
+
+/** Clamp for theme anchor lightness; aligns with AAA-style contrast reasoning in docs. */
+const LIGHT_THEME_LIGHTNESS_RANGE = [0.4, 0.99] as const;
+const DARK_THEME_LIGHTNESS_RANGE = [0.2, 0.8] as const;
+
 /** Light accent/semantic fills: ceiling below OKLCH 1 so `weak` does not flatten to pure white (~surface). Ignored when `baselineLValueLight` is set (surface scale). */
 const LIGHT_ACCENT_MAX_LIGHTNESS = 0.98;
 
@@ -43,6 +50,98 @@ export function clampHueShift(hueShift: number, totalVariants: number): number {
 
 export function wrapHue(h: number): number {
 	return ((h % 360) + 360) % 360;
+}
+
+function oklchBodyClose(a: OKLCH, b: OKLCH): boolean {
+	const eps = 1e-5;
+	let dh = Math.abs(a.h - b.h) % 360;
+	if (dh > 180) dh = 360 - dh;
+	return (
+		Math.abs(a.l - b.l) < eps &&
+		Math.abs(a.c - b.c) < eps &&
+		dh < 0.05
+	);
+}
+
+function pickAccentForegroundPair(
+	base: OKLCH,
+	themeType: ThemeType,
+	foregroundLValueLight: number,
+	foregroundLValueDark: number,
+	foregroundMaxChroma: number,
+	minContrast: number,
+): { foreground: OKLCH; preferred: OKLCH } {
+	const candidates = [foregroundLValueLight, foregroundLValueDark].map((l) => ({
+		...base,
+		l,
+		c: Math.min(base.c, foregroundMaxChroma),
+	}));
+
+	const [candidateA, candidateB] =
+		themeType === 'light' ? candidates : [...candidates].reverse();
+
+	const contrastA = calculateContrast(base, candidateA);
+	const contrastB = calculateContrast(base, candidateB);
+
+	const [preferred, fallback] =
+		contrastA >= contrastB
+			? [candidateA, candidateB]
+			: [candidateB, candidateA];
+
+	const foreground = calculateContrast(base, preferred) > minContrast
+		? preferred
+		: fallback;
+	return { foreground, preferred };
+}
+
+function computeStrongWeakWithoutBoundaryShift(
+	base: OKLCH,
+	foreground: OKLCH,
+	themeType: ThemeType,
+	contrastTarget: number,
+): { strong: OKLCH; weak: OKLCH } {
+	const contrastDirection = themeType === 'light' ? -1 : 1;
+
+	const boundaryL = findContrastBoundaryLightness(
+		base,
+		foreground,
+		contrastTarget,
+	);
+	const distToBoundary =
+		boundaryL !== null ? Math.abs(base.l - boundaryL) : 0;
+
+	const strongDelta = Math.min(VARIANT_DELTA, distToBoundary);
+
+	const weakCandidateColor = {
+		...base,
+		l: base.l - VARIANT_DELTA * contrastDirection,
+	};
+	let weakDelta = VARIANT_DELTA;
+	if (calculateContrast(weakCandidateColor, foreground) < contrastTarget) {
+		let lo = 0;
+		let hi = VARIANT_DELTA;
+		for (let i = 0; i < 20; i++) {
+			const mid = (lo + hi) / 2;
+			const testL = base.l - mid * contrastDirection;
+			const testColor = { ...base, l: testL };
+			if (calculateContrast(testColor, foreground) > contrastTarget) {
+				lo = mid;
+			} else {
+				hi = mid;
+			}
+		}
+		weakDelta = lo;
+	}
+
+	const strong: OKLCH = {
+		...base,
+		l: Math.max(0, Math.min(1, base.l + strongDelta * contrastDirection)),
+	};
+	const weak: OKLCH = {
+		...base,
+		l: Math.max(0, Math.min(1, base.l - weakDelta * contrastDirection)),
+	};
+	return { strong, weak };
 }
 
 function finalizeLightAccentBodyVariants(
@@ -124,45 +223,116 @@ export function expandColorToScale(
 			? options?.light?.maxChroma
 			: options?.dark?.maxChroma;
 
-	let normalizedColorOKLCH = {
+	const chipOKLCH: OKLCH = {
 		...colorOKLCH,
-		l:
-			themeType === 'light'
-				? (baselineLValueLight ?? themeLightness)
-				: (baselineLValueDark ?? themeLightness),
 		c:
 			maxChroma !== undefined
 				? Math.min(colorOKLCH.c, maxChroma)
 				: colorOKLCH.c,
 	};
 
-	const candidates = [foregroundLValueLight, foregroundLValueDark].map((l) => ({
-		...normalizedColorOKLCH,
-		l,
-		c: Math.min(normalizedColorOKLCH.c, foregroundMaxChroma),
-	}));
+	const isSurfaceScale =
+		baselineLValueLight !== undefined || baselineLValueDark !== undefined;
 
-	const [candidateA, candidateB] =
-		themeType === 'light' ? candidates : [...candidates].reverse();
+	const rawHueShift = options?.hueShift ?? 0;
 
-	const contrastA = calculateContrast(normalizedColorOKLCH, candidateA);
-	const contrastB = calculateContrast(normalizedColorOKLCH, candidateB);
+	let useExactChip = false;
+	if (!isSurfaceScale && !hasExplicitDeltas && rawHueShift === 0) {
+		const range =
+			themeType === 'light'
+				? LIGHT_THEME_LIGHTNESS_RANGE
+				: DARK_THEME_LIGHTNESS_RANGE;
+		if (chipOKLCH.l >= range[0] && chipOKLCH.l <= range[1]) {
+			const chipFg = pickAccentForegroundPair(
+				chipOKLCH,
+				themeType,
+				foregroundLValueLight,
+				foregroundLValueDark,
+				foregroundMaxChroma,
+				minContrast,
+			).foreground;
+			if (calculateContrast(chipOKLCH, chipFg) >= contrastTarget) {
+				const chipBoundaryL = findContrastBoundaryLightness(
+					chipOKLCH,
+					chipFg,
+					contrastTarget,
+				);
+				const chipDistToBoundary =
+					chipBoundaryL !== null
+						? Math.abs(chipOKLCH.l - chipBoundaryL)
+						: 0;
+				const chipStrongDelta = Math.min(
+					VARIANT_DELTA,
+					chipDistToBoundary,
+				);
 
-	const [preferred, fallback] =
-		contrastA >= contrastB
-			? [candidateA, candidateB]
-			: [candidateB, candidateA];
+				if (chipStrongDelta >= EXACT_CHIP_MIN_STRONG_DELTA_OKLCH) {
+					const { strong: strongSim, weak: weakSim } =
+						computeStrongWeakWithoutBoundaryShift(
+							chipOKLCH,
+							chipFg,
+							themeType,
+							contrastTarget,
+						);
+					const defF = finalizeLightAccentBodyVariants(
+						themeType,
+						chipOKLCH,
+						chipFg,
+						contrastTarget,
+						false,
+					);
+					const sF = finalizeLightAccentBodyVariants(
+						themeType,
+						strongSim,
+						chipFg,
+						contrastTarget,
+						false,
+					);
+					const wF = finalizeLightAccentBodyVariants(
+						themeType,
+						weakSim,
+						chipFg,
+						contrastTarget,
+						false,
+					);
 
-	let foregroundColorOKLCH =
-		calculateContrast(normalizedColorOKLCH, preferred) > minContrast
-			? preferred
-			: fallback;
+					useExactChip =
+						oklchBodyClose(defF, chipOKLCH) &&
+						calculateContrast(defF, chipFg) >= contrastTarget &&
+						calculateContrast(sF, chipFg) >= contrastTarget &&
+						calculateContrast(wF, chipFg) >= contrastTarget;
+				}
+			}
+		}
+	}
+
+	let normalizedColorOKLCH: OKLCH = useExactChip
+		? { ...chipOKLCH }
+		: {
+				...colorOKLCH,
+				l:
+					themeType === 'light'
+						? (baselineLValueLight ?? themeLightness)
+						: (baselineLValueDark ?? themeLightness),
+				c: chipOKLCH.c,
+			};
+
+	let { foreground: foregroundColorOKLCH, preferred } =
+		pickAccentForegroundPair(
+			normalizedColorOKLCH,
+			themeType,
+			foregroundLValueLight,
+			foregroundLValueDark,
+			foregroundMaxChroma,
+			minContrast,
+		);
 
 	// If neither foreground meets the target, adjust the color's lightness
 	// minimally until the preferred foreground meets the threshold.
 	if (
+		!useExactChip &&
 		calculateContrast(normalizedColorOKLCH, foregroundColorOKLCH) <
-		contrastTarget
+			contrastTarget
 	) {
 		// Move the accent away from the foreground to increase contrast.
 		const direction = preferred.l < normalizedColorOKLCH.l ? 1 : -1;
@@ -181,7 +351,10 @@ export function expandColorToScale(
 			}
 		}
 
-		normalizedColorOKLCH.l = (lo + hi) / 2;
+		normalizedColorOKLCH = {
+			...normalizedColorOKLCH,
+			l: (lo + hi) / 2,
+		};
 		foregroundColorOKLCH = preferred;
 	}
 
@@ -222,15 +395,18 @@ export function expandColorToScale(
 		let distToBoundary =
 			boundaryL !== null ? Math.abs(normalizedColorOKLCH.l - boundaryL) : 0;
 
-		if (distToBoundary < VARIANT_DELTA) {
+		if (!useExactChip && distToBoundary < VARIANT_DELTA) {
 			const shift = Math.min(VARIANT_DELTA - distToBoundary, VARIANT_DELTA / 2);
 			// Shift DEFAULT away from the foreground to open space for strong.
 			const awayFromForeground =
 				foregroundColorOKLCH.l < normalizedColorOKLCH.l ? 1 : -1;
-			normalizedColorOKLCH.l = Math.max(
-				0,
-				Math.min(1, normalizedColorOKLCH.l + shift * awayFromForeground),
-			);
+			normalizedColorOKLCH = {
+				...normalizedColorOKLCH,
+				l: Math.max(
+					0,
+					Math.min(1, normalizedColorOKLCH.l + shift * awayFromForeground),
+				),
+			};
 
 			// Recompute boundary after shifting DEFAULT.
 			boundaryL = findContrastBoundaryLightness(
@@ -289,7 +465,6 @@ export function expandColorToScale(
 		};
 	}
 
-	const rawHueShift = options?.hueShift ?? 0;
 	const skipLightBodyCap = baselineLValueLight !== undefined;
 
 	if (rawHueShift !== 0) {
@@ -345,15 +520,6 @@ export function expandColorToScale(
 		foreground: { ...foregroundColorOKLCH },
 	};
 }
-
-/**
- * Safe lightness bounds that guarantee AAA contrast (7:1 + margin)
- * against near-white (L=0.98) and near-black (L=0.02) foregrounds.
- * Light theme needs high lightness (dark text on light bg).
- * Dark theme needs low lightness (light text on dark bg).
- */
-const LIGHT_THEME_LIGHTNESS_RANGE = [0.4, 0.99] as const;
-const DARK_THEME_LIGHTNESS_RANGE = [0.2, 0.8] as const;
 
 let warnedLegacyLightness = false;
 
