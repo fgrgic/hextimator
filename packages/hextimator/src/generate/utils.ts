@@ -3,6 +3,7 @@ import type { Color, HextimateStyleOptions, OKLCH } from '../types';
 import {
 	DEFAULT_DARK_THEME_LIGHTNESS,
 	DEFAULT_LIGHT_THEME_LIGHTNESS,
+	SURFACE_SCALE,
 } from './consts';
 import { resolveMergedThemeAdjustments } from './mergeThemeAdjustments';
 import type { ColorScale, ThemeType } from './types';
@@ -25,8 +26,19 @@ const EXACT_CHIP_MIN_STRONG_DELTA_OKLCH = VARIANT_DELTA / 2;
 const LIGHT_THEME_LIGHTNESS_RANGE = [0.4, 0.9] as const;
 const DARK_THEME_LIGHTNESS_RANGE = [0.2, 0.8] as const;
 
-/** Light accent/semantic fills: ceiling below OKLCH 1 so `weak` does not flatten to pure white (~surface). Ignored when `baselineLValueLight` is set (surface scale). */
-const LIGHT_ACCENT_MAX_LIGHTNESS = 0.98;
+const ACCENT_VS_SURFACE_L_GAP = 0.045;
+
+/** OKLCH L range spanned by the built-in surface scale (DEFAULT / strong / weak), from `SURFACE_SCALE`. Used only to clamp accent and semantic fills so they do not sit in the same lightness band as surface. */
+function surfaceLightnessBand(themeType: ThemeType): {
+	min: number;
+	max: number;
+} {
+	const x = themeType === 'light' ? SURFACE_SCALE.light : SURFACE_SCALE.dark;
+	const a = x.L;
+	const b = x.L + x.strong;
+	const c = x.L + x.weak;
+	return { min: Math.min(a, b, c), max: Math.max(a, b, c) };
+}
 
 /**
  * Small buffer above the target to absorb gamut-mapping drift.
@@ -139,23 +151,35 @@ function computeStrongWeakWithoutBoundaryShift(
 	return { strong, weak };
 }
 
-/** Light accent fills: cap high L, then satisfy contrast vs fg. No-op for surface baselines (skipSurfaceCap). */
-function constrainLightVariant(
+function constrainAccentVariantVsSurface(
 	themeType: ThemeType,
 	variant: OKLCH,
 	foreground: OKLCH,
 	contrastTarget: number,
 	skipSurfaceCap: boolean,
 ): OKLCH {
-	if (themeType !== 'light' || skipSurfaceCap) return variant;
+	if (skipSurfaceCap) return variant;
 
-	let v =
-		variant.l > LIGHT_ACCENT_MAX_LIGHTNESS
-			? { ...variant, l: LIGHT_ACCENT_MAX_LIGHTNESS }
-			: variant;
+	const { min: sMin, max: sMax } = surfaceLightnessBand(themeType);
+	let v = { ...variant };
+
+	if (themeType === 'light') {
+		const hi = sMax - ACCENT_VS_SURFACE_L_GAP;
+		if (v.l > hi) v = { ...v, l: hi };
+	} else {
+		const lo = sMin + ACCENT_VS_SURFACE_L_GAP;
+		if (v.l < lo) v = { ...v, l: lo };
+	}
+
 	v = ensureContrast(v, foreground, contrastTarget);
-	if (v.l > LIGHT_ACCENT_MAX_LIGHTNESS)
-		v = { ...v, l: LIGHT_ACCENT_MAX_LIGHTNESS };
+
+	if (themeType === 'light') {
+		const hi = sMax - ACCENT_VS_SURFACE_L_GAP;
+		if (v.l > hi) v = { ...v, l: hi };
+	} else {
+		const lo = sMin + ACCENT_VS_SURFACE_L_GAP;
+		if (v.l < lo) v = { ...v, l: lo };
+	}
 	return v;
 }
 
@@ -259,21 +283,21 @@ export function expandColorToScale(
 							themeType,
 							contrastTarget,
 						);
-					const defF = constrainLightVariant(
+					const defF = constrainAccentVariantVsSurface(
 						themeType,
 						chipOKLCH,
 						chipFg,
 						contrastTarget,
 						false,
 					);
-					const sF = constrainLightVariant(
+					const sF = constrainAccentVariantVsSurface(
 						themeType,
 						strongSim,
 						chipFg,
 						contrastTarget,
 						false,
 					);
-					const wF = constrainLightVariant(
+					const wF = constrainAccentVariantVsSurface(
 						themeType,
 						weakSim,
 						chipFg,
@@ -476,21 +500,21 @@ export function expandColorToScale(
 		);
 	}
 
-	normalizedColorOKLCH = constrainLightVariant(
+	normalizedColorOKLCH = constrainAccentVariantVsSurface(
 		themeType,
 		normalizedColorOKLCH,
 		foregroundColorOKLCH,
 		contrastTarget,
 		skipSurfaceCap,
 	);
-	strongColorOKLCH = constrainLightVariant(
+	strongColorOKLCH = constrainAccentVariantVsSurface(
 		themeType,
 		strongColorOKLCH,
 		foregroundColorOKLCH,
 		contrastTarget,
 		skipSurfaceCap,
 	);
-	weakColorOKLCH = constrainLightVariant(
+	weakColorOKLCH = constrainAccentVariantVsSurface(
 		themeType,
 		weakColorOKLCH,
 		foregroundColorOKLCH,
