@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { hextimate } from './index';
+import { convertColor, hextimate, parseColor } from './index';
 import type { HextimatePreset } from './presets/types';
 
 // ──────────────────────────────────────────────
@@ -453,6 +453,32 @@ describe('HextimatePaletteBuilder: light / dark options', () => {
 			hextimate('#ff6600').style({ light: { baseLightness: 0.8 } }),
 		);
 		expect(adjusted.light.accent).not.toBe(normal.light.accent);
+	});
+
+	it('per-theme baseLightness wins over exact input chip accent anchor', () => {
+		const hex = '#3b82f6';
+		const inputL = convertColor(parseColor(hex), 'oklch').l;
+		const target = 0.85;
+		const adjusted = formatObject(
+			hextimate(hex).style({ light: { baseLightness: target } }),
+		);
+		const outL = convertColor(parseColor(adjusted.light.accent), 'oklch').l;
+		expect(Math.abs(outL - inputL)).toBeGreaterThan(0.05);
+		expect(outL).toBeCloseTo(target, 1);
+	});
+
+	it('top-level baseLightness wins over exact input chip accent anchor', () => {
+		const hex = '#3b82f6';
+		const inputL = convertColor(parseColor(hex), 'oklch').l;
+		const target = 0.85;
+		const adjusted = formatObject(
+			hextimate(hex).style({ baseLightness: target }),
+		);
+		const lightL = convertColor(parseColor(adjusted.light.accent), 'oklch').l;
+		const darkL = convertColor(parseColor(adjusted.dark.accent), 'oklch').l;
+		expect(Math.abs(lightL - inputL)).toBeGreaterThan(0.05);
+		expect(lightL).toBeCloseTo(target, 1);
+		expect(Math.abs(darkL - inputL)).toBeGreaterThan(0.03);
 	});
 
 	it('light adjustments do not change dark theme', () => {

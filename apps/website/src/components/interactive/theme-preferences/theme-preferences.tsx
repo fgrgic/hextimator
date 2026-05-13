@@ -30,7 +30,6 @@ function getLightnessOffset(
 	style: ReturnType<typeof useHextimatorTheme>['style'],
 	seedL: number,
 ): number {
-	console.log(style);
 	const lightL = style?.light?.baseLightness ?? style?.baseLightness ?? seedL;
 	const darkL = style?.dark?.baseLightness ?? style?.baseLightness ?? seedL;
 	const lightDelta = lightL - seedL;
