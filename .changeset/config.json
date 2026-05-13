@@ -1,0 +1,12 @@
+{
+	"$schema": "https://unpkg.com/@changesets/config@3.0.0/schema.json",
+	"access": "public",
+	"baseBranch": "main",
+	"changelog": [
+		"@changesets/changelog-github",
+		{ "repo": "fgrgic/hextimator" }
+	],
+	"commit": false,
+	"ignore": ["@hextimator/playground", "playground", "website"],
+	"fixed": [["hextimator", "hextimate"]]
+}

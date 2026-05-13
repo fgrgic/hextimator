@@ -2,6 +2,8 @@
 	"name": "hextimator-monorepo",
 	"devDependencies": {
 		"@biomejs/biome": "2.4.8",
+		"@changesets/changelog-github": "^0.6.0",
+		"@changesets/cli": "^2.31.0",
 		"@codemirror/lang-javascript": "^6.2.5",
 		"@codemirror/state": "^6.6.0",
 		"@codemirror/theme-one-dark": "^6.1.3",
@@ -11,6 +13,8 @@
 	},
 	"private": true,
 	"scripts": {
+		"changeset": "changeset",
+		"version-packages": "changeset version",
 		"format": "biome format --write .",
 		"lint": "biome lint .",
 		"check": "biome check --write .",
