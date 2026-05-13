@@ -7,9 +7,7 @@ Use the built-in preset — see [Presets](presets.md) for details and customizat
 ```typescript
 import { hextimate, presets } from "hextimator";
 
-const theme = hextimate("#6366F1")
-  .preset(presets.shadcn)
-  .format();
+const theme = hextimate("#6366F1").preset(presets.shadcn).format();
 ```
 
 For older shadcn versions, add "hsl-raw" colors:
@@ -33,7 +31,7 @@ const theme = hextimate("#635BFF")
       surface: "background",
       positive: "success",
       negative: "danger",
-      warning: "warning",
+      caution: "warning",
     },
     variantNames: {
       foreground: "text",
@@ -43,31 +41,30 @@ const theme = hextimate("#635BFF")
 // Output keys (light & dark):
 // primary, primary-strong, primary-weak, primary-text,
 // background, background-strong, background-weak, background-text,
-// success, danger, warning + variants,
+// success, danger, caution + variants,
 // text-secondary, text-placeholder, icon
 ```
 
 ## Slack-style sidebar
 
 ```typescript
-const theme = hextimate("#4A154B")
-  .format({
-    roleNames: {
-      surface: "column-bg",
-      accent: "active-item",
-      positive: "active-presence",
-      negative: "mention-badge",
-    },
-    variantNames: {
-      DEFAULT: "DEFAULT",
-      strong: "menu-bg",
-      weak: "hover-item",
-      foreground: "text-color",
-    },
-  });
+const theme = hextimate("#4A154B").format({
+  roleNames: {
+    surface: "column-bg",
+    accent: "active-item",
+    positive: "active-presence",
+    negative: "mention-badge",
+  },
+  variantNames: {
+    DEFAULT: "DEFAULT",
+    strong: "menu-bg",
+    weak: "hover-item",
+    foreground: "text-color",
+  },
+});
 
 // Output keys (light & dark):
 // column-bg-DEFAULT, column-bg-menu-bg, column-bg-hover-item, column-bg-text-color,
 // active-item-DEFAULT, active-item-menu-bg, active-item-hover-item, active-item-text-color,
-// active-presence, mention-badge, warning + variants
+// active-presence, mention-badge, caution + variants
 ```

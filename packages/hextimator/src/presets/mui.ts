@@ -68,6 +68,7 @@ export const mui: HextimatePreset = {
 			accent: 'primary',
 			negative: 'error',
 			positive: 'success',
+			caution: 'warning',
 		},
 		variantNames: {
 			DEFAULT: 'main',

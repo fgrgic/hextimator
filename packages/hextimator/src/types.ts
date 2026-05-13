@@ -175,16 +175,16 @@ export interface ThemeAdjustments {
 	semanticColors?: {
 		positive?: ColorInput;
 		negative?: ColorInput;
-		warning?: ColorInput;
+		caution?: ColorInput;
 	};
 
 	/**
-	 * OKLCH hue arcs for semantic discovery. Defaults: positive [120,160], negative [5,30], warning [45,70].
+	 * OKLCH hue arcs for semantic discovery. Defaults: positive [120,160], negative [5,30], caution [45,70].
 	 */
 	semanticColorRanges?: {
 		positive?: [number, number];
 		negative?: [number, number];
-		warning?: [number, number];
+		caution?: [number, number];
 	};
 }
 
@@ -218,7 +218,7 @@ export interface HextimateFormatOptions {
 	 * - accent: "button"
 	 * - positive: "success"
 	 * - negative: "error"
-	 * - warning: "warning"
+	 * - caution: "caution"
 	 *
 	 * If not provided, the default role names will be used.
 	 * The default role names are:
@@ -226,7 +226,7 @@ export interface HextimateFormatOptions {
 	 * - accent: "accent"
 	 * - positive: "positive"
 	 * - negative: "negative"
-	 * - warning: "warning"
+	 * - caution: "caution"
 	 */
 	roleNames?: Record<string, string>;
 
@@ -314,7 +314,7 @@ export interface HextimateFormatOptions {
 	 * Role keys to omit from the output entirely.
 	 * Uses the internal role name (before any `roleNames` remapping).
 	 *
-	 * Example: `['warning']` removes the warning scale from the output.
+	 * Example: `['caution']` removes the caution scale from the output.
 	 */
 	excludeRoles?: string[];
 

@@ -2,7 +2,7 @@
 
 Two packages get published: `packages/hextimator` (the main package) and `packages/hextimate` (a thin CLI shim that re-exports `hextimator/cli`). The repo root is a private workspace and will never be published.
 
-Publish hextimator first since hextimate depends on it.
+Version bumps and `packages/hextimator/CHANGELOG.md` are driven by [Changesets](https://github.com/changesets/changesets). **`hextimator` and `hextimate` are fixed** (same version; `changeset version` updates both and the `hextimate` → `hextimator` dependency range). Publish **`hextimator` first**, then **`hextimate`**, since the shim depends on the main package.
 
 ## What gets published
 
@@ -33,7 +33,7 @@ cli.js          <- re-exports hextimator/cli
 
 No build step. Just a shim so `npx hextimate` works.
 
-## Steps
+## Release flow (Changesets + CI)
 
 ### 1. Log in to npm (once)
 
@@ -41,59 +41,70 @@ No build step. Just a shim so `npx hextimate` works.
 npm login
 ```
 
-### 2. Publish hextimator
+### 2. Land changes with a changeset
 
-From `packages/hextimator/`:
-
-```bash
-bun pm version patch   # 0.0.1 -> 0.0.2
-bun pm version minor   # 0.0.1 -> 0.1.0
-bun pm version major   # 0.0.1 -> 1.0.0
-```
-
-This updates `package.json` and creates a git tag.
+For anything that should appear in the next npm release, add a changeset on the same branch as the work:
 
 ```bash
-bun run build
-npm publish --dry-run   # optional but recommended
-npm publish
+# repo root
+bun run changeset
 ```
 
-### 3. Publish hextimate
+Commit the generated `.changeset/*.md` file and merge the PR to **`main`**.
 
-From `packages/hextimate/`:
+More detail: `.changeset/README.md`.
 
-```bash
-# Update the hextimator dependency to match the version you just published
-# Then bump hextimate's own version to match
-bun pm version patch
-npm publish
-```
+### 3. Version PR from GitHub Actions
 
-Keep hextimate's version in sync with hextimator for simplicity.
+Workflow: **`.github/workflows/release.yml`** (`release (changesets)`).
 
-## Quick copy-paste (from repo root)
+On every push to **`main`**, it runs `changesets/action`. If there are **pending** `.changeset/*.md` files on `main`, it runs `bun run version-packages` (`changeset version`), pushes a branch, and opens or updates a PR to **`main`** with:
+
+- title **`chore: version packages`**
+- label **`release`** (create that label in the repo if it does not exist yet)
+
+It does **not** create GitHub Releases. It does **not** publish to npm.
+
+### 4. Merge the version PR
+
+When you are ready to cut the release, merge that PR. That applies version bumps, changelog updates, and removes the consumed changeset files on **`main`**.
+
+### 5. Publish from your machine
+
+After the version PR is merged, **`package.json` versions already match**. Build and publish:
 
 ```bash
 cd packages/hextimator
-bun pm version patch
+bun run build
+npm publish --dry-run   # optional but recommended
+npm publish
+
+cd ../hextimate
+npm publish
+```
+
+## Quick copy-paste (after version PR is on `main`)
+
+```bash
+cd packages/hextimator
 bun run build
 npm publish
 
 cd ../hextimate
-bun pm version patch
 npm publish
 ```
 
-### Checklist
+Do **not** use `bun pm version` for releases in this repo; versioning is owned by Changesets.
 
-**hextimator**
-- [ ] Bump version in `packages/hextimator/package.json`
-- [ ] `cd packages/hextimator && bun run build` - rebuild dist
-- [ ] `bun test` - make sure nothing broke
+## Checklist
+
+**Before the version PR**
+
+- [ ] User-facing work on **`main`** has a **changeset** (`.changeset/*.md`).
+
+**After merging the version PR**
+
+- [ ] `cd packages/hextimator && bun run build`
+- [ ] `bun test` (from `packages/hextimator` or root, as you usually run it)
 - [ ] `npm publish` from `packages/hextimator`
-
-**hextimate**
-- [ ] Update `hextimator` dependency version in `packages/hextimate/package.json`
-- [ ] Bump version in `packages/hextimate/package.json`
 - [ ] `npm publish` from `packages/hextimate`

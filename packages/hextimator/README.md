@@ -154,16 +154,16 @@ Preset **`style`** plus **`.style()`** on the builder is covered in [Extending p
 Use `excludeRoles` and `excludeVariants` in `.format()` (or in a preset's `format` field) to drop tokens you don't need:
 
 ```typescript
-// Drop the warning role and the strong/weak variants entirely
+// Drop the caution role and the strong/weak variants entirely
 hextimate("#F11732").format({
-  excludeRoles: ["warning"],
+  excludeRoles: ["caution"],
   excludeVariants: ["strong", "weak"],
 });
 
 // Useful in custom presets to keep output tight
 const myPreset: HextimatePreset = {
   format: {
-    excludeRoles: ["warning"],
+    excludeRoles: ["caution"],
     excludeVariants: ["weak"],
   },
 };

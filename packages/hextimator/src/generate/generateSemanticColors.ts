@@ -7,13 +7,13 @@ import { expandColorToScale } from './utils';
 
 const POSITIVE_RANGE: [number, number] = [120, 160]; // green range in hue values
 const NEGATIVE_RANGE: [number, number] = [5, 30]; // red range in hue values
-const WARNING_RANGE: [number, number] = [45, 70]; // yellow/amber range in hue values
+const CAUTION_RANGE: [number, number] = [45, 70]; // yellow/amber range in hue values
 
 export function generateSemanticColors(
 	color: Color,
 	themeType: ThemeType,
 	options?: GenerateOptions,
-): Pick<HextimatePalette, 'positive' | 'negative' | 'warning'> {
+): Pick<HextimatePalette, 'positive' | 'negative' | 'caution'> {
 	const themeAdjustments = resolveMergedThemeAdjustments(
 		themeType,
 		options ?? {},
@@ -22,13 +22,13 @@ export function generateSemanticColors(
 	const semanticColors = {
 		positive: themeAdjustments.semanticColors?.positive,
 		negative: themeAdjustments.semanticColors?.negative,
-		warning: themeAdjustments.semanticColors?.warning,
+		caution: themeAdjustments.semanticColors?.caution,
 	};
 
 	const semanticColorRanges = {
 		positive: themeAdjustments.semanticColorRanges?.positive ?? POSITIVE_RANGE,
 		negative: themeAdjustments.semanticColorRanges?.negative ?? NEGATIVE_RANGE,
-		warning: themeAdjustments.semanticColorRanges?.warning ?? WARNING_RANGE,
+		caution: themeAdjustments.semanticColorRanges?.caution ?? CAUTION_RANGE,
 	};
 
 	const positiveBaseColor = parse(
@@ -43,9 +43,9 @@ export function generateSemanticColors(
 			_determineBaseColorFromRange(color, semanticColorRanges.negative),
 	);
 
-	const warningBaseColor = parse(
-		semanticColors.warning ??
-			_determineBaseColorFromRange(color, semanticColorRanges.warning),
+	const cautionBaseColor = parse(
+		semanticColors.caution ??
+			_determineBaseColorFromRange(color, semanticColorRanges.caution),
 	);
 
 	const positiveColorScale = expandColorToScale(
@@ -58,8 +58,8 @@ export function generateSemanticColors(
 		themeType,
 		options,
 	);
-	const warningColorScale = expandColorToScale(
-		warningBaseColor,
+	const cautionColorScale = expandColorToScale(
+		cautionBaseColor,
 		themeType,
 		options,
 	);
@@ -67,7 +67,7 @@ export function generateSemanticColors(
 	return {
 		positive: positiveColorScale,
 		negative: negativeColorScale,
-		warning: warningColorScale,
+		caution: cautionColorScale,
 	};
 }
 

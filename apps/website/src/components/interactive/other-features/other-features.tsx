@@ -40,7 +40,7 @@ export function OtherFeatures() {
 			/>
 			<BentoCard
 				title="Semantic scales"
-				description="Positive, negative, and warning scales generated automatically from a single color."
+				description="Positive, negative, and caution scales generated automatically from a single color."
 				icon={<Palette />}
 			/>
 			<BentoCard

@@ -15,8 +15,8 @@
 	--color-negative-strong-inverted: var(--negative-strong-inverted);
 	--color-negative-weak-inverted: var(--negative-weak-inverted);
 	--color-negative-foreground-inverted: var(--negative-foreground-inverted);
-	--color-warning-inverted: var(--warning-inverted);
-	--color-warning-strong-inverted: var(--warning-strong-inverted);
-	--color-warning-weak-inverted: var(--warning-weak-inverted);
-	--color-warning-foreground-inverted: var(--warning-foreground-inverted);
+	--color-caution-inverted: var(--caution-inverted);
+	--color-caution-strong-inverted: var(--caution-strong-inverted);
+	--color-caution-weak-inverted: var(--caution-weak-inverted);
+	--color-caution-foreground-inverted: var(--caution-foreground-inverted);
 }

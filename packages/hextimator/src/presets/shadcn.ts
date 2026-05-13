@@ -87,7 +87,7 @@ export const shadcn: HextimatePreset = {
 		variantNames: {
 			foreground: 'foreground',
 		},
-		excludeRoles: ['warning'],
+		excludeRoles: ['caution'],
 		excludeVariants: ['strong', 'weak'],
 	},
 };

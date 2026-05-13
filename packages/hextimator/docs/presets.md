@@ -90,7 +90,7 @@ hextimate("#6366F1").preset(presets.shadcn).format({ colors: "hsl-raw" });
 // Add extra role renames (merged with preset's)
 hextimate("#6366F1")
   .preset(presets.shadcn)
-  .format({ roleNames: { warning: "caution" } });
+  .format({ roleNames: { caution: "warning" } });
 ```
 
 ## Combining presets with the builder API
@@ -223,7 +223,7 @@ const myPreset: HextimatePreset = {
     colors: "oklch",
     roleNames: { surface: "background", accent: "primary" },
     // Drop roles and variants the preset doesn't map to anything
-    excludeRoles: ["warning"],
+    excludeRoles: ["caution"],
     excludeVariants: ["strong", "weak"],
   },
 };
@@ -233,7 +233,7 @@ You can also pass them directly to `.format()` without a preset:
 
 ```typescript
 hextimate("#6366F1").format({
-  excludeRoles: ["warning", "positive"],
+  excludeRoles: ["caution", "positive"],
   excludeVariants: ["strong"],
 });
 ```

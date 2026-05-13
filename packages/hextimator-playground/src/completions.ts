@@ -151,7 +151,7 @@ const STYLE_OPTIONS: CompletionEntry[] = [
 	{
 		label: 'semanticColors',
 		type: 'property',
-		info: 'Custom semantic colors (positive, negative, warning)',
+		info: 'Custom semantic colors (positive, negative, caution)',
 		detail: 'object',
 		apply: "semanticColors: { positive: '#00ff00' }",
 	},

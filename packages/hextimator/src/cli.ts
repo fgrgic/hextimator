@@ -67,7 +67,7 @@ Style options:
 Semantic colors:
       --positive <color>      Override positive/success color      (default: auto green)
       --negative <color>      Override negative/error color        (default: auto red)
-      --warning <color>       Override warning color               (default: auto amber)
+      --caution <color>       Override caution color               (default: auto amber)
 
 CVD (color vision deficiency):
       --simulate <type>       Simulate CVD: protanopia | deuteranopia | tritanopia | achromatopsia
@@ -138,7 +138,7 @@ function run(): void {
 			'invert-dark': { type: 'boolean' },
 			positive: { type: 'string' },
 			negative: { type: 'string' },
-			warning: { type: 'string' },
+			caution: { type: 'string' },
 			simulate: { type: 'string' },
 			adapt: { type: 'string' },
 			'cvd-severity': { type: 'string' },
@@ -233,7 +233,7 @@ function run(): void {
 	const semanticColors: HextimateStyleOptions['semanticColors'] = {};
 	if (values.positive) semanticColors.positive = values.positive;
 	if (values.negative) semanticColors.negative = values.negative;
-	if (values.warning) semanticColors.warning = values.warning;
+	if (values.caution) semanticColors.caution = values.caution;
 	if (Object.keys(semanticColors).length > 0) {
 		styleOptions.semanticColors = semanticColors;
 	}

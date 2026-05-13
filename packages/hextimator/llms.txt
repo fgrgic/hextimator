@@ -80,8 +80,8 @@ Pick the dark wrapper with `darkMode`: `"media"` (default) wraps dark tokens in 
 | `surfaceColor` | color input | auto-derived | Override surface/neutral baseline color |
 | `surfaceHueShift` | degrees | `0` | Rotate surface hue relative to accent. Ignored if `surfaceColor` set |
 | `invertDarkModeSurfaceAccent` | boolean | `false` | Swap surface/accent hues in dark mode. Useful when the accent should become the background in dark mode. Requires `surfaceColor` |
-| `semanticColors` | `{ positive?, negative?, warning? }` | auto | Override semantic colors (green/red/amber) |
-| `semanticColorRanges` | `{ positive?: [start,end], ... }` | `positive: [120,160]`, `negative: [5,30]`, `warning: [45,70]` | OKLCH hue degree arcs for picking semantic bases (clockwise; `[350,10]` wraps) |
+| `semanticColors` | `{ positive?, negative?, caution? }` | auto | Override semantic colors (green/red/amber) |
+| `semanticColorRanges` | `{ positive?: [start,end], ... }` | `positive: [120,160]`, `negative: [5,30]`, `caution: [45,70]` | OKLCH hue degree arcs for picking semantic bases (clockwise; `[350,10]` wraps) |
 | `surfaceMaxChroma` | number | `0.01` | Max chroma for surface colors |
 | `foregroundMaxChroma` | number | `0.01` | Max chroma for foreground colors |
 | `light` | `{ baseLightness?, maxChroma? }` | **0.10.0+:** input OKLCH `l` (clamped). **≤0.9.x:** implicit `0.7` when omitted. | Light theme adjustments. `baseLightness` is the absolute OKLCH anchor for the accent when set; otherwise the default above applies (distinct from the relative `lightness` offset on derived tokens) |
@@ -93,7 +93,7 @@ Pick the dark wrapper with `darkMode`: `"media"` (default) wraps dark tokens in 
 
 Every palette includes 5 roles x 4 variants + 2 brand tokens = 22 tokens:
 
-- Roles: `surface`, `accent`, `positive`, `negative`, `warning`
+- Roles: `surface`, `accent`, `positive`, `negative`, `caution`
 - Variants: `DEFAULT` (no suffix), `strong`, `weak`, `foreground`
 - Brand tokens: `brand-exact` (the exact input color, unmodified), `brand-exact-foreground` (best-contrast foreground for that color)
 
@@ -245,7 +245,7 @@ const asScss = hextimate("#6366F1").preset(myPreset).format({ as: "scss" });
 2. Map each token to a hextimator source: which built-in role/variant is it closest to?
 3. Use `roleNames`/`variantNames` to rename the 20 built-in tokens to match the app's naming
 4. Use `tokens` for any extra tokens not covered by the built-in 5x4 grid, deriving them with `from` + `emphasis`/`lightness`/`chroma`/`hue` offsets
-5. Use `roles` if the app has color categories beyond surface/accent/positive/negative/warning
+5. Use `roles` if the app has color categories beyond surface/accent/positive/negative/caution
 6. Set `format` defaults to match what the app expects (CSS vars, object, etc.)
 
 ### Standalone tokens with per-theme values
@@ -324,7 +324,7 @@ Both commands are identical. Use whichever you prefer.
 | `--invert-dark` | Swap surface/accent hues in dark mode (requires --surface-color) | — |
 | `--positive` | Override positive/success color | auto |
 | `--negative` | Override negative/error color | auto |
-| `--warning` | Override warning color | auto |
+| `--caution` | Override caution color | auto |
 | `--simulate` | Simulate CVD: `protanopia`, `deuteranopia`, `tritanopia`, `achromatopsia` | — |
 | `--adapt` | Adapt palette for CVD type | — |
 | `--cvd-severity` | CVD severity 0-1 | `1` |
