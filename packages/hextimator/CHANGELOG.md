@@ -8,9 +8,9 @@
 
   - `HextimateStyleOptions` now **extends** `ThemeAdjustments` so shared knobs are declared once; `light` / `dark` use the same shape.
 
-    Migration checklist: [migration.md](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md) (section _0.9.x → 0.10.0_).
-
 - [#126](https://github.com/fgrgic/hextimator/pull/126) [`57ed74a`](https://github.com/fgrgic/hextimator/commit/57ed74af8c1c8d0640d97b4a4318cd02a6fe93f7) Thanks [@fgrgic](https://github.com/fgrgic)! - **Breaking.** Renames built-in semantic role **`warning`** → **`caution`**.
+
+Migration checklist: [migration.md](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md) (section _0.9.x → 0.10.0_).
 
 ## 0.9.0 (Latest)
 
