@@ -1,0 +1,23 @@
+landing:
+  - changed-files:
+      - any-glob-to-any-file: "apps/website/**"
+
+hextimator:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "packages/hextimator/**"
+          - "packages/hextimate/**"
+
+playground:
+  - changed-files:
+      - any-glob-to-any-file: "apps/playground/**"
+
+meta:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/**"
+          - ".changeset/**"
+          - "package.json"
+          - "biome.json"
+          - "tsconfig.base.json"
+          - "bun.lock"
