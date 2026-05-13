@@ -54,13 +54,10 @@ Style options:
       --hue-shift <deg>       Per-variant hue shift in degrees
       --surface-max-chroma <n>   Max chroma for surface colors        (default: 0.01)
       --fg-max-chroma <n>     Max chroma for foreground colors     (default: 0.01)
-      --light-lightness <n>   Light theme lightness 0-1            (default: from input OKLCH L)
-      --light-base-lightness-range <min,max>  Clamp input/base L for light theme (default: 0.4,0.9)
+      --light-lightness <n>   Light theme lightness 0-1            (default: 0.7)
       --light-max-chroma <n>  Light theme max chroma
-      --dark-lightness <n>    Dark theme lightness 0-1             (default: from input OKLCH L)
-      --dark-base-lightness-range <min,max> Clamp input/base L for dark theme (default: 0.2,0.8)
+      --dark-lightness <n>    Dark theme lightness 0-1             (default: 0.6)
       --dark-max-chroma <n>   Dark theme max chroma
-      --base-lightness-range <min,max>     Default clamp for both themes (overridden by per-theme flags)
       --min-contrast <value>  AAA | AA | <number>                  (default: AAA)
       --invert-dark           Swap surface/accent hues in dark mode   (requires --surface-color)
 
@@ -97,17 +94,6 @@ Examples:
   hextimator '#ff6600' --adapt deuteranopia --cvd-severity 0.8
 `.trim();
 
-function parseBaseLightnessRange(
-	raw: string,
-): readonly [number, number] | undefined {
-	const parts = raw.trim().split(/\s*,\s*/);
-	if (parts.length !== 2) return undefined;
-	const lo = Number(parts[0]);
-	const hi = Number(parts[1]);
-	if (!Number.isFinite(lo) || !Number.isFinite(hi)) return undefined;
-	return [lo, hi];
-}
-
 function run(): void {
 	const { values, positionals } = parseArgs({
 		allowPositionals: true,
@@ -128,12 +114,9 @@ function run(): void {
 			'surface-max-chroma': { type: 'string' },
 			'fg-max-chroma': { type: 'string' },
 			'light-lightness': { type: 'string' },
-			'light-base-lightness-range': { type: 'string' },
 			'light-max-chroma': { type: 'string' },
 			'dark-lightness': { type: 'string' },
-			'dark-base-lightness-range': { type: 'string' },
 			'dark-max-chroma': { type: 'string' },
-			'base-lightness-range': { type: 'string' },
 			'min-contrast': { type: 'string' },
 			'invert-dark': { type: 'boolean' },
 			positive: { type: 'string' },
@@ -178,43 +161,20 @@ function run(): void {
 	if (values['fg-max-chroma'])
 		styleOptions.foregroundMaxChroma = Number(values['fg-max-chroma']);
 
-	if (
-		values['light-lightness'] ||
-		values['light-max-chroma'] ||
-		values['light-base-lightness-range']
-	) {
+	if (values['light-lightness'] || values['light-max-chroma']) {
 		styleOptions.light = {};
 		if (values['light-lightness'])
 			styleOptions.light.baseLightness = Number(values['light-lightness']);
 		if (values['light-max-chroma'])
 			styleOptions.light.maxChroma = Number(values['light-max-chroma']);
-		if (values['light-base-lightness-range']) {
-			const pair = parseBaseLightnessRange(
-				values['light-base-lightness-range'],
-			);
-			if (pair) styleOptions.light.baseLightnessRange = pair;
-		}
 	}
 
-	if (
-		values['dark-lightness'] ||
-		values['dark-max-chroma'] ||
-		values['dark-base-lightness-range']
-	) {
+	if (values['dark-lightness'] || values['dark-max-chroma']) {
 		styleOptions.dark = {};
 		if (values['dark-lightness'])
 			styleOptions.dark.baseLightness = Number(values['dark-lightness']);
 		if (values['dark-max-chroma'])
 			styleOptions.dark.maxChroma = Number(values['dark-max-chroma']);
-		if (values['dark-base-lightness-range']) {
-			const pair = parseBaseLightnessRange(values['dark-base-lightness-range']);
-			if (pair) styleOptions.dark.baseLightnessRange = pair;
-		}
-	}
-
-	if (values['base-lightness-range']) {
-		const pair = parseBaseLightnessRange(values['base-lightness-range']);
-		if (pair) styleOptions.baseLightnessRange = pair;
 	}
 
 	if (values['min-contrast']) {

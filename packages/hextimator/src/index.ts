@@ -18,6 +18,7 @@ export * as presets from './presets';
 export type { HextimatePreset } from './presets/types';
 export type {
 	HextimateFormatOptions,
+	HextimateOptions,
 	HextimateStyleOptions,
 	ThemeAdjustments,
 } from './types';

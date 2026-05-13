@@ -1,5 +1,4 @@
-import { convert } from '../convert';
-import type { Color, HextimateStyleOptions } from '../types';
+import type { Color } from '../types';
 import { generateAccent } from './generateAccent';
 import { generateSemanticColors } from './generateSemanticColors';
 import { generateSurface } from './generateSurface';
@@ -15,16 +14,11 @@ export class GeneratePaletteError extends Error {
 export function generate(
 	color: Color,
 	themeType: ThemeType,
-	options?: HextimateStyleOptions,
+	options?: GenerateOptions,
 ): HextimatePalette {
-	const resolvedOptions: GenerateOptions = {
-		...(options ?? {}),
-		inputLightness: convert(color, 'oklch').l,
-	};
-
 	return {
-		surface: generateSurface(color, themeType, resolvedOptions),
-		accent: generateAccent(color, themeType, resolvedOptions),
-		...generateSemanticColors(color, themeType, resolvedOptions),
+		surface: generateSurface(color, themeType, options),
+		accent: generateAccent(color, themeType, options),
+		...generateSemanticColors(color, themeType, options),
 	};
 }

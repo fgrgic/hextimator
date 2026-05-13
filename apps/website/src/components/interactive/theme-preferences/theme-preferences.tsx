@@ -1,36 +1,29 @@
-import { convertColor, parseColor } from 'hextimator';
 import { useHextimatorTheme } from 'hextimator/react';
 import { RefreshDouble, Shuffle } from 'iconoir-react';
-import { useMemo, useRef } from 'react';
+import { useRef } from 'react';
 import { Button } from '../../button';
 import { stopColorCycler } from '../../hero/color-cycler-signal';
 import { RangeSlider } from '../../slider';
 import { InteractiveCard } from '../interactive-card';
 
-function accentSeedLightness(color: string): number {
-	try {
-		return convertColor(parseColor(color), 'oklch').l;
-	} catch {
-		return 0.5;
-	}
-}
+const DEFAULT_LIGHT_LIGHTNESS = 0.7;
+const DEFAULT_DARK_LIGHTNESS = 0.6;
 
 function getLightnessOffset(
 	style: ReturnType<typeof useHextimatorTheme>['style'],
-	seedL: number,
 ): number {
-	const lightL =
-		style?.light?.baseLightness ?? style?.light?.lightness ?? seedL;
-	const darkL = style?.dark?.baseLightness ?? style?.dark?.lightness ?? seedL;
-	const lightDelta = lightL - seedL;
-	const darkDelta = darkL - seedL;
+	const lightDelta =
+		(style?.light?.baseLightness ?? DEFAULT_LIGHT_LIGHTNESS) -
+		DEFAULT_LIGHT_LIGHTNESS;
+	const darkDelta =
+		(style?.dark?.baseLightness ?? DEFAULT_DARK_LIGHTNESS) -
+		DEFAULT_DARK_LIGHTNESS;
 	return Math.round(((lightDelta + darkDelta) / 2) * 100) / 100;
 }
 
 export function ThemePreferences() {
-	const { style, setStyle, color } = useHextimatorTheme();
-	const seedL = useMemo(() => accentSeedLightness(color), [color]);
-	const lightnessOffset = getLightnessOffset(style, seedL);
+	const { style, setStyle } = useHextimatorTheme();
+	const lightnessOffset = getLightnessOffset(style);
 	const hasStopped = useRef(false);
 
 	const handleInteract = () => {
@@ -58,11 +51,11 @@ export function ThemePreferences() {
 						...style,
 						light: {
 							...style?.light,
-							baseLightness: seedL + v,
+							baseLightness: DEFAULT_LIGHT_LIGHTNESS + v,
 						},
 						dark: {
 							...style?.dark,
-							baseLightness: seedL + v,
+							baseLightness: DEFAULT_DARK_LIGHTNESS + v,
 						},
 					})
 				}
@@ -102,11 +95,11 @@ export function ThemePreferences() {
 						...style,
 						light: {
 							...style?.light,
-							baseLightness: seedL + lightness,
+							baseLightness: DEFAULT_LIGHT_LIGHTNESS + lightness,
 						},
 						dark: {
 							...style?.dark,
-							baseLightness: seedL + lightness,
+							baseLightness: DEFAULT_DARK_LIGHTNESS + lightness,
 						},
 						surfaceHueShift: hueShift,
 						surfaceMaxChroma: chroma,
@@ -124,11 +117,11 @@ export function ThemePreferences() {
 						...style,
 						light: {
 							...style?.light,
-							baseLightness: undefined,
+							baseLightness: DEFAULT_LIGHT_LIGHTNESS,
 						},
 						dark: {
 							...style?.dark,
-							baseLightness: undefined,
+							baseLightness: DEFAULT_DARK_LIGHTNESS,
 						},
 						surfaceHueShift: 0,
 						surfaceMaxChroma: 0.01,

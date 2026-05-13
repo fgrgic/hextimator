@@ -1,27 +1,10 @@
 # Migration guide
 
-Breaking changes by release. See the [CHANGELOG](../CHANGELOG.md) for release notes and PR links.
-
-## 0.9.x → 0.10.0
-
-When `baseLightness` is not provided on `light` / `dark`, the library no longer uses fixed `0.7` (light) and `0.6` (dark). It anchors both themes to **the brand color's OKLCH lightness** (clamped separately for each theme). Explicit `light.baseLightness` / `dark.baseLightness` behave the same as before.
-
-```ts
-hextimate("...").style({
-  light: { baseLightness: 0.7 },
-  dark: { baseLightness: 0.6 },
-});
-```
-
-## 0.8.x → 0.9.0
-
-0.9.0 widens the default OKLCH hue arcs used to pick auto-generated semantic colors (`semanticColorRanges`: `positive` [120,160], `negative` [5,30], `warning` [45,70]). Themes that relied on the older built-in ranges may get different `positive` / `negative` / `warning` bases.
-
-To keep previous semantic hues, set `semanticColorRanges` to match the values from a build before upgrading, or copy them from your lockfile / generated theme snapshot.
+Breaking changes by release. Each section is a checklist; see the [CHANGELOG](../CHANGELOG.md) for release notes and PR links.
 
 ## 0.6.x → 0.7.0
 
-0.7.0 renames `ThemeAdjustments.lightness` to **`baseLightness`** to disambiguate it from the _relative_ `lightness` offset used by `addToken({ from, lightness })` and other derived-token APIs. Same word was doing two different jobs:
+0.7.0 renames `ThemeAdjustments.lightness` to **`baseLightness`** to disambiguate it from the *relative* `lightness` offset used by `addToken({ from, lightness })` and other derived-token APIs. Same word was doing two different jobs:
 
 - `style({ light: { lightness: 0.7 } })` — **absolute** OKLCH lightness for the theme's accent.
 - `addToken('x', { from: 'accent', lightness: -0.2 })` — **relative** offset from the source.
@@ -33,16 +16,16 @@ After this release:
 
 ### Style options
 
-| Before (0.6)                           | After (0.7)                                |
-| -------------------------------------- | ------------------------------------------ |
+| Before (0.6) | After (0.7) |
+|---|---|
 | `style({ light: { lightness: 0.7 } })` | `style({ light: { baseLightness: 0.7 } })` |
-| `style({ dark: { lightness: 0.6 } })`  | `style({ dark: { baseLightness: 0.6 } })`  |
+| `style({ dark: { lightness: 0.6 } })` | `style({ dark: { baseLightness: 0.6 } })` |
 
 ```ts
 hextimate("#ff8d80").style({
   surfaceHueShift: 200,
   light: { baseLightness: 0.7, surfaceMaxChroma: 0.02 },
-  dark: { baseLightness: 0.7, surfaceMaxChroma: 0.02 },
+  dark:  { baseLightness: 0.7, surfaceMaxChroma: 0.02 },
 });
 ```
 
@@ -62,7 +45,7 @@ CLI flags are unchanged. `--light-lightness` and `--dark-lightness` continue to 
 
 ### React
 
-If you read `style.light.lightness` / `style.dark.lightness` directly (e.g. inside a custom theme-preferences UI), rename to `baseLightness`. The deprecated alias is still readable on `style` objects you set yourself, but new code should emit `baseLightness`.
+If you read `style.light.lightness` / `style.dark.lightness` directly (e.g. inside a custom theme-preferences UI), rename to `baseLightness`. The deprecated alias is still readable on `style` objects you set yourself, but new code (and the React provider's defaults) emit `baseLightness`.
 
 ## 0.5.x → 0.6.0
 
@@ -70,20 +53,20 @@ If you read `style.light.lightness` / `style.dark.lightness` directly (e.g. insi
 
 ### Role and token names
 
-| Before (0.5)                                                                                | After (0.6)                                                                       |
-| ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
-| `--base`, `--base-strong`, `--base-weak`, `--base-foreground`                               | `--surface`, `--surface-strong`, `--surface-weak`, `--surface-foreground`         |
-| `bg-base`, `text-base`, `text-base-foreground`, `border-base-weak`, …                       | `bg-surface`, `text-surface`, `text-surface-foreground`, `border-surface-weak`, … |
-| `"base"`, `"base.weak"`, `"base.foreground"` (in `addToken` / `addVariant` / preset tokens) | `"surface"`, `"surface.weak"`, `"surface.foreground"`                             |
+| Before (0.5) | After (0.6) |
+|---|---|
+| `--base`, `--base-strong`, `--base-weak`, `--base-foreground` | `--surface`, `--surface-strong`, `--surface-weak`, `--surface-foreground` |
+| `bg-base`, `text-base`, `text-base-foreground`, `border-base-weak`, … | `bg-surface`, `text-surface`, `text-surface-foreground`, `border-surface-weak`, … |
+| `"base"`, `"base.weak"`, `"base.foreground"` (in `addToken` / `addVariant` / preset tokens) | `"surface"`, `"surface.weak"`, `"surface.foreground"` |
 
 ### Style options
 
-| Before (0.5)                                            | After (0.6)                   |
-| ------------------------------------------------------- | ----------------------------- |
-| `baseColor`                                             | `surfaceColor`                |
-| `baseHueShift`                                          | `surfaceHueShift`             |
-| `baseMaxChroma` (top-level and inside `light` / `dark`) | `surfaceMaxChroma`            |
-| `invertDarkModeBaseAccent`                              | `invertDarkModeSurfaceAccent` |
+| Before (0.5) | After (0.6) |
+|---|---|
+| `baseColor` | `surfaceColor` |
+| `baseHueShift` | `surfaceHueShift` |
+| `baseMaxChroma` (top-level and inside `light` / `dark`) | `surfaceMaxChroma` |
+| `invertDarkModeBaseAccent` | `invertDarkModeSurfaceAccent` |
 
 ```ts
 // Before
@@ -105,11 +88,11 @@ hextimate("#6A5ACD").style({
 
 ### CLI flags
 
-| Before (0.5)                     | After (0.6)                         |
-| -------------------------------- | ----------------------------------- |
-| `--base-color`                   | `--surface-color`                   |
-| `--base-hue-shift`               | `--surface-hue-shift`               |
-| `--base-max-chroma`              | `--surface-max-chroma`              |
+| Before (0.5) | After (0.6) |
+|---|---|
+| `--base-color` | `--surface-color` |
+| `--base-hue-shift` | `--surface-hue-shift` |
+| `--base-max-chroma` | `--surface-max-chroma` |
 | `--invert-dark-mode-base-accent` | `--invert-dark-mode-surface-accent` |
 
 ### `roleNames` remapping
@@ -147,9 +130,9 @@ No API shape changes — only the role name. Inside `configure` callbacks and `a
 
 Stylesheet outputs are no longer a `{ light, dark }` map of CSS variable objects. They now return a ready-to-paste string that combines both themes with a dark-mode wrapper.
 
-| Before (0.4)                                                            | After (0.5)                                                                                                   |
-| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `{ light: { "--accent": "#..." }, dark: { "--accent": "#..." } }`       | `":root { --accent: #...; }\n@media (prefers-color-scheme: dark) { :root { --accent: #...; } }"`              |
+| Before (0.4) | After (0.5) |
+|---|---|
+| `{ light: { "--accent": "#..." }, dark: { "--accent": "#..." } }` | `":root { --accent: #...; }\n@media (prefers-color-scheme: dark) { :root { --accent: #...; } }"` |
 | `{ light: { "--color-accent": "#..." }, dark: { ... } }` (tailwind-css) | `"@theme { --color-accent: #...; }\n@media (prefers-color-scheme: dark) { :root { --color-accent: #...; } }"` |
 
 If you were hand-building a stylesheet from the returned map, delete that code and use the string directly:
@@ -157,15 +140,7 @@ If you were hand-building a stylesheet from the returned map, delete that code a
 ```ts
 // Before
 const { light, dark } = hextimate(color).format({ as: "css" });
-const css = `:root {\n${Object.entries(light)
-  .map(([k, v]) => `  ${k}: ${v};`)
-  .join(
-    "\n",
-  )}\n}\n@media (prefers-color-scheme: dark) {\n  :root {\n${Object.entries(
-  dark,
-)
-  .map(([k, v]) => `    ${k}: ${v};`)
-  .join("\n")}\n  }\n}`;
+const css = `:root {\n${Object.entries(light).map(([k, v]) => `  ${k}: ${v};`).join("\n")}\n}\n@media (prefers-color-scheme: dark) {\n  :root {\n${Object.entries(dark).map(([k, v]) => `    ${k}: ${v};`).join("\n")}\n  }\n}`;
 
 // After
 const css = hextimate(color).format({ as: "css" });
@@ -176,23 +151,21 @@ If you were reading the map directly (e.g. to inject CSS variables imperatively)
 ```ts
 // Before
 const { light } = hextimate(color).format({ as: "css" });
-for (const [key, value] of Object.entries(light))
-  element.style.setProperty(key, value);
+for (const [key, value] of Object.entries(light)) element.style.setProperty(key, value);
 
 // After
 const { light } = hextimate(color).format({ as: "object" });
-for (const [key, value] of Object.entries(light))
-  element.style.setProperty(`--${key}`, value);
+for (const [key, value] of Object.entries(light)) element.style.setProperty(`--${key}`, value);
 ```
 
 ### New `darkMode` and `selector` options
 
 Stylesheet outputs take two new options:
 
-| Option     | Values                                            | Default   |
-| ---------- | ------------------------------------------------- | --------- |
+| Option | Values | Default |
+|---|---|---|
 | `darkMode` | `"media"`, `"class"`, `"data-attribute"`, `false` | `"media"` |
-| `selector` | any CSS selector (only for `as: "css"`)           | `":root"` |
+| `selector` | any CSS selector (only for `as: "css"`) | `":root"` |
 
 ```ts
 // Class-toggle dark mode under a custom root
@@ -209,10 +182,10 @@ hextimate(color).format({
 
 Two new flags mirror the API:
 
-| Flag          | Description                                                           | Default |
-| ------------- | --------------------------------------------------------------------- | ------- |
+| Flag | Description | Default |
+|---|---|---|
 | `--dark-mode` | `media`, `class`, `data-attribute`, `false` (stylesheet outputs only) | `media` |
-| `--selector`  | Root selector for `--format css`                                      | `:root` |
+| `--selector` | Root selector for `--format css` | `:root` |
 
 `--theme` is now ignored for `css` and `tailwind-css` (both themes always combine into one string); it still applies to `object`, `tailwind`, `scss`, and `json`.
 
@@ -222,23 +195,23 @@ Two new flags mirror the API:
 
 ### Core builder
 
-| Before (0.2)                                            | After (0.3)                                                                                          |
-| ------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `hextimate(color, options)`                             | `hextimate(color).style(options)` (or split into several `.style()` calls)                           |
-| `base.fork(otherColor, options)`                        | `base.fork(otherColor).style(options)`                                                               |
-| `base.fork(options)` (same color)                       | `base.fork().style(options)`                                                                         |
-| Preset field `generation`                               | Preset field `style`                                                                                 |
-| Type `HextimateGenerationOptions`                       | `HextimateStyleOptions`                                                                              |
+| Before (0.2) | After (0.3) |
+|---|---|
+| `hextimate(color, options)` | `hextimate(color).style(options)` (or split into several `.style()` calls) |
+| `base.fork(otherColor, options)` | `base.fork(otherColor).style(options)` |
+| `base.fork(options)` (same color) | `base.fork().style(options)` |
+| Preset field `generation` | Preset field `style` |
+| Type `HextimateGenerationOptions` | `HextimateStyleOptions` |
 | `themeLightness` (and similar) on a flat options object | Use `light` / `dark` on `ThemeAdjustments` inside `.style()` — see [Customization](customization.md) |
 
 Search your codebase for `hextimate(`, `.fork(`, `generation:`, and `HextimateGenerationOptions`.
 
 ### React
 
-| Before (0.2)                                                                 | After (0.3)                                                       |
-| ---------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| `generation` / `setGeneration` on provider, hook, or `useHextimator` options | `style` / `setStyle`                                              |
-| `HextimatorScope` prop `style` for inline styles on the wrapper              | `wrapperStyle` (the name `style` is reserved for palette options) |
+| Before (0.2) | After (0.3) |
+|---|---|
+| `generation` / `setGeneration` on provider, hook, or `useHextimator` options | `style` / `setStyle` |
+| `HextimatorScope` prop `style` for inline styles on the wrapper | `wrapperStyle` (the name `style` is reserved for palette options) |
 
 `useHextimator(color, { darkMode, format, … })` is unchanged in shape: only the **`generation`** key became **`style`**.
 

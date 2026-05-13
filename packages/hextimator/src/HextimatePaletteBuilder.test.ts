@@ -984,8 +984,8 @@ describe('HextimatePaletteBuilder: invertedVariants', () => {
 			invertedVariants: true,
 		}) as { light: Record<string, string>; dark: Record<string, string> };
 
-		expect(result.light.surface).not.toBe(result.light['surface-inverted']);
-		expect(result.dark.surface).not.toBe(result.dark['surface-inverted']);
+		expect(result.light.accent).not.toBe(result.light['accent-inverted']);
+		expect(result.dark.accent).not.toBe(result.dark['accent-inverted']);
 	});
 
 	it('inverted value in light equals the regular value in dark (and vice versa)', () => {

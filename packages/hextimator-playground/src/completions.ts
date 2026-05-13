@@ -52,14 +52,14 @@ const BUILDER_METHODS: CompletionEntry[] = [
 		type: 'method',
 		detail: '(adjustments)',
 		info: 'Light theme overrides (baseLightness, maxChroma)',
-		apply: 'style({ light: { baseLightness: 0.65 } })',
+		apply: 'light({ baseLightness: 0.7 })',
 	},
 	{
 		label: 'dark',
 		type: 'method',
 		detail: '(adjustments)',
 		info: 'Dark theme overrides (baseLightness, maxChroma)',
-		apply: 'style({ dark: { baseLightness: 0.55 } })',
+		apply: 'dark({ baseLightness: 0.6 })',
 	},
 	{
 		label: 'simulate',
@@ -139,14 +139,14 @@ const STYLE_OPTIONS: CompletionEntry[] = [
 		type: 'property',
 		info: 'Per-theme adjustments for light mode',
 		detail: 'ThemeAdjustments',
-		apply: 'light: { baseLightness: 0.65 }',
+		apply: 'light: { baseLightness: 0.7 }',
 	},
 	{
 		label: 'dark',
 		type: 'property',
 		info: 'Per-theme adjustments for dark mode',
 		detail: 'ThemeAdjustments',
-		apply: 'dark: { baseLightness: 0.55 }',
+		apply: 'dark: { baseLightness: 0.6 }',
 	},
 	{
 		label: 'semanticColors',
@@ -167,7 +167,7 @@ const THEME_ADJUSTMENTS: CompletionEntry[] = [
 	{
 		label: 'baseLightness',
 		type: 'property',
-		info: 'Absolute OKLCH lightness anchor for the accent (0–1). When omitted, both themes use the input color OKLCH L (clamped per theme).',
+		info: 'Absolute OKLCH lightness anchor for the accent (0–1). Light default: 0.7, dark default: 0.6',
 		detail: 'number',
 	},
 	{
