@@ -1,3 +1,9 @@
+## 0.10.1
+
+### Patch Changes
+
+- [#135](https://github.com/fgrgic/hextimator/pull/135) [`90b3920`](https://github.com/fgrgic/hextimator/commit/90b3920ba60580dfd038bd0e46d0796feffdf718) Thanks [@fgrgic](https://github.com/fgrgic)! - fix wrong priority of parameters for style. `baseLightness` should always take priority if set when calculating the lightness.
+
 ## 0.10.0
 
 ### Minor Changes
