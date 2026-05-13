@@ -22,6 +22,7 @@ This is a **Bun monorepo** with three workspaces:
 - **Linting/formatting**: Biome
 
 ## Approach
+
 - Think before acting. Read existing files before writing code.
 - Be concise in output but thorough in reasoning.
 - Prefer editing over rewriting whole files.
@@ -32,11 +33,13 @@ This is a **Bun monorepo** with three workspaces:
 - User instructions always override this file.
 
 ## Output
+
 - Return code first. Explanation after, only if non-obvious.
 - No inline prose. Use comments sparingly - only where logic is unclear.
 - No boilerplate unless explicitly requested.
 
 ## Code Rules
+
 - Simplest working solution. No over-engineering.
 - No abstractions for single-use operations.
 - No speculative features or "you might also want..."
@@ -46,16 +49,19 @@ This is a **Bun monorepo** with three workspaces:
 - Three similar lines is better than a premature abstraction.
 
 ## Review Rules
+
 - State the bug. Show the fix. Stop.
 - No suggestions beyond the scope of the review.
 - No compliments on the code before or after the review.
 
 ## Debugging Rules
+
 - Never speculate about a bug without reading the relevant code first.
 - State what you found, where, and the fix. One pass.
 - If cause is unclear: say so. Do not guess.
 
 ## Simple Formatting
+
 - No em dashes, smart quotes, or decorative Unicode symbols.
 - Plain hyphens and straight quotes only.
 - Natural language characters (accented letters, CJK, etc.) are fine when the content requires them.
@@ -86,14 +92,14 @@ bun test src/convert/gamut.test.ts             # run single-file test
 
 The package source lives in `packages/hextimator/src/` with six modules:
 
-| Module | Purpose |
-|---|---|
-| `parse/` | Accept any color input (hex, RGB, HSL, CSS functions, tuples, numeric) → normalized `Color` object |
-| `convert/` | Color space conversions (sRGB ↔ Linear RGB ↔ OKLab ↔ OKLCH, sRGB ↔ HSL) with OKLCH gamut mapping |
-| `generate/` | Build accent, surface, and semantic (positive/negative/warning) color scales in OKLCH, ensuring perceptually uniform lightness |
-| `format/` | Serialize palettes to CSS vars, Tailwind tokens, SCSS vars, JSON, or plain objects in any color format (hex, rgb, hsl, oklch) |
-| `HextimatePaletteBuilder.ts` | Builder-pattern API — `hextimate()` returns a builder that supports `.addRole()`, `.addVariant()`, `.format()` chaining |
-| `react/` | React integration: `useHextimator`, provider, scoped themes, dark mode (class, data-attribute, or media query strategies) |
+| Module                       | Purpose                                                                                                                        |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `parse/`                     | Accept any color input (hex, RGB, HSL, CSS functions, tuples, numeric) → normalized `Color` object                             |
+| `convert/`                   | Color space conversions (sRGB ↔ Linear RGB ↔ OKLab ↔ OKLCH, sRGB ↔ HSL) with OKLCH gamut mapping                               |
+| `generate/`                  | Build accent, surface, and semantic (positive/negative/caution) color scales in OKLCH, ensuring perceptually uniform lightness |
+| `format/`                    | Serialize palettes to CSS vars, Tailwind tokens, SCSS vars, JSON, or plain objects in any color format (hex, rgb, hsl, oklch)  |
+| `HextimatePaletteBuilder.ts` | Builder-pattern API — `hextimate()` returns a builder that supports `.addRole()`, `.addVariant()`, `.format()` chaining        |
+| `react/`                     | React integration: `useHextimator`, provider, scoped themes, dark mode (class, data-attribute, or media query strategies)      |
 
 **Entry point**: `packages/hextimator/src/index.ts` exports `hextimate()`, `HextimatePaletteBuilder`, `parseColor`, `convertColor`, and the key types. The package also has secondary entry points: `hextimator/react` (the React hook) and `hextimator/tailwind.css` (Tailwind utility layer).
 

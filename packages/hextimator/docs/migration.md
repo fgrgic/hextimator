@@ -13,6 +13,8 @@ hextimate("...").style({
 });
 ```
 
+**Semantic role:** `warning` → `caution`. Either search your repo for `warning` and replace where it referred to this role (`.style()` keys, CLI flag, CSS vars, Tailwind utilities, etc.), or keep serialized keys unchanged with `.format({ roleNames: { caution: "warning" } })`.
+
 ## 0.8.x → 0.9.0
 
 0.9.0 widens the default OKLCH hue arcs used to pick auto-generated semantic colors (`semanticColorRanges`: `positive` [120,160], `negative` [5,30], `warning` [45,70]). Themes that relied on the older built-in ranges may get different `positive` / `negative` / `warning` bases.

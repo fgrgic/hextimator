@@ -89,7 +89,7 @@ export function Accessibility() {
 					contrastRatio >= 7
 						? 'bg-positive text-positive-foreground'
 						: contrastRatio >= 4.5
-							? 'bg-warning text-warning-foreground'
+							? 'bg-caution text-caution-foreground'
 							: ''
 				}
 				min={1}

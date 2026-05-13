@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { ThemePreviewProps } from './theme-preview.types';
 
 const FOREGROUND_SUFFIX = '-foreground';
-const SEMANTIC_ROLES = new Set(['positive', 'negative', 'warning']);
+const SEMANTIC_ROLES = new Set(['positive', 'negative', 'caution']);
 
 function getRole(token: string) {
 	return token.split('-')[0];
@@ -45,7 +45,7 @@ export function ThemePreview({
 
 	const tokens = palette[mode] as Record<string, string>;
 
-	const ROLE_ORDER = ['accent', 'surface', 'positive', 'negative', 'warning'];
+	const ROLE_ORDER = ['accent', 'surface', 'positive', 'negative', 'caution'];
 
 	const entries = Object.entries(tokens)
 		.filter(([key]) => {

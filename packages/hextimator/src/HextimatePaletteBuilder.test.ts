@@ -39,7 +39,7 @@ describe('HextimatePaletteBuilder: construction', () => {
 		expect(result).toHaveProperty('dark');
 	});
 
-	it('default palette has surface, accent, positive, negative, warning roles', () => {
+	it('default palette has surface, accent, positive, negative, caution roles', () => {
 		const result = formatObject(hextimate('#ff6600'));
 		const keys = lightKeys(result);
 		for (const role of [
@@ -47,7 +47,7 @@ describe('HextimatePaletteBuilder: construction', () => {
 			'accent',
 			'positive',
 			'negative',
-			'warning',
+			'caution',
 		]) {
 			expect(keys).toContain(role);
 			expect(keys).toContain(`${role}-strong`);
@@ -285,7 +285,7 @@ describe('HextimatePaletteBuilder: addVariant()', () => {
 			'surface',
 			'positive',
 			'negative',
-			'warning',
+			'caution',
 		]) {
 			expect(keys).toContain(`${role}-hover`);
 		}
@@ -965,7 +965,7 @@ describe('HextimatePaletteBuilder: invertedVariants', () => {
 			'accent',
 			'positive',
 			'negative',
-			'warning',
+			'caution',
 		]) {
 			for (const variant of ['', '-strong', '-weak', '-foreground']) {
 				const key = `${role}${variant}`;
@@ -1043,13 +1043,13 @@ describe('HextimatePaletteBuilder: invertedVariants', () => {
 			as: 'object',
 			colors: 'hex',
 			invertedVariants: true,
-			excludeRoles: ['warning'],
+			excludeRoles: ['caution'],
 			excludeVariants: ['weak'],
 		}) as { light: Record<string, string>; dark: Record<string, string> };
 
 		const keys = Object.keys(result.light);
-		expect(keys.some((k) => k.startsWith('warning-'))).toBe(false);
-		expect(keys.some((k) => k === 'warning-inverted')).toBe(false);
+		expect(keys.some((k) => k.startsWith('caution-'))).toBe(false);
+		expect(keys.some((k) => k === 'caution-inverted')).toBe(false);
 		expect(keys.some((k) => k.includes('-weak-inverted'))).toBe(false);
 		expect(result.light['accent-inverted']).toMatch(/^#[0-9a-f]{6}$/);
 	});

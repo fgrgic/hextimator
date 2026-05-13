@@ -239,7 +239,7 @@ describe('addVariant: applies to roles, not tokens', () => {
 			'accent',
 			'positive',
 			'negative',
-			'warning',
+			'caution',
 		];
 
 		for (const role of defaultRoles) {
@@ -464,7 +464,7 @@ describe('hueShift: hue actually shifts between variants', () => {
 			const palette = result[theme] as Record<string, string>;
 			const roleScales = groupByRole(palette);
 
-			for (const role of ['accent', 'positive', 'negative', 'warning']) {
+			for (const role of ['accent', 'positive', 'negative', 'caution']) {
 				const scale = roleScales[role];
 				if (!scale?.DEFAULT || !scale.strong || !scale.weak) continue;
 
@@ -623,7 +623,7 @@ describe('end-to-end: output shape', () => {
 				'surface',
 				'positive',
 				'negative',
-				'warning',
+				'caution',
 			]) {
 				expect(tokens[role]).toMatch(/^#[0-9a-f]{6}$/);
 				expect(tokens[`${role}-strong`]).toMatch(/^#[0-9a-f]{6}$/);

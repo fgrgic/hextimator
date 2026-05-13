@@ -80,7 +80,7 @@ describe('format() — tailwind', () => {
 		expect(result.accent).toBeDefined();
 		expect(result.positive).toBeDefined();
 		expect(result.negative).toBeDefined();
-		expect(result.warning).toBeDefined();
+		expect(result.caution).toBeDefined();
 	});
 });
 
@@ -201,11 +201,11 @@ describe('format() — options', () => {
 
 	it('excludeRoles omits the specified roles', () => {
 		const result = format(palette, {
-			excludeRoles: ['warning', 'positive'],
+			excludeRoles: ['caution', 'positive'],
 		}) as Record<string, string>;
 		expect(
 			Object.keys(result).some(
-				(k) => k === 'warning' || k.startsWith('warning-'),
+				(k) => k === 'caution' || k.startsWith('caution-'),
 			),
 		).toBe(false);
 		expect(
