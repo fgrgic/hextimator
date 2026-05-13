@@ -48,6 +48,7 @@ describe('format() — default (no options)', () => {
 	it('prepends keyPrefix for json output', () => {
 		const json = format(palette, { as: 'json', keyPrefix: '--' });
 		expect(typeof json).toBe('string');
+		if (typeof json !== 'string') throw new Error('expected json string');
 		const parsed = JSON.parse(json) as Record<string, string>;
 		expect(parsed['--accent']).toBeDefined();
 	});
