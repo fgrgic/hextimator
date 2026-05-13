@@ -5,7 +5,10 @@ import {
 	DEFAULT_LIGHT_THEME_LIGHTNESS,
 	SURFACE_SCALE,
 } from './consts';
-import { resolveMergedThemeAdjustments } from './mergeThemeAdjustments';
+import {
+	extractGlobalThemeAdjustments,
+	resolveMergedThemeAdjustments,
+} from './mergeThemeAdjustments';
 import type { ColorScale, ThemeType } from './types';
 
 const FOREGROUND_DARK_L_VALUE = 0.97;
@@ -186,7 +189,13 @@ function constrainAccentVariantVsSurface(
 interface ExpandColorToScaleOptions
 	extends Pick<
 		HextimateStyleOptions,
-		'minContrastRatio' | 'hueShift' | 'light' | 'dark' | 'baseLightnessRange'
+		'minContrastRatio' |
+			'hueShift' |
+			'light' |
+			'dark' |
+			'baseLightnessRange' |
+			'baseLightness' |
+			'lightness'
 	> {
 	/** Set by `generate()`; omitted only in narrow internal call sites that use surface baselines. */
 	inputLightness?: number;
@@ -199,6 +208,26 @@ interface ExpandColorToScaleOptions
 	strongDeltaLight?: number;
 	weakDeltaDark?: number;
 	weakDeltaLight?: number;
+}
+
+function hasExplicitBaseLightnessAnchor(
+	themeType: ThemeType,
+	options?: ExpandColorToScaleOptions,
+): boolean {
+	if (!options) return false;
+	const global = extractGlobalThemeAdjustments(
+		options as HextimateStyleOptions & { inputLightness?: number },
+	);
+	if (
+		global.baseLightness !== undefined ||
+		global.lightness !== undefined
+	) {
+		return true;
+	}
+	const branch = themeType === 'light' ? options.light : options.dark;
+	return (
+		branch?.baseLightness !== undefined || branch?.lightness !== undefined
+	);
 }
 
 export function expandColorToScale(
@@ -254,7 +283,12 @@ export function expandColorToScale(
 	const rawHueShift = themeAdjustments.hueShift ?? 0;
 
 	let useExactChip = false;
-	if (!isSurfaceScale && !hasExplicitDeltas && rawHueShift === 0) {
+	if (
+		!isSurfaceScale &&
+		!hasExplicitDeltas &&
+		rawHueShift === 0 &&
+		!hasExplicitBaseLightnessAnchor(themeType, options)
+	) {
 		const range = resolveBaseLightnessClampRange(themeType, options);
 		if (chipOKLCH.l >= range[0] && chipOKLCH.l <= range[1]) {
 			const chipFg = pickAccentForegroundPair(
