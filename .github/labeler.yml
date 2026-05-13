@@ -16,7 +16,6 @@ meta:
   - changed-files:
       - any-glob-to-any-file:
           - ".github/**"
-          - ".changeset/**"
           - "package.json"
           - "biome.json"
           - "tsconfig.base.json"
