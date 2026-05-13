@@ -25,5 +25,6 @@ jobs:
         with:
           version: bun run version-packages
           createGithubReleases: false
+          title: "chore: version packages"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

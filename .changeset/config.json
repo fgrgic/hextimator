@@ -4,7 +4,10 @@
 	"baseBranch": "main",
 	"changelog": [
 		"@changesets/changelog-github",
-		{ "repo": "fgrgic/hextimator" }
+		{
+			"repo": "fgrgic/hextimator",
+			"disableThanks": true
+		}
 	],
 	"commit": false,
 	"ignore": ["@hextimator/playground", "playground", "website"],
