@@ -1,6 +1,7 @@
 import { convert } from '../convert';
 import { parse } from '../parse';
 import type { Color } from '../types';
+import { resolveMergedThemeAdjustments } from './mergeThemeAdjustments';
 import type { ColorScale, GenerateOptions, ThemeType } from './types';
 import { expandColorToScale, wrapHue } from './utils';
 
@@ -14,21 +15,27 @@ export function generateAccent(
 
 	if (invertSurfaceAndAccent) {
 		const accentOklch = convert(accent, 'oklch');
-		const surfaceHueShift = options?.surfaceHueShift ?? 0;
+		const themeAdjustments = resolveMergedThemeAdjustments(
+			'dark',
+			options ?? {},
+		);
+		const surfaceHueShift = themeAdjustments.surfaceHueShift ?? 0;
 
-		let surfaceOklch = options?.surfaceColor
-			? convert(parse(options.surfaceColor), 'oklch')
+		const effectiveSurface = themeAdjustments.surfaceColor;
+
+		let surfaceOklch = effectiveSurface
+			? convert(parse(effectiveSurface), 'oklch')
 			: convert(accent, 'oklch');
 
 		// When inverted with surfaceHueShift, the accent gets the shifted hue
-		if (surfaceHueShift !== 0 && !options?.surfaceColor) {
+		if (surfaceHueShift !== 0 && !effectiveSurface) {
 			surfaceOklch = {
 				...surfaceOklch,
 				h: wrapHue(accentOklch.h + surfaceHueShift),
 			};
 		}
 
-		const maxChroma = options?.dark?.maxChroma;
+		const maxChroma = themeAdjustments.maxChroma;
 		const invertedAccent = {
 			...surfaceOklch,
 			c:

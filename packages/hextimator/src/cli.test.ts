@@ -13,6 +13,7 @@ const GENERATION_OPTION_TO_CLI_FLAG: Record<string, string | null> = {
 	hueShift: 'hue-shift',
 	surfaceMaxChroma: 'surface-max-chroma',
 	foregroundMaxChroma: 'fg-max-chroma',
+	baseLightnessRange: 'base-lightness-range',
 	light: 'light-lightness', // light.baseLightness exposed as --light-lightness
 	dark: 'dark-lightness', // dark.baseLightness exposed as --dark-lightness
 	minContrastRatio: 'min-contrast',

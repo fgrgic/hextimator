@@ -3,6 +3,7 @@ import { convert } from '../convert';
 import { hextimate } from '../index';
 import { parse } from '../parse';
 import type { ColorInput } from '../types';
+import { generate } from './generate';
 import { calculateContrast } from './utils';
 
 /**
@@ -17,8 +18,8 @@ function contrast(a: ColorInput, b: ColorInput) {
  * Tests run against every color to ensure the guarantees are hue-independent.
  */
 const TEST_COLORS = [
-	'#0000ff', // blue  – notoriously dark in sRGB
-	'#ffff00', // yellow – very light
+	'#0000ff', // blue  – perceptually very dark
+	'#ffff00', // yellow – perceptually very light
 	'#ff0000', // red
 	'#00ff00', // green
 	'#ff6600', // orange
@@ -129,8 +130,10 @@ describe('lightness ordering: strong has more contrast with surface than weak', 
 
 					const strongDistToBase = Math.abs(strongL - baseL);
 					const weakDistToBase = Math.abs(weakL - baseL);
-
-					if (strongDistToBase < weakDistToBase) {
+					// Small slack for FP and edge cases where input-derived L makes strong/weak
+					// nearly equidistant from surface.
+					const slack = 0.005;
+					if (strongDistToBase + slack < weakDistToBase) {
 						throw new Error(
 							`${role}: strong (dist=${strongDistToBase.toFixed(4)}) should have more contrast with surface than weak (dist=${weakDistToBase.toFixed(4)}) in ${theme} for ${color}`,
 						);
@@ -630,12 +633,30 @@ describe('end-to-end: output shape', () => {
 		}
 	});
 
-	it('light and dark DEFAULT values differ', () => {
+	it('light and dark DEFAULT values differ for surface', () => {
 		const result = hextimate('#6366f1').format({ as: 'object', colors: 'hex' });
 		const light = result.light as Record<string, string>;
 		const dark = result.dark as Record<string, string>;
-		expect(light.accent).not.toBe(dark.accent);
+		// Accent can match across themes when both use the same input L seed.
 		expect(light.surface).not.toBe(dark.surface);
+	});
+
+	it('light accent-weak avoids pure white when the brand swatch is very light', () => {
+		const light = hextimate('#c0ffee').format({ as: 'object', colors: 'hex' })
+			.light as Record<string, string>;
+		expect(light['accent-weak']).not.toBe('#ffffff');
+	});
+
+	it('accent matches brand-exact when the chip fits contrast and strong has enough OKLCH headroom', () => {
+		const result = hextimate('#00bcd4').format({ as: 'object', colors: 'hex' });
+		const light = result.light as Record<string, string>;
+		expect(light.accent).toBe(light['brand-exact']);
+	});
+
+	it('accent nudges off brand-exact when the chip is too close to the contrast boundary for strong', () => {
+		const light = hextimate('#056').format({ as: 'object', colors: 'hex' })
+			.light as Record<string, string>;
+		expect(light.accent).not.toBe(light['brand-exact']);
 	});
 });
 
@@ -739,6 +760,94 @@ describe('surfaceHueShift: rotates surface hue relative to accent', () => {
 				}
 			}
 		}
+	});
+});
+
+describe('baseLightnessRange and light anchor clamp', () => {
+	it('super-light input uses default light-theme max (0.9) for accent', () => {
+		const c = parse('#c0ffee');
+		const p = generate(c, 'light');
+		expect(convert(parse(p.accent.DEFAULT), 'oklch').l).toBeCloseTo(0.9, 5);
+	});
+
+	it('top-level baseLightnessRange widens light theme like light-only option', () => {
+		const c = parse('#c0ffee');
+		const top = generate(c, 'light', {
+			baseLightnessRange: [0.4, 0.99],
+		});
+		const nested = generate(c, 'light', {
+			light: { baseLightnessRange: [0.4, 0.99] },
+		});
+		expect(convert(parse(top.accent.DEFAULT), 'oklch').l).toBeCloseTo(
+			convert(parse(nested.accent.DEFAULT), 'oklch').l,
+			4,
+		);
+	});
+
+	it('per-theme baseLightnessRange overrides global for that theme', () => {
+		const c = parse('#c0ffee');
+		const withOverride = generate(c, 'dark', {
+			baseLightnessRange: [0.4, 0.99],
+			dark: { baseLightnessRange: [0.2, 0.8] },
+		});
+		expect(convert(parse(withOverride.accent.DEFAULT), 'oklch').l).toBeCloseTo(
+			0.8,
+			2,
+		);
+	});
+});
+
+describe('ThemeAdjustments: surface, hue, and semantic overrides', () => {
+	it('per-theme hueShift overrides top-level for that theme only', () => {
+		const c = parse('#6366f1');
+		const baseline = generate(c, 'light', { hueShift: 0 });
+		const withLight = generate(c, 'light', {
+			hueShift: 0,
+			light: { hueShift: 22 },
+		});
+		const h0 = convert(parse(baseline.accent.strong), 'oklch').h;
+		const h1 = convert(parse(withLight.accent.strong), 'oklch').h;
+		expect(Math.abs(((h1 - h0 + 540) % 360) - 180)).toBeGreaterThan(8);
+
+		const darkBaseline = generate(c, 'dark', { hueShift: 0 });
+		const darkWithLightHueOnly = generate(c, 'dark', {
+			hueShift: 0,
+			light: { hueShift: 22 },
+		});
+		expect(convert(parse(darkBaseline.accent.strong), 'oklch').h).toBeCloseTo(
+			convert(parse(darkWithLightHueOnly.accent.strong), 'oklch').h,
+			3,
+		);
+	});
+
+	it('per-theme semanticColors.positive overrides for that theme', () => {
+		const c = parse('#6366f1');
+		const custom = generate(c, 'light', {
+			light: { semanticColors: { positive: '#15803d' } },
+		});
+		const plain = generate(c, 'light', {});
+		expect(convert(parse(custom.positive.DEFAULT), 'oklch').h).not.toBeCloseTo(
+			convert(parse(plain.positive.DEFAULT), 'oklch').h,
+			0,
+		);
+	});
+
+	it('per-theme surfaceColor overrides top-level for that theme', () => {
+		const c = parse('#6366f1');
+		const lightPal = generate(c, 'light', {
+			surfaceColor: '#e5e5e5',
+			dark: { surfaceColor: '#1a1a1a' },
+		});
+		const darkPal = generate(c, 'dark', {
+			surfaceColor: '#e5e5e5',
+			dark: { surfaceColor: '#1a1a1a' },
+		});
+		expect(convert(parse(lightPal.surface.DEFAULT), 'oklch').l).toBeGreaterThan(
+			0.9,
+		);
+		expect(convert(parse(darkPal.surface.DEFAULT), 'oklch').l).toBeLessThan(
+			0.25,
+		);
 	});
 });
 
