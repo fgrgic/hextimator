@@ -129,10 +129,7 @@ export function Hero() {
 					<span aria-hidden>out.</span>
 				</div>
 			</div>
-			<p className="text-sm font-light max-w-xs">
-				Swap the brand color, and every shade, scale, and contrast ratio
-				regenerates itself.
-			</p>
+			<p className="text-sm font-light max-w-xs">THIS IS A TEST CHANGE</p>
 			<div className="flex flex-col gap-3 mt-4">
 				<Button icon={NavArrowRight} onClick={handleGetStarted}>
 					Get started
