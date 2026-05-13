@@ -1,4 +1,8 @@
-import { convertColor, parseColor } from 'hextimator';
+import {
+	convertColor,
+	type HextimateStyleOptions,
+	parseColor,
+} from 'hextimator';
 import { useHextimatorTheme } from 'hextimator/react';
 import { RefreshDouble, Shuffle } from 'iconoir-react';
 import { useMemo, useRef } from 'react';
@@ -7,11 +11,18 @@ import { stopColorCycler } from '../../hero/color-cycler-signal';
 import { RangeSlider } from '../../slider';
 import { InteractiveCard } from '../interactive-card';
 
-function accentSeedLightness(color: string): number {
-	try {
-		return convertColor(parseColor(color), 'oklch').l;
-	} catch {
-		return 0.5;
+function accentSeedLightness(
+	color: string,
+	style?: HextimateStyleOptions,
+): number {
+	if (style?.baseLightness) {
+		return style.baseLightness;
+	} else {
+		try {
+			return convertColor(parseColor(color), 'oklch').l;
+		} catch {
+			return 0.5;
+		}
 	}
 }
 
@@ -19,9 +30,9 @@ function getLightnessOffset(
 	style: ReturnType<typeof useHextimatorTheme>['style'],
 	seedL: number,
 ): number {
-	const lightL =
-		style?.light?.baseLightness ?? style?.light?.lightness ?? seedL;
-	const darkL = style?.dark?.baseLightness ?? style?.dark?.lightness ?? seedL;
+	console.log(style);
+	const lightL = style?.light?.baseLightness ?? style?.baseLightness ?? seedL;
+	const darkL = style?.dark?.baseLightness ?? style?.baseLightness ?? seedL;
 	const lightDelta = lightL - seedL;
 	const darkDelta = darkL - seedL;
 	return Math.round(((lightDelta + darkDelta) / 2) * 100) / 100;
@@ -29,7 +40,10 @@ function getLightnessOffset(
 
 export function ThemePreferences() {
 	const { style, setStyle, color } = useHextimatorTheme();
-	const seedL = useMemo(() => accentSeedLightness(color), [color]);
+	const seedL = useMemo(
+		() => accentSeedLightness(color, style),
+		[color, style],
+	);
 	const lightnessOffset = getLightnessOffset(style, seedL);
 	const hasStopped = useRef(false);
 

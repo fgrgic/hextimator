@@ -12,12 +12,7 @@ createRoot(root).render(
 			defaultColor="ff6677"
 			darkMode={{ type: 'media-or-class' }}
 			style={{
-				light: {
-					baseLightness: 0.6,
-				},
-				dark: {
-					baseLightness: 0.7,
-				},
+				baseLightness: 0.6,
 			}}
 		>
 			<App />
