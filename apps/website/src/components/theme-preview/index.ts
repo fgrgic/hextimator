@@ -1,1 +1,1 @@
-export { ThemePreview } from './theme-preview';
+export { getThemePreviewEntries, ThemePreview } from './theme-preview';

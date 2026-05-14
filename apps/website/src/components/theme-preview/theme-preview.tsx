@@ -4,6 +4,7 @@ import type { ThemePreviewProps } from './theme-preview.types';
 
 const FOREGROUND_SUFFIX = '-foreground';
 const SEMANTIC_ROLES = new Set(['positive', 'negative', 'caution']);
+const ROLE_ORDER = ['accent', 'surface', 'positive', 'negative', 'caution'];
 
 function getRole(token: string) {
 	return token.split('-')[0];
@@ -18,8 +19,28 @@ function getForegroundToken(token: string) {
 	return `${getRole(token)}${FOREGROUND_SUFFIX}`;
 }
 
+export function getThemePreviewEntries(
+	tokens: Record<string, string>,
+): [string, string][] {
+	return Object.entries(tokens)
+		.filter(([key]) => {
+			if (key.endsWith(FOREGROUND_SUFFIX)) return false;
+			if (key === 'brand-exact') return false;
+			const role = getRole(key);
+			const variant = getVariant(key);
+			if (SEMANTIC_ROLES.has(role) && variant !== null) return false;
+			return true;
+		})
+		.sort(([a], [b]) => {
+			const ra = ROLE_ORDER.indexOf(getRole(a));
+			const rb = ROLE_ORDER.indexOf(getRole(b));
+			return (ra === -1 ? 99 : ra) - (rb === -1 ? 99 : rb);
+		});
+}
+
 export function ThemePreview({
 	defaultActive = null,
+	className,
 	...props
 }: ThemePreviewProps) {
 	const { palette, mode } = useHextimatorTheme();
@@ -44,29 +65,13 @@ export function ThemePreview({
 	}, [clicked, defaultActive]);
 
 	const tokens = palette[mode] as Record<string, string>;
-
-	const ROLE_ORDER = ['accent', 'surface', 'positive', 'negative', 'caution'];
-
-	const entries = Object.entries(tokens)
-		.filter(([key]) => {
-			if (key.endsWith(FOREGROUND_SUFFIX)) return false;
-			if (key === 'brand-exact') return false;
-			const role = getRole(key);
-			const variant = getVariant(key);
-			if (SEMANTIC_ROLES.has(role) && variant !== null) return false;
-			return true;
-		})
-		.sort(([a], [b]) => {
-			const ra = ROLE_ORDER.indexOf(getRole(a));
-			const rb = ROLE_ORDER.indexOf(getRole(b));
-			return (ra === -1 ? 99 : ra) - (rb === -1 ? 99 : rb);
-		});
+	const entries = getThemePreviewEntries(tokens);
 
 	return (
 		<div
 			{...props}
 			ref={containerRef}
-			className={`flex flex-row h-12 rounded-lg overflow-hidden w-full max-w-lg border border-surface-weak shadow-xs ${props.className ?? ''}`}
+			className={`flex h-12 w-full max-w-lg flex-row overflow-hidden rounded-lg border border-surface-weak shadow-xs ${className ?? ''}`}
 		>
 			{entries.map(([token, color]) => {
 				const isActive = active === token;
@@ -76,7 +81,7 @@ export function ThemePreview({
 					<button
 						type="button"
 						key={token}
-						className="relative border-none cursor-pointer p-0 overflow-hidden"
+						className="relative cursor-pointer overflow-hidden border-none p-0"
 						style={{
 							backgroundColor: `var(--${token})`,
 							flex: isActive ? 4 : 1,
@@ -98,13 +103,13 @@ export function ThemePreview({
 					>
 						{isActive && (
 							<div
-								className="absolute inset-0 flex flex-col items-start justify-end gap-0.5 text-center px-2.5 pb-1"
+								className="pointer-events-none absolute inset-0 flex flex-col items-start justify-end gap-0.5 px-2.5 pb-1 text-center"
 								style={{ color: `var(--${fgToken})` }}
 							>
-								<span className="text-xs leading-tight whitespace-nowrap">
+								<span className="whitespace-nowrap text-xs leading-tight">
 									{token}
 								</span>
-								<span className="text-xs font-light leading-tight whitespace-nowrap">
+								<span className="whitespace-nowrap text-xs font-light leading-tight">
 									{color}
 								</span>
 							</div>

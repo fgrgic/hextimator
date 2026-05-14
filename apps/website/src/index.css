@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "hextimator/fallback.css";
 @import "hextimator/tailwind.css";
+@import "hextimator/tailwind-inverted.css";
 
 @theme {
 	--font-mono: "picomono", monospace;

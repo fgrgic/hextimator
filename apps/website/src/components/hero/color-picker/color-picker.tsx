@@ -135,7 +135,9 @@ export function ColorPicker({
 			</Popover.Anchor>
 			<Popover.Portal>
 				<Popover.Content
-					className="rounded-xl bg-surface-weak p-2 shadow-lg border border-surface-strong z-50 flex flex-col gap-2 w-min"
+					className="flex w-min flex-col gap-2 rounded-xl border border-surface-strong bg-surface-weak p-2 shadow-lg z-50"
+					align="end"
+					alignOffset={12}
 					sideOffset={8}
 					onOpenAutoFocus={(e) => e.preventDefault()}
 					onFocusOutside={(e) => e.preventDefault()}

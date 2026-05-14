@@ -11,6 +11,7 @@ createRoot(root).render(
 		<HextimatorProvider
 			defaultColor="ff6677"
 			darkMode={{ type: 'media-or-class' }}
+			format={{ invertedVariants: true }}
 			style={{
 				baseLightness: 0.6,
 			}}

@@ -6,6 +6,7 @@ import { Button } from '../button';
 import { registerColorCyclerStop } from './color-cycler-signal';
 import { ColorInput } from './color-input';
 import { ColorPicker } from './color-picker';
+import { PartnerDashboardMock } from './partner-dashboard-mock';
 import { useColorCycler } from './use-color-cycler';
 
 function tryApplyColor(value: string, setColor: (c: string) => void) {
@@ -57,8 +58,6 @@ export function Hero() {
 	};
 
 	const handleFocus = () => {
-		// Only open picker on focus if cycler is already stopped
-		// (prevents Safari's spurious focus events during value updates)
 		if (isActive) return;
 		setPickerOpen(true);
 	};
@@ -87,65 +86,90 @@ export function Hero() {
 		restart(input);
 	};
 
+	const hintFadeStyle = {
+		opacity: showHint ? 0.6 : 0,
+		transition: 'opacity 300ms ease-in-out',
+	} satisfies React.CSSProperties;
+
 	return (
-		<section className="relative mt-12 md:mt-20 flex flex-col items-center text-center text-surface-foreground min-h-3/5 pt-6 px-6 gap-2 ">
-			<div
-				className="absolute -top-1 left-1/2 -translate-x-1/2 -ml-12 flex items-end gap-0.5 -rotate-3 pointer-events-none"
-				style={{
-					opacity: showHint ? 0.6 : 0,
-					transition: 'opacity 300ms ease-in-out',
-				}}
-			>
-				<span className="text-xs italic text-surface-foreground whitespace-nowrap">
-					pick any hex color
-				</span>
-				<LongArrowRightDown className="size-4" strokeWidth={1} />
-			</div>
-			<h1 className="sr-only">Hextimator: one color in, branded theme out</h1>
-			<div className="flex flex-col items-center">
-				<div className="flex flex-row gap-1 font-light text-4xl">
-					<span aria-hidden>One</span>
-					<ColorPicker
-						open={pickerOpen}
-						onOpenChange={setPickerOpen}
-						color={input}
-						onColorSelect={handlePickerSelect}
-						showResume={!isActive}
-						onResume={handleResume}
-					>
-						<ColorInput
-							color={input}
-							onColorChange={handleInputChange}
-							onFocus={handleFocus}
-							onClick={handleClick}
-							cycling={isActive}
-						/>
-					</ColorPicker>
-					<span aria-hidden>in.</span>
+		<section className="relative mt-12 min-h-3/5 w-full pb-24 pt-6 text-surface-foreground md:mt-20 md:pb-32">
+			<div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col items-center gap-10 px-6 lg:flex-row lg:items-center lg:justify-between lg:gap-x-4 lg:gap-y-12 lg:px-8 xl:gap-x-8">
+				<div className="flex w-full min-w-0 flex-col items-center gap-3 text-center lg:max-w-xl lg:shrink-0 lg:w-auto lg:items-end lg:text-right lg:pr-4 xl:pr-6">
+					<h1 className="sr-only">
+						Hextimator: one color in, branded theme out
+					</h1>
+					<div className="flex w-full min-w-0 flex-col items-center gap-3 lg:items-end">
+						<div className="relative mx-auto inline-flex max-w-full flex-row flex-wrap items-center justify-center gap-x-1 gap-y-1 self-center font-light text-4xl lg:justify-end lg:self-end lg:mx-0">
+							<div
+								className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 flex -translate-x-3/4 items-end gap-0.5 -rotate-3 whitespace-nowrap lg:hidden"
+								style={hintFadeStyle}
+								aria-hidden={!showHint}
+							>
+								<span className="text-xs italic text-surface-foreground">
+									pick any hex color
+								</span>
+								<LongArrowRightDown className="size-4" strokeWidth={1} />
+							</div>
+							<span aria-hidden>One</span>
+							<div className="relative inline-flex shrink-0">
+								<div
+									className="pointer-events-none absolute bottom-full right-8 z-10 mb-2 hidden items-end gap-0.5 -rotate-3 whitespace-nowrap lg:flex"
+									style={hintFadeStyle}
+									aria-hidden={!showHint}
+								>
+									<span className="text-xs italic text-surface-foreground">
+										pick any hex color
+									</span>
+									<LongArrowRightDown className="size-4" strokeWidth={1} />
+								</div>
+								<ColorPicker
+									open={pickerOpen}
+									onOpenChange={setPickerOpen}
+									color={input}
+									onColorSelect={handlePickerSelect}
+									showResume={!isActive}
+									onResume={handleResume}
+								>
+									<ColorInput
+										color={input}
+										onColorChange={handleInputChange}
+										onFocus={handleFocus}
+										onClick={handleClick}
+										cycling={isActive}
+									/>
+								</ColorPicker>
+							</div>
+							<span aria-hidden>in.</span>
+						</div>
+						<div className="flex max-w-full flex-row flex-wrap justify-center gap-x-1 gap-y-0 font-light text-4xl lg:justify-end">
+							<span aria-hidden>Whole</span>
+							<span aria-hidden>theme</span>
+							<span aria-hidden>out.</span>
+						</div>
+					</div>
+					<p className="mx-auto w-full max-w-xs text-pretty text-sm font-light text-balance md:max-w-sm lg:mx-0 lg:ml-auto lg:max-w-sm lg:text-right">
+						Swap the brand color, and every shade, scale, and contrast ratio
+						regenerates itself.
+					</p>
+					<div className="mt-1 flex max-w-full flex-col items-center gap-3 lg:items-end">
+						<Button icon={NavArrowRight} onClick={handleGetStarted}>
+							Get started
+						</Button>
+						<Button
+							variant="ghost"
+							href="https://github.com/fgrgic/hextimator"
+							target="_blank"
+							rel="noopener noreferrer"
+							icon={Star}
+						>
+							Star it on GitHub
+						</Button>
+					</div>
 				</div>
-				<div className="flex flex-row gap-1 font-light text-4xl">
-					<span aria-hidden>Whole</span>
-					<span aria-hidden>theme</span>
-					<span aria-hidden>out.</span>
+
+				<div className="-mx-2 flex min-w-0 w-[calc(100%+1rem)] justify-center lg:mx-0 lg:w-full lg:min-w-0 lg:flex-1 lg:justify-end lg:pl-4">
+					<PartnerDashboardMock accentColor={currentColor} />
 				</div>
-			</div>
-			<p className="text-sm font-light max-w-xs">
-				Swap the brand color, and every shade, scale, and contrast ratio
-				regenerates itself.
-			</p>
-			<div className="flex flex-col gap-3 mt-4">
-				<Button icon={NavArrowRight} onClick={handleGetStarted}>
-					Get started
-				</Button>
-				<Button
-					variant="ghost"
-					href="https://github.com/fgrgic/hextimator"
-					target="_blank"
-					rel="noopener noreferrer"
-					icon={Star}
-				>
-					Star it on GitHub
-				</Button>
 			</div>
 		</section>
 	);

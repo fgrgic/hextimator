@@ -12,13 +12,13 @@ export const ColorInput = forwardRef<HTMLDivElement, ColorInputProps>(
 		return (
 			<div
 				ref={ref}
-				className="flex bg-surface-weak font-extrabold rounded-sm px-1 gap-1 cursor-text"
+				className="flex cursor-text gap-1 rounded-sm bg-surface-weak px-1 font-extrabold"
 			>
 				<HextimatorIcon className="my-2" scale={1.2} />
 				<div className="inline-grid">
 					<span
 						aria-hidden="true"
-						className="invisible whitespace-pre col-start-1 row-start-1"
+						className="invisible col-start-1 row-start-1 whitespace-pre"
 					>
 						{color || ' '}
 					</span>

@@ -17,7 +17,6 @@ import {
 import { Button } from './components/button';
 import { GetStarted } from './components/interactive/get-started';
 import { ThemeColorMeta } from './components/theme-color-meta';
-import { ThemePreview } from './components/theme-preview';
 import { themeColorToPlaygroundPathHex } from './utils/playground-url-hex';
 
 const externalLinkIcon = () => (
@@ -67,12 +66,9 @@ function App() {
 			<main className="flex flex-col items-center md:gap-0 mt-12 mb-24">
 				<Hero />
 				<div
-					className="flex flex-col items-stretch gap-8 md:gap-16"
+					className="flex flex-col items-stretch gap-8 pt-16 md:gap-16 md:pt-24"
 					id="features"
 				>
-					<div className="flex w-full justify-center mt-20 mb-14 px-4">
-						<ThemePreview />
-					</div>
 					<Section
 						title="Build the rules"
 						description="Configure lightness, chroma, and hue shifts for your palette. Once saved as a preset, any brand color produces a full theme with these same rules"
