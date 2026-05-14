@@ -93,13 +93,13 @@ export function Hero() {
 
 	return (
 		<section className="relative mt-12 min-h-3/5 w-full pb-24 pt-6 text-surface-foreground md:mt-20 md:pb-32">
-			<div className="mx-auto flex w-full min-w-0 max-w-6xl flex-col items-center gap-10 px-6 lg:flex-row lg:items-center lg:justify-between lg:gap-x-4 lg:gap-y-12 lg:px-8 xl:gap-x-8">
-				<div className="flex w-full min-w-0 flex-col items-center gap-3 text-center lg:max-w-xl lg:shrink-0 lg:w-auto lg:items-end lg:text-right lg:pr-4 xl:pr-6">
+			<div className="mx-auto flex w-full min-w-0 max-w-5xl flex-col items-center gap-10 px-6 lg:flex-row-reverse lg:items-center lg:justify-center lg:gap-x-16 lg:gap-y-12 lg:px-8">
+				<div className="flex w-full min-w-0 flex-col items-center gap-3 text-center lg:max-w-xl lg:w-auto lg:shrink-0 lg:items-start lg:text-left">
 					<h1 className="sr-only">
 						Hextimator: one color in, branded theme out
 					</h1>
-					<div className="flex w-full min-w-0 flex-col items-center gap-3 lg:items-end">
-						<div className="relative mx-auto inline-flex max-w-full flex-row flex-wrap items-center justify-center gap-x-1 gap-y-1 self-center font-light text-4xl lg:justify-end lg:self-end lg:mx-0">
+					<div className="flex w-full min-w-0 flex-col items-center lg:items-start">
+						<div className="relative mx-auto inline-flex max-w-full flex-row flex-wrap items-center justify-center gap-x-1 gap-y-1 self-center text-3xl leading-tight font-light max-lg:tracking-tight lg:mx-0 lg:justify-start lg:self-start lg:text-4xl lg:leading-normal lg:tracking-normal">
 							<div
 								className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 flex -translate-x-3/4 items-end gap-0.5 -rotate-3 whitespace-nowrap lg:hidden"
 								style={hintFadeStyle}
@@ -113,7 +113,7 @@ export function Hero() {
 							<span aria-hidden>One</span>
 							<div className="relative inline-flex shrink-0">
 								<div
-									className="pointer-events-none absolute bottom-full right-8 z-10 mb-2 hidden items-end gap-0.5 -rotate-3 whitespace-nowrap lg:flex"
+									className="pointer-events-none absolute bottom-full left-0 z-10 mb-2 hidden -translate-x-10 items-start gap-0.5 -rotate-3 whitespace-nowrap lg:flex"
 									style={hintFadeStyle}
 									aria-hidden={!showHint}
 								>
@@ -141,17 +141,17 @@ export function Hero() {
 							</div>
 							<span aria-hidden>in.</span>
 						</div>
-						<div className="flex max-w-full flex-row flex-wrap justify-center gap-x-1 gap-y-0 font-light text-4xl lg:justify-end">
+						<div className="flex max-w-full flex-row flex-wrap justify-center gap-x-1 gap-y-0 text-3xl leading-tight font-light max-lg:tracking-tight lg:justify-start lg:text-4xl lg:leading-normal lg:tracking-normal">
 							<span aria-hidden>Whole</span>
 							<span aria-hidden>theme</span>
 							<span aria-hidden>out.</span>
 						</div>
 					</div>
-					<p className="mx-auto w-full max-w-xs text-pretty text-sm font-light text-balance md:max-w-sm lg:mx-0 lg:ml-auto lg:max-w-sm lg:text-right">
+					<p className="mx-auto w-full max-w-xs text-sm font-light text-balance md:max-w-sm lg:mx-0 lg:max-w-sm lg:text-left">
 						Swap the brand color, and every shade, scale, and contrast ratio
 						regenerates itself.
 					</p>
-					<div className="mt-1 flex max-w-full flex-col items-center gap-3 lg:items-end">
+					<div className="mt-1 flex max-w-full flex-col items-center gap-3 lg:items-start">
 						<Button icon={NavArrowRight} onClick={handleGetStarted}>
 							Get started
 						</Button>
@@ -167,7 +167,7 @@ export function Hero() {
 					</div>
 				</div>
 
-				<div className="-mx-2 flex min-w-0 w-[calc(100%+1rem)] justify-center lg:mx-0 lg:w-full lg:min-w-0 lg:flex-1 lg:justify-end lg:pl-4">
+				<div className="-mx-2 flex min-w-0 w-[calc(100%+1rem)] justify-center lg:mx-0 lg:min-w-0 lg:w-full lg:flex-1 lg:justify-start">
 					<PartnerDashboardMock accentColor={currentColor} />
 				</div>
 			</div>

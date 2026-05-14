@@ -1,6 +1,14 @@
 import { PlaySolid } from 'iconoir-react';
 import { Popover } from 'radix-ui';
-import { type ReactNode, useCallback, useRef, useState } from 'react';
+import {
+	type ReactNode,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from 'react';
+
+const LG_PX = 1024;
 
 const PICKER_WIDTH = 350;
 const PICKER_HEIGHT = 160;
@@ -80,6 +88,19 @@ export function ColorPicker({
 	const anchorRef = useRef<HTMLDivElement>(null);
 	const [isDragging, setIsDragging] = useState(false);
 
+	const [isLgUp, setIsLgUp] = useState(() => {
+		if (typeof window === 'undefined') return true;
+		return window.matchMedia(`(min-width: ${LG_PX}px)`).matches;
+	});
+
+	useEffect(() => {
+		const mq = window.matchMedia(`(min-width: ${LG_PX}px)`);
+		const sync = () => setIsLgUp(mq.matches);
+		sync();
+		mq.addEventListener('change', sync);
+		return () => mq.removeEventListener('change', sync);
+	}, []);
+
 	const canvasCallbackRef = useCallback((canvas: HTMLCanvasElement | null) => {
 		canvasRef.current = canvas;
 		if (!canvas) return;
@@ -136,9 +157,11 @@ export function ColorPicker({
 			<Popover.Portal>
 				<Popover.Content
 					className="flex w-min flex-col gap-2 rounded-xl border border-surface-strong bg-surface-weak p-2 shadow-lg z-50"
-					align="end"
-					alignOffset={12}
+					align={isLgUp ? 'start' : 'center'}
+					alignOffset={isLgUp ? -64 : 0}
+					side="bottom"
 					sideOffset={8}
+					collisionPadding={isLgUp ? undefined : 12}
 					onOpenAutoFocus={(e) => e.preventDefault()}
 					onFocusOutside={(e) => e.preventDefault()}
 					onInteractOutside={(e) => {
@@ -180,7 +203,7 @@ export function ColorPicker({
 							Continue with random colors
 						</button>
 					)}
-					<Popover.Arrow className="full-surface-strong" />
+					<Popover.Arrow className="full-surface-strong max-lg:hidden" />
 				</Popover.Content>
 			</Popover.Portal>
 		</Popover.Root>
