@@ -22,6 +22,7 @@ const AVAILABLE_PRESETS: Record<string, HextimatePreset> = {
 	muted: presets.muted,
 	vibrant: presets.vibrant,
 	tinted: presets.tinted,
+	bold: presets.bold,
 };
 
 const HELP = `

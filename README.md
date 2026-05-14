@@ -6,7 +6,7 @@
     </picture>
 </p>
 
-Per-tenant themes from a single one brand color: Runtime theming for B2B2C and white-label apps.
+Per-tenant themes from a single brand color: Runtime theming for B2B2C and white-label apps.
 
 Your customers pick a brand color. Your app looks good. Every time. No per-customer design reviews, no manual tuning, no edge cases where "that shade of yellow" breaks your UI.
 
