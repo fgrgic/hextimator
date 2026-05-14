@@ -1,3 +1,15 @@
+## 0.11.0
+
+### Minor Changes
+
+- [#142](https://github.com/fgrgic/hextimator/pull/142) [`95875bf`](https://github.com/fgrgic/hextimator/commit/95875bf4889c2120626cad00cfe54c6ea8f6b9dc) Thanks [@fgrgic](https://github.com/fgrgic)! - Widens the default POSITIVE_RANGE to be [120, 180].
+
+  The previous range was to limiting so you could get an accent color that is green, and a positive color that is a whole other green that doesn't match.
+
+  Technically it changes the algorithm so it's a breaking change, but it's a minor change that should improve the color generation algorithm.
+
+  If you find your themes look worse, limit your positive range to the previous [120, 160].
+
 ## 0.10.2
 
 ### Patch Changes
