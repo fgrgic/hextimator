@@ -34,21 +34,19 @@ npm i hextimator
 ```ts
 import { hextimate } from "hextimator";
 
-const css = hextimate(tenant.brandColor).format({ as: "css" });
+const css = hextimate("#C0FFEE").format({ as: "css" });
 ```
 
 `hextimate` turns one color into theme output. After that you decide how it ships: inline `<style>`, a `.css` file, a template partial, an edge cache, or something else. Prefer tokens over a stylesheet: `format({ as: 'object' })`
 
 Pure computation; no DOM. SSR-friendly by default.
 
-More patterns (caching, frameworks): [Multi-tenant SSR](docs/multi-tenant.md).
-
 ### React (SSR-safe)
 
 ```tsx
 import { HextimatorStyle } from "hextimator/react";
 
-<HextimatorStyle color={tenant.brandColor} />;
+<HextimatorStyle color={"#0FF1CE"} />;
 ```
 
 Place it in your layout `<head>`. It renders a `<style>` node during server render (no `useEffect`, no FOUC from missing variables when paired with static HTML). Full API and dark-mode strategies: [React](docs/react.md).
@@ -58,10 +56,10 @@ Place it in your layout `<head>`. It renders a `<style>` node during server rend
 Stable entry point for tooling: same engine as the library, flags for presets and format.
 
 ```bash
-npx hextimator '#6A5ACD' --preset shadcn    # framework-shaped tokens
-npx hextimator '#6A5ACD' --preset muted       # style preset
-npx hextimator '#6A5ACD' --preset vibrant
-npx hextimator '#6A5ACD' --preset bold
+npx hextimator '#BADA55' --preset shadcn    # framework-shaped tokens
+npx hextimator '#BADA55' --preset muted       # style preset
+npx hextimator '#BADA55' --preset vibrant
+npx hextimator '#BADA55' --preset bold
 ```
 
 ## What is in every theme
