@@ -2,6 +2,18 @@
 
 Breaking changes by release. See the [CHANGELOG](../CHANGELOG.md) for release notes and PR links.
 
+## 0.10.x → 0.11.0
+
+- The `0.11.0` widens the default positive range to [120, 180]. If you see your themes look weird, limit the positive range to the previous [120, 160]. However, the wider range should improve the look of the generated themes.
+
+```ts
+hextimate("...").style({
+  semanticColorRanges: {
+    positive: [120, 160];
+  }
+})
+```
+
 ## 0.9.x → 0.10.0
 
 When `baseLightness` is not provided on `light` / `dark`, the library no longer uses fixed `0.7` (light) and `0.6` (dark). It anchors both themes to **the brand color's OKLCH lightness** (clamped separately for each theme). Explicit `light.baseLightness` / `dark.baseLightness` behave the same as before.
