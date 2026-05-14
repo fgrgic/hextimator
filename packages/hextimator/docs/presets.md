@@ -4,6 +4,19 @@ Presets are partial or full themes. You can chain them together, extend them, or
 
 **`hextimate` takes only the color**; presets attach with **`.preset()`**, and optional tuning uses **`.style()`** on the same chain.
 
+## Preset comparison
+
+| Preset    | Kind       | What you get |
+| --------- | ---------- | ------------ |
+| `shadcn`  | Framework  | shadcn/ui CSS variables (`--primary`, `--muted`, charts, …). Defaults: `as: "css"`, `colors: "oklch"`. |
+| `mui`     | Framework  | MUI-style palette object (`primary.main`, `background.default`, …). Defaults: `as: "object"`, `colors: "hex"`. |
+| `muted`   | Style      | Desaturated accent; near-neutral foregrounds. Calm products (Notion, Linear). |
+| `vibrant` | Style      | Higher chroma; complementary-tinted neutrals; slight hue shift on variants. Bold consumer apps. |
+| `tinted`  | Style      | Surfaces and foregrounds carry accent hue instead of gray. Cohesive branded chrome. |
+| `bold`    | Style      | Darker accents on light themes, lighter on dark; higher chroma on neutrals. Strong contrast UI. |
+
+Combine a **style** preset with a **framework** preset when you want both (order matters for merges; see [Chaining presets](#chaining-presets)).
+
 They can be chained like so:
 
 ```typescript
@@ -48,6 +61,10 @@ High-saturation palette with complementary tinted neutrals. Pushes chroma up, ad
 `tinted`
 
 Neutrals pick up the accent hue for a cohesive, branded feel. Bumps surface chroma and foreground chroma so backgrounds and text carry visible color instead of pure gray.
+
+`bold`
+
+Darker accent fills on light themes and lighter accent fills on dark themes, with higher chroma allowed on surfaces and slightly richer foregrounds than the defaults.
 
 ## Chaining presets
 
