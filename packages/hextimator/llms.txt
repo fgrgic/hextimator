@@ -82,9 +82,12 @@ const sheet = hextimate("#6366f1").format({ as: "css", colors: "oklch" });
 |------|------|
 | `.preset(p)` | Apply preset(s); call multiple times, later wins on conflicts |
 | `.style(partial)` | Merge `HextimateStyleOptions` (contrast, surfaces, semantics, etc.) |
-| `.addRole` / `.addVariant` / `.addToken` | Extend the palette |
+| `.addRole(name, color)` | New role with default / strong / weak / foreground |
+| `.addVariant(name, placement)` | Extra lightness step on every role |
+| `.addToken(name, value)` | Standalone derived token |
 | `.fork(color?)` | Clone for another brand / tenant |
-| `.simulate` / `.adaptFor` | CVD preview / adaptation |
+| `.simulate(cvdType, severity?)` | CVD preview |
+| `.adaptFor(cvdType, severity?)` | Optimize palette for a CVD type |
 | `.format(opts?)` | Output |
 
 ### `.format` highlights
