@@ -15,6 +15,7 @@ import {
 	ThemePreferences,
 } from './components';
 import { Button } from './components/button';
+import { PartnerDashboardMock } from './components/hero/partner-dashboard-mock';
 import { GetStarted } from './components/interactive/get-started';
 import { ThemeColorMeta } from './components/theme-color-meta';
 import { themeColorToPlaygroundPathHex } from './utils/playground-url-hex';
@@ -24,6 +25,20 @@ const externalLinkIcon = () => (
 );
 
 const PLAYGROUND_ORIGIN = 'https://playground.hextimator.com';
+
+function HeroWithDashboard() {
+	const { color } = useHextimatorTheme();
+	return (
+		<>
+			<Hero />
+			<div className="flex w-full justify-center px-6 pb-6 pt-2 md:pb-10 lg:px-8">
+				<div className="flex w-full min-w-0 max-w-5xl justify-center">
+					<PartnerDashboardMock accentColor={color} />
+				</div>
+			</div>
+		</>
+	);
+}
 
 function PlaygroundSection() {
 	const { color } = useHextimatorTheme();
@@ -64,7 +79,7 @@ function App() {
 			<ThemeColorMeta />
 			<NavBar />
 			<main className="flex flex-col items-center md:gap-0 mt-12 mb-24">
-				<Hero />
+				<HeroWithDashboard />
 				<div
 					className="flex flex-col items-stretch gap-8 pt-16 md:gap-16 md:pt-24"
 					id="features"

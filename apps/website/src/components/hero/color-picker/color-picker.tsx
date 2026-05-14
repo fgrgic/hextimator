@@ -1,14 +1,6 @@
 import { PlaySolid } from 'iconoir-react';
 import { Popover } from 'radix-ui';
-import {
-	type ReactNode,
-	useCallback,
-	useEffect,
-	useRef,
-	useState,
-} from 'react';
-
-const LG_PX = 1024;
+import { type ReactNode, useCallback, useRef, useState } from 'react';
 
 const PICKER_WIDTH = 350;
 const PICKER_HEIGHT = 160;
@@ -45,7 +37,7 @@ function hexToHS(hex: string): { h: number; s: number } | null {
 	else if (max === g) h = ((b - r) / d + 2) / 6;
 	else h = ((r - g) / d + 4) / 6;
 
-	return { h: h * 360, s };
+	return { h: h * 360, s: s };
 }
 
 function drawGradient(ctx: CanvasRenderingContext2D, w: number, h: number) {
@@ -87,19 +79,6 @@ export function ColorPicker({
 	const canvasRef = useRef<HTMLCanvasElement>(null);
 	const anchorRef = useRef<HTMLDivElement>(null);
 	const [isDragging, setIsDragging] = useState(false);
-
-	const [isLgUp, setIsLgUp] = useState(() => {
-		if (typeof window === 'undefined') return true;
-		return window.matchMedia(`(min-width: ${LG_PX}px)`).matches;
-	});
-
-	useEffect(() => {
-		const mq = window.matchMedia(`(min-width: ${LG_PX}px)`);
-		const sync = () => setIsLgUp(mq.matches);
-		sync();
-		mq.addEventListener('change', sync);
-		return () => mq.removeEventListener('change', sync);
-	}, []);
 
 	const canvasCallbackRef = useCallback((canvas: HTMLCanvasElement | null) => {
 		canvasRef.current = canvas;
@@ -157,11 +136,11 @@ export function ColorPicker({
 			<Popover.Portal>
 				<Popover.Content
 					className="flex w-min flex-col gap-2 rounded-xl border border-surface-strong bg-surface-weak p-2 shadow-lg z-50"
-					align={isLgUp ? 'start' : 'center'}
-					alignOffset={isLgUp ? -64 : 0}
+					align="center"
+					alignOffset={12}
 					side="bottom"
 					sideOffset={8}
-					collisionPadding={isLgUp ? undefined : 12}
+					collisionPadding={12}
 					onOpenAutoFocus={(e) => e.preventDefault()}
 					onFocusOutside={(e) => e.preventDefault()}
 					onInteractOutside={(e) => {
@@ -203,7 +182,7 @@ export function ColorPicker({
 							Continue with random colors
 						</button>
 					)}
-					<Popover.Arrow className="full-surface-strong max-lg:hidden" />
+					<Popover.Arrow className="full-surface-strong" />
 				</Popover.Content>
 			</Popover.Portal>
 		</Popover.Root>

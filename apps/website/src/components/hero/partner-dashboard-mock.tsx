@@ -87,7 +87,7 @@ export function PartnerDashboardMock({
 				} as CSSProperties
 			}
 			className={cn(
-				'mx-auto flex w-full min-w-0 max-w-md flex-col select-none overflow-hidden rounded-2xl border border-surface-weak bg-surface-strong shadow-lg shadow-surface-weak max-lg:rotate-0 lg:mx-0 lg:max-w-[min(100%,56rem)] lg:origin-top-left lg:scale-[1.04] lg:rounded-xl lg:rotate-(--card-rotation)',
+				'mx-auto flex w-full min-w-0 max-w-md flex-col select-none overflow-hidden rounded-2xl border border-surface-weak bg-surface-strong shadow-lg shadow-surface-weak max-lg:rotate-0 lg:mx-auto lg:max-w-xl lg:origin-top lg:scale-[1.04] lg:rounded-xl lg:rotate-(--card-rotation)',
 			)}
 		>
 			<div className="relative flex justify-between py-2 px-3 shrink-0 border-b border-surface-weak bg-surface">
