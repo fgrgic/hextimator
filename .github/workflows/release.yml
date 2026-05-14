@@ -27,10 +27,10 @@ jobs:
           createGithubReleases: false
           title: "chore: version packages"
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CHANGESETS_GITHUB_TOKEN }}
 
       - name: label version PR
         if: steps.changesets.outputs.pullRequestNumber != ''
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.CHANGESETS_GITHUB_TOKEN }}
         run: gh pr edit "${{ steps.changesets.outputs.pullRequestNumber }}" --repo "${{ github.repository }}" --add-label release
