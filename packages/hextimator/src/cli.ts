@@ -36,7 +36,7 @@ Arguments:
 Presets:
   -p, --preset <name>         Apply a preset (repeatable, applied in order):
                               Framework: shadcn, mui
-                              Style:     muted, vibrant, tinted
+                              Style:     muted, vibrant, tinted, bold
 
 Format options:
   -f, --format <type>         css | object | tailwind | tailwind-css | scss | json  (default: css)

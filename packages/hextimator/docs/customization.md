@@ -35,8 +35,8 @@ Passed to `.format()` - these affect the output shape.
 
 | Option             | Type                                                                                              | Default        | Description                                                                                                                                                                    |
 | ------------------ | ------------------------------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `as`               | `"object" \| "css" \| "tailwind" \| "tailwind-css" \| "scss" \| "json"`                           | `"object"`     | Output format (see [Output formats](../README.md#output-formats))                                                                                                              |
-| `colors`           | `"hex" \| "rgb" \| "rgb-raw" \| "hsl" \| "hsl-raw" \| "oklch" \| "oklch-raw" \| "p3" \| "p3-raw"` | `"hex"`        | Color value serialization (see [Color value formats](../README.md#color-value-formats))                                                                                        |
+| `as`               | `"object" \| "css" \| "tailwind" \| "tailwind-css" \| "scss" \| "json"`                           | `"object"`     | Output format (see [Output formats](#output-formats))                                                                                                              |
+| `colors`           | `"hex" \| "rgb" \| "rgb-raw" \| "hsl" \| "hsl-raw" \| "oklch" \| "oklch-raw" \| "p3" \| "p3-raw"` | `"hex"`        | Color value serialization (see [Color value formats](#color-value-formats))                                                                                        |
 | `roleNames`        | `Record<string, string>`                                                                          | Built-in names | Rename roles in output keys (e.g. `{ accent: "brand", surface: "background" }`)                                                                                                |
 | `variantNames`     | `Record<string, string>`                                                                          | Built-in names | Rename variant suffixes in output keys (e.g. `{ strong: "primary", foreground: "text" }`)                                                                                      |
 | `separator`        | `string`                                                                                          | `"-"`          | Separator between role and variant in token keys                                                                                                                               |
@@ -46,6 +46,37 @@ Passed to `.format()` - these affect the output shape.
 | `darkMode`         | `"media" \| "class" \| "data-attribute" \| false`                                                 | `"media"`      | Dark-mode strategy for stylesheet outputs (`as: 'css'`, `as: 'tailwind-css'`)                                                                                                  |
 | `selector`         | `string`                                                                                          | `":root"`      | Root selector for `as: 'css'` output                                                                                                                                           |
 | `invertedVariants` | `boolean`                                                                                         | `false`        | Emit an extra `-inverted` copy of every token whose value is the opposite mode's. Flips with the active mode. See [Inverted variants](#inverted-variants)                      |
+
+### Output formats
+
+All formats return `{ light: { ... }, dark: { ... } }`.
+
+- **`"object"`** (default) — plain keys: `accent`, `accent-strong`, … Optional **`keyPrefix: "--"`** gives `--accent`, `--accent-strong`, … when you need CSS-style names without stylesheet output.
+- **`"css"`** — CSS custom properties: `--accent`, `--accent-strong`, …
+- **`"tailwind"`** — nested tokens: `{ accent: { DEFAULT, strong, … } }`
+- **`"tailwind-css"`** — `@theme` block with `--color-accent`, `--color-accent-strong`, …
+- **`"scss"`** — SCSS variables: `$accent`, `$accent-strong`, …
+- **`"json"`** — JSON string of the plain object (supports **`keyPrefix`** the same way as **`object`**)
+
+### Color value formats
+
+| `colors`          | Example output                       |
+| ----------------- | ------------------------------------ |
+| `"hex"` (default) | `"#6a5acd"`                          |
+| `"oklch"`         | `"oklch(0.54 0.18 276)"`             |
+| `"oklch-raw"`     | `"0.54 0.18 276"`                    |
+| `"rgb"`           | `"rgb(106, 90, 205)"`                |
+| `"rgb-raw"`       | `"106 90 205"`                       |
+| `"hsl"`           | `"hsl(248, 53%, 58%)"`               |
+| `"hsl-raw"`       | `"248 53% 58%"`                      |
+| `"p3"`            | `"color(display-p3 0.39 0.34 0.79)"` |
+| `"p3-raw"`        | `"0.39 0.34 0.79"`                   |
+
+### Flexible color input
+
+Besides hex, **`hextimate`** accepts CSS color strings, RGB tuples, and numeric `0xRRGGBB` — anything **`parseColor`** understands.
+
+> **Note on alpha**: Alpha values are intentionally ignored — `rgba(255, 0, 0, 0.5)` is treated as fully opaque `rgb(255, 0, 0)`. Alpha tokens undermine accessibility guarantees because contrast ratios depend on the background, which hextimator does not control. You can add opacity modifiers in your UI layer when needed.
 
 ## Inverted variants
 
