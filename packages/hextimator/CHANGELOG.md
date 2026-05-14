@@ -1,3 +1,9 @@
+## 0.10.2
+
+### Patch Changes
+
+- [#139](https://github.com/fgrgic/hextimator/pull/139) [`6f12682`](https://github.com/fgrgic/hextimator/commit/6f12682dd2e1223a4b51b4b54d3a036dce04a41f) Thanks [@fgrgic](https://github.com/fgrgic)! - fixes 'bold' preset not being exported to the cli
+
 ## 0.10.1
 
 ### Patch Changes
