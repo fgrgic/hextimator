@@ -1,493 +1,154 @@
 # hextimator
 
-> Generate perceptually uniform color palettes with light/dark themes and WCAG contrast guarantees from a single brand color. Outputs CSS variables, Tailwind tokens, SCSS variables, JSON, or plain objects. Designed for runtime use in multi-tenant apps.
+> One brand color in. A complete, accessible light + dark theme out.
+> Use it programmatically (`hextimate(color)`) or via CLI (`npx hextimator`).
 
-## Install
+Generates palettes in **OKLCH** for perceptually even contrast; outputs map to sRGB with gamut mapping. WCAG contrast targets are configurable (`AAA` default).
+
+## Pick a path
+
+- **Got a color, want a stylesheet?** - CLI (section 1)
+- **Got a color, want JSON / programmatic access?** - Library (section 2)
+- **Building a React app?** - React (section 3)
+- **Need a specific framework's tokens?** - Presets (section 4)
+
+## 1. CLI
+
+```bash
+npx hextimator <color> [--preset <name>]... [-f|--format <as>] [-c|--colors <space>] [-o|--output <path>]
+# alias:
+npx hextimate <color> [same options]
+```
+
+Quote hex colors in the shell (`'#6366f1'`).
+
+### Common flags
+
+| Flag | Meaning | Default |
+|------|---------|---------|
+| `-p`, `--preset` | Preset name, **repeatable** in order (`muted` then `shadcn`, etc.) | - |
+| `-f`, `--format` | `css`, `object`, `tailwind`, `tailwind-css`, `scss`, `json` | `css` |
+| `-c`, `--colors` | `hex`, `rgb`, `hsl`, `oklch`, `p3` (+ `-raw` variants) | `hex` |
+| `-t`, `--theme` | `light`, `dark`, `both` (ignored for `css` / `tailwind-css`) | `both` |
+| `-o`, `--output` | Write file instead of stdout | stdout |
+| `--dark-mode` | `media`, `class`, `data-attribute`, `off` (stylesheet formats only) | `media` |
+| `--selector` | Root selector for CSS output | `:root` |
+| `--separator` | Between role and variant in token names | `-` |
+| `--key-prefix` | For `object` / `json`; use `--` for CSS-like keys | (empty) |
+| `--exclude-role`, `--exclude-variant` | Omit by internal name (repeatable) | - |
+| `--min-contrast` | `AAA`, `AA`, or number | `AAA` |
+
+### Style / semantics (CLI mirrors library `style`)
+
+`--surface-color`, `--surface-hue-shift`, `--hue-shift`, `--surface-max-chroma`, `--fg-max-chroma`, `--light-lightness`, `--light-base-lightness-range`, `--light-max-chroma`, `--dark-lightness`, `--dark-base-lightness-range`, `--dark-max-chroma`, `--base-lightness-range`, `--invert-dark` (needs `--surface-color`), `--positive`, `--negative`, `--caution`.
+
+### CVD (optional)
+
+`--simulate <protanopia|deuteranopia|tritanopia|achromatopsia>`, `--adapt <same>`, `--cvd-severity 0..1`.
+
+### Custom roles / variants
+
+- `--role name=#RRGGBB` (repeatable)
+- `--variant name:from:edge` or `name:between:a,b` (repeatable)
+
+### Examples
+
+```bash
+npx hextimator '#6366f1'
+npx hextimator '#6366f1' -f css -c oklch -o theme.css
+npx hextimator '#6366f1' --preset shadcn
+npx hextimator '#6366f1' --preset muted --preset shadcn
+npx hextimator '#22aa44' --role cta=#ee2244 --variant hover:from:strong -o out.css
+```
+
+## 2. Library
 
 ```bash
 npm install hextimator
 ```
 
-## Quick start
-
 ```typescript
 import { hextimate } from "hextimator";
 
-// Minimal: one color in, full theme out
-const theme = hextimate("#6A5ACD").format();
-// → { light: { accent: "#6a5acd", "accent-strong": "...", ... }, dark: { ... } }
+const tokens = hextimate("#6366f1").format();
+// { light: { accent, "accent-strong", ... }, dark: { ... } }
 
-// With format options — `as: "css"` returns a ready-to-paste stylesheet string
-const css = hextimate("#6A5ACD").format({ as: "css", colors: "oklch" });
-// → ":root { --accent: oklch(...); ... }\n@media (prefers-color-scheme: dark) { :root { ... } }"
+const sheet = hextimate("#6366f1").format({ as: "css", colors: "oklch" });
 ```
 
-## API
+### Builder (chainable)
 
-### `hextimate(color)`
+| Call | Role |
+|------|------|
+| `.preset(p)` | Apply preset(s); call multiple times, later wins on conflicts |
+| `.style(partial)` | Merge `HextimateStyleOptions` (contrast, surfaces, semantics, etc.) |
+| `.addRole` / `.addVariant` / `.addToken` | Extend the palette |
+| `.fork(color?)` | Clone for another brand / tenant |
+| `.simulate` / `.adaptFor` | CVD preview / adaptation |
+| `.format(opts?)` | Output |
 
-Creates a palette builder from any color input.
+### `.format` highlights
 
-- `color`: `string` (hex, CSS function), `[r, g, b]` tuple, `number` (0xFF6666), or a `Color` object
-- Returns: `HextimatePaletteBuilder` (chainable)
-- Throws: `HextimateError` on invalid input
+| `as` | Result |
+|------|--------|
+| `object` | `{ light, dark }` flat maps |
+| `css` | Single stylesheet string |
+| `tailwind` | Nested `{ role: { DEFAULT, strong, ... } }` per side |
+| `tailwind-css` | Tailwind v4 `@theme` string |
+| `scss` / `json` | As named |
 
-Tune how the palette is built with `.style(partial)` (`HextimateStyleOptions`, see table below). Presets may include a `style` field; later `.style()` calls merge on top.
+`colors`, `darkMode` (`"media"` \| `"class"` \| `"data-attribute"` \| `false`), `selector`, `roleNames`, `variantNames`, `separator`, `keyPrefix`, `excludeRoles`, `excludeVariants` match the CLI conceptually.
 
-### Builder methods (all return `this`, chainable)
+### Default token grid
 
-| Method | Description |
-|---|---|
-| `.addRole(name, color)` | Add a new color role with DEFAULT, strong, weak, foreground variants |
-| `.addVariant(name, placement)` | Add a lightness step to every role. `placement`: `{ from: "strong" }`, `{ from: "weak" }`, or `{ between: ["DEFAULT", "weak"] }` |
-| `.addToken(name, value)` | Add a standalone derived token. `value`: a color, `{ from: "role.variant", emphasis?, lightness?, chroma?, hue? }`, or `{ light: ..., dark: ... }` for per-theme values. `emphasis` is theme-aware (positive = more contrast, negative = softer) |
-| `.preset(preset)` | Apply a preset (chainable -- call multiple times to layer style + framework presets). Preset format defaults are overridden by `.format()` options |
-| `.style(partial)` | Merge style options into the builder, regenerate palettes, and replay recorded operations |
-| `.simulate(cvdType, severity?)` | Simulate color vision deficiency. Types: `protanopia`, `deuteranopia`, `tritanopia`, `achromatopsia` |
-| `.adaptFor(cvdType, severity?)` | Optimize palette for a CVD type (use instead of simulate for actual accessibility) |
-| `.fork(color?)` | Clone builder with optional new accent color. Chain `.style()` on the fork to change style options. Original unchanged |
-| `.format(options?)` | Output the palette (see format options) |
+Roles: `surface`, `accent`, `positive`, `negative`, `caution`. Variants: default (no suffix), `strong`, `weak`, `foreground`. Plus `brand-exact` and `brand-exact-foreground`.
 
-### `.format(options?)` → `{ light: FormatResult, dark: FormatResult }` or `string`
+### Utilities
 
-| Option | Values | Default |
-|---|---|---|
-| `as` | `"object"`, `"css"`, `"tailwind"`, `"tailwind-css"`, `"scss"`, `"json"` | `"object"` |
-| `colors` | `"hex"`, `"rgb"`, `"rgb-raw"`, `"hsl"`, `"hsl-raw"`, `"oklch"`, `"oklch-raw"`, `"p3"`, `"p3-raw"` | `"hex"` |
-| `roleNames` | `Record<string, string>` — rename roles in output keys | built-in names |
-| `variantNames` | `Record<string, string>` — rename variant suffixes | built-in names |
-| `separator` | `string` — between role and variant in keys | `"-"` |
-| `keyPrefix` | `string` — prepended to each key (`object` / `json` only); e.g. `"--"` for CSS vars | `""` |
-| `darkMode` | `"media"`, `"class"`, `"data-attribute"`, `false` (stylesheet outputs only) | `"media"` |
-| `selector` | `string` — root selector for `as: "css"` | `":root"` |
-| `excludeRoles` | `string[]` — role keys to omit entirely from output (by internal name, before `roleNames`) | `[]` |
-| `excludeVariants` | `string[]` — variant keys to omit from every role's output (by internal name, before `variantNames`) | `[]` |
+`parseColor`, `convertColor`, `simulateColor`, `daltonizeColor` are exported from `hextimator`.
 
-Output shape depends on `as`:
-- `"object"` → `{ light, dark }` flat maps: `{ accent: "#...", "accent-strong": "#..." }` (with `keyPrefix: "--"`: `{ "--accent": "...", "--accent-strong": "..." }`)
-- `"css"` → `string` — ready-to-paste CSS stylesheet with `:root {}` and a dark-mode wrapper
-- `"tailwind"` → `{ light, dark }` nested maps: `{ accent: { DEFAULT: "#...", strong: "#..." } }`
-- `"tailwind-css"` → `string` — Tailwind v4 stylesheet: single `@theme { --color-accent: #...; }` block plus dark overrides
-- `"scss"` → `{ light, dark }` flat maps: `{ "$accent": "#...", "$accent-strong": "#..." }`
-- `"json"` → `{ light, dark }` JSON strings (`keyPrefix` applies like `"object"`)
+### Color inputs
 
-Pick the dark wrapper with `darkMode`: `"media"` (default) wraps dark tokens in `@media (prefers-color-scheme: dark)`; `"class"` uses `.dark`; `"data-attribute"` uses `[data-theme="dark"]`; `false` omits dark entirely. For `as: "css"`, change the root selector with `selector` (e.g. `selector: "[data-theme]"`).
+Hex (with or without `#`), CSS `rgb` / `hsl`, `[r,g,b]` tuple, numeric `0xRRGGBB`. Alpha ignored.
 
-### Style options (`HextimateStyleOptions`)
-
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `surfaceColor` | color input | auto-derived | Override surface/neutral baseline color |
-| `surfaceHueShift` | degrees | `0` | Rotate surface hue relative to accent. Ignored if `surfaceColor` set |
-| `invertDarkModeSurfaceAccent` | boolean | `false` | Swap surface/accent hues in dark mode. Useful when the accent should become the background in dark mode. Requires `surfaceColor` |
-| `semanticColors` | `{ positive?, negative?, caution? }` | auto | Override semantic colors (green/red/amber) |
-| `semanticColorRanges` | `{ positive?: [start,end], ... }` | `positive: [120,160]`, `negative: [5,30]`, `caution: [45,70]` | OKLCH hue degree arcs for picking semantic bases (clockwise; `[350,10]` wraps) |
-| `surfaceMaxChroma` | number | `0.01` | Max chroma for surface colors |
-| `foregroundMaxChroma` | number | `0.01` | Max chroma for foreground colors |
-| `light` | `{ baseLightness?, maxChroma? }` | **0.10.0+:** input OKLCH `l` (clamped). **≤0.9.x:** implicit `0.7` when omitted. | Light theme adjustments. `baseLightness` is the absolute OKLCH anchor for the accent when set; otherwise the default above applies (distinct from the relative `lightness` offset on derived tokens) |
-| `dark` | `{ baseLightness?, maxChroma? }` | Same seed as light (**0.10.0+**) or implicit `0.6` (**≤0.9.x**) when omitted unless `dark.baseLightness` is set | Dark theme adjustments |
-| `minContrastRatio` | `"AAA"`, `"AA"`, or number | `"AAA"` | WCAG contrast target (AAA=7, AA=4.5) |
-| `hueShift` | degrees | `0` | Per-variant hue rotation |
-
-### Default palette structure
-
-Every palette includes 5 roles x 4 variants + 2 brand tokens = 22 tokens:
-
-- Roles: `surface`, `accent`, `positive`, `negative`, `caution`
-- Variants: `DEFAULT` (no suffix), `strong`, `weak`, `foreground`
-- Brand tokens: `brand-exact` (the exact input color, unmodified), `brand-exact-foreground` (best-contrast foreground for that color)
-
-Token keys: `accent`, `accent-strong`, `accent-weak`, `accent-foreground`, `surface`, `surface-strong`, ..., `brand-exact`, `brand-exact-foreground`
-
-### Presets
-
-Presets are predefined configurations -- for a specific framework or a particular style. They can be chained by calling `.preset()` multiple times. Applied sequentially: later presets override earlier ones for conflicting keys. Call `.style()` after `.preset()` to override overlapping style keys.
-
-**Available presets:**
-
-| Preset | Type | Description |
-|---|---|---|
-| `shadcn` | Framework | shadcn/ui tokens: --background, --primary, --destructive, --ring, etc. `as: "css"`, `colors: "oklch"` |
-| `mui` | Framework | MUI theme: primary/secondary/error with main/light/dark/contrastText. `as: "object"`, `colors: "hex"` |
-| `muted` | Style | Desaturated, restrained. Low chroma across the board |
-| `vibrant` | Style | High saturation, complementary tinted neutrals, slight hue shift |
-| `tinted` | Style | Neutrals pick up the accent hue for a cohesive feel |
-
-```typescript
-import { hextimate, presets } from "hextimator";
-
-// Framework preset
-const theme = hextimate("#6366F1")
-  .preset(presets.shadcn)
-  .format();
-
-// Style + framework preset
-const theme = hextimate("#6366F1")
-  .preset(presets.muted)
-  .preset(presets.shadcn)
-  .format();
-
-// Override preset defaults:
-const theme = hextimate("#6366F1")
-  .preset(presets.muted)
-  .preset(presets.shadcn)
-  .format({ colors: "hsl-raw" });
-```
-
-**Chaining merge rules:**
-- Preset `style` / `.style()`: nested keys `light`, `dark`, `semanticColors`, `semanticColorRanges` shallow-merge per key; other keys overwrite (later wins)
-- Roles, variants, tokens: concatenated (additive)
-- Format options: deep-merged (roleNames/variantNames merged individually)
-
-### Creating presets
-
-A preset is a plain `HextimatePreset` object with optional fields for `style`, `roles`, `variants`, `tokens`, and `format`. It configures the builder the same way chained methods would, but as a reusable data object.
-
-```typescript
-import type { HextimatePreset } from "hextimator";
-```
-
-**Interface:**
-
-```typescript
-interface HextimatePreset {
-  style?: HextimateStyleOptions;  // contrast, lightness, chroma, hue shifts
-  roles?: Array<{ name: string; color: ColorInput | DerivedToken }>;
-  variants?: Array<{ name: string; placement: VariantPlacement }>;
-  tokens?: Array<{ name: string; value: TokenValue }>;
-  format?: HextimateFormatOptions;  // default format options, overridable in .format()
-}
-```
-
-**Token values** can be:
-- A raw color: `"#FF6600"`, `[255, 102, 102]`, etc.
-- A derived reference: `{ from: "role.variant", emphasis?, lightness?, chroma?, hue? }`
-- Per-theme: `{ light: DerivedToken | ColorInput, dark: DerivedToken | ColorInput }`
-
-**`from` syntax**: `"role"` resolves to the DEFAULT variant, `"role.variant"` to a specific one. Valid built-in references: `surface`, `surface.strong`, `surface.weak`, `surface.foreground`, `accent`, `accent.strong`, etc. Custom roles/tokens added earlier in the preset can also be referenced.
-
-**`emphasis`** is theme-aware contrast adjustment. Positive values push the color *away* from the background (more contrast), negative values pull it *toward* the background (softer). The direction flips automatically between light and dark themes, so `emphasis: 0.12` always means "slightly more visible than the source" regardless of theme. Use this instead of per-theme `lightness` splits when you just want "a bit more/less contrast."
-
-**`roleNames` / `variantNames`** in format options remap output keys. This is how you match another framework's naming. For example, `roleNames: { surface: "background", accent: "primary" }` turns `surface-strong` into `background-strong` and `accent` into `primary` in the output. `variantNames: { DEFAULT: "main", foreground: "contrastText" }` turns `accent` (DEFAULT) into `primary-main` and `accent-foreground` into `primary-contrastText`.
-
-**Role colors** can be derived from other roles: `{ from: "accent", hue: 180 }` creates a role whose hue is rotated 180 degrees from the accent.
-
-**Example - custom preset for a design system with "bg", "brand", and "danger" tokens:**
-
-```typescript
-const myPreset: HextimatePreset = {
-  roles: [
-    // Add an "info" role not in the default palette
-    { name: "info", color: "#0288d1" },
-    // Derive a secondary role by rotating the accent hue
-    { name: "secondary", color: { from: "accent", hue: 180 } },
-  ],
-  variants: [
-    { name: "muted", placement: { from: "weak" } },
-    { name: "emphasis", placement: { from: "strong" } },
-  ],
-  tokens: [
-    // Canvas tokens derived from surface
-    { name: "canvas", value: { from: "surface" } },
-    { name: "canvas-raised", value: { from: "surface", emphasis: -0.025 } },
-    { name: "canvas-overlay", value: { from: "surface", emphasis: -0.05 } },
-
-    // Text with varying prominence
-    { name: "text-primary", value: { from: "surface.foreground" } },
-    { name: "text-secondary", value: { from: "surface.foreground", emphasis: -0.2 } },
-    { name: "text-disabled", value: { from: "surface.foreground", emphasis: -0.4 } },
-
-    // Border that adjusts direction per theme
-    { name: "border", value: { from: "surface", emphasis: 0.12 } },
-
-    // Per-theme token when emphasis alone isn't enough
-    {
-      name: "divider",
-      value: {
-        light: { from: "surface.weak", lightness: -0.08 },
-        dark: { from: "surface.weak", lightness: +0.08 },
-      },
-    },
-  ],
-  format: {
-    as: "css",
-    colors: "hex",
-    roleNames: {
-      surface: "bg",
-      accent: "brand",
-      negative: "danger",
-      positive: "success",
-    },
-    variantNames: {
-      DEFAULT: "",        // no suffix for the default variant
-      strong: "bold",
-      weak: "subtle",
-      foreground: "on",   // e.g. --brand-on
-    },
-    separator: "-",
-  },
-};
-```
-
-Usage:
-
-```typescript
-import { hextimate } from "hextimator";
-
-const theme = hextimate("#6366F1").preset(myPreset).format();
-// .format() options override preset defaults:
-const asScss = hextimate("#6366F1").preset(myPreset).format({ as: "scss" });
-```
-
-**How to build a preset for an existing app's theme:**
-
-1. List the app's theme tokens (e.g. from its CSS variables or theme config)
-2. Map each token to a hextimator source: which built-in role/variant is it closest to?
-3. Use `roleNames`/`variantNames` to rename the 20 built-in tokens to match the app's naming
-4. Use `tokens` for any extra tokens not covered by the built-in 5x4 grid, deriving them with `from` + `emphasis`/`lightness`/`chroma`/`hue` offsets
-5. Use `roles` if the app has color categories beyond surface/accent/positive/negative/caution
-6. Set `format` defaults to match what the app expects (CSS vars, object, etc.)
-
-### Standalone tokens with per-theme values
-
-```typescript
-hextimate("#6366F1")
-  .addToken("border", {
-    light: { from: "surface.weak", lightness: -0.08 },
-    dark: { from: "surface.weak", lightness: +0.08 },
-  })
-  .addToken("ring", { from: "accent" })
-  .format({ as: "css" });
-```
-
-### Utility exports
-
-```typescript
-import { parseColor, convertColor } from "hextimator";
-
-const color = parseColor("rgb(255, 102, 102)");  // → Color object (sRGB)
-const oklch = convertColor(color, "oklch");       // → OKLCH object
-```
-
-Also exported: `daltonizeColor(color, cvdType, severity?)`, `simulateColor(color, cvdType, severity?)`.
-
-### Color input formats
-
-All of these are valid:
-
-```typescript
-hextimate("#FF6666");            // hex string
-hextimate("FF6666");             // hex without #
-hextimate("rgb(255, 102, 102)"); // CSS function
-hextimate("hsl(0, 100%, 70%)"); // CSS HSL
-hextimate([255, 102, 102]);      // RGB tuple
-hextimate(0xff6666);             // numeric hex
-```
-
-Alpha is always ignored (forced to 1) to preserve contrast guarantees.
-
-## CLI
-
-```bash
-npx hextimator <color> [options]
-# or the shorter alias:
-npx hextimate <color> [options]
-```
-
-Both commands are identical. Use whichever you prefer.
-
-| Flag | Description | Default |
-|---|---|---|
-| `-f, --format` | `css`, `object`, `tailwind`, `tailwind-css`, `scss`, `json` | `css` |
-| `-c, --colors` | `hex`, `rgb`, `rgb-raw`, `hsl`, `hsl-raw`, `oklch`, `oklch-raw`, `p3`, `p3-raw` | `hex` |
-| `-t, --theme` | `light`, `dark`, `both` (ignored for `css`/`tailwind-css` — both always combine into one string) | `both` |
-| `-p, --preset` | Apply preset (repeatable, applied in order): `shadcn`, `mui`, `muted`, `vibrant`, `tinted` | — |
-| `--separator` | Token separator between role and variant | `-` |
-| `--key-prefix` | Prepend to keys (`object` / `json` only); pass `--` for CSS custom properties | empty |
-| `--dark-mode` | `media`, `class`, `data-attribute`, `false` (stylesheet outputs only) | `media` |
-| `--selector` | Root selector for `--format css` | `:root` |
-| `--exclude-role` | Omit a role from output by internal name (repeatable) | — |
-| `--exclude-variant` | Omit a variant from output by internal name (repeatable) | — |
-| `--surface-color` | Override surface color | — |
-| `--surface-hue-shift` | Degrees | `0` |
-| `--hue-shift` | Per-variant hue shift | `0` |
-| `--surface-max-chroma` | Max chroma for surface | `0.01` |
-| `--fg-max-chroma` | Max chroma for foreground | `0.01` |
-| `--light-lightness` | Sets `light.baseLightness` | Omit: **0.10.0+** derives from input OKLCH `l`; **≤0.9.x** `0.7` |
-| `--light-base-lightness-range` | Sets `light.baseLightnessRange` as `min,max` (OKLCH 0–1) | default light `0.4,0.9` |
-| `--base-lightness-range` | Sets top-level `baseLightnessRange` for both themes (`min,max`) | per-theme defaults or overridden by `--light-*` / `--dark-*` |
-| `--light-max-chroma` | Light theme max chroma | — |
-| `--dark-lightness` | Sets `dark.baseLightness` | Omit: **0.10.0+** derives from input OKLCH `l`; **≤0.9.x** `0.6` |
-| `--dark-base-lightness-range` | Sets `dark.baseLightnessRange` as `min,max` (OKLCH 0–1) | default dark `0.2,0.8` |
-| `--dark-max-chroma` | Dark theme max chroma | — |
-| `--min-contrast` | `AAA`, `AA`, or number | `AAA` |
-| `--invert-dark` | Swap surface/accent hues in dark mode (requires --surface-color) | — |
-| `--positive` | Override positive/success color | auto |
-| `--negative` | Override negative/error color | auto |
-| `--caution` | Override caution color | auto |
-| `--simulate` | Simulate CVD: `protanopia`, `deuteranopia`, `tritanopia`, `achromatopsia` | — |
-| `--adapt` | Adapt palette for CVD type | — |
-| `--cvd-severity` | CVD severity 0-1 | `1` |
-| `--role <name>=<color>` | Add custom role (repeatable) | — |
-| `--variant <spec>` | Add variant: `name:from:edge` or `name:between:a,b` (repeatable) | — |
-| `-o, --output <path>` | Write to file instead of stdout | stdout |
-
-```bash
-# Generate CSS palette
-npx hextimator "#6A5ACD" --format css --colors oklch
-
-# shadcn/ui preset
-npx hextimator "#6366F1" --preset shadcn
-
-# Chained presets: muted style + shadcn framework
-npx hextimator "#6366F1" --preset muted --preset shadcn
-
-# Invert surface/accent in dark mode
-npx hextimator "#6A5ACD" --surface-color "#FEBA5D" --invert-dark
-
-# Custom roles and variants
-npx hextimator "#22aa44" --role cta=#ee2244 --variant hover:from:strong -o theme.css
-
-# Simulate color blindness
-npx hextimator "#ff6600" --simulate deuteranopia
-
-# Adapt for color blindness
-npx hextimator "#ff6600" --adapt deuteranopia --cvd-severity 0.8
-```
-
-## React
+## 3. React
 
 ```typescript
 import { useHextimator } from "hextimator/react";
+import { hextimate, presets } from "hextimator";
 
-function App() {
-  useHextimator("#6A5ACD");
-  return <div className="bg-accent text-accent-foreground">Themed!</div>;
-}
+useHextimator("#6366f1", {
+  presets: [presets.muted, presets.shadcn],
+  darkMode: { type: "class" }, // optional: media | class | data | media-or-class | false
+});
 ```
 
-Dark mode strategies:
-- `{ type: "media" }` (default) -- uses `prefers-color-scheme` media query
-- `{ type: "class", className?: string }` -- toggles on a CSS class (default: `"dark"`)
-- `{ type: "data", attribute?: string }` -- toggles on a data attribute (default: `"data-theme"`)
-- `{ type: "media-or-class", className?: string }` -- media query with class override
-- `false` -- disable dark mode entirely
+For app-wide state and palette switching: `HextimatorProvider`, `useHextimatorTheme` from `hextimator/react`.
 
-Hook options:
+**SSR:** `HextimatorStyle` injects `<style>` without waiting for effects; use optional `selector` to scope.
 
-| Option | Type | Description |
-|---|---|---|
-| `style` | `HextimateStyleOptions` | Palette style options |
-| `presets` | `HextimatePreset[]` | Presets to apply in order (style + framework) |
-| `format` | `Omit<HextimateFormatOptions, "as">` | Format options (output is always CSS vars) |
-| `configure` | `(builder: HextimatePaletteBuilder) => void` | Customize the builder (add roles, tokens, etc.) |
-| `darkMode` | `DarkModeStrategy` | Dark mode strategy (see above) |
-| `cssPrefix` | `string` | Prefix for all CSS variable names |
-| `target` | `RefObject<HTMLElement>` | Inject variables into a specific element instead of `:root` |
+**Subtree themes:** `HextimatorScope` inherits shape from parent via `fork()` when nested.
 
-### Provider
+React options align with `.style()`, `.preset()` / `presets[]`, `.format()` (output is CSS variables).
 
-For app-wide theming with dynamic color changes:
+## 4. Presets
+
+Import: `import { hextimate, presets } from "hextimator"`.
+
+| Name | Kind | Notes |
+|------|------|--------|
+| `shadcn` | Framework | shadcn/ui-style CSS variables; pairs well with `as: "css"`, `colors: "oklch"` |
+| `mui` | Framework | MUI-shaped token tree; often `colors: "hex"` |
+| `muted` | Style | Lower chroma |
+| `vibrant` | Style | Higher chroma / complementary neutrals |
+| `tinted` | Style | Neutrals follow accent hue |
+| `bold` | Style | Stronger accents, higher chroma on neutrals |
 
 ```typescript
-import { HextimatorProvider, useHextimatorTheme } from "hextimator/react";
-
-<HextimatorProvider
-  defaultColor="#6A5ACD"            // string OR { light: "#...", dark: "#..." }
-  defaultMode="system"              // "light" | "dark" | "system"
-  onColorChange={(next) => persist(next)}     // fires on every color change
-  onModePreferenceChange={(mode) => persist(mode)}
-  style={styleOpts}
-  presets={[presets.muted, presets.shadcn]}
-  format={formatOpts}
-  darkMode={{ type: "class" }}
-  cssPrefix="app"
-  target={containerRef}
->
-  <App />
-</HextimatorProvider>
+hextimate("#6366f1").preset(presets.muted).preset(presets.shadcn).format();
 ```
 
-**Per-mode colors:** pass `defaultColor={{ light: "#FF6600", dark: "#0088FF" }}` to use a different brand color per mode. Both palettes are built and stitched in CSS, so `@media (prefers-color-scheme: dark)` always serves the dark palette correctly. When `light === dark` (default for a string), only one palette is built.
-
-**Persistence:** `onColorChange` and `onModePreferenceChange` always fire on user-driven updates. Wire them to localStorage / cookies / etc. Restore by reading once on mount and passing the result to `defaultColor` / `defaultMode`. For forced overrides (URL-driven, server push), remount with `key={color}`.
-
-**FOUC:** the provider injects CSS in `useEffect` (after first paint). To avoid flash on SPAs, read storage synchronously in a lazy initializer so `defaultColor` is already correct on the first render. For SSR (Next.js, Remix), persist in a cookie and render `<HextimatorStyle>` server-side in the layout `<head>`.
-
-`useHextimatorTheme()` returns:
-
-| Property | Type | Description |
-|---|---|---|
-| `color` | `string` | Color active for the resolved mode (= `lightColor` in light, `darkColor` in dark) |
-| `setColor` | `(color: string) => void` | Sets BOTH `lightColor` and `darkColor` (one-color-in, whole-theme-out) |
-| `lightColor` | `string` | Color used to generate the light-mode palette |
-| `setLightColor` | `(color: string) => void` | Update only the light-mode color |
-| `darkColor` | `string` | Color used to generate the dark-mode palette |
-| `setDarkColor` | `(color: string) => void` | Update only the dark-mode color |
-| `palette` | `HextimateResult` | The generated `{ light, dark }` palette (light from `lightColor`, dark from `darkColor`) |
-| `mode` | `"light" \| "dark"` | Resolved color mode (accounts for OS preference) |
-| `modePreference` | `"light" \| "dark" \| "system"` | Raw preference before resolution |
-| `setMode` | `(mode: ModePreference) => void` | Change mode preference |
-| `style` | `HextimateStyleOptions \| undefined` | Current style options |
-| `setStyle` | `(opts) => void` | Update style options |
-| `presets` | `HextimatePreset[] \| undefined` | Current presets |
-| `setPresets` | `(presets) => void` | Update presets (triggers re-generation) |
-| `configure` | `((builder) => void) \| undefined` | Current builder configure function |
-| `setConfigure` | `(fn) => void` | Update the configure callback |
-
-### `HextimatorStyle`
-
-Declarative alternative to `useHextimator`. Renders a `<style>` element with CSS variables directly in the tree -- works during SSR/RSC (no `useEffect`). Optional `selector` for per-subtree scoping via CSS cascade.
-
-```tsx
-import { HextimatorStyle } from "hextimator/react";
-
-// Global theme (SSR-safe)
-<HextimatorStyle color="#ff6600" darkMode={{ type: "class" }} />
-
-// Scoped to a specific subtree
-<div className="card-a">
-  <HextimatorStyle color="#ff0066" selector=".card-a" />
-  ...
-</div>
-```
-
-Props: same as `useHextimator` options, plus `selector?: string` (defaults to `:root`).
-
-### `HextimatorScope`
-
-Subtree theming with automatic shape inheritance. Wraps children in a scoped `<div>` with its own `<style>`. When nested inside a `HextimatorProvider` or another `HextimatorScope`, it inherits all custom roles, variants, tokens, and presets from the parent via `builder.fork()` -- you only need to pass the new color.
-
-```tsx
-import { HextimatorProvider, HextimatorScope } from "hextimator/react";
-
-<HextimatorProvider
-  defaultColor="#ff6600"
-  presets={[presets.shadcn]}
-  darkMode={{ type: "class" }}
-  configure={(b) => b.addRole("cta", "#ff0066")}
->
-  <App>
-    {/* Inherits shadcn preset + cta role, just swaps color */}
-    <HextimatorScope defaultColor="#0066ff" darkMode={{ type: "class" }}>
-      <Card />
-    </HextimatorScope>
-  </App>
-</HextimatorProvider>
-```
-
-Props: `defaultColor` (`string \| { light, dark }`), `isolated?`, `style?`, `presets?`, `format?`, `configure?`, `darkMode?`, `cssPrefix?`, `className?`, `wrapperStyle?` (inline styles for the scope element).
-
-## `fallback.css`
-
-Pre-JS placeholder: neutral values for the same variables as default `hextimate()` output. Use in client-rendered apps so the first paint has `--accent`, `--surface`, etc. before the bundle runs. Runtime theme CSS then replaces them.
-
-```css
-@import "hextimator/fallback.css";
-@import "hextimator/tailwind.css";  /* if using Tailwind */
-```
-
-Does not cover preset-only token names (e.g. shadcn's `--ring`). Use the CLI to generate a static file for those.
+Custom presets are plain objects (`style`, `roles`, `variants`, `tokens`, `format`); see repo docs linked below.
 
 ## Tailwind CSS v4
 
@@ -496,59 +157,22 @@ Does not cover preset-only token names (e.g. shadcn's `--ring`). Use the CLI to 
 @import "hextimator/tailwind.css";
 ```
 
-This registers all built-in tokens as Tailwind utilities (`bg-accent`, `text-surface-foreground`, etc.).
+Registers utilities for built-in token names (`bg-accent`, etc.). Custom or preset-only names may need CLI-generated CSS.
 
-## Common recipes
+## Fallback before JS
 
-### Inverted dark mode (accent as background)
-
-```typescript
-const theme = hextimate("#52FE8C")
-  .style({
-    surfaceColor: "#FEBA5D",
-    invertDarkModeSurfaceAccent: true,
-  })
-  .format({ as: "css" });
-// Dark mode uses the accent hue as background, surface hue as accent
+```css
+@import "hextimator/fallback.css";
 ```
 
-### shadcn/ui theme
+Neutral placeholders for **default** `hextimate()` variable names only. Does not cover preset-specific names (generate those with the CLI).
 
-```typescript
-import { hextimate, presets } from "hextimator";
+## Full reference (optional)
 
-hextimate("#6366F1")
-  .preset(presets.shadcn)
-  .format();
-// Generates all shadcn/ui tokens with proper naming
-```
-
-### Multi-tenant with `.fork()`
-
-```typescript
-const builder = hextimate("#52FE8C")
-  .style({ surfaceColor: "#FEBA5D" })
-  .addRole("banner", "#ff006e")
-  .addVariant("hover", { from: "strong" });
-
-const tenantA = builder.fork("#ff6677").format({ as: "css" });
-const tenantB = builder.fork("#3a86ff").format({ as: "css" });
-```
-
-### Color vision deficiency
-
-```typescript
-const normalTheme = hextimate("#ff6600");
-const adaptedTheme = normalTheme.fork().adaptFor("deuteranopia");
-const preview = normalTheme.fork().simulate("deuteranopia");
-```
-
-## Optional
-
-- [Extending the palette](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/extending-the-palette.md): addRole, addVariant, addToken in depth
-- [Customization reference](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md): all style and format options
-- [Multiple themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md): .fork() and dynamic theming
-- [Color vision deficiency](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/color-vision-deficiency.md): simulate and adaptFor
-- [React docs](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/react.md): hook, provider, dark mode strategies
-- [Tailwind CSS v4](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/tailwind.md): setup and custom tokens
-- [Real-world examples](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/examples.md): shadcn/ui, Stripe, Slack configs
+- [Extending the palette](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/extending-the-palette.md)
+- [Customization (style & format)](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md)
+- [Multiple themes / fork](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md)
+- [Color vision deficiency](https://github.com/fgrgic/hextimator/docs/color-vision-deficiency.md)
+- [React](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/react.md)
+- [Tailwind](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/tailwind.md)
+- [Examples](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/examples.md)
