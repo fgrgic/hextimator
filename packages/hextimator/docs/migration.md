@@ -9,9 +9,9 @@ Breaking changes by release. See the [CHANGELOG](../CHANGELOG.md) for release no
 ```ts
 hextimate("...").style({
   semanticColorRanges: {
-    positive: [120, 160];
-  }
-})
+    positive: [120, 160],
+  },
+});
 ```
 
 ## 0.9.x → 0.10.0
