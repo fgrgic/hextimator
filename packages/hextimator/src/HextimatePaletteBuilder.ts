@@ -36,8 +36,20 @@ export interface HextimateResult<F = FormatResult> {
 
 /**
  * Where to place a new variant relative to existing ones.
- * - `{ from: "strong" }` — one step past the named variant (redistributes to respect contrast)
+ *
+ * `{ from }` anchors to an existing variant. Without `emphasis` the position
+ * is computed automatically: side variants (`weak`/`strong`) redistribute to
+ * respect contrast, and `foreground` resolves to the softest lightness that
+ * still satisfies the contrast ratio against DEFAULT. With `emphasis` the
+ * variant is placed explicitly at the anchor's lightness shifted by
+ * `emphasis` (theme-aware: positive = more contrast, negative = softer); no
+ * redistribution happens. `chroma`/`hue` are offsets from the anchor and
+ * never affect placement.
+ *
+ * - `{ from: "strong" }` — one step past strong, redistributed
  * - `{ from: "weak", chroma: -0.02 }` — one step past weak, with a chroma offset
+ * - `{ from: "foreground" }` — softest foreground that still meets contrast
+ * - `{ from: "foreground", emphasis: -0.1 }` — foreground, placed 0.1 weaker
  * - `{ between: ["DEFAULT", "weak"] }` — midpoint between two variants
  */
 export type VariantPlacement =
@@ -588,10 +600,64 @@ export class HextimatePaletteBuilder {
 	private applyVariant(name: string, placement: VariantPlacement): void {
 		if ('from' in placement) {
 			const edge = placement.from;
+			const chromaOffset = placement.chroma ?? 0;
+			const hueOffset = placement.hue ?? 0;
 
-			// Place one step past the edge variant, then redistribute.
-			// If the expanded position would violate the contrast ratio,
-			// clamp to the contrast boundary instead.
+			// Explicit mode: `emphasis` present means the caller places the
+			// variant directly, relative to the anchor variant. No automatic
+			// positioning and no redistribution.
+			if (placement.emphasis !== undefined) {
+				const emphasis = placement.emphasis;
+				for (const [palette, themeType] of [
+					[this.lightPalette, 'light'],
+					[this.darkPalette, 'dark'],
+				] as const) {
+					const contrastDirection = themeType === 'light' ? -1 : 1;
+					for (const role of Object.keys(palette)) {
+						const scale = palette[role];
+						const anchor = convert(parse(scale[edge]), 'oklch');
+						scale[name] = {
+							...anchor,
+							l: Math.max(
+								0,
+								Math.min(1, anchor.l + emphasis * contrastDirection),
+							),
+							c: Math.max(0, anchor.c + chromaOffset),
+							h: wrapHue(anchor.h + hueOffset),
+						};
+					}
+				}
+				return;
+			}
+
+			// Auto mode, foreground anchor: place at the softest lightness
+			// that still satisfies the contrast ratio against DEFAULT.
+			if (edge === 'foreground') {
+				const contrastTarget =
+					resolveContrastRatio(this.options.minContrastRatio) + 0.15;
+				for (const palette of [this.lightPalette, this.darkPalette]) {
+					for (const role of Object.keys(palette)) {
+						const scale = palette[role];
+						const foreground = convert(parse(scale.foreground), 'oklch');
+						const boundaryL = findContrastBoundaryLightness(
+							parse(scale.foreground),
+							parse(scale.DEFAULT),
+							contrastTarget,
+						);
+						scale[name] = {
+							...foreground,
+							l: boundaryL ?? foreground.l,
+							c: Math.max(0, foreground.c + chromaOffset),
+							h: wrapHue(foreground.h + hueOffset),
+						};
+					}
+				}
+				return;
+			}
+
+			// Auto mode, side variant: place one step past the edge variant,
+			// then redistribute. If the expanded position would violate the
+			// contrast ratio, redistribution clamps to the contrast boundary.
 			for (const palette of [this.lightPalette, this.darkPalette]) {
 				for (const role of Object.keys(palette)) {
 					const scale = palette[role];
@@ -607,15 +673,15 @@ export class HextimatePaletteBuilder {
 			}
 
 			// Apply optional offsets (chroma, hue) after redistribution
-			if (placement.chroma || placement.hue) {
+			if (chromaOffset || hueOffset) {
 				for (const palette of [this.lightPalette, this.darkPalette]) {
 					for (const role of Object.keys(palette)) {
 						const scale = palette[role];
 						const oklch = convert(parse(scale[name]), 'oklch');
 						scale[name] = {
 							...oklch,
-							c: Math.max(0, oklch.c + (placement.chroma ?? 0)),
-							h: wrapHue(oklch.h + (placement.hue ?? 0)),
+							c: Math.max(0, oklch.c + chromaOffset),
+							h: wrapHue(oklch.h + hueOffset),
 						};
 					}
 				}
