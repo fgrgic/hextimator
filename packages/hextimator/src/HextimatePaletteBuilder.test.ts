@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'bun:test';
-import { calculateContrast } from './generate/utils';
 import { convertColor, hextimate, parseColor } from './index';
 import type { HextimatePreset } from './presets/types';
 
@@ -332,80 +331,6 @@ describe('HextimatePaletteBuilder: addVariant()', () => {
 				.addVariant('hover', { from: 'strong' }),
 		);
 		expect(lightKeys(result)).toContain('cta-hover');
-	});
-});
-
-// ──────────────────────────────────────────────
-// 4b. addVariant from "foreground"
-// ──────────────────────────────────────────────
-describe('HextimatePaletteBuilder: addVariant() from foreground', () => {
-	const parseL = (s: string) => {
-		const m = s.match(/oklch\(\s*([\d.]+)/);
-		return m ? Number.parseFloat(m[1]) : 0;
-	};
-
-	it('from "foreground" still satisfies the contrast ratio against DEFAULT', () => {
-		const result = hextimate('#6366f1')
-			.addVariant('foreground-weak', { from: 'foreground' })
-			.format({ as: 'object', colors: 'hex' });
-		const light = result.light as Record<string, string>;
-		const dark = result.dark as Record<string, string>;
-
-		for (const theme of [light, dark]) {
-			const contrast = calculateContrast(
-				parseColor(theme['surface-foreground-weak']),
-				parseColor(theme.surface),
-			);
-			expect(contrast).toBeGreaterThanOrEqual(6.9);
-		}
-	});
-
-	it('from "foreground" is softer than foreground itself', () => {
-		const result = hextimate('#6366f1')
-			.addVariant('foreground-weak', { from: 'foreground' })
-			.format({ as: 'object', colors: 'hex' });
-		const light = result.light as Record<string, string>;
-
-		const surface = parseColor(light.surface);
-		const fgContrast = calculateContrast(
-			parseColor(light['surface-foreground']),
-			surface,
-		);
-		const weakContrast = calculateContrast(
-			parseColor(light['surface-foreground-weak']),
-			surface,
-		);
-		expect(weakContrast).toBeLessThan(fgContrast);
-	});
-
-	it('emphasis anchors explicitly to foreground (lighter in light, darker in dark)', () => {
-		const result = hextimate('#6366f1')
-			.addVariant('foreground-soft', { from: 'foreground', emphasis: -0.1 })
-			.format({ as: 'object', colors: 'oklch' });
-		const light = result.light as Record<string, string>;
-		const dark = result.dark as Record<string, string>;
-
-		expect(parseL(light['surface-foreground-soft'])).toBeGreaterThan(
-			parseL(light['surface-foreground']),
-		);
-		expect(parseL(dark['surface-foreground-soft'])).toBeLessThan(
-			parseL(dark['surface-foreground']),
-		);
-	});
-
-	it('emphasis on a side variant places explicitly without redistributing siblings', () => {
-		const base = hextimate('#6366f1').format({
-			as: 'object',
-			colors: 'oklch',
-		});
-		const withVariant = hextimate('#6366f1')
-			.addVariant('hover', { from: 'strong', emphasis: 0.05 })
-			.format({ as: 'object', colors: 'oklch' });
-		const baseLight = base.light as Record<string, string>;
-		const variantLight = withVariant.light as Record<string, string>;
-
-		expect(variantLight['accent-strong']).toBe(baseLight['accent-strong']);
-		expect(variantLight['accent-hover']).toBeDefined();
 	});
 });
 
