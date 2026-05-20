@@ -36,20 +36,10 @@ export interface HextimateResult<F = FormatResult> {
 
 /**
  * Where to place a new variant relative to existing ones.
- *
- * `{ from }` anchors to an existing variant. Without `emphasis` the position
- * is computed automatically: side variants (`weak`/`strong`) redistribute to
- * respect contrast, and `foreground` resolves to the softest lightness that
- * still satisfies the contrast ratio against DEFAULT. With `emphasis` the
- * variant is placed explicitly at the anchor's lightness shifted by
- * `emphasis` (theme-aware: positive = more contrast, negative = softer); no
- * redistribution happens. `chroma`/`hue` are offsets from the anchor and
- * never affect placement.
- *
  * - `{ from: "strong" }` — one step past strong, redistributed
  * - `{ from: "weak", chroma: -0.02 }` — one step past weak, with a chroma offset
  * - `{ from: "foreground" }` — softest foreground that still meets contrast
- * - `{ from: "foreground", emphasis: -0.1 }` — foreground, placed 0.1 weaker
+ * - `{ from: "foreground", emphasis: -0.1 }` — foreground, placed 0.1 weaker (theme-aware: positive = more contrast)
  * - `{ between: ["DEFAULT", "weak"] }` — midpoint between two variants
  */
 export type VariantPlacement =
@@ -603,9 +593,6 @@ export class HextimatePaletteBuilder {
 			const chromaOffset = placement.chroma ?? 0;
 			const hueOffset = placement.hue ?? 0;
 
-			// Explicit mode: `emphasis` present means the caller places the
-			// variant directly, relative to the anchor variant. No automatic
-			// positioning and no redistribution.
 			if (placement.emphasis !== undefined) {
 				const emphasis = placement.emphasis;
 				for (const [palette, themeType] of [
@@ -630,8 +617,6 @@ export class HextimatePaletteBuilder {
 				return;
 			}
 
-			// Auto mode, foreground anchor: place at the softest lightness
-			// that still satisfies the contrast ratio against DEFAULT.
 			if (edge === 'foreground') {
 				const contrastTarget =
 					resolveContrastRatio(this.options.minContrastRatio) + 0.15;
@@ -655,9 +640,6 @@ export class HextimatePaletteBuilder {
 				return;
 			}
 
-			// Auto mode, side variant: place one step past the edge variant,
-			// then redistribute. If the expanded position would violate the
-			// contrast ratio, redistribution clamps to the contrast boundary.
 			for (const palette of [this.lightPalette, this.darkPalette]) {
 				for (const role of Object.keys(palette)) {
 					const scale = palette[role];
