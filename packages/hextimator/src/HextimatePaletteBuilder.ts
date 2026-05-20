@@ -138,6 +138,7 @@ export class HextimatePaletteBuilder {
 	}> = [];
 	private readonly weakSideVariants: string[] = ['weak'];
 	private readonly strongSideVariants: string[] = ['strong'];
+	private readonly foregroundAnchoredVariants: Set<string> = new Set();
 	private readonly betweenVariants: Array<{
 		name: string;
 		refs: [string, string];
@@ -180,6 +181,7 @@ export class HextimatePaletteBuilder {
 		this.weakSideVariants.push('weak');
 		this.strongSideVariants.length = 0;
 		this.strongSideVariants.push('strong');
+		this.foregroundAnchoredVariants.clear();
 		this.betweenVariants.length = 0;
 		this.presetFormatDefaults = undefined;
 		this.applyToken('brand-exact', this.inputColor);
@@ -592,27 +594,19 @@ export class HextimatePaletteBuilder {
 			const edge = placement.from;
 			const chromaOffset = placement.chroma ?? 0;
 			const hueOffset = placement.hue ?? 0;
+			const edgeIsForegroundAnchored =
+				edge === 'foreground' || this.foregroundAnchoredVariants.has(edge);
 
 			if (placement.emphasis !== undefined) {
-				const emphasis = placement.emphasis;
-				for (const [palette, themeType] of [
-					[this.lightPalette, 'light'],
-					[this.darkPalette, 'dark'],
-				] as const) {
-					const contrastDirection = themeType === 'light' ? -1 : 1;
-					for (const role of Object.keys(palette)) {
-						const scale = palette[role];
-						const anchor = convert(parse(scale[edge]), 'oklch');
-						scale[name] = {
-							...anchor,
-							l: Math.max(
-								0,
-								Math.min(1, anchor.l + emphasis * contrastDirection),
-							),
-							c: Math.max(0, anchor.c + chromaOffset),
-							h: wrapHue(anchor.h + hueOffset),
-						};
-					}
+				this.applyAnchoredVariant(
+					name,
+					edge,
+					placement.emphasis,
+					chromaOffset,
+					hueOffset,
+				);
+				if (edgeIsForegroundAnchored) {
+					this.foregroundAnchoredVariants.add(name);
 				}
 				return;
 			}
@@ -637,6 +631,13 @@ export class HextimatePaletteBuilder {
 						};
 					}
 				}
+				this.foregroundAnchoredVariants.add(name);
+				return;
+			}
+
+			if (this.foregroundAnchoredVariants.has(edge)) {
+				this.applyAnchoredVariant(name, edge, 0, chromaOffset, hueOffset);
+				this.foregroundAnchoredVariants.add(name);
 				return;
 			}
 
@@ -680,6 +681,34 @@ export class HextimatePaletteBuilder {
 						placement.between[1],
 					);
 				}
+			}
+		}
+	}
+
+	private applyAnchoredVariant(
+		name: string,
+		edge: string,
+		emphasis: number,
+		chromaOffset: number,
+		hueOffset: number,
+	): void {
+		for (const [palette, themeType] of [
+			[this.lightPalette, 'light'],
+			[this.darkPalette, 'dark'],
+		] as const) {
+			const contrastDirection = themeType === 'light' ? -1 : 1;
+			for (const role of Object.keys(palette)) {
+				const scale = palette[role];
+				const anchor = convert(parse(scale[edge]), 'oklch');
+				scale[name] = {
+					...anchor,
+					l: Math.max(
+						0,
+						Math.min(1, anchor.l + emphasis * contrastDirection),
+					),
+					c: Math.max(0, anchor.c + chromaOffset),
+					h: wrapHue(anchor.h + hueOffset),
+				};
 			}
 		}
 	}
