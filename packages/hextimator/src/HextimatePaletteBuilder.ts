@@ -36,8 +36,10 @@ export interface HextimateResult<F = FormatResult> {
 
 /**
  * Where to place a new variant relative to existing ones.
- * - `{ from: "strong" }` — one step past the named variant (redistributes to respect contrast)
+ * - `{ from: "strong" }` — one step past strong, redistributed
  * - `{ from: "weak", chroma: -0.02 }` — one step past weak, with a chroma offset
+ * - `{ from: "foreground" }` — softest foreground that still meets contrast
+ * - `{ from: "foreground", emphasis: -0.1 }` — foreground, placed 0.1 weaker (theme-aware: positive = more contrast)
  * - `{ between: ["DEFAULT", "weak"] }` — midpoint between two variants
  */
 export type VariantPlacement =
@@ -588,10 +590,56 @@ export class HextimatePaletteBuilder {
 	private applyVariant(name: string, placement: VariantPlacement): void {
 		if ('from' in placement) {
 			const edge = placement.from;
+			const chromaOffset = placement.chroma ?? 0;
+			const hueOffset = placement.hue ?? 0;
 
-			// Place one step past the edge variant, then redistribute.
-			// If the expanded position would violate the contrast ratio,
-			// clamp to the contrast boundary instead.
+			if (placement.emphasis !== undefined) {
+				const emphasis = placement.emphasis;
+				for (const [palette, themeType] of [
+					[this.lightPalette, 'light'],
+					[this.darkPalette, 'dark'],
+				] as const) {
+					const contrastDirection = themeType === 'light' ? -1 : 1;
+					for (const role of Object.keys(palette)) {
+						const scale = palette[role];
+						const anchor = convert(parse(scale[edge]), 'oklch');
+						scale[name] = {
+							...anchor,
+							l: Math.max(
+								0,
+								Math.min(1, anchor.l + emphasis * contrastDirection),
+							),
+							c: Math.max(0, anchor.c + chromaOffset),
+							h: wrapHue(anchor.h + hueOffset),
+						};
+					}
+				}
+				return;
+			}
+
+			if (edge === 'foreground') {
+				const contrastTarget =
+					resolveContrastRatio(this.options.minContrastRatio) + 0.15;
+				for (const palette of [this.lightPalette, this.darkPalette]) {
+					for (const role of Object.keys(palette)) {
+						const scale = palette[role];
+						const foreground = convert(parse(scale.foreground), 'oklch');
+						const boundaryL = findContrastBoundaryLightness(
+							parse(scale.foreground),
+							parse(scale.DEFAULT),
+							contrastTarget,
+						);
+						scale[name] = {
+							...foreground,
+							l: boundaryL ?? foreground.l,
+							c: Math.max(0, foreground.c + chromaOffset),
+							h: wrapHue(foreground.h + hueOffset),
+						};
+					}
+				}
+				return;
+			}
+
 			for (const palette of [this.lightPalette, this.darkPalette]) {
 				for (const role of Object.keys(palette)) {
 					const scale = palette[role];
@@ -607,15 +655,15 @@ export class HextimatePaletteBuilder {
 			}
 
 			// Apply optional offsets (chroma, hue) after redistribution
-			if (placement.chroma || placement.hue) {
+			if (chromaOffset || hueOffset) {
 				for (const palette of [this.lightPalette, this.darkPalette]) {
 					for (const role of Object.keys(palette)) {
 						const scale = palette[role];
 						const oklch = convert(parse(scale[name]), 'oklch');
 						scale[name] = {
 							...oklch,
-							c: Math.max(0, oklch.c + (placement.chroma ?? 0)),
-							h: wrapHue(oklch.h + (placement.hue ?? 0)),
+							c: Math.max(0, oklch.c + chromaOffset),
+							h: wrapHue(oklch.h + hueOffset),
 						};
 					}
 				}
