@@ -604,6 +604,7 @@ export class HextimatePaletteBuilder {
 					placement.emphasis,
 					chromaOffset,
 					hueOffset,
+					edgeIsForegroundAnchored,
 				);
 				if (edgeIsForegroundAnchored) {
 					this.foregroundAnchoredVariants.add(name);
@@ -636,7 +637,7 @@ export class HextimatePaletteBuilder {
 			}
 
 			if (this.foregroundAnchoredVariants.has(edge)) {
-				this.applyAnchoredVariant(name, edge, 0, chromaOffset, hueOffset);
+				this.applyAnchoredVariant(name, edge, 0, chromaOffset, hueOffset, true);
 				this.foregroundAnchoredVariants.add(name);
 				return;
 			}
@@ -691,15 +692,23 @@ export class HextimatePaletteBuilder {
 		emphasis: number,
 		chromaOffset: number,
 		hueOffset: number,
+		anchorIsForeground: boolean,
 	): void {
 		for (const [palette, themeType] of [
 			[this.lightPalette, 'light'],
 			[this.darkPalette, 'dark'],
 		] as const) {
-			const contrastDirection = themeType === 'light' ? -1 : 1;
+			const themeDirection = themeType === 'light' ? -1 : 1;
 			for (const role of Object.keys(palette)) {
 				const scale = palette[role];
 				const anchor = convert(parse(scale[edge]), 'oklch');
+				// For a foreground anchor the base can be dark even in light mode,
+				// so take the contrast direction from the foreground vs. its base.
+				let contrastDirection = themeDirection;
+				if (anchorIsForeground) {
+					const baseL = convert(parse(scale.DEFAULT), 'oklch').l;
+					contrastDirection = anchor.l >= baseL ? 1 : -1;
+				}
 				scale[name] = {
 					...anchor,
 					l: Math.max(
