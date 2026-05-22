@@ -407,6 +407,55 @@ describe('HextimatePaletteBuilder: addVariant() from foreground', () => {
 		expect(variantLight['accent-strong']).toBe(baseLight['accent-strong']);
 		expect(variantLight['accent-hover']).toBeDefined();
 	});
+
+	it('chaining from a foreground-anchored variant without emphasis duplicates the anchor', () => {
+		const result = hextimate('#6366f1')
+			.addVariant('foreground-muted', { from: 'foreground' })
+			.addVariant('foreground-very-muted', { from: 'foreground-muted' })
+			.format({ as: 'object', colors: 'oklch' });
+		const light = result.light as Record<string, string>;
+		const dark = result.dark as Record<string, string>;
+
+		expect(light['accent-foreground-very-muted']).toBe(
+			light['accent-foreground-muted'],
+		);
+		expect(dark['accent-foreground-very-muted']).toBe(
+			dark['accent-foreground-muted'],
+		);
+	});
+
+	it('chaining from a foreground-anchored variant does not shift the strong side', () => {
+		const baseStrong = hextimate('#6366f1').format({
+			as: 'object',
+			colors: 'oklch',
+		}).light as Record<string, string>;
+		const chained = hextimate('#6366f1')
+			.addVariant('foreground-muted', { from: 'foreground' })
+			.addVariant('foreground-very-muted', { from: 'foreground-muted' })
+			.format({ as: 'object', colors: 'oklch' });
+		const chainedLight = chained.light as Record<string, string>;
+
+		expect(chainedLight['accent-strong']).toBe(baseStrong['accent-strong']);
+	});
+
+	it('emphasis on a foreground-anchored chain shifts relative to the anchor', () => {
+		const result = hextimate('#6366f1')
+			.addVariant('foreground-muted', { from: 'foreground' })
+			.addVariant('foreground-very-muted', {
+				from: 'foreground-muted',
+				emphasis: -0.05,
+			})
+			.format({ as: 'object', colors: 'oklch' });
+		const light = result.light as Record<string, string>;
+		const dark = result.dark as Record<string, string>;
+
+		expect(parseL(light['surface-foreground-very-muted'])).toBeGreaterThan(
+			parseL(light['surface-foreground-muted']),
+		);
+		expect(parseL(dark['surface-foreground-very-muted'])).toBeLessThan(
+			parseL(dark['surface-foreground-muted']),
+		);
+	});
 });
 
 // ──────────────────────────────────────────────
