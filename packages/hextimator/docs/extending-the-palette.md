@@ -69,3 +69,15 @@ hextimate("#6A5ACD")
   .addToken("surface-strong", "#fafafa") // overrides the generated --surface-strong at formatting time
   .format({ as: "css" });
 ```
+
+### Pinning the accent to your exact brand color
+
+When the input color fits the contrast target with enough headroom, `accent` already equals `brand-exact`. When it doesn't, the accent is nudged so `accent-strong` and `accent-weak` have room to move while keeping contrast. If you need the exact brand color regardless:
+
+```typescript
+hextimate("#6A5ACD")
+  .addToken("accent", "#6A5ACD") // pin accent to the exact brand color
+  .format({ as: "css" });
+```
+
+This only overrides `accent`. The `accent-strong`, `accent-weak`, and `accent-foreground` tokens are still computed from the generated scale, so they may drift visually from the pinned accent. Pin those too if you need full control.
