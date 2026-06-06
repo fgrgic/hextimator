@@ -1,3 +1,7 @@
+export {
+	buildContrastReport,
+	type ContrastReportEntry,
+} from './contrastReport';
 export { format, formatStylesheet } from './format';
 export type {
 	FlatTokenMap,

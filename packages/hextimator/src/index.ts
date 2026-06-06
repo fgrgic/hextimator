@@ -5,7 +5,12 @@ import type { ColorInput } from './types';
 export type { CVDType } from './a11y';
 export { daltonizeColor, simulateColor } from './a11y';
 export { convert as convertColor } from './convert';
-export type { FlatTokenMap, FormatResult, NestedTokenMap } from './format';
+export type {
+	ContrastReportEntry,
+	FlatTokenMap,
+	FormatResult,
+	NestedTokenMap,
+} from './format';
 export {
 	type DerivedToken,
 	HextimatePaletteBuilder,

@@ -6,6 +6,10 @@ import {
 	buildTokenEntries,
 	withInvertedSuffix,
 } from './format/buildTokenEntries';
+import {
+	buildContrastReport,
+	type ContrastReportEntry,
+} from './format/contrastReport';
 import { serializeColor } from './format/serializeColor';
 import type { TokenEntry } from './format/types';
 import { generate } from './generate';
@@ -467,6 +471,30 @@ export class HextimatePaletteBuilder {
 	}
 
 	/**
+	 * Reports the WCAG 2.x contrast ratio of every token against the pairing it
+	 * was tuned for, so a consumer can assert on accessibility in their own CI.
+	 *
+	 * Fill variants (DEFAULT/strong/weak/...) are measured against their scale's
+	 * `foreground`; the `foreground` variant is measured against the scale's
+	 * `DEFAULT` fill. `ratio` is the same relative-luminance metric used during
+	 * generation; `passesAA` / `passesAAA` use the WCAG normal-text thresholds
+	 * (4.5 / 7).
+	 *
+	 * Generation targets `minContrastRatio + 0.15`, so reported ratios sit above
+	 * the headline target by design.
+	 *
+	 * @example
+	 * const report = hextimate('#3b82f6').audit();
+	 * expect(report.light.every((t) => t.passesAAA)).toBe(true);
+	 */
+	audit(): HextimateResult<ContrastReportEntry[]> {
+		return {
+			light: buildContrastReport(this.lightPalette),
+			dark: buildContrastReport(this.darkPalette),
+		};
+	}
+
+	/**
 	 * Serializes the palette into the chosen output format.
 	 *
 	 * When a preset has been applied, its format options are used as defaults.
@@ -711,10 +739,7 @@ export class HextimatePaletteBuilder {
 				}
 				scale[name] = {
 					...anchor,
-					l: Math.max(
-						0,
-						Math.min(1, anchor.l + emphasis * contrastDirection),
-					),
+					l: Math.max(0, Math.min(1, anchor.l + emphasis * contrastDirection)),
 					c: Math.max(0, anchor.c + chromaOffset),
 					h: wrapHue(anchor.h + hueOffset),
 				};
