@@ -10,6 +10,8 @@ Per-tenant themes from a single brand color: Runtime theming for B2B2C and white
 
 Your customers pick a brand color. Your app looks good. Every time. No per-customer design reviews, no manual tuning, no edge cases where "that shade of yellow" breaks your UI.
 
+Each call adds well under a millisecond (~0.4ms [^perf]) and is fully deterministic: the same color and options always produce identical tokens. Therefore, it is safe to run on the request path and trivial to cache.
+
 Try it in the playground: **[hextimator.com](https://hextimator.com)**
 
 ## Why `hextimator` exists
@@ -92,3 +94,5 @@ Plus **`brand-exact`** (your input color, unmodified) and **`brand-exact-foregro
 ## Contributing
 
 Issues and PRs are welcome at [github.com/fgrgic/hextimator](https://github.com/fgrgic/hextimator/issues).
+
+[^perf]: Measured on a MacBook with Apple Silicon (M2 Max) under Bun. Treat it as a ballpark; your hardware and runtime will vary.
