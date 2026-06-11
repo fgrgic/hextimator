@@ -1,6 +1,8 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { renderOutput } from './cli';
+import { hextimate } from './index';
 
 /**
  * Mapping from every HextimateStyleOptions key to its CLI flag.
@@ -98,4 +100,24 @@ describe('llms.txt ↔ builder sync', () => {
 			expect(llmsTxt).toContain(`.${method}(`);
 		});
 	}
+});
+
+describe('CLI json output is not double-encoded', () => {
+	test('--theme both yields nested objects, not escaped JSON strings', () => {
+		const out = renderOutput(hextimate('#3366cc'), { as: 'json' }, 'both');
+		const parsed = JSON.parse(out);
+		expect(typeof parsed.light).toBe('object');
+		expect(typeof parsed.dark).toBe('object');
+		expect(typeof parsed.light.accent).toBe('string');
+		// A second decode of a value must fail — proving it isn't a JSON string.
+		expect(() => JSON.parse(parsed.light)).toThrow();
+	});
+
+	test('--theme light yields a flat object', () => {
+		const parsed = JSON.parse(
+			renderOutput(hextimate('#3366cc'), { as: 'json' }, 'light'),
+		);
+		expect(typeof parsed.accent).toBe('string');
+		expect(parsed.light).toBeUndefined();
+	});
 });
