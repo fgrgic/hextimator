@@ -1,28 +1,28 @@
-import { readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
-import { parseArgs } from "node:util";
-import { hextimate } from "./index";
-import * as presets from "./presets";
-import type { HextimatePreset } from "./presets/types";
+import { readFileSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { parseArgs } from 'node:util';
+import { hextimate } from './index';
+import * as presets from './presets';
+import type { HextimatePreset } from './presets/types';
 import type {
-  ColorFormat,
-  HextimateFormatOptions,
-  HextimateStyleOptions,
-} from "./types";
+	ColorFormat,
+	HextimateFormatOptions,
+	HextimateStyleOptions,
+} from './types';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PKG_VERSION: string = JSON.parse(
-  readFileSync(join(__dirname, "..", "package.json"), "utf8"),
+	readFileSync(join(__dirname, '..', 'package.json'), 'utf8'),
 ).version;
 
 const AVAILABLE_PRESETS: Record<string, HextimatePreset> = {
-  shadcn: presets.shadcn,
-  mui: presets.mui,
-  muted: presets.muted,
-  vibrant: presets.vibrant,
-  tinted: presets.tinted,
-  bold: presets.bold,
+	shadcn: presets.shadcn,
+	mui: presets.mui,
+	muted: presets.muted,
+	vibrant: presets.vibrant,
+	tinted: presets.tinted,
+	bold: presets.bold,
 };
 
 const HELP = `
@@ -99,315 +99,315 @@ Examples:
 `.trim();
 
 function parseBaseLightnessRange(
-  raw: string,
+	raw: string,
 ): readonly [number, number] | undefined {
-  const parts = raw.trim().split(/\s*,\s*/);
-  if (parts.length !== 2) return undefined;
-  const lo = Number(parts[0]);
-  const hi = Number(parts[1]);
-  if (!Number.isFinite(lo) || !Number.isFinite(hi)) return undefined;
-  return [lo, hi];
+	const parts = raw.trim().split(/\s*,\s*/);
+	if (parts.length !== 2) return undefined;
+	const lo = Number(parts[0]);
+	const hi = Number(parts[1]);
+	if (!Number.isFinite(lo) || !Number.isFinite(hi)) return undefined;
+	return [lo, hi];
 }
 
 function run(): void {
-  const { values, positionals } = parseArgs({
-    allowPositionals: true,
-    options: {
-      preset: { type: "string", short: "p", multiple: true },
-      format: { type: "string", short: "f" },
-      colors: { type: "string", short: "c" },
-      theme: { type: "string", short: "t", default: "both" },
-      "dark-mode": { type: "string" },
-      selector: { type: "string" },
-      separator: { type: "string" },
-      "key-prefix": { type: "string" },
-      "exclude-role": { type: "string", multiple: true },
-      "exclude-variant": { type: "string", multiple: true },
-      "surface-color": { type: "string" },
-      "surface-hue-shift": { type: "string" },
-      "hue-shift": { type: "string" },
-      "surface-max-chroma": { type: "string" },
-      "fg-max-chroma": { type: "string" },
-      "light-lightness": { type: "string" },
-      "light-base-lightness-range": { type: "string" },
-      "light-max-chroma": { type: "string" },
-      "dark-lightness": { type: "string" },
-      "dark-base-lightness-range": { type: "string" },
-      "dark-max-chroma": { type: "string" },
-      "base-lightness-range": { type: "string" },
-      "min-contrast": { type: "string" },
-      "invert-dark": { type: "boolean" },
-      positive: { type: "string" },
-      negative: { type: "string" },
-      caution: { type: "string" },
-      simulate: { type: "string" },
-      adapt: { type: "string" },
-      "cvd-severity": { type: "string" },
-      role: { type: "string", multiple: true },
-      variant: { type: "string", multiple: true },
-      output: { type: "string", short: "o" },
-      help: { type: "boolean", short: "h" },
-      version: { type: "boolean", short: "v" },
-    },
-  });
+	const { values, positionals } = parseArgs({
+		allowPositionals: true,
+		options: {
+			preset: { type: 'string', short: 'p', multiple: true },
+			format: { type: 'string', short: 'f' },
+			colors: { type: 'string', short: 'c' },
+			theme: { type: 'string', short: 't', default: 'both' },
+			'dark-mode': { type: 'string' },
+			selector: { type: 'string' },
+			separator: { type: 'string' },
+			'key-prefix': { type: 'string' },
+			'exclude-role': { type: 'string', multiple: true },
+			'exclude-variant': { type: 'string', multiple: true },
+			'surface-color': { type: 'string' },
+			'surface-hue-shift': { type: 'string' },
+			'hue-shift': { type: 'string' },
+			'surface-max-chroma': { type: 'string' },
+			'fg-max-chroma': { type: 'string' },
+			'light-lightness': { type: 'string' },
+			'light-base-lightness-range': { type: 'string' },
+			'light-max-chroma': { type: 'string' },
+			'dark-lightness': { type: 'string' },
+			'dark-base-lightness-range': { type: 'string' },
+			'dark-max-chroma': { type: 'string' },
+			'base-lightness-range': { type: 'string' },
+			'min-contrast': { type: 'string' },
+			'invert-dark': { type: 'boolean' },
+			positive: { type: 'string' },
+			negative: { type: 'string' },
+			caution: { type: 'string' },
+			simulate: { type: 'string' },
+			adapt: { type: 'string' },
+			'cvd-severity': { type: 'string' },
+			role: { type: 'string', multiple: true },
+			variant: { type: 'string', multiple: true },
+			output: { type: 'string', short: 'o' },
+			help: { type: 'boolean', short: 'h' },
+			version: { type: 'boolean', short: 'v' },
+		},
+	});
 
-  if (values.help) {
-    console.log(HELP);
-    process.exit(0);
-  }
+	if (values.help) {
+		console.log(HELP);
+		process.exit(0);
+	}
 
-  if (values.version) {
-    console.log(PKG_VERSION);
-    process.exit(0);
-  }
+	if (values.version) {
+		console.log(PKG_VERSION);
+		process.exit(0);
+	}
 
-  const color = positionals[0];
-  if (!color) {
-    console.error("Error: missing color argument. Run with --help for usage.");
-    process.exit(1);
-  }
+	const color = positionals[0];
+	if (!color) {
+		console.error('Error: missing color argument. Run with --help for usage.');
+		process.exit(1);
+	}
 
-  const styleOptions: HextimateStyleOptions = {};
+	const styleOptions: HextimateStyleOptions = {};
 
-  if (values["surface-color"])
-    styleOptions.surfaceColor = values["surface-color"];
-  if (values["surface-hue-shift"])
-    styleOptions.surfaceHueShift = Number(values["surface-hue-shift"]);
-  if (values["hue-shift"]) styleOptions.hueShift = Number(values["hue-shift"]);
-  if (values["surface-max-chroma"])
-    styleOptions.surfaceMaxChroma = Number(values["surface-max-chroma"]);
-  if (values["fg-max-chroma"])
-    styleOptions.foregroundMaxChroma = Number(values["fg-max-chroma"]);
+	if (values['surface-color'])
+		styleOptions.surfaceColor = values['surface-color'];
+	if (values['surface-hue-shift'])
+		styleOptions.surfaceHueShift = Number(values['surface-hue-shift']);
+	if (values['hue-shift']) styleOptions.hueShift = Number(values['hue-shift']);
+	if (values['surface-max-chroma'])
+		styleOptions.surfaceMaxChroma = Number(values['surface-max-chroma']);
+	if (values['fg-max-chroma'])
+		styleOptions.foregroundMaxChroma = Number(values['fg-max-chroma']);
 
-  if (
-    values["light-lightness"] ||
-    values["light-max-chroma"] ||
-    values["light-base-lightness-range"]
-  ) {
-    styleOptions.light = {};
-    if (values["light-lightness"])
-      styleOptions.light.baseLightness = Number(values["light-lightness"]);
-    if (values["light-max-chroma"])
-      styleOptions.light.maxChroma = Number(values["light-max-chroma"]);
-    if (values["light-base-lightness-range"]) {
-      const pair = parseBaseLightnessRange(
-        values["light-base-lightness-range"],
-      );
-      if (pair) styleOptions.light.baseLightnessRange = pair;
-    }
-  }
+	if (
+		values['light-lightness'] ||
+		values['light-max-chroma'] ||
+		values['light-base-lightness-range']
+	) {
+		styleOptions.light = {};
+		if (values['light-lightness'])
+			styleOptions.light.baseLightness = Number(values['light-lightness']);
+		if (values['light-max-chroma'])
+			styleOptions.light.maxChroma = Number(values['light-max-chroma']);
+		if (values['light-base-lightness-range']) {
+			const pair = parseBaseLightnessRange(
+				values['light-base-lightness-range'],
+			);
+			if (pair) styleOptions.light.baseLightnessRange = pair;
+		}
+	}
 
-  if (
-    values["dark-lightness"] ||
-    values["dark-max-chroma"] ||
-    values["dark-base-lightness-range"]
-  ) {
-    styleOptions.dark = {};
-    if (values["dark-lightness"])
-      styleOptions.dark.baseLightness = Number(values["dark-lightness"]);
-    if (values["dark-max-chroma"])
-      styleOptions.dark.maxChroma = Number(values["dark-max-chroma"]);
-    if (values["dark-base-lightness-range"]) {
-      const pair = parseBaseLightnessRange(values["dark-base-lightness-range"]);
-      if (pair) styleOptions.dark.baseLightnessRange = pair;
-    }
-  }
+	if (
+		values['dark-lightness'] ||
+		values['dark-max-chroma'] ||
+		values['dark-base-lightness-range']
+	) {
+		styleOptions.dark = {};
+		if (values['dark-lightness'])
+			styleOptions.dark.baseLightness = Number(values['dark-lightness']);
+		if (values['dark-max-chroma'])
+			styleOptions.dark.maxChroma = Number(values['dark-max-chroma']);
+		if (values['dark-base-lightness-range']) {
+			const pair = parseBaseLightnessRange(values['dark-base-lightness-range']);
+			if (pair) styleOptions.dark.baseLightnessRange = pair;
+		}
+	}
 
-  if (values["base-lightness-range"]) {
-    const pair = parseBaseLightnessRange(values["base-lightness-range"]);
-    if (pair) styleOptions.baseLightnessRange = pair;
-  }
+	if (values['base-lightness-range']) {
+		const pair = parseBaseLightnessRange(values['base-lightness-range']);
+		if (pair) styleOptions.baseLightnessRange = pair;
+	}
 
-  if (values["min-contrast"]) {
-    const mc = values["min-contrast"];
-    if (mc === "AAA" || mc === "AA") {
-      styleOptions.minContrastRatio = mc;
-    } else {
-      styleOptions.minContrastRatio = Number(mc);
-    }
-  }
+	if (values['min-contrast']) {
+		const mc = values['min-contrast'];
+		if (mc === 'AAA' || mc === 'AA') {
+			styleOptions.minContrastRatio = mc;
+		} else {
+			styleOptions.minContrastRatio = Number(mc);
+		}
+	}
 
-  if (values["invert-dark"]) {
-    styleOptions.invertDarkModeSurfaceAccent = true;
-  }
+	if (values['invert-dark']) {
+		styleOptions.invertDarkModeSurfaceAccent = true;
+	}
 
-  const semanticColors: HextimateStyleOptions["semanticColors"] = {};
-  if (values.positive) semanticColors.positive = values.positive;
-  if (values.negative) semanticColors.negative = values.negative;
-  if (values.caution) semanticColors.caution = values.caution;
-  if (Object.keys(semanticColors).length > 0) {
-    styleOptions.semanticColors = semanticColors;
-  }
+	const semanticColors: HextimateStyleOptions['semanticColors'] = {};
+	if (values.positive) semanticColors.positive = values.positive;
+	if (values.negative) semanticColors.negative = values.negative;
+	if (values.caution) semanticColors.caution = values.caution;
+	if (Object.keys(semanticColors).length > 0) {
+		styleOptions.semanticColors = semanticColors;
+	}
 
-  const builder = hextimate(color);
-  if (Object.keys(styleOptions).length > 0) {
-    builder.style(styleOptions);
-  }
+	const builder = hextimate(color);
+	if (Object.keys(styleOptions).length > 0) {
+		builder.style(styleOptions);
+	}
 
-  if (values.preset) {
-    for (const name of values.preset) {
-      const preset = AVAILABLE_PRESETS[name];
-      if (!preset) {
-        console.error(
-          `Error: unknown preset "${name}". Available: ${Object.keys(
-            AVAILABLE_PRESETS,
-          ).join(", ")}`,
-        );
-        process.exit(1);
-      }
-      builder.preset(preset);
-    }
-  }
+	if (values.preset) {
+		for (const name of values.preset) {
+			const preset = AVAILABLE_PRESETS[name];
+			if (!preset) {
+				console.error(
+					`Error: unknown preset "${name}". Available: ${Object.keys(
+						AVAILABLE_PRESETS,
+					).join(', ')}`,
+				);
+				process.exit(1);
+			}
+			builder.preset(preset);
+		}
+	}
 
-  if (values.role) {
-    for (const r of values.role) {
-      const eq = r.indexOf("=");
-      if (eq === -1) {
-        console.error(
-          `Error: invalid --role "${r}". Expected format: name=color`,
-        );
-        process.exit(1);
-      }
-      builder.addRole(r.slice(0, eq), r.slice(eq + 1));
-    }
-  }
+	if (values.role) {
+		for (const r of values.role) {
+			const eq = r.indexOf('=');
+			if (eq === -1) {
+				console.error(
+					`Error: invalid --role "${r}". Expected format: name=color`,
+				);
+				process.exit(1);
+			}
+			builder.addRole(r.slice(0, eq), r.slice(eq + 1));
+		}
+	}
 
-  if (values.variant) {
-    for (const v of values.variant) {
-      const parts = v.split(":");
-      if (parts.length < 3) {
-        console.error(
-          `Error: invalid --variant "${v}". Expected "name:from:edge" or "name:between:a,b"`,
-        );
-        process.exit(1);
-      }
-      const [name, type, ref] = parts;
-      if (type === "from") {
-        builder.addVariant(name, { from: ref });
-      } else if (type === "between") {
-        const refs = ref.split(",");
-        if (refs.length !== 2) {
-          console.error(
-            `Error: invalid --variant between spec "${v}". Expected "name:between:a,b"`,
-          );
-          process.exit(1);
-        }
-        builder.addVariant(name, { between: [refs[0], refs[1]] });
-      } else {
-        console.error(
-          `Error: invalid --variant type "${type}". Expected "from" or "between"`,
-        );
-        process.exit(1);
-      }
-    }
-  }
+	if (values.variant) {
+		for (const v of values.variant) {
+			const parts = v.split(':');
+			if (parts.length < 3) {
+				console.error(
+					`Error: invalid --variant "${v}". Expected "name:from:edge" or "name:between:a,b"`,
+				);
+				process.exit(1);
+			}
+			const [name, type, ref] = parts;
+			if (type === 'from') {
+				builder.addVariant(name, { from: ref });
+			} else if (type === 'between') {
+				const refs = ref.split(',');
+				if (refs.length !== 2) {
+					console.error(
+						`Error: invalid --variant between spec "${v}". Expected "name:between:a,b"`,
+					);
+					process.exit(1);
+				}
+				builder.addVariant(name, { between: [refs[0], refs[1]] });
+			} else {
+				console.error(
+					`Error: invalid --variant type "${type}". Expected "from" or "between"`,
+				);
+				process.exit(1);
+			}
+		}
+	}
 
-  const cvdSeverity = values["cvd-severity"]
-    ? Number(values["cvd-severity"])
-    : 1;
+	const cvdSeverity = values['cvd-severity']
+		? Number(values['cvd-severity'])
+		: 1;
 
-  if (values.simulate) {
-    builder.simulate(
-      values.simulate as
-        | "protanopia"
-        | "deuteranopia"
-        | "tritanopia"
-        | "achromatopsia",
-      cvdSeverity,
-    );
-  }
+	if (values.simulate) {
+		builder.simulate(
+			values.simulate as
+				| 'protanopia'
+				| 'deuteranopia'
+				| 'tritanopia'
+				| 'achromatopsia',
+			cvdSeverity,
+		);
+	}
 
-  if (values.adapt) {
-    builder.adaptFor(
-      values.adapt as
-        | "protanopia"
-        | "deuteranopia"
-        | "tritanopia"
-        | "achromatopsia",
-      cvdSeverity,
-    );
-  }
+	if (values.adapt) {
+		builder.adaptFor(
+			values.adapt as
+				| 'protanopia'
+				| 'deuteranopia'
+				| 'tritanopia'
+				| 'achromatopsia',
+			cvdSeverity,
+		);
+	}
 
-  const hasPreset = values.preset && values.preset.length > 0;
-  const formatOptions: HextimateFormatOptions = {};
-  if (values.format) {
-    formatOptions.as = values.format as HextimateFormatOptions["as"];
-  } else if (!hasPreset) {
-    formatOptions.as = "css";
-  }
-  if (values.colors) {
-    formatOptions.colors = values.colors as ColorFormat;
-  } else if (!hasPreset) {
-    formatOptions.colors = "hex";
-  }
-  if (values.separator) {
-    formatOptions.separator = values.separator;
-  } else if (!hasPreset) {
-    formatOptions.separator = "-";
-  }
-  if (values["key-prefix"] !== undefined) {
-    formatOptions.keyPrefix = values["key-prefix"];
-  }
-  if (values["exclude-role"]?.length) {
-    formatOptions.excludeRoles = values["exclude-role"];
-  }
-  if (values["exclude-variant"]?.length) {
-    formatOptions.excludeVariants = values["exclude-variant"];
-  }
-  if (values["dark-mode"]) {
-    const dm = values["dark-mode"];
-    if (dm === "off" || dm === "false") {
-      formatOptions.darkMode = false;
-    } else if (dm === "media" || dm === "class" || dm === "data-attribute") {
-      formatOptions.darkMode = dm;
-    } else {
-      console.error(
-        `Error: invalid --dark-mode "${dm}". Expected: media | class | data-attribute | off`,
-      );
-      process.exit(1);
-    }
-  }
-  if (values.selector) {
-    formatOptions.selector = values.selector;
-  }
+	const hasPreset = values.preset && values.preset.length > 0;
+	const formatOptions: HextimateFormatOptions = {};
+	if (values.format) {
+		formatOptions.as = values.format as HextimateFormatOptions['as'];
+	} else if (!hasPreset) {
+		formatOptions.as = 'css';
+	}
+	if (values.colors) {
+		formatOptions.colors = values.colors as ColorFormat;
+	} else if (!hasPreset) {
+		formatOptions.colors = 'hex';
+	}
+	if (values.separator) {
+		formatOptions.separator = values.separator;
+	} else if (!hasPreset) {
+		formatOptions.separator = '-';
+	}
+	if (values['key-prefix'] !== undefined) {
+		formatOptions.keyPrefix = values['key-prefix'];
+	}
+	if (values['exclude-role']?.length) {
+		formatOptions.excludeRoles = values['exclude-role'];
+	}
+	if (values['exclude-variant']?.length) {
+		formatOptions.excludeVariants = values['exclude-variant'];
+	}
+	if (values['dark-mode']) {
+		const dm = values['dark-mode'];
+		if (dm === 'off' || dm === 'false') {
+			formatOptions.darkMode = false;
+		} else if (dm === 'media' || dm === 'class' || dm === 'data-attribute') {
+			formatOptions.darkMode = dm;
+		} else {
+			console.error(
+				`Error: invalid --dark-mode "${dm}". Expected: media | class | data-attribute | off`,
+			);
+			process.exit(1);
+		}
+	}
+	if (values.selector) {
+		formatOptions.selector = values.selector;
+	}
 
-  const output = renderOutput(builder, formatOptions, values.theme as string);
+	const output = renderOutput(builder, formatOptions, values.theme as string);
 
-  if (values.output) {
-    writeFileSync(values.output, `${output}\n`);
-  } else {
-    console.log(output);
-  }
+	if (values.output) {
+		writeFileSync(values.output, `${output}\n`);
+	} else {
+		console.log(output);
+	}
 }
 
 /**
  * Builds the final text the CLI prints for a formatted palette.
  */
 export function renderOutput(
-  builder: ReturnType<typeof hextimate>,
-  formatOptions: HextimateFormatOptions,
-  themeFilter: string,
+	builder: ReturnType<typeof hextimate>,
+	formatOptions: HextimateFormatOptions,
+	themeFilter: string,
 ): string {
-  if (formatOptions.as === "json") formatOptions.as = "object";
+	if (formatOptions.as === 'json') formatOptions.as = 'object';
 
-  const result = builder.format(formatOptions);
-  if (typeof result === "string") return result;
-  if (themeFilter === "light") return serialize(result.light);
-  if (themeFilter === "dark") return serialize(result.dark);
-  return serialize({ light: result.light, dark: result.dark });
+	const result = builder.format(formatOptions);
+	if (typeof result === 'string') return result;
+	if (themeFilter === 'light') return serialize(result.light);
+	if (themeFilter === 'dark') return serialize(result.dark);
+	return serialize({ light: result.light, dark: result.dark });
 }
 
 function serialize(value: unknown): string {
-  if (typeof value === "string") return value;
-  return JSON.stringify(value, null, 2);
+	if (typeof value === 'string') return value;
+	return JSON.stringify(value, null, 2);
 }
 
 // Only run when invoked as the CLI entry, not when imported (e.g. by tests).
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  try {
-    run();
-  } catch (err) {
-    console.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
-    process.exit(1);
-  }
+	try {
+		run();
+	} catch (err) {
+		console.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
+		process.exit(1);
+	}
 }
