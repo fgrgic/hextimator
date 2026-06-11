@@ -249,7 +249,9 @@ function run(): void {
 			const preset = AVAILABLE_PRESETS[name];
 			if (!preset) {
 				console.error(
-					`Error: unknown preset "${name}". Available: ${Object.keys(AVAILABLE_PRESETS).join(', ')}`,
+					`Error: unknown preset "${name}". Available: ${Object.keys(
+						AVAILABLE_PRESETS,
+					).join(', ')}`,
 				);
 				process.exit(1);
 			}
@@ -369,19 +371,7 @@ function run(): void {
 		formatOptions.selector = values.selector;
 	}
 
-	const result = builder.format(formatOptions);
-	const themeFilter = values.theme as string;
-
-	let output: string;
-	if (typeof result === 'string') {
-		output = result;
-	} else if (themeFilter === 'light') {
-		output = serialize(result.light);
-	} else if (themeFilter === 'dark') {
-		output = serialize(result.dark);
-	} else {
-		output = serialize({ light: result.light, dark: result.dark });
-	}
+	const output = renderOutput(builder, formatOptions, values.theme as string);
 
 	if (values.output) {
 		writeFileSync(values.output, `${output}\n`);
@@ -390,14 +380,34 @@ function run(): void {
 	}
 }
 
+/**
+ * Builds the final text the CLI prints for a formatted palette.
+ */
+export function renderOutput(
+	builder: ReturnType<typeof hextimate>,
+	formatOptions: HextimateFormatOptions,
+	themeFilter: string,
+): string {
+	if (formatOptions.as === 'json') formatOptions.as = 'object';
+
+	const result = builder.format(formatOptions);
+	if (typeof result === 'string') return result;
+	if (themeFilter === 'light') return serialize(result.light);
+	if (themeFilter === 'dark') return serialize(result.dark);
+	return serialize({ light: result.light, dark: result.dark });
+}
+
 function serialize(value: unknown): string {
 	if (typeof value === 'string') return value;
 	return JSON.stringify(value, null, 2);
 }
 
-try {
-	run();
-} catch (err) {
-	console.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
-	process.exit(1);
+// Only run when invoked as the CLI entry, not when imported (e.g. by tests).
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+	try {
+		run();
+	} catch (err) {
+		console.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
+		process.exit(1);
+	}
 }
