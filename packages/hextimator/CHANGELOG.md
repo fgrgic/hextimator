@@ -1,3 +1,11 @@
+## 0.12.1
+
+### Patch Changes
+
+- [#152](https://github.com/fgrgic/hextimator/pull/152) [`5de9e29`](https://github.com/fgrgic/hextimator/commit/5de9e2933cf57f2f323aa283c6eea15678665edc) Thanks [@fgrgic](https://github.com/fgrgic)! - trims the keywords of the package
+
+- [#157](https://github.com/fgrgic/hextimator/pull/157) [`0fe89fa`](https://github.com/fgrgic/hextimator/commit/0fe89fa52a472f271b649360abeac6f2cbd80ffd) Thanks [@fgrgic](https://github.com/fgrgic)! - Fix `-f json` double-encoding in the CLI. With the default `--theme both`, the `light` and `dark` values were emitted as escaped JSON strings nested inside JSON, breaking `jq` pipelines. The CLI now emits a single, correctly-encoded JSON document with `light`/`dark` as real objects.
+
 ## 0.12.0
 
 ### Minor Changes
