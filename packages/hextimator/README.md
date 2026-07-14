@@ -110,6 +110,12 @@ Plus **`brand-exact`** (your input color, unchanged) and **`brand-exact-foregrou
 - [Examples](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/examples.md)
 - [Migration](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md)
 
+## Contrast methodology
+
+WCAG 2.x contrast ratios. AAA by default. Opt down with `minContrastRatio`. Audits and compliance tooling still measure this way.
+
+[APCA](https://www.myndex.com/APCA/) is the perceptual model in draft WCAG 3. Better for a lot of UI. Not what pass/fail checks ask for yet. Optional support is planned when WCAG 3 settles.
+
 ## Contributing
 
 Open issues and PRs at [github.com/fgrgic/hextimator](https://github.com/fgrgic/hextimator/issues).
