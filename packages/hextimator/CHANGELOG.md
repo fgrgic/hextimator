@@ -12,7 +12,7 @@
 
 - [#150](https://github.com/fgrgic/hextimator/pull/150) [`b7800b9`](https://github.com/fgrgic/hextimator/commit/b7800b9fac32fe3ef245f60ed39c954c63e73785) Thanks [@fgrgic](https://github.com/fgrgic)! - Adds foreground anchored variants
 
-  You can add a new variant from foreground now. By default it will be the one that has the lowest still in rangecontrast ratio with its surface.
+  You can add a new variant from foreground now. By default it will be the one that has the lowest still in-range contrast ratio with its surface.
 
   The generation logic can also be overwritten by providing custom `emphasis` value (e.g. `emphasis: -0.1`)
 
@@ -24,7 +24,7 @@
 
 - [#142](https://github.com/fgrgic/hextimator/pull/142) [`95875bf`](https://github.com/fgrgic/hextimator/commit/95875bf4889c2120626cad00cfe54c6ea8f6b9dc) Thanks [@fgrgic](https://github.com/fgrgic)! - Widens the default POSITIVE_RANGE to be [120, 180].
 
-  The previous range was to limiting so you could get an accent color that is green, and a positive color that is a whole other green that doesn't match.
+  The previous range was too limiting so you could get an accent color that is green, and a positive color that is a whole other green that doesn't match.
 
   Technically it changes the algorithm so it's a breaking change, but it's a minor change that should improve the color generation algorithm.
 
@@ -46,7 +46,7 @@
 
 ### Minor Changes
 
-- [#127](https://github.com/fgrgic/hextimator/pull/127) [`d0bbf5a`](https://github.com/fgrgic/hextimator/commit/d0bbf5a41ba303c18228057baf9b4ba6dfb016cd) Thanks [@fgrgic](https://github.com/fgrgic)! - - **Breaking.**: Lightness of the theme is derived from the input color's lightness by default. To pin down exact lightness, provide `light.baseLightness`, and/or `dark.baseLIghtness`
+- [#127](https://github.com/fgrgic/hextimator/pull/127) [`d0bbf5a`](https://github.com/fgrgic/hextimator/commit/d0bbf5a41ba303c18228057baf9b4ba6dfb016cd) Thanks [@fgrgic](https://github.com/fgrgic)! - - **Breaking.**: Lightness of the theme is derived from the input color's lightness by default. To pin down exact lightness, provide `light.baseLightness`, and/or `dark.baseLightness`
 
   - Exposes `baseLightnessRange` at the top level and under `light` / `dark` to bound OKLCH **L** for accent and semantic anchors. Defaults: light `[0.4, 0.9]`, dark `[0.2, 0.8]`. CLI: `--base-lightness-range`, `--light-base-lightness-range`, `--dark-base-lightness-range`.
 
