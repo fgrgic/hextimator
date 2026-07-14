@@ -1,3 +1,9 @@
+## 0.12.2
+
+### Patch Changes
+
+- [#159](https://github.com/fgrgic/hextimator/pull/159) [`6155be2`](https://github.com/fgrgic/hextimator/commit/6155be275afd33bd653bba9db9eac48ab4a83053) Thanks [@fgrgic](https://github.com/fgrgic)! - docs: refresh README and package description
+
 ## 0.12.1
 
 ### Patch Changes
