@@ -1,14 +1,13 @@
 # hextimator
 
 <p align="center">
+    <img src="https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/assets/gh-cover.gif?raw=true" alt="hextimator" width="600">
+</p>
+<p>
   <a href="https://www.npmjs.com/package/hextimator"><img src="https://img.shields.io/npm/v/hextimator" alt="npm version"></a>
   <a href="https://github.com/fgrgic/hextimator/actions/workflows/test.yml"><img src="https://img.shields.io/github/actions/workflow/status/fgrgic/hextimator/test.yml?branch=main" alt="CI status"></a>
   <a href="https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/LICENSE.md"><img src="https://img.shields.io/npm/l/hextimator" alt="license"></a>
   <a href="https://bundlejs.com/?q=hextimator&treeshake=[{hextimate}]"><img src="https://img.shields.io/bundlejs/size/hextimator" alt="bundle size"></a>
-</p>
-
-<p align="center">
-    <img src="https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/assets/gh-cover.gif?raw=true" alt="hextimator" width="600">
 </p>
 
 Runtime theming for multi-tenant apps.
@@ -114,7 +113,19 @@ Plus **`brand-exact`** (your input color, unchanged) and **`brand-exact-foregrou
 
 WCAG 2.x contrast ratios. AAA by default. Opt down with `minContrastRatio`. Audits and compliance tooling still measure this way.
 
-[APCA](https://www.myndex.com/APCA/) is the perceptual model in draft WCAG 3. Better for a lot of UI. Not what pass/fail checks ask for yet. Optional support is planned when WCAG 3 settles.
+APCA is the perceptual model in draft WCAG 3. Better for a lot of UI. Not what pass/fail checks ask for yet. Optional support is planned when WCAG 3 settles.
+
+## Stability
+
+The API follows strict semver. Builder methods, options, formats, CLI flags, and token names only break in majors, with notes in migration.md.
+
+Generated color values are a separate contract. Output is fully deterministic: same version, same color, same options, same tokens. The algorithm itself may improve in minors (wider hue ranges, better anchors), which changes the exact values a theme produces. Every such change is flagged in the changelog with how to opt back into the old behavior.
+
+In practice:
+
+- Pin an exact version if you cache or snapshot generated output.
+- Patches only change generated values to fix bugs.
+- Contrast guarantees hold across all releases. Whatever changes, foregrounds meet your configured minimum against their backgrounds.
 
 ## Contributing
 
