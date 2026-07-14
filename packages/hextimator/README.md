@@ -4,7 +4,7 @@
   <a href="https://www.npmjs.com/package/hextimator"><img src="https://img.shields.io/npm/v/hextimator" alt="npm version"></a>
   <a href="https://github.com/fgrgic/hextimator/actions/workflows/test.yml"><img src="https://img.shields.io/github/actions/workflow/status/fgrgic/hextimator/test.yml?branch=main" alt="CI status"></a>
   <a href="https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/LICENSE.md"><img src="https://img.shields.io/npm/l/hextimator" alt="license"></a>
-  <a href="https://bundlejs.com/?q=hextimator&treeshake=[{hextimate}]"><img src="https://img.shields.io/badge/dynamic/json?url=https://deno.bundlejs.com/?q=hextimator&treeshake=%5B%7Bhextimate%7D%5D&label=bundle%20size&query=$.size.compressedSize" alt="bundle size"></a>
+  <a href="https://bundlejs.com/?q=hextimator&treeshake=[{hextimate}]"><img src="https://img.shields.io/bundlejs/size/hextimator" alt="bundle size"></a>
 </p>
 
 <p align="center">
