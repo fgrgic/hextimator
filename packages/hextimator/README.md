@@ -114,7 +114,7 @@ Plus **`brand-exact`** (your input color, unchanged) and **`brand-exact-foregrou
 
 WCAG 2.x contrast ratios. AAA by default. Opt down with `minContrastRatio`. Audits and compliance tooling still measure this way.
 
-[APCA](https://www.myndex.com/APCA/) is the perceptual model in draft WCAG 3. Better for a lot of UI. Not what pass/fail checks ask for yet. Optional support is planned when WCAG 3 settles.
+APCA is the perceptual model in draft WCAG 3. Better for a lot of UI. Not what pass/fail checks ask for yet. Optional support is planned when WCAG 3 settles.
 
 ## Stability
 
