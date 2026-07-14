@@ -116,6 +116,18 @@ WCAG 2.x contrast ratios. AAA by default. Opt down with `minContrastRatio`. Audi
 
 [APCA](https://www.myndex.com/APCA/) is the perceptual model in draft WCAG 3. Better for a lot of UI. Not what pass/fail checks ask for yet. Optional support is planned when WCAG 3 settles.
 
+## Stability
+
+The API follows strict semver. Builder methods, options, formats, CLI flags, and token names only break in majors, with notes in migration.md.
+
+Generated color values are a separate contract. Output is fully deterministic: same version, same color, same options, same tokens. The algorithm itself may improve in minors (wider hue ranges, better anchors), which changes the exact values a theme produces. Every such change is flagged in the changelog with how to opt back into the old behavior.
+
+In practice:
+
+- Pin an exact version if you cache or snapshot generated output.
+- Patches only change generated values to fix bugs.
+- Contrast guarantees hold across all releases. Whatever changes, foregrounds meet your configured minimum against their backgrounds.
+
 ## Contributing
 
 Open issues and PRs at [github.com/fgrgic/hextimator](https://github.com/fgrgic/hextimator/issues).
