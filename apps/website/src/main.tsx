@@ -1,21 +1,14 @@
-import { HextimatorProvider } from 'hextimator/react';
-import { StrictMode } from 'react';
-import { createRoot } from 'react-dom/client';
-import App from './App.tsx';
+import { createRoot, hydrateRoot } from 'react-dom/client';
+import { AppShell } from './app-shell';
 import './index.css';
 
 const root = document.getElementById('root');
 if (!root) throw new Error('Root element not found');
-createRoot(root).render(
-	<StrictMode>
-		<HextimatorProvider
-			defaultColor="ff6677"
-			darkMode={{ type: 'media-or-class' }}
-			style={{
-				baseLightness: 0.6,
-			}}
-		>
-			<App />
-		</HextimatorProvider>
-	</StrictMode>,
-);
+
+const app = <AppShell />;
+
+if (root.hasChildNodes()) {
+	hydrateRoot(root, app);
+} else {
+	createRoot(root).render(app);
+}

@@ -711,10 +711,7 @@ export class HextimatePaletteBuilder {
 				}
 				scale[name] = {
 					...anchor,
-					l: Math.max(
-						0,
-						Math.min(1, anchor.l + emphasis * contrastDirection),
-					),
+					l: Math.max(0, Math.min(1, anchor.l + emphasis * contrastDirection)),
 					c: Math.max(0, anchor.c + chromaOffset),
 					h: wrapHue(anchor.h + hueOffset),
 				};

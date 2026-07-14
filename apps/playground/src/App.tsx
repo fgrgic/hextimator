@@ -33,6 +33,9 @@ function PlaygroundShell() {
 		<div className="app">
 			<div className="top-bar">
 				<HextimatorLogo scale={0.6} />
+				<a href="https://hextimator.com" className="site-link">
+					hextimator.com
+				</a>
 			</div>
 			<div className="flex min-h-0 flex-1 flex-col gap-5 md:flex-row">
 				<PresetShowcase className="w-full shrink-0 md:h-full md:w-60 md:overflow-y-auto" />

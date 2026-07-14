@@ -14,6 +14,11 @@ const navigation = [
 
 const resources = [
 	{
+		label: 'Playground',
+		href: 'https://playground.hextimator.com',
+		external: true,
+	},
+	{
 		label: 'GitHub',
 		href: 'https://github.com/fgrgic/hextimator',
 		external: true,

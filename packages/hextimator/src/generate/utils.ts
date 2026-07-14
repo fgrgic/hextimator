@@ -189,13 +189,13 @@ function constrainAccentVariantVsSurface(
 interface ExpandColorToScaleOptions
 	extends Pick<
 		HextimateStyleOptions,
-		'minContrastRatio' |
-			'hueShift' |
-			'light' |
-			'dark' |
-			'baseLightnessRange' |
-			'baseLightness' |
-			'lightness'
+		| 'minContrastRatio'
+		| 'hueShift'
+		| 'light'
+		| 'dark'
+		| 'baseLightnessRange'
+		| 'baseLightness'
+		| 'lightness'
 	> {
 	/** Set by `generate()`; omitted only in narrow internal call sites that use surface baselines. */
 	inputLightness?: number;
@@ -218,16 +218,11 @@ function hasExplicitBaseLightnessAnchor(
 	const global = extractGlobalThemeAdjustments(
 		options as HextimateStyleOptions & { inputLightness?: number },
 	);
-	if (
-		global.baseLightness !== undefined ||
-		global.lightness !== undefined
-	) {
+	if (global.baseLightness !== undefined || global.lightness !== undefined) {
 		return true;
 	}
 	const branch = themeType === 'light' ? options.light : options.dark;
-	return (
-		branch?.baseLightness !== undefined || branch?.lightness !== undefined
-	);
+	return branch?.baseLightness !== undefined || branch?.lightness !== undefined;
 }
 
 export function expandColorToScale(
