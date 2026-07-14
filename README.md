@@ -1,9 +1,7 @@
 # hextimator
 
 <p align="center">
-    <picture>
-        <img src="https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/assets/gh-cover.webp?raw=true" alt="hextimator" width="500">
-    </picture>
+    <img src="https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/assets/gh-cover.gif?raw=true" alt="hextimator" width="500">
 </p>
 
 Per-tenant themes from a single brand color: runtime theming for B2B2C and white-label apps.
