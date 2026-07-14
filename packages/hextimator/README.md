@@ -29,7 +29,7 @@ hextimator is option three. **One color in, whole theme out.** Light and dark. S
 npm i hextimator
 ```
 
-**Tailwind v4:** import `hextimator/tailwind.css` in your CSS entry (see [Tailwind](docs/tailwind.md)).
+**Tailwind v4:** import `hextimator/tailwind.css` in your CSS entry (see [Tailwind](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/tailwind.md)).
 
 ## 30-second integration
 
@@ -51,7 +51,7 @@ import { HextimatorStyle } from "hextimator/react";
 <HextimatorStyle color={"#0FF1CE"} />;
 ```
 
-Place it in your layout `<head>`. It renders a `<style>` node during server render (no `useEffect`, no FOUC from missing variables when paired with static HTML). Full API and dark-mode strategies: [React](docs/react.md).
+Place it in your layout `<head>`. It renders a `<style>` node during server render (no `useEffect`, no FOUC from missing variables when paired with static HTML). Full API and dark-mode strategies: [React](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/react.md).
 
 ### CLI (and AI agents)
 
