@@ -1,6 +1,6 @@
 import { CodeEditor } from '@hextimator/playground';
 import '@hextimator/playground/style.css';
-import { HextimatorProvider, useHextimatorTheme } from 'hextimator/react';
+import { useHextimatorTheme } from 'hextimator/react';
 import { useMemo } from 'react';
 import { HextimatorLogo } from './hextimator-logo';
 import {
@@ -9,14 +9,6 @@ import {
 	PresetShowcase,
 } from './preset-showcase';
 import './App.css';
-
-function getColorFromURL(): string {
-	const path = window.location.pathname.replace(/^\//, '');
-	if (/^[0-9a-fA-F]{3,8}$/.test(path)) return `#${path}`;
-	return '#3a86ff';
-}
-
-const INITIAL_COLOR = getColorFromURL();
 
 function PlaygroundShell() {
 	const { color, presets: activePresets } = useHextimatorTheme();
@@ -51,12 +43,5 @@ function PlaygroundShell() {
 }
 
 export default function App() {
-	return (
-		<HextimatorProvider
-			defaultColor={INITIAL_COLOR}
-			darkMode={{ type: 'media-or-class' }}
-		>
-			<PlaygroundShell />
-		</HextimatorProvider>
-	);
+	return <PlaygroundShell />;
 }

@@ -55,7 +55,7 @@ export function ThemePreferences() {
 
 	return (
 		<InteractiveCard>
-			<h3>Adjust theme</h3>
+			<h3>Adjust the preset</h3>
 
 			<RangeSlider
 				label="Lightness"
