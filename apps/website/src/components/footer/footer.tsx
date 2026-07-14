@@ -84,7 +84,7 @@ export function Footer() {
 					<div className="col-span-2 md:col-span-1">
 						<HextimatorLogo scale={0.6} />
 						<p className="mt-3 text-sm font-light text-surface-foreground">
-							Perceptually uniform color palettes from a single color.
+							Runtime theming for multi-tenant apps.
 						</p>
 					</div>
 

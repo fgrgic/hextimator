@@ -4,7 +4,7 @@
     <img src="https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/assets/gh-cover.gif?raw=true" alt="hextimator" width="500">
 </p>
 
-Per-tenant themes from a single brand color: runtime theming for B2B2C and white-label apps.
+Runtime theming for multi-tenant apps.
 
 Your customers pick a brand color. Your app looks good. Every time. No per-customer design reviews, no manual tuning, no edge cases where that shade of yellow breaks your UI.
 
