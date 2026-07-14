@@ -19,6 +19,17 @@
 	flex-shrink: 0;
 }
 
+.site-link {
+	font-size: 0.875rem;
+	font-weight: 300;
+	color: var(--surface-foreground, inherit);
+	text-decoration: none;
+}
+
+.site-link:hover {
+	text-decoration: underline;
+}
+
 .hxp-editor-layout {
 	flex: 1;
 }

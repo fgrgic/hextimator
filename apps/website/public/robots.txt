@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://hextimator.com/sitemap.xml

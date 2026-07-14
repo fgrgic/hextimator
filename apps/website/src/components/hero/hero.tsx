@@ -1,6 +1,6 @@
 import { parseColor } from 'hextimator';
 import { useHextimatorTheme } from 'hextimator/react';
-import { LongArrowRightDown, NavArrowRight, Star } from 'iconoir-react';
+import { Github, LongArrowRightDown, NavArrowRight } from 'iconoir-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '../button';
 import { registerColorCyclerStop } from './color-cycler-signal';
@@ -142,7 +142,7 @@ export function Hero() {
 					href="https://github.com/fgrgic/hextimator"
 					target="_blank"
 					rel="noopener noreferrer"
-					icon={Star}
+					icon={Github}
 				>
 					Star it on GitHub
 				</Button>

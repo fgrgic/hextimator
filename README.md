@@ -1,12 +1,10 @@
 # hextimator
 
 <p align="center">
-    <picture>
-        <img src="https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/assets/gh-cover.webp?raw=true" alt="hextimator" width="500">
-    </picture>
+    <img src="https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/assets/gh-cover.gif?raw=true" alt="hextimator" width="500">
 </p>
 
-Per-tenant themes from a single brand color: runtime theming for B2B2C and white-label apps.
+Runtime theming for multi-tenant apps.
 
 Your customers pick a brand color. Your app looks good. Every time. No per-customer design reviews, no manual tuning, no edge cases where that shade of yellow breaks your UI.
 
@@ -23,7 +21,7 @@ hextimator is option three. **One color in, whole theme out.** Light and dark, s
 
 ## Documentation
 
-Full API docs, options reference, React hook, Tailwind v4 setup, and examples live in the [package README](./packages/hextimator/README.md).
+Full API docs, options reference, React hook, Tailwind v4 setup, and examples live in the [package README](./packages/hextimator/).
 
 ## Monorepo structure
 
@@ -33,29 +31,9 @@ Full API docs, options reference, React hook, Tailwind v4 setup, and examples li
 | `website`    | `apps/website/`        | Landing page ([hextimator.com](https://hextimator.com))                                               |
 | `playground` | `apps/playground/`     | React app for testing in the browser ([playground.hextimator.com](https://playground.hextimator.com)) |
 
-## Dev workflow
-
-```bash
-bun install          # install all workspaces
-```
-
-Run the playground and the package in watch mode:
-
-```bash
-bun run dev:playground
-```
-
-Run the website and the package in watch mode:
-
-```bash
-bun run dev:website
-```
-
-> The playground imports from `dist/`, so keep the package's `bun run dev` running to auto-rebuild on changes.
-
 ## Contributing
 
-Issues and PRs are welcome at [github.com/fgrgic/hextimator](https://github.com/fgrgic/hextimator/issues).
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for dev setup and checks.
 
 ## License
 
