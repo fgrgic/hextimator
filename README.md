@@ -21,7 +21,7 @@ hextimator is option three. **One color in, whole theme out.** Light and dark, s
 
 ## Documentation
 
-Full API docs, options reference, React hook, Tailwind v4 setup, and examples live in the [package README](./packages/hextimator/README.md).
+Full API docs, options reference, React hook, Tailwind v4 setup, and examples live in the [package README](./packages/hextimator/).
 
 ## Monorepo structure
 
