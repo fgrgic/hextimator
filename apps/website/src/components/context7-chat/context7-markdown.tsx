@@ -40,6 +40,26 @@ function parseInline(text: string, keyPrefix: string): ReactNode[] {
 	return nodes;
 }
 
+function isTableRow(line: string) {
+	const trimmed = line.trim();
+	return trimmed.startsWith('|') && trimmed.endsWith('|');
+}
+
+function parseTableCells(line: string) {
+	return line
+		.trim()
+		.split('|')
+		.slice(1, -1)
+		.map((cell) => cell.trim());
+}
+
+function isSeparatorRow(cells: string[]) {
+	return (
+		cells.length > 0 &&
+		cells.every((cell) => /^:?-{3,}:?$/.test(cell))
+	);
+}
+
 export function Context7Markdown({ content }: { content: string }) {
 	const blocks: ReactNode[] = [];
 	const codeBlocks = content.split(/(```[\s\S]*?```)/g);
@@ -60,6 +80,7 @@ export function Context7Markdown({ content }: { content: string }) {
 		let listTag: 'ul' | 'ol' | null = null;
 		let listItems: ReactNode[] = [];
 		let paragraph: string[] = [];
+		let tableLines: string[] = [];
 
 		const flushParagraph = () => {
 			if (paragraph.length === 0) return;
@@ -82,12 +103,84 @@ export function Context7Markdown({ content }: { content: string }) {
 			listItems = [];
 		};
 
+		const flushTable = () => {
+			if (tableLines.length === 0) return;
+			const savedLines = [...tableLines];
+			tableLines = [];
+			const rows = savedLines.map(parseTableCells);
+
+			if (rows.length >= 2 && isSeparatorRow(rows[1])) {
+				const key = `block-${blockIndex++}`;
+				const headerCells = rows[0];
+				const bodyRows = rows.slice(2);
+				blocks.push(
+					<div key={key} className="mt-2 max-w-full overflow-x-auto">
+						<table className="w-full border-collapse text-sm">
+							<thead>
+								<tr>
+									{headerCells.map((cell) => {
+										const cellKey = `${key}-h-${cell}`;
+										return (
+											<th
+												key={cellKey}
+												className="border border-surface-weak bg-surface-strong px-2 py-1 text-left font-medium"
+											>
+												{parseInline(cell, cellKey)}
+											</th>
+										);
+									})}
+								</tr>
+							</thead>
+							<tbody>
+								{bodyRows.map((row) => {
+									const rowKey = `${key}-r-${row.join('|')}`;
+									return (
+										<tr key={rowKey}>
+											{row.map((cell, cellIndex) => {
+												const cellKey = `${rowKey}-c-${headerCells[cellIndex] ?? cell}`;
+												return (
+													<td
+														key={cellKey}
+														className="border border-surface-weak px-2 py-1 align-top"
+													>
+														{parseInline(cell, cellKey)}
+													</td>
+												);
+											})}
+										</tr>
+									);
+								})}
+							</tbody>
+						</table>
+					</div>,
+				);
+				return;
+			}
+
+			for (const line of savedLines) {
+				paragraph.push(line);
+				flushParagraph();
+			}
+		};
+
 		for (const line of lines) {
 			const trimmed = line.trim();
 			if (!trimmed) {
+				flushTable();
 				flushParagraph();
 				closeList();
 				continue;
+			}
+
+			if (isTableRow(trimmed)) {
+				flushParagraph();
+				closeList();
+				tableLines.push(trimmed);
+				continue;
+			}
+
+			if (tableLines.length > 0) {
+				flushTable();
 			}
 
 			const bulletMatch = trimmed.match(/^[-*]\s+(.+)/);
@@ -135,12 +228,13 @@ export function Context7Markdown({ content }: { content: string }) {
 			paragraph.push(trimmed);
 		}
 
+		flushTable();
 		flushParagraph();
 		closeList();
 	}
 
 	return (
-		<div className="context7-markdown [&_a]:underline [&_code]:rounded [&_code]:bg-surface-strong [&_code]:px-1 [&_pre]:mt-2 [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:bg-surface-strong [&_pre]:p-3 [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_p+p]:mt-2">
+		<div className="context7-markdown min-w-0 max-w-full wrap-break-word [&_a]:break-all [&_a]:underline [&_code]:break-all [&_code]:rounded [&_code]:bg-surface-strong [&_code]:px-1 [&_pre]:mt-2 [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:bg-surface-strong [&_pre]:p-3 [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_p+p]:mt-2">
 			{blocks}
 		</div>
 	);
