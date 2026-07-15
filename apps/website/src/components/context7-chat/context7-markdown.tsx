@@ -140,7 +140,7 @@ export function Context7Markdown({ content }: { content: string }) {
 	}
 
 	return (
-		<div className="context7-markdown [&_a]:underline [&_code]:rounded [&_code]:bg-surface-strong [&_code]:px-1 [&_pre]:mt-2 [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:bg-surface-strong [&_pre]:p-3 [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_p+p]:mt-2">
+		<div className="context7-markdown min-w-0 max-w-full wrap-break-word [&_a]:break-all [&_a]:underline [&_code]:break-all [&_code]:rounded [&_code]:bg-surface-strong [&_code]:px-1 [&_pre]:mt-2 [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:bg-surface-strong [&_pre]:p-3 [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_p+p]:mt-2">
 			{blocks}
 		</div>
 	);

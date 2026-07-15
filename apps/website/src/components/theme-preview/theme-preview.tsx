@@ -66,7 +66,7 @@ export function ThemePreview({
 		<div
 			{...props}
 			ref={containerRef}
-			className={`flex flex-row h-12 rounded-lg overflow-hidden w-full max-w-lg border border-surface-weak shadow-xs ${props.className ?? ''}`}
+			className={`flex min-w-0 max-w-full flex-row h-12 rounded-lg overflow-hidden w-full border border-surface-weak shadow-xs ${props.className ?? ''}`}
 		>
 			{entries.map(([token, color]) => {
 				const isActive = active === token;

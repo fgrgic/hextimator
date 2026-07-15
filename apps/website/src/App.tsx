@@ -65,14 +65,14 @@ function App() {
 		<div>
 			<ThemeColorMeta />
 			<NavBar />
-			<main className="flex flex-col items-center md:gap-0 mt-12 mb-24">
+			<main className="flex w-full min-w-0 flex-col items-center md:gap-0 mt-12 mb-24">
 				<Hero />
 				<div
-					className="flex flex-col items-stretch gap-8 md:gap-16"
+					className="flex w-full min-w-0 max-w-5xl mx-auto flex-col items-stretch gap-8 md:gap-16"
 					id="features"
 				>
-					<div className="flex w-full justify-center mt-20 mb-14 px-4">
-						<ThemePreview />
+					<div className="flex w-full min-w-0 justify-center mt-20 mb-14 px-4">
+						<ThemePreview className="min-w-0 max-w-full md:max-w-lg" />
 					</div>
 					<Section
 						title="Build the rules"

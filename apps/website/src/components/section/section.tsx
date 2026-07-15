@@ -21,7 +21,7 @@ export function Section({
 			<div
 				{...rest}
 				className={cn(
-					'flex flex-col mb-8 px-6 text-surface-foreground max-w-5xl gap-6',
+					'flex mx-auto min-w-0 w-full max-w-5xl flex-col mb-8 px-6 text-surface-foreground gap-6',
 					rest.className,
 				)}
 			>
@@ -38,7 +38,7 @@ export function Section({
 		<div
 			{...rest}
 			className={cn(
-				'flex flex-col items-stretch mb-8 px-6 text-surface-foreground md:flex-row max-w-5xl md:gap-8',
+				'flex mx-auto min-w-0 w-full max-w-5xl flex-col items-stretch mb-8 px-6 text-surface-foreground md:flex-row md:gap-8',
 				reversed && 'md:flex-row-reverse',
 				rest.className,
 			)}

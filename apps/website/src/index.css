@@ -89,6 +89,7 @@ html {
 
 body {
 	background-color: var(--color-surface);
+	overflow-x: hidden;
 }
 
 .cm-editor,

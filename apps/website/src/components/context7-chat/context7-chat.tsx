@@ -1,7 +1,7 @@
 import '@hextimator/playground/style.css';
+import { Send } from 'iconoir-react';
 import { useLayoutEffect, useRef, useState } from 'react';
 import { cn } from '../../utils/cn';
-import { Button } from '../button';
 import { InteractiveCard } from '../interactive/interactive-card';
 import {
 	CONTEXT7_PLACEHOLDER,
@@ -115,7 +115,7 @@ export function Context7Chat() {
 	};
 
 	return (
-		<InteractiveCard className="overflow-hidden p-0">
+		<InteractiveCard className="mx-0 mt-0 min-w-0 w-full max-w-full overflow-hidden p-0">
 			<div className="hxp-pane-header">
 				<div className="hxp-pane-header-left">
 					<div className="hxp-traffic-dots">
@@ -126,16 +126,16 @@ export function Context7Chat() {
 					<span className="hxp-pane-title">hextimator.chat</span>
 				</div>
 			</div>
-			<div className="flex h-112 flex-col">
+			<div className="flex h-112 min-w-0 flex-col">
 				<div
 					ref={messagesRef}
-					className="flex flex-1 flex-col gap-3 overflow-y-auto p-4"
+					className="flex min-w-0 flex-1 flex-col gap-3 overflow-x-hidden overflow-y-auto p-4"
 				>
 					{messages.map((message) => (
 						<div
 							key={message.id}
 							className={cn(
-								'max-w-[85%] rounded-xl px-3 py-2 text-sm leading-relaxed',
+								'max-w-[85%] min-w-0 wrap-break-word rounded-xl px-3 py-2 text-sm leading-relaxed',
 								message.role === 'user'
 									? 'self-end bg-accent text-accent-foreground'
 									: 'self-start bg-surface text-surface-foreground',
@@ -163,7 +163,7 @@ export function Context7Chat() {
 				</div>
 
 				<form
-					className="flex gap-2 border-t border-surface-weak bg-surface-strong p-3"
+					className="flex min-w-0 gap-2 border-t border-surface-weak bg-surface-strong p-3"
 					onSubmit={(event) => {
 						event.preventDefault();
 						void sendMessage();
@@ -197,9 +197,14 @@ export function Context7Chat() {
 						disabled={isLoading}
 						className="min-w-0 flex-1 rounded-lg border border-surface-weak bg-surface px-3 py-2 text-sm text-surface-foreground outline-none transition-colors focus:border-accent"
 					/>
-					<Button type="submit" disabled={isLoading || !input.trim()}>
-						Send
-					</Button>
+					<button
+						type="submit"
+						disabled={isLoading || !input.trim()}
+						aria-label="Send message"
+						className="flex shrink-0 items-center justify-center rounded-lg bg-accent p-2.5 text-accent-foreground transition-colors hover:bg-accent-weak disabled:cursor-not-allowed disabled:opacity-50"
+					>
+						<Send width="1rem" height="1rem" strokeWidth={2} />
+					</button>
 				</form>
 			</div>
 		</InteractiveCard>
