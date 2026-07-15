@@ -1,5 +1,5 @@
 import '@hextimator/playground/style.css';
-import { useEffect, useRef, useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { cn } from '../../utils/cn';
 import { Button } from '../button';
 import { InteractiveCard } from '../interactive/interactive-card';
@@ -9,7 +9,7 @@ import {
 	type Context7ChatMessage,
 	streamContext7Chat,
 } from './context7-client';
-import { renderContext7Markdown } from './context7-markdown';
+import { Context7Markdown } from './context7-markdown';
 
 let messageCounter = 0;
 
@@ -35,12 +35,22 @@ export function Context7Chat() {
 	const [searchQuery, setSearchQuery] = useState<string | null>(null);
 	const messagesRef = useRef<HTMLDivElement>(null);
 	const composingRef = useRef(false);
+	const lastMessageContentLength = messages.at(-1)?.content.length ?? 0;
 
-	useEffect(() => {
+	useLayoutEffect(() => {
 		const container = messagesRef.current;
-		if (!container) return;
+		if (
+			!container ||
+			(messages.length === 0 &&
+				lastMessageContentLength === 0 &&
+				!isLoading &&
+				searchQuery == null)
+		) {
+			return;
+		}
+
 		container.scrollTop = container.scrollHeight;
-	}, [messages, isLoading, searchQuery]);
+	}, [messages.length, lastMessageContentLength, isLoading, searchQuery]);
 
 	const sendMessage = async () => {
 		const content = input.trim();
@@ -132,12 +142,7 @@ export function Context7Chat() {
 							)}
 						>
 							{message.role === 'assistant' ? (
-								<div
-									className="context7-markdown [&_a]:underline [&_code]:rounded [&_code]:bg-surface-strong [&_code]:px-1 [&_pre]:mt-2 [&_pre]:overflow-x-auto [&_pre]:rounded-md [&_pre]:bg-surface-strong [&_pre]:p-3 [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_p+p]:mt-2"
-									dangerouslySetInnerHTML={{
-										__html: renderContext7Markdown(message.content),
-									}}
-								/>
+								<Context7Markdown content={message.content} />
 							) : (
 								<p className="whitespace-pre-wrap">{message.content}</p>
 							)}
