@@ -16,6 +16,7 @@ import {
 } from './components';
 import { Button } from './components/button';
 import { GetStarted } from './components/interactive/get-started';
+import { Context7Chat } from './components/context7-chat';
 import { ThemeColorMeta } from './components/theme-color-meta';
 import { ThemePreview } from './components/theme-preview';
 import { themeColorToPlaygroundPathHex } from './utils/playground-url-hex';
@@ -106,6 +107,13 @@ function App() {
 						description="Add hextimator to your project and start building your theme. Use it for B2B2C SaaS, white-label platforms, no-code builders, CMS themes, multi-brand design systems."
 					>
 						<GetStarted />
+					</Section>
+					<Section
+						title="Ask the docs"
+						description="Get answers about hextimator grounded in the library documentation."
+						stacked
+					>
+						<Context7Chat />
 					</Section>
 				</div>
 			</main>
