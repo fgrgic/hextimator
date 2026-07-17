@@ -37,7 +37,7 @@ hextimator is the third option. **One color in, whole theme out.** Light and dar
 
 hextimator is not the first palette generator. It targets one job the others skip: arbitrary brand colors at runtime.
 
-- **[Adobe Leonardo](https://leonardocolor.io)** Contrast-driven scales with manual control. Designers build palettes ahead of time. No runtime API for arbitrary hex, semantic roles, or dark mode.
+- **[Adobe Leonardo](https://leonardocolor.io)** Runtime contrast scales from arbitrary hex (`Theme` → `contrastColors`, target ratios). A construction kit: you wire roles, surfaces, and dark mode yourself. hextimator is one call with those built in.
 - **[Material dynamic color](https://github.com/material-foundation/material-color-utilities)** Full theming from one seed color. Battle-tested on Android. Output follows Material's token scheme. Hard to use outside Material-shaped UIs.
 - **[Radix Colors](https://www.radix-ui.com/colors)** Hand-tuned scales with strong semantics. Fixed curated set. Does not generate themes from arbitrary input.
 - **[tints.dev](https://tints.dev) / [uicolors.app](https://uicolors.app)** Quick Tailwind shade scales from one color. Build-time only. No semantic roles, contrast guarantees, dark theme, or library API.
