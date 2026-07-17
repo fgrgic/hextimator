@@ -1,7 +1,7 @@
 # hextimator
 
 <p align="center">
-    <img src="https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/assets/gh-cover.gif?raw=true" alt="hextimator" width="600">
+  <video src="https://github.com/fgrgic/hextimator/raw/main/apps/website/public/videos/hextimator-teaser.mp4" poster="https://github.com/fgrgic/hextimator/raw/main/apps/website/public/videos/hextimator-teaser-poster.jpg" width="100%" autoplay muted loop playsinline></video>
 </p>
 <p>
   <a href="https://www.npmjs.com/package/hextimator"><img src="https://img.shields.io/npm/v/hextimator" alt="npm version"></a>
