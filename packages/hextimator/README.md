@@ -1,7 +1,7 @@
 # hextimator
 
 <p align="center">
-  <video src="https://github.com/user-attachments/assets/07522d96-981f-4df6-a30e-3f69a06e320f" width="100%" autoplay muted loop playsinline></video>
+    <img src="https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/assets/gh-cover.webp?raw=true" alt="hextimator" width="100%">
 </p>
 <p>
   <a href="https://www.npmjs.com/package/hextimator"><img src="https://img.shields.io/npm/v/hextimator" alt="npm version"></a>
@@ -21,6 +21,10 @@ Each call takes under a millisecond (~0.4ms [^perf]). Same color and options alw
 Try it: **[hextimator.com](https://hextimator.com)**
 
 ## Why `hextimator` exists
+
+<p align="center">
+  <video src="https://github.com/user-attachments/assets/d488e751-7a0f-4e9c-8549-2780cf5ac384" width="100%" controls playsinline></video>
+</p>
 
 You ship a B2B, B2B2C, or white-label app. Every tenant brings a brand color. Your choices today:
 

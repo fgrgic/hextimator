@@ -1,7 +1,7 @@
 # hextimator
 
 <p align="center">
-  <video src="https://github.com/user-attachments/assets/07522d96-981f-4df6-a30e-3f69a06e320f" width="100%" autoplay muted loop playsinline></video>
+    <img src="https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/assets/gh-cover.webp?raw=true" alt="hextimator" width="100%">
 </p>
 
 Runtime theming for multi-tenant apps.
@@ -11,6 +11,10 @@ Your customers pick a brand color. Your app looks good. Every time. No per-custo
 Try it in the playground: **[hextimator.com](https://hextimator.com)**
 
 ## Why `hextimator` exists
+
+<p align="center">
+  <video src="https://github.com/user-attachments/assets/d488e751-7a0f-4e9c-8549-2780cf5ac384" width="100%" controls playsinline></video>
+</p>
 
 You are shipping a B2B, B2B2C, or white-label app. Every tenant brings their own brand color. The options today are:
 
