@@ -115,8 +115,8 @@ export function Context7Chat() {
 	};
 
 	return (
-		<InteractiveCard className="mx-0 mt-0 min-w-0 w-full max-w-full overflow-hidden p-0">
-			<div className="hxp-pane-header">
+		<InteractiveCard className="mx-0 mt-0 flex h-128 min-w-0 w-full max-w-full flex-col gap-0 overflow-hidden p-0">
+			<div className="hxp-pane-header shrink-0">
 				<div className="hxp-pane-header-left">
 					<div className="hxp-traffic-dots">
 						<span className="hxp-dot hxp-dot-red" />
@@ -126,10 +126,10 @@ export function Context7Chat() {
 					<span className="hxp-pane-title">hextimator.chat</span>
 				</div>
 			</div>
-			<div className="flex h-112 min-w-0 flex-col">
+			<div className="flex min-h-0 flex-1 flex-col">
 				<div
 					ref={messagesRef}
-					className="flex min-w-0 flex-1 flex-col gap-3 overflow-x-hidden overflow-y-auto p-4"
+					className="flex min-h-0 flex-1 flex-col gap-3 overflow-x-hidden overflow-y-auto p-4"
 				>
 					{messages.map((message) => (
 						<div
@@ -163,7 +163,7 @@ export function Context7Chat() {
 				</div>
 
 				<form
-					className="flex min-w-0 gap-2 border-t border-surface-weak bg-surface-strong p-3"
+					className="flex shrink-0 min-w-0 gap-2 border-t border-surface-weak bg-surface-strong p-3"
 					onSubmit={(event) => {
 						event.preventDefault();
 						void sendMessage();
