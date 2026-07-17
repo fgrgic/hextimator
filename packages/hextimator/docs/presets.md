@@ -110,6 +110,36 @@ hextimate("#6366F1")
   .format({ roleNames: { caution: "warning" } });
 ```
 
+## Config objects (`HextimateConfig`)
+
+A theme's inputs can be a plain object: accent color plus optional presets. Apps and design-tool plugins share one object and produce the same output.
+
+```typescript
+import {
+  fromConfig,
+  presets,
+  type HextimateConfig,
+  type HextimatePreset,
+} from "hextimator";
+
+const base: HextimatePreset = presets.shadcn;
+
+function themeForTenant(tenant: {
+  color: string;
+  presets?: HextimatePreset[];
+}) {
+  const config: HextimateConfig = {
+    color: tenant.color,
+    presets: [base, ...(tenant.presets ?? [])],
+  };
+  return fromConfig(config).format({ as: "css" });
+}
+```
+
+Composition is the caller's array spread - there is no `base` field or merge helper on the config. `fromConfig` returns a builder, so you can keep chaining (`.addToken(...)`, `.format(...)`, etc.).
+
+Configs carry inline preset objects only (not string names). `JSON.stringify` / `JSON.parse` round-trips work because presets are data.
+
 ## Combining presets with the builder API
 
 Presets compose with `addRole`, `addVariant`, `addToken`, and all other builder methods:

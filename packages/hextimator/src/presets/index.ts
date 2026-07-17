@@ -1,4 +1,5 @@
 export { bold } from './bold';
+export type { HextimateConfig } from './fromConfig';
 export { mui } from './mui';
 export { muted } from './muted';
 export { shadcn } from './shadcn';

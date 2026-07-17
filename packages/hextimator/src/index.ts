@@ -1,7 +1,3 @@
-import { HextimatePaletteBuilder } from './HextimatePaletteBuilder';
-import { parse } from './parse';
-import type { ColorInput } from './types';
-
 export type { CVDType } from './a11y';
 export { daltonizeColor, simulateColor } from './a11y';
 export { convert as convertColor } from './convert';
@@ -13,53 +9,14 @@ export {
 	type TokenValue,
 	type VariantPlacement,
 } from './HextimatePaletteBuilder';
+export { HextimateError, hextimate } from './hextimate';
 export { parse as parseColor } from './parse';
 export * as presets from './presets';
+export type { HextimateConfig } from './presets/fromConfig';
+export { fromConfig } from './presets/fromConfig';
 export type { HextimatePreset } from './presets/types';
 export type {
 	HextimateFormatOptions,
 	HextimateStyleOptions,
 	ThemeAdjustments,
 } from './types';
-
-/** Thrown when `hextimate()` fails to parse or generate a palette from the given input. */
-export class HextimateError extends Error {
-	constructor(
-		public readonly input: ColorInput,
-		message?: string,
-	) {
-		super(message ?? `Failed to hextimate color:  ${String(input)}`);
-		this.name = 'HextimateError';
-	}
-}
-
-/**
- * Creates a palette builder from an accent/brand color.
- *
- * @example
- * // Two-step API: generate, then format
- * const theme = hextimate('#ff6600')
- *   .format({ as: 'css', colors: 'oklch' });
- *
- * @example
- * // Extended: add roles and variants before formatting
- * const theme = hextimate('#ff6600')
- *   .style({ light: { baseLightness: 0.5 }, dark: { baseLightness: 0.65, maxChroma: 0.1 } })
- *   .addRole('cta', '#ee2244')
- *   .addVariant('hover', { from: 'strong' })
- *   .format({ as: 'tailwind' });
- */
-export function hextimate(color: ColorInput): HextimatePaletteBuilder {
-	try {
-		const parsedColor = parse(color);
-		return new HextimatePaletteBuilder(parsedColor);
-	} catch (e) {
-		if (e instanceof HextimateError) {
-			throw e;
-		}
-		throw new HextimateError(
-			color,
-			e instanceof Error ? e.message : 'Unknown error',
-		);
-	}
-}
