@@ -291,9 +291,9 @@ export class HextimatePaletteBuilder {
 	}
 
 	/**
-	 * Adds a standalone token, or overrides a palette node before derivation.
+	 * Adds a standalone token, or overrides a generated palette color before derivation.
 	 *
-	 * Use the same address as `from:` to override (`surface.weak`, `surface.DEFAULT`).
+	 * Override with a dotted key: `surface.weak`, `surface.DEFAULT` (not `surface-weak`).
 	 * A kebab key that matches a generated label throws at format time.
 	 */
 	addToken(name: string, value: TokenValue): this {

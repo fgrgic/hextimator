@@ -62,7 +62,7 @@ When light and dark themes need different directions:
 
 ### Overriding generated tokens
 
-Use the same address as `from:` so the override lands before anything derives from it:
+Use a dotted key (`role.variant`) so the override lands before anything derives from it:
 
 ```typescript
 hextimate("#6A5ACD")

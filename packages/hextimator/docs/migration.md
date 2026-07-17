@@ -4,7 +4,7 @@ Breaking changes by release. See the [CHANGELOG](../CHANGELOG.md) for release no
 
 ## 0.12.x → 0.13.0
 
-If you overrode a generated token with a kebab key, that write now has to happen **before derivation** — use the same address as `from:`:
+If you overrode a generated token with a kebab key, use a dotted key instead so the write lands before derivation:
 
 ```ts
 // before
