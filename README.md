@@ -13,7 +13,7 @@ Try it in the playground: **[hextimator.com](https://hextimator.com)**
 ## Why `hextimator` exists
 
 <p align="center">
-  <video src="https://github.com/user-attachments/assets/d488e751-7a0f-4e9c-8549-2780cf5ac384" width="100%" controls playsinline></video>
+  <video src="https://github.com/user-attachments/assets/245f0728-38e3-425a-8d0c-87bff6f48b0f" width="100%" controls playsinline></video>
 </p>
 
 You are shipping a B2B, B2B2C, or white-label app. Every tenant brings their own brand color. The options today are:
