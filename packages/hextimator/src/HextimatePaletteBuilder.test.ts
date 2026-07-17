@@ -492,12 +492,12 @@ describe('HextimatePaletteBuilder: addToken()', () => {
 
 	it('per-theme token uses different values for light and dark', () => {
 		const result = formatObject(
-			hextimate('#ff6600').addToken('surface', {
+			hextimate('#ff6600').addToken('panel', {
 				light: { from: 'surface.weak', lightness: 0.05 },
 				dark: { from: 'surface.weak', lightness: -0.05 },
 			}),
 		);
-		expect(result.light.surface).not.toBe(result.dark.surface);
+		expect(result.light.panel).not.toBe(result.dark.panel);
 	});
 
 	it('per-theme token with raw colors', () => {
@@ -564,6 +564,134 @@ describe('HextimatePaletteBuilder: addToken()', () => {
 		expect(result.dark.custom).toMatch(/^#[0-9a-f]{6}$/);
 		// Light and dark should differ since emphasis flips direction
 		expect(result.light.custom).not.toBe(result.dark.custom);
+	});
+});
+
+// ──────────────────────────────────────────────
+// 5b. addToken: palette pins vs label collisions
+// ──────────────────────────────────────────────
+describe('HextimatePaletteBuilder: addToken palette addressing', () => {
+	it('palette pin cascades to from: derived tokens', () => {
+		const pin = '#123456';
+		const withPin = formatObject(
+			hextimate('#ff6600')
+				.addToken('surface.weak', pin)
+				.addToken('border', { from: 'surface.weak', lightness: -0.05 }),
+		);
+		const withoutPin = formatObject(
+			hextimate('#ff6600').addToken('border', {
+				from: 'surface.weak',
+				lightness: -0.05,
+			}),
+		);
+
+		expect(withPin.light['surface-weak']).toBe(pin);
+		expect(withPin.light.border).not.toBe(withoutPin.light.border);
+		expect(withPin.light.border).not.toBe(pin);
+
+		const borderL = convertColor(parseColor(withPin.light.border), 'oklch').l;
+		const pinL = convertColor(parseColor(pin), 'oklch').l;
+		expect(borderL).toBeCloseTo(pinL - 0.05, 2);
+	});
+
+	it('kebab label that collides with a generated token throws', () => {
+		expect(() =>
+			hextimate('#ff6600').addToken('surface-weak', '#123456').format(),
+		).toThrow('collides with a generated token');
+		expect(() =>
+			hextimate('#ff6600').addToken('surface-weak', '#123456').format(),
+		).toThrow('addToken("surface.weak")');
+	});
+
+	it('DEFAULT label collision suggests role.DEFAULT', () => {
+		expect(() =>
+			hextimate('#ff6600').addToken('surface', '#123456').format(),
+		).toThrow('addToken("surface.DEFAULT")');
+	});
+
+	it('custom role and variant labels collide', () => {
+		expect(() =>
+			hextimate('#ff6600')
+				.addRole('cta', '#ee2244')
+				.addVariant('hover', { from: 'strong' })
+				.addToken('cta-hover', '#000000')
+				.format(),
+		).toThrow('addToken("cta.hover")');
+	});
+
+	it('collision respects roleNames and variantNames', () => {
+		expect(() =>
+			hextimate('#ff6600')
+				.addToken('bg-soft', '#123456')
+				.format({
+					roleNames: { surface: 'bg' },
+					variantNames: { weak: 'soft' },
+				}),
+		).toThrow('addToken("surface.weak")');
+
+		const result = hextimate('#ff6600')
+			.addToken('surface-weak', '#abcdef')
+			.format({
+				as: 'object',
+				colors: 'hex',
+				roleNames: { surface: 'bg' },
+			}) as { light: Record<string, string> };
+		expect(result.light['surface-weak']).toBe('#abcdef');
+		expect(result.light['bg-weak']).toBeDefined();
+		expect(result.light['bg-weak']).not.toBe('#abcdef');
+	});
+
+	it('collision respects separator', () => {
+		expect(() =>
+			hextimate('#ff6600')
+				.addToken('surface_weak', '#123456')
+				.format({ separator: '_' }),
+		).toThrow('collides with a generated token');
+
+		const result = hextimate('#ff6600')
+			.addToken('surface-weak', '#abcdef')
+			.format({
+				as: 'object',
+				colors: 'hex',
+				separator: '_',
+			}) as { light: Record<string, string> };
+		expect(result.light['surface-weak']).toBe('#abcdef');
+		expect(result.light.surface_weak).toBeDefined();
+		expect(result.light.surface_weak).not.toBe('#abcdef');
+	});
+
+	it('non-colliding standalone tokens behave as before', () => {
+		const result = formatObject(
+			hextimate('#ff6600').addToken('border', {
+				from: 'surface.weak',
+				lightness: -0.05,
+			}),
+		);
+		expect(result.light.border).toMatch(/^#[0-9a-f]{6}$/);
+		expect(result.light['surface-weak']).toBeDefined();
+		expect(result.light.border).not.toBe(result.light['surface-weak']);
+	});
+
+	it('brand-exact remains overwritable as a standalone', () => {
+		const result = formatObject(
+			hextimate('#ff6600').addToken('brand-exact', '#00ff00'),
+		);
+		expect(result.light['brand-exact']).toBe('#00ff00');
+	});
+
+	it('palette pin of DEFAULT works via dotted form', () => {
+		const pin = '#112233';
+		const result = formatObject(
+			hextimate('#ff6600').addToken('surface.DEFAULT', pin),
+		);
+		expect(result.light.surface).toBe(pin);
+	});
+
+	it('fork replays palette pins', () => {
+		const pin = '#123456';
+		const builder = hextimate('#ff6600').addToken('surface.weak', pin);
+		const forked = builder.fork('#0000ff');
+		expect(formatObject(forked).light['surface-weak']).toBe(pin);
 	});
 });
 
@@ -936,13 +1064,13 @@ describe('HextimatePaletteBuilder: preset()', () => {
 			roles: [{ name: 'info', color: '#3366cc' }],
 		};
 		const preset2: HextimatePreset = {
-			tokens: [{ name: 'surface', value: '#fafafa' }],
+			tokens: [{ name: 'surface.DEFAULT', value: '#fafafa' }],
 		};
 		const result = formatObject(
 			hextimate('#6366f1').preset(preset1).preset(preset2),
 		);
 		expect(lightKeys(result)).toContain('info');
-		expect(lightKeys(result)).toContain('surface');
+		expect(result.light.surface).toBe('#fafafa');
 	});
 });
 

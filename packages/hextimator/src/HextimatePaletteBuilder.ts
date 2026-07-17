@@ -6,6 +6,7 @@ import {
 	buildTokenEntries,
 	withInvertedSuffix,
 } from './format/buildTokenEntries';
+import { toFlatKey } from './format/formatters';
 import { serializeColor } from './format/serializeColor';
 import type { TokenEntry } from './format/types';
 import { generate } from './generate';
@@ -290,17 +291,10 @@ export class HextimatePaletteBuilder {
 	}
 
 	/**
-	 * Adds a standalone/one-off token that doesn't fit the role+variant structure.
-	 * The value can be a direct color, a derived token based on an existing role+variant, or an object specifying different values for light and dark themes.
+	 * Adds a standalone token, or overrides a generated palette color before derivation.
 	 *
-	 * e.g. `addToken('brand', '#3a86ff')` adds a "brand" token with the specified color in both themes.
-	 * `addToken('brand', { light: '#3a86ff', dark: '#ff0066' })` adds a "brand" token with different colors in light and dark themes.
-	 *
-	 * It can also be used to override specific tokens after generation.
-	 * `addToken('surface-strong', '#ff0066')` overrides the automatically generated "surface-strong" variant with a custom color.
-	 *
-	 * @param name Token name (e.g. "brand", "logo")
-	 * @param value Token value, which can be an exact color, or derived from an existing role+variant.
+	 * Override with a dotted key: `surface.weak`, `surface.DEFAULT` (not `surface-weak`).
+	 * A kebab key that matches a generated label throws at format time.
 	 */
 	addToken(name: string, value: TokenValue): this {
 		this.operations.push({ method: 'addToken', args: [name, value] });
@@ -509,6 +503,8 @@ export class HextimatePaletteBuilder {
 			: options;
 
 		const colorFormat = mergedOptions?.colors ?? 'hex';
+
+		this.assertNoPaletteLabelCollisions(mergedOptions);
 
 		const lightTokens = this.resolveStandaloneTokens(
 			'light',
@@ -720,7 +716,103 @@ export class HextimatePaletteBuilder {
 	}
 
 	private applyToken(name: string, value: TokenValue): void {
+		if (name.includes('.')) {
+			this.applyPalettePin(name, value);
+			return;
+		}
 		this.standaloneTokens.push({ name, value });
+	}
+
+	private applyPalettePin(coordinate: string, value: TokenValue): void {
+		const dot = coordinate.indexOf('.');
+		const role = coordinate.slice(0, dot);
+		const variant = coordinate.slice(dot + 1);
+		if (!role || !variant) {
+			throw new Error(
+				`Invalid palette coordinate "${coordinate}". Expected "role.variant".`,
+			);
+		}
+
+		for (const palette of [this.lightPalette, this.darkPalette]) {
+			const scale = palette[role];
+			if (!scale) {
+				throw new Error(
+					`Unknown role "${role}" in palette coordinate "${coordinate}"`,
+				);
+			}
+			if (scale[variant] === undefined) {
+				throw new Error(
+					`Unknown variant "${variant}" in palette coordinate "${coordinate}"`,
+				);
+			}
+		}
+
+		this.lightPalette[role][variant] = convert(
+			this.resolveTokenValue(value, 'light', this.lightPalette),
+			'oklch',
+		);
+		this.darkPalette[role][variant] = convert(
+			this.resolveTokenValue(value, 'dark', this.darkPalette),
+			'oklch',
+		);
+	}
+
+	/**
+	 * Standalone token names must not squash palette flat keys after
+	 * roleNames / variantNames / separator / excludes are applied.
+	 */
+	private assertNoPaletteLabelCollisions(
+		options?: HextimateFormatOptions,
+	): void {
+		if (this.standaloneTokens.length === 0) return;
+
+		const sep = options?.separator ?? '-';
+		const excludeRoles = new Set(options?.excludeRoles ?? []);
+		const excludeVariants = new Set(options?.excludeVariants ?? []);
+		const labelToCoord = new Map<
+			string,
+			{ role: string; variant: string; isDefault: boolean }
+		>();
+
+		for (const role of Object.keys(this.lightPalette)) {
+			if (excludeRoles.has(role)) continue;
+			const scale = this.lightPalette[role];
+			for (const variant of Object.keys(scale)) {
+				if (excludeVariants.has(variant)) continue;
+				const raw = scale[variant];
+				if (
+					typeof raw !== 'object' ||
+					raw === null ||
+					!('space' in (raw as object))
+				) {
+					continue;
+				}
+				const isDefault = variant === 'DEFAULT';
+				const entry: TokenEntry = {
+					role: options?.roleNames?.[role] ?? role,
+					variant: options?.variantNames?.[variant] ?? variant,
+					isDefault,
+					value: '',
+				};
+				labelToCoord.set(toFlatKey(entry, sep), {
+					role,
+					variant,
+					isDefault,
+				});
+			}
+		}
+
+		for (const { name } of this.standaloneTokens) {
+			const coord = labelToCoord.get(name);
+			if (!coord) continue;
+			const suggestion = coord.isDefault
+				? `${coord.role}.DEFAULT`
+				: `${coord.role}.${coord.variant}`;
+			throw new Error(
+				`addToken("${name}") collides with a generated token.\n` +
+					`Did you mean addToken("${suggestion}") to change the palette?`,
+			);
+		}
 	}
 
 	private resolveStandaloneTokens(
