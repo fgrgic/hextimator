@@ -1,7 +1,7 @@
 # hextimator
 
 <p align="center">
-  <video src="https://github.com/fgrgic/hextimator/raw/main/apps/website/public/videos/hextimator-teaser.mp4" poster="https://github.com/fgrgic/hextimator/raw/main/apps/website/public/videos/hextimator-teaser-poster.jpg" width="100%" autoplay muted loop playsinline></video>
+  <video src="https://github.com/user-attachments/assets/07522d96-981f-4df6-a30e-3f69a06e320f" width="100%" autoplay muted loop playsinline></video>
 </p>
 
 Runtime theming for multi-tenant apps.
