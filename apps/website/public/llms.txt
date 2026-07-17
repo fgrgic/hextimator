@@ -1,0 +1,11 @@
+# hextimator
+
+> One brand color in. A complete, accessible light + dark theme out.
+
+Site: https://hextimator.com
+Playground: https://playground.hextimator.com
+npm: https://www.npmjs.com/package/hextimator
+
+Full LLM-oriented API and CLI reference (source of truth):
+
+https://unpkg.com/hextimator/llms.txt
