@@ -12,11 +12,12 @@ import {
 	NavBar,
 	OtherFeatures,
 	Section,
+	TeaserVideo,
 	ThemePreferences,
 } from './components';
 import { Button } from './components/button';
-import { GetStarted } from './components/interactive/get-started';
 import { Context7Chat } from './components/context7-chat';
+import { GetStarted } from './components/interactive/get-started';
 import { ThemeColorMeta } from './components/theme-color-meta';
 import { ThemePreview } from './components/theme-preview';
 import { themeColorToPlaygroundPathHex } from './utils/playground-url-hex';
@@ -67,6 +68,7 @@ function App() {
 			<NavBar />
 			<main className="flex w-full min-w-0 flex-col items-center md:gap-0 mt-12 mb-24">
 				<Hero />
+				<TeaserVideo />
 				<div
 					className="flex w-full min-w-0 max-w-5xl mx-auto flex-col items-stretch gap-8 md:gap-16"
 					id="features"
