@@ -2,6 +2,20 @@
 
 Breaking changes by release. See the [CHANGELOG](../CHANGELOG.md) for release notes and PR links.
 
+## 0.12.x → 0.13.0
+
+If you overrode a generated token with a kebab key, that write now has to happen **before derivation** — use the same address as `from:`:
+
+```ts
+// before
+.addToken("surface-strong", "#fafafa")
+
+// after
+.addToken("surface.strong", "#fafafa")
+```
+
+DEFAULT → `addToken("surface.DEFAULT", …)`. Search for `collides with a generated token` if you hit the error.
+
 ## 0.10.x → 0.11.0
 
 - The `0.11.0` widens the default positive range to [120, 180]. If you see your themes look weird, limit the positive range to the previous [120, 160]. However, the wider range should improve the look of the generated themes.

@@ -253,7 +253,7 @@ describe('preset chaining', () => {
 
 	test('chained presets concatenate tokens', () => {
 		const presetA: HextimatePreset = {
-			tokens: [{ name: 'surface', value: { from: 'surface.weak' } }],
+			tokens: [{ name: 'canvas', value: { from: 'surface.weak' } }],
 			format: { as: 'object' },
 		};
 		const presetB: HextimatePreset = {
@@ -265,7 +265,7 @@ describe('preset chaining', () => {
 			.preset(presetB)
 			.format() as { light: Record<string, string> };
 
-		expect(theme.light).toHaveProperty('surface');
+		expect(theme.light).toHaveProperty('canvas');
 		expect(theme.light).toHaveProperty('ring');
 	});
 

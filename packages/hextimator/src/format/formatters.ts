@@ -1,6 +1,6 @@
 import type { FlatTokenMap, NestedTokenMap, TokenEntry } from './types';
 
-function toFlatKey(entry: TokenEntry, sep: string): string {
+export function toFlatKey(entry: TokenEntry, sep: string): string {
 	if (entry.isDefault && entry.variant === 'DEFAULT') return entry.role;
 	return `${entry.role}${sep}${entry.variant}`;
 }

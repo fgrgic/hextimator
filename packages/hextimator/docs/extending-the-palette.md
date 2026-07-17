@@ -62,10 +62,12 @@ When light and dark themes need different directions:
 
 ### Overriding generated tokens
 
-The `addToken` can be used to override any generated token from the palette as well:
+Use the same address as `from:` so the override lands before anything derives from it:
 
 ```typescript
 hextimate("#6A5ACD")
-  .addToken("surface-strong", "#fafafa") // overrides the generated --surface-strong at formatting time
+  .addToken("surface.strong", "#fafafa")
   .format({ as: "css" });
 ```
+
+A kebab key that matches a generated label (e.g. `"surface-strong"`) throws — search `collides with a generated token`.
