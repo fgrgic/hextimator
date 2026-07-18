@@ -12,10 +12,6 @@ Try it in the playground: **[hextimator.com](https://hextimator.com)**
 
 ## Why `hextimator` exists
 
-<p align="center">
-  <video src="https://github.com/user-attachments/assets/245f0728-38e3-425a-8d0c-87bff6f48b0f" width="100%" controls playsinline></video>
-</p>
-
 You are shipping a B2B, B2B2C, or white-label app. Every tenant brings their own brand color. The options today are:
 
 - **Let them pick any hex**. Now legal-pad yellow buttons become unreadable; cheeto tangerine toasts look identical to your warning state.
