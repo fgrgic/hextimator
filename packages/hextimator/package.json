@@ -1,6 +1,6 @@
 {
 	"name": "hextimator",
-	"version": "0.12.3",
+	"version": "0.13.0",
 	"description": "Runtime theming for multi-tenant apps.",
 	"keywords": [
 		"color-palette",
