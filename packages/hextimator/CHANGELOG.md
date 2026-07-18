@@ -1,5 +1,37 @@
 ## 0.13.0
 
+### Minor Changes
+
+- [#169](https://github.com/fgrgic/hextimator/pull/169) [`bcd6d93`](https://github.com/fgrgic/hextimator/commit/bcd6d934dc792393870e08ae3b453ecdea9a4c51) Thanks [@fgrgic](https://github.com/fgrgic)! - Overriding a generated token with `addToken` now uses a dotted key and applies before derivation (`surface.strong` instead of `surface-strong`). Kebab keys that collide with a generated label throw (`collides with a generated token`). See migration.md.
+
+- [#170](https://github.com/fgrgic/hextimator/pull/170) [`1fd85c9`](https://github.com/fgrgic/hextimator/commit/1fd85c99ae3996aa601fec78d5b6d1c84ed59bcf) Thanks [@fgrgic](https://github.com/fgrgic)! - `HextimateConfig` and `fromConfig()` — express a theme's inputs as a plain object instead of a method chain.
+
+  ```ts
+  fromConfig({ color: "#3a86ff" });
+  fromConfig({
+    color: "#3a86ff",
+    presets: [
+      {
+        tokens: [
+          {
+            name: "surface.weak",
+            value:
+              "[#123456](https://github.com/fgrgic/hextimator/issues/123456)",
+          },
+        ],
+      },
+    ],
+  });
+  ```
+
+  Returns a builder, so chaining continues as usual. Presets were already serializable — the colour wasn't. Pairing them makes a whole theme a value you can store, diff, or share between programs.
+
+### Patch Changes
+
+- [#167](https://github.com/fgrgic/hextimator/pull/167) [`8d34573`](https://github.com/fgrgic/hextimator/commit/8d34573fb423ebeaac96c6f220bef03affc021c4) Thanks [@fgrgic](https://github.com/fgrgic)! - docs: fix wrong claim in readme
+
+## 0.13.0
+
 ### Major Changes
 
 - **Breaking.** Overriding a generated token with `addToken` now uses a dotted key and applies before derivation (`surface.strong` instead of `surface-strong`). Kebab keys that collide with a generated label throw (`collides with a generated token`). See [migration.md](./docs/migration.md).
