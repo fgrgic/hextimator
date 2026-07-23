@@ -228,6 +228,8 @@ describe('format() — options', () => {
 				(k) => k.endsWith('-weak') && !k.endsWith('-foreground-weak'),
 			),
 		).toBe(false);
+		// foreground-weak is a distinct variant; excluding "weak" must not drop it.
+		expect(result['surface-foreground-weak']).toBeDefined();
 		expect(result.surface).toBeDefined();
 		expect(result['surface-foreground']).toBeDefined();
 	});

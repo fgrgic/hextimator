@@ -27,7 +27,7 @@ export default defineConfig({
 @import "hextimator/tailwind.css";
 ```
 
-That's it. All 20 built-in tokens (accent, surface, positive, negative, caution × DEFAULT/strong/weak/foreground) are available as Tailwind utilities.
+That's it. All 25 built-in tokens (accent, surface, positive, negative, caution × DEFAULT/strong/weak/foreground/foreground-weak) are available as Tailwind utilities.
 
 ## How it works
 
@@ -37,7 +37,7 @@ That's it. All 20 built-in tokens (accent, surface, positive, negative, caution 
 @theme inline {
   --color-accent: var(--accent);
   --color-accent-strong: var(--accent-strong);
-  /* ...all 20 tokens */
+  /* ...all 25 tokens */
 }
 ```
 

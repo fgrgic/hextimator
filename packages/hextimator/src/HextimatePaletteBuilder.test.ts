@@ -1335,6 +1335,10 @@ describe('HextimatePaletteBuilder: invertedVariants', () => {
 					!k.includes('-foreground-weak-inverted'),
 			),
 		).toBe(false);
+		// Excluding "weak" must not drop the distinct foreground-weak variant.
+		expect(result.light['accent-foreground-weak-inverted']).toMatch(
+			/^#[0-9a-f]{6}$/,
+		);
 		expect(result.light['accent-inverted']).toMatch(/^#[0-9a-f]{6}$/);
 	});
 

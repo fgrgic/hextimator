@@ -26,7 +26,7 @@ export interface HextimatePreset {
 	/** Style options (contrast, hue shifts, lightness, chroma). Applied before roles/variants/tokens. */
 	style?: HextimateStyleOptions;
 
-	/** Extra roles to add to the palette (each generates DEFAULT, strong, weak, foreground variants). */
+	/** Extra roles to add to the palette (each generates DEFAULT, strong, weak, foreground, foreground-weak variants). */
 	roles?: Array<{ name: string; color: ColorInput | DerivedToken }>;
 
 	/** Extra variants to add across all roles. */
