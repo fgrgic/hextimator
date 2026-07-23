@@ -1,3 +1,13 @@
+## 0.14.0
+
+### Minor Changes
+
+- [#173](https://github.com/fgrgic/hextimator/pull/173) [`f1fe2ca`](https://github.com/fgrgic/hextimator/commit/f1fe2ca5a922080b7c9c20d87ea43a8279cb0782) Thanks [@fgrgic](https://github.com/fgrgic)! - Adds `foreground-weak` variant as one of the default variants.
+
+  `foreground-weak` is the weakest contrast color to its background that still satisfies the required contrast ratio (e.g. `AAA`, or 7:1)
+
+  Not a breaking change, additive only. If you had specific overrides for `foreground-weak`, they will continue working as expected.
+
 ## 0.13.0
 
 ### Minor Changes
