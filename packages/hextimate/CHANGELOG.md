@@ -1,5 +1,12 @@
 # hextimate
 
+## 0.14.1
+
+### Patch Changes
+
+- Updated dependencies [[`e035074`](https://github.com/fgrgic/hextimator/commit/e03507480239b98b4eb9aed6116487f69cf10d01)]:
+  - hextimator@0.14.1
+
 ## 0.14.0
 
 ### Patch Changes

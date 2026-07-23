@@ -1,3 +1,9 @@
+## 0.14.1
+
+### Patch Changes
+
+- [#177](https://github.com/fgrgic/hextimator/pull/177) [`e035074`](https://github.com/fgrgic/hextimator/commit/e03507480239b98b4eb9aed6116487f69cf10d01) Thanks [@fgrgic](https://github.com/fgrgic)! - Wrong dist shipped with previous version, shipping correct one in this
+
 ## 0.14.0
 
 ### Minor Changes
