@@ -47,7 +47,7 @@ function surfaceLightnessBand(themeType: ThemeType): {
  * Small buffer above the target to absorb gamut-mapping drift.
  * gamut mapping can shift perceived lightness by up to ~0.1, so 0.15 provides safety
  */
-const CONTRAST_MARGIN = 0.15;
+export const CONTRAST_MARGIN = 0.15;
 
 export function resolveContrastRatio(
 	value: 'AAA' | 'AA' | number | undefined,
@@ -551,12 +551,37 @@ export function expandColorToScale(
 		skipSurfaceCap,
 	);
 
+	const foregroundWeakColorOKLCH = computeSoftestForeground(
+		foregroundColorOKLCH,
+		normalizedColorOKLCH,
+		contrastTarget,
+	);
+
 	return {
 		DEFAULT: { ...normalizedColorOKLCH },
 		strong: { ...strongColorOKLCH },
 		weak: { ...weakColorOKLCH },
 		foreground: { ...foregroundColorOKLCH },
+		'foreground-weak': { ...foregroundWeakColorOKLCH },
 	};
+}
+
+/**
+ * Softest foreground still meeting contrast: slides from `foreground` toward
+ * `base` to the point where contrast against `base` first reaches `contrastTarget`.
+ * Falls back to `foreground` when it already sits at or below the target.
+ */
+export function computeSoftestForeground(
+	foreground: OKLCH,
+	base: OKLCH,
+	contrastTarget: number,
+): OKLCH {
+	const boundaryL = findContrastBoundaryLightness(
+		foreground,
+		base,
+		contrastTarget,
+	);
+	return { ...foreground, l: boundaryL ?? foreground.l };
 }
 
 let warnedLegacyLightness = false;

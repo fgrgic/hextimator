@@ -3,22 +3,27 @@
 	--color-accent-strong: var(--accent-strong);
 	--color-accent-weak: var(--accent-weak);
 	--color-accent-foreground: var(--accent-foreground);
+	--color-accent-foreground-weak: var(--accent-foreground-weak);
 	--color-surface: var(--surface);
 	--color-surface-strong: var(--surface-strong);
 	--color-surface-weak: var(--surface-weak);
 	--color-surface-foreground: var(--surface-foreground);
+	--color-surface-foreground-weak: var(--surface-foreground-weak);
 	--color-positive: var(--positive);
 	--color-positive-strong: var(--positive-strong);
 	--color-positive-weak: var(--positive-weak);
 	--color-positive-foreground: var(--positive-foreground);
+	--color-positive-foreground-weak: var(--positive-foreground-weak);
 	--color-negative: var(--negative);
 	--color-negative-strong: var(--negative-strong);
 	--color-negative-weak: var(--negative-weak);
 	--color-negative-foreground: var(--negative-foreground);
+	--color-negative-foreground-weak: var(--negative-foreground-weak);
 	--color-caution: var(--caution);
 	--color-caution-strong: var(--caution-strong);
 	--color-caution-weak: var(--caution-weak);
 	--color-caution-foreground: var(--caution-foreground);
+	--color-caution-foreground-weak: var(--caution-foreground-weak);
 	--color-brand-exact: var(--brand-exact);
 	--color-brand-exact-foreground: var(--brand-exact-foreground);
 }

@@ -2,13 +2,13 @@
 
 ## `addRole` — add a new color with its full scale
 
-Need more than the built-in 5 roles? Add any number of seed colors. Each gets its own DEFAULT, strong, weak, and foreground variants.
+Need more than the built-in 5 roles? Add any number of seed colors. Each gets its own DEFAULT, strong, weak, foreground, and foreground-weak variants.
 
 ```typescript
 hextimate("#6A5ACD")
   .addRole("cta", "#EE2244")
   .format({ as: "css" });
-// Adds: --cta, --cta-strong, --cta-weak, --cta-foreground,
+// Adds: --cta, --cta-strong, --cta-weak, --cta-foreground, --cta-foreground-weak
 ```
 
 ## `addVariant` — add a lightness step to every role
@@ -20,7 +20,7 @@ hextimate("#6A5ACD")
   .addVariant("hover", { from: "strong" })
   .addVariant("subtle", { between: ["DEFAULT", "weak"] })
   .format({ as: "tailwind" });
-// Every role now has: DEFAULT, strong, weak, foreground, hover, subtle
+// Every role now has: DEFAULT, strong, weak, foreground, foreground-weak, hover, subtle
 ```
 
 - `{ from: "strong" }` — one step past strong (stronger)

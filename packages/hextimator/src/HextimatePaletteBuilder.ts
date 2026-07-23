@@ -12,8 +12,10 @@ import type { TokenEntry } from './format/types';
 import { generate } from './generate';
 import type { ColorScale, HextimatePalette } from './generate/types';
 import {
+	CONTRAST_MARGIN,
 	calculateContrast,
 	clampHueShift,
+	computeSoftestForeground,
 	expandColorToScale,
 	findContrastBoundaryLightness,
 	resolveContrastRatio,
@@ -610,21 +612,19 @@ export class HextimatePaletteBuilder {
 
 			if (edge === 'foreground') {
 				const contrastTarget =
-					resolveContrastRatio(this.options.minContrastRatio) + 0.15;
+					resolveContrastRatio(this.options.minContrastRatio) + CONTRAST_MARGIN;
 				for (const palette of [this.lightPalette, this.darkPalette]) {
 					for (const role of Object.keys(palette)) {
 						const scale = palette[role];
-						const foreground = convert(parse(scale.foreground), 'oklch');
-						const boundaryL = findContrastBoundaryLightness(
-							parse(scale.foreground),
-							parse(scale.DEFAULT),
+						const soft = computeSoftestForeground(
+							convert(parse(scale.foreground), 'oklch'),
+							convert(parse(scale.DEFAULT), 'oklch'),
 							contrastTarget,
 						);
 						scale[name] = {
-							...foreground,
-							l: boundaryL ?? foreground.l,
-							c: Math.max(0, foreground.c + chromaOffset),
-							h: wrapHue(foreground.h + hueOffset),
+							...soft,
+							c: Math.max(0, soft.c + chromaOffset),
+							h: wrapHue(soft.h + hueOffset),
 						};
 					}
 				}
@@ -1015,7 +1015,7 @@ export class HextimatePaletteBuilder {
 		const clampedShift = clampHueShift(rawShift, totalVariants);
 		const hueShiftPerStep = isStrongSide ? clampedShift : -clampedShift;
 		const contrastTarget =
-			resolveContrastRatio(this.options.minContrastRatio) + 0.15;
+			resolveContrastRatio(this.options.minContrastRatio) + CONTRAST_MARGIN;
 
 		for (const role of Object.keys(this.lightPalette)) {
 			for (const [palette, themeType] of [

@@ -88,13 +88,15 @@ npx hextimator '#BADA55' --preset bold
 
 ## What is in every theme
 
-| Role     | Variants                          |
-| -------- | --------------------------------- |
-| surface  | DEFAULT, strong, weak, foreground |
-| accent   | DEFAULT, strong, weak, foreground |
-| positive | DEFAULT, strong, weak, foreground |
-| negative | DEFAULT, strong, weak, foreground |
-| caution  | DEFAULT, strong, weak, foreground |
+| Role     | Variants                                          |
+| -------- | ------------------------------------------------- |
+| surface  | DEFAULT, strong, weak, foreground, foreground-weak |
+| accent   | DEFAULT, strong, weak, foreground, foreground-weak |
+| positive | DEFAULT, strong, weak, foreground, foreground-weak |
+| negative | DEFAULT, strong, weak, foreground, foreground-weak |
+| caution  | DEFAULT, strong, weak, foreground, foreground-weak |
+
+`foreground-weak` is the softest foreground that still meets your contrast target against the role's DEFAULT background - use it for secondary or muted text.
 
 Plus **`brand-exact`** (your input color, unchanged) and **`brand-exact-foreground`**.
 

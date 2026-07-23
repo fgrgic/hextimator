@@ -50,13 +50,50 @@ describe('contrast: all variants meet AAA with foreground', () => {
 					if (!fg) continue;
 
 					for (const [variant, value] of Object.entries(scale)) {
-						if (variant === 'foreground') continue;
+						if (variant.startsWith('foreground')) continue;
 						const cr = contrast(value, fg);
 						if (cr < MIN_CONTRAST) {
 							throw new Error(
 								`${role}.${variant} (${value}) vs foreground (${fg}) = ${cr.toFixed(2)} in ${theme} theme for ${color}`,
 							);
 						}
+					}
+				}
+			});
+		}
+	}
+});
+
+// ──────────────────────────────────────────────
+// 1b. foreground-weak: meets the target against DEFAULT, and is softer
+//     (never more contrast) than foreground.
+// ──────────────────────────────────────────────
+describe('foreground-weak: still meets target vs DEFAULT and is softer than foreground', () => {
+	for (const color of TEST_COLORS) {
+		for (const theme of THEME_TYPES) {
+			it(`${color} – ${theme}`, () => {
+				const result = hextimate(color).format({ as: 'object', colors: 'hex' });
+				const palette = result[theme] as Record<string, string>;
+				const roleScales = groupByRole(palette);
+
+				for (const [role, scale] of Object.entries(roleScales)) {
+					const base = scale.DEFAULT;
+					const fg = scale.foreground;
+					const fgWeak = scale['foreground-weak'];
+					if (!base || !fg || !fgWeak) continue;
+
+					const weakVsBase = contrast(fgWeak, base);
+					const fgVsBase = contrast(fg, base);
+
+					if (weakVsBase < MIN_CONTRAST) {
+						throw new Error(
+							`${role}.foreground-weak (${fgWeak}) vs DEFAULT (${base}) = ${weakVsBase.toFixed(2)} < ${MIN_CONTRAST} in ${theme} for ${color}`,
+						);
+					}
+					if (weakVsBase > fgVsBase + 1e-6) {
+						throw new Error(
+							`${role}.foreground-weak should not out-contrast foreground: weak ${weakVsBase.toFixed(2)} > fg ${fgVsBase.toFixed(2)} in ${theme} for ${color}`,
+						);
 					}
 				}
 			});
@@ -85,7 +122,7 @@ describe('contrast: added variants still meet AAA with foreground', () => {
 					if (!fg) continue;
 
 					for (const [variant, value] of Object.entries(scale)) {
-						if (variant === 'foreground') continue;
+						if (variant.startsWith('foreground')) continue;
 						const cr = contrast(value, fg);
 						if (cr < MIN_CONTRAST) {
 							throw new Error(
@@ -283,7 +320,7 @@ describe('minContrastRatio', () => {
 					if (!fg) continue;
 
 					for (const [variant, value] of Object.entries(scale)) {
-						if (variant === 'foreground') continue;
+						if (variant.startsWith('foreground')) continue;
 						const cr = contrast(value, fg);
 						if (cr < 4.5) {
 							throw new Error(
@@ -311,7 +348,7 @@ describe('minContrastRatio', () => {
 					if (!fg) continue;
 
 					for (const [variant, value] of Object.entries(scale)) {
-						if (variant === 'foreground') continue;
+						if (variant.startsWith('foreground')) continue;
 						const cr = contrast(value, fg);
 						if (cr < 3) {
 							throw new Error(
@@ -337,7 +374,7 @@ describe('minContrastRatio', () => {
 			if (!fg) continue;
 
 			for (const [variant, value] of Object.entries(scale)) {
-				if (variant === 'foreground') continue;
+				if (variant.startsWith('foreground')) continue;
 				const cr = contrast(value, fg);
 				if (cr < 7) {
 					throw new Error(
@@ -371,7 +408,7 @@ describe('hueShift: all variants still meet AAA with foreground', () => {
 						if (!fg) continue;
 
 						for (const [variant, value] of Object.entries(scale)) {
-							if (variant === 'foreground') continue;
+							if (variant.startsWith('foreground')) continue;
 							const cr = contrast(value, fg);
 							if (cr < MIN_CONTRAST) {
 								throw new Error(
@@ -402,7 +439,7 @@ describe('hueShift: negative values flip direction', () => {
 					if (!fg) continue;
 
 					for (const [variant, value] of Object.entries(scale)) {
-						if (variant === 'foreground') continue;
+						if (variant.startsWith('foreground')) continue;
 						const cr = contrast(value, fg);
 						if (cr < MIN_CONTRAST) {
 							throw new Error(
@@ -438,7 +475,7 @@ describe('hueShift: added variants still meet AAA', () => {
 						if (!fg) continue;
 
 						for (const [variant, value] of Object.entries(scale)) {
-							if (variant === 'foreground') continue;
+							if (variant.startsWith('foreground')) continue;
 							const cr = contrast(value, fg);
 							if (cr < MIN_CONTRAST) {
 								throw new Error(
@@ -748,7 +785,7 @@ describe('surfaceHueShift: rotates surface hue relative to accent', () => {
 						if (!fg) continue;
 
 						for (const [variant, value] of Object.entries(scale)) {
-							if (variant === 'foreground') continue;
+							if (variant.startsWith('foreground')) continue;
 							const cr = contrast(value, fg);
 							if (cr < MIN_CONTRAST) {
 								throw new Error(

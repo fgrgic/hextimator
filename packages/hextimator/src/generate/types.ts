@@ -5,6 +5,8 @@ export interface ColorScale {
 	strong: ColorInput;
 	weak: ColorInput;
 	foreground: ColorInput;
+	/** Softest foreground that still meets the contrast target against DEFAULT. */
+	'foreground-weak': ColorInput;
 	[variant: string]: ColorInput;
 }
 

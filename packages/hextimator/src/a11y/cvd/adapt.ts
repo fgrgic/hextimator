@@ -126,12 +126,7 @@ export function adaptPalette(
 
 	for (const role of Object.keys(palette)) {
 		const scale = palette[role];
-		const newScale: HextimatePalette[string] = {
-			DEFAULT: scale.DEFAULT,
-			strong: scale.strong,
-			weak: scale.weak,
-			foreground: scale.foreground,
-		};
+		const newScale = {} as HextimatePalette[string];
 
 		for (const variant of Object.keys(scale)) {
 			newScale[variant] = daltonizeColor(parse(scale[variant]), type, severity);

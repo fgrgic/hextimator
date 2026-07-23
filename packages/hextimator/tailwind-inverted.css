@@ -3,20 +3,25 @@
 	--color-accent-strong-inverted: var(--accent-strong-inverted);
 	--color-accent-weak-inverted: var(--accent-weak-inverted);
 	--color-accent-foreground-inverted: var(--accent-foreground-inverted);
+	--color-accent-foreground-weak-inverted: var(--accent-foreground-weak-inverted);
 	--color-surface-inverted: var(--surface-inverted);
 	--color-surface-strong-inverted: var(--surface-strong-inverted);
 	--color-surface-weak-inverted: var(--surface-weak-inverted);
 	--color-surface-foreground-inverted: var(--surface-foreground-inverted);
+	--color-surface-foreground-weak-inverted: var(--surface-foreground-weak-inverted);
 	--color-positive-inverted: var(--positive-inverted);
 	--color-positive-strong-inverted: var(--positive-strong-inverted);
 	--color-positive-weak-inverted: var(--positive-weak-inverted);
 	--color-positive-foreground-inverted: var(--positive-foreground-inverted);
+	--color-positive-foreground-weak-inverted: var(--positive-foreground-weak-inverted);
 	--color-negative-inverted: var(--negative-inverted);
 	--color-negative-strong-inverted: var(--negative-strong-inverted);
 	--color-negative-weak-inverted: var(--negative-weak-inverted);
 	--color-negative-foreground-inverted: var(--negative-foreground-inverted);
+	--color-negative-foreground-weak-inverted: var(--negative-foreground-weak-inverted);
 	--color-caution-inverted: var(--caution-inverted);
 	--color-caution-strong-inverted: var(--caution-strong-inverted);
 	--color-caution-weak-inverted: var(--caution-weak-inverted);
 	--color-caution-foreground-inverted: var(--caution-foreground-inverted);
+	--color-caution-foreground-weak-inverted: var(--caution-foreground-weak-inverted);
 }
