@@ -82,7 +82,7 @@ const sheet = hextimate("#6366f1").format({ as: "css", colors: "oklch" });
 |------|------|
 | `.preset(p)` | Apply preset(s); call multiple times, later wins on conflicts |
 | `.style(partial)` | Merge `HextimateStyleOptions` (contrast, surfaces, semantics, etc.) |
-| `.addRole(name, color)` | New role with default / strong / weak / foreground |
+| `.addRole(name, color)` | New role with default / strong / weak / foreground / foreground-weak |
 | `.addVariant(name, placement)` | Extra lightness step on every role |
 | `.addToken(name, value)` | Standalone derived token |
 | `.fork(color?)` | Clone for another brand / tenant |
@@ -104,7 +104,9 @@ const sheet = hextimate("#6366f1").format({ as: "css", colors: "oklch" });
 
 ### Default token grid
 
-Roles: `surface`, `accent`, `positive`, `negative`, `caution`. Variants: default (no suffix), `strong`, `weak`, `foreground`. Plus `brand-exact` and `brand-exact-foreground`.
+Roles: `surface`, `accent`, `positive`, `negative`, `caution`. Variants: default (no suffix), `strong`, `weak`, `foreground`, `foreground-weak`. Plus `brand-exact` and `brand-exact-foreground`.
+
+`foreground-weak` is the softest foreground that still meets the configured contrast target against the role's DEFAULT background — use it for secondary or muted text.
 
 ### Utilities
 
