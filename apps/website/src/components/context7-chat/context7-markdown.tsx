@@ -54,10 +54,7 @@ function parseTableCells(line: string) {
 }
 
 function isSeparatorRow(cells: string[]) {
-	return (
-		cells.length > 0 &&
-		cells.every((cell) => /^:?-{3,}:?$/.test(cell))
-	);
+	return cells.length > 0 && cells.every((cell) => /^:?-{3,}:?$/.test(cell));
 }
 
 export function Context7Markdown({ content }: { content: string }) {
@@ -67,7 +64,10 @@ export function Context7Markdown({ content }: { content: string }) {
 
 	for (const segment of codeBlocks) {
 		if (segment.startsWith('```')) {
-			const code = segment.replace(/^```\w*\n?/, '').replace(/```$/, '').trim();
+			const code = segment
+				.replace(/^```\w*\n?/, '')
+				.replace(/```$/, '')
+				.trim();
 			blocks.push(
 				<pre key={`block-${blockIndex++}`}>
 					<code>{code}</code>
@@ -85,9 +85,7 @@ export function Context7Markdown({ content }: { content: string }) {
 		const flushParagraph = () => {
 			if (paragraph.length === 0) return;
 			const key = `block-${blockIndex++}`;
-			blocks.push(
-				<p key={key}>{parseInline(paragraph.join(' '), key)}</p>,
-			);
+			blocks.push(<p key={key}>{parseInline(paragraph.join(' '), key)}</p>);
 			paragraph = [];
 		};
 
@@ -191,9 +189,7 @@ export function Context7Markdown({ content }: { content: string }) {
 					listTag = 'ul';
 				}
 				const key = `item-${blockIndex}-${listItems.length}`;
-				listItems.push(
-					<li key={key}>{parseInline(bulletMatch[1], key)}</li>,
-				);
+				listItems.push(<li key={key}>{parseInline(bulletMatch[1], key)}</li>);
 				continue;
 			}
 
@@ -205,9 +201,7 @@ export function Context7Markdown({ content }: { content: string }) {
 					listTag = 'ol';
 				}
 				const key = `item-${blockIndex}-${listItems.length}`;
-				listItems.push(
-					<li key={key}>{parseInline(orderedMatch[1], key)}</li>,
-				);
+				listItems.push(<li key={key}>{parseInline(orderedMatch[1], key)}</li>);
 				continue;
 			}
 

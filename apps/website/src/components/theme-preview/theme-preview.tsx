@@ -1,129 +1,129 @@
-import { useHextimatorTheme } from "hextimator/react";
-import { useEffect, useRef, useState } from "react";
-import type { ThemePreviewProps } from "./theme-preview.types";
+import { useHextimatorTheme } from 'hextimator/react';
+import { useEffect, useRef, useState } from 'react';
+import type { ThemePreviewProps } from './theme-preview.types';
 
-const FOREGROUND_SUFFIX = "-foreground";
-const FOREGROUND_WEAK_SUFFIX = "-foreground-weak";
-const SEMANTIC_ROLES = new Set(["positive", "negative", "caution"]);
+const FOREGROUND_SUFFIX = '-foreground';
+const FOREGROUND_WEAK_SUFFIX = '-foreground-weak';
+const SEMANTIC_ROLES = new Set(['positive', 'negative', 'caution']);
 
 function getRole(token: string) {
-  return token.split("-")[0];
+	return token.split('-')[0];
 }
 
 function getVariant(token: string) {
-  const dash = token.indexOf("-");
-  return dash === -1 ? null : token.slice(dash + 1);
+	const dash = token.indexOf('-');
+	return dash === -1 ? null : token.slice(dash + 1);
 }
 
 function getForegroundToken(token: string) {
-  return `${getRole(token)}${FOREGROUND_SUFFIX}`;
+	return `${getRole(token)}${FOREGROUND_SUFFIX}`;
 }
 
 function getForegroundWeakToken(token: string) {
-  return `${getRole(token)}${FOREGROUND_WEAK_SUFFIX}`;
+	return `${getRole(token)}${FOREGROUND_WEAK_SUFFIX}`;
 }
 
 export function ThemePreview({
-  defaultActive = null,
-  ...props
+	defaultActive = null,
+	...props
 }: ThemePreviewProps) {
-  const { palette, mode } = useHextimatorTheme();
-  const [active, setActive] = useState<string | null>(defaultActive);
-  const [clicked, setClicked] = useState<string | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+	const { palette, mode } = useHextimatorTheme();
+	const [active, setActive] = useState<string | null>(defaultActive);
+	const [clicked, setClicked] = useState<string | null>(null);
+	const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!clicked) return;
-    function handleClickOutside(e: PointerEvent) {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
-        setClicked(null);
-        setActive(defaultActive);
-      }
-    }
-    document.addEventListener("pointerdown", handleClickOutside);
-    return () =>
-      document.removeEventListener("pointerdown", handleClickOutside);
-  }, [clicked, defaultActive]);
+	useEffect(() => {
+		if (!clicked) return;
+		function handleClickOutside(e: PointerEvent) {
+			if (
+				containerRef.current &&
+				!containerRef.current.contains(e.target as Node)
+			) {
+				setClicked(null);
+				setActive(defaultActive);
+			}
+		}
+		document.addEventListener('pointerdown', handleClickOutside);
+		return () =>
+			document.removeEventListener('pointerdown', handleClickOutside);
+	}, [clicked, defaultActive]);
 
-  const tokens = palette[mode] as Record<string, string>;
+	const tokens = palette[mode] as Record<string, string>;
 
-  const ROLE_ORDER = ["accent", "surface", "positive", "negative", "caution"];
+	const ROLE_ORDER = ['accent', 'surface', 'positive', 'negative', 'caution'];
 
-  const entries = Object.entries(tokens)
-    .filter(([key]) => {
-      // Foreground tokens (including -foreground-weak) are label text, not swatches.
-      if (key.includes(FOREGROUND_SUFFIX)) return false;
-      if (key === "brand-exact") return false;
-      const role = getRole(key);
-      const variant = getVariant(key);
-      if (SEMANTIC_ROLES.has(role) && variant !== null) return false;
-      return true;
-    })
-    .sort(([a], [b]) => {
-      const ra = ROLE_ORDER.indexOf(getRole(a));
-      const rb = ROLE_ORDER.indexOf(getRole(b));
-      return (ra === -1 ? 99 : ra) - (rb === -1 ? 99 : rb);
-    });
+	const entries = Object.entries(tokens)
+		.filter(([key]) => {
+			// Foreground tokens (including -foreground-weak) are label text, not swatches.
+			if (key.includes(FOREGROUND_SUFFIX)) return false;
+			if (key === 'brand-exact') return false;
+			const role = getRole(key);
+			const variant = getVariant(key);
+			if (SEMANTIC_ROLES.has(role) && variant !== null) return false;
+			return true;
+		})
+		.sort(([a], [b]) => {
+			const ra = ROLE_ORDER.indexOf(getRole(a));
+			const rb = ROLE_ORDER.indexOf(getRole(b));
+			return (ra === -1 ? 99 : ra) - (rb === -1 ? 99 : rb);
+		});
 
-  return (
-    <div
-      {...props}
-      ref={containerRef}
-      className={`flex min-w-0 max-w-full flex-row h-12 rounded-lg overflow-hidden w-full border border-surface-weak shadow-xs ${
-        props.className ?? ""
-      }`}
-    >
-      {entries.map(([token, color]) => {
-        const isActive = active === token;
-        const fgToken = getForegroundToken(token);
-        const fgWeakToken = getForegroundWeakToken(token);
+	return (
+		<div
+			{...props}
+			ref={containerRef}
+			className={`flex min-w-0 max-w-full flex-row h-12 rounded-lg overflow-hidden w-full border border-surface-weak shadow-xs ${
+				props.className ?? ''
+			}`}
+		>
+			{entries.map(([token, color]) => {
+				const isActive = active === token;
+				const fgToken = getForegroundToken(token);
+				const fgWeakToken = getForegroundWeakToken(token);
 
-        return (
-          <button
-            type='button'
-            key={token}
-            className='relative border-none cursor-pointer p-0 overflow-hidden'
-            style={{
-              backgroundColor: `var(--${token})`,
-              flex: isActive ? 4 : 1,
-              transition:
-                "flex 300ms ease-out, background-color 0.3s ease-in-out, color 0.3s ease-in-out",
-            }}
-            onPointerEnter={() => setActive(token)}
-            onPointerLeave={() => setActive(clicked ?? defaultActive)}
-            onClick={() => {
-              if (clicked === token) {
-                setClicked(null);
-                setActive(defaultActive);
-              } else {
-                setClicked(token);
-                setActive(token);
-              }
-            }}
-            aria-label={`${token}: ${color}`}
-          >
-            {isActive && (
-              <div
-                className='absolute inset-0 flex flex-col items-start justify-end gap-0.5 text-center px-2.5 pb-1'
-                style={{ color: `var(--${fgToken})` }}
-              >
-                <span className='text-xs leading-tight whitespace-nowrap'>
-                  {token}
-                </span>
-                <span
-                  className='text-xs font-light leading-tight whitespace-nowrap'
-                  style={{ color: `var(--${fgWeakToken})` }}
-                >
-                  {color}
-                </span>
-              </div>
-            )}
-          </button>
-        );
-      })}
-    </div>
-  );
+				return (
+					<button
+						type="button"
+						key={token}
+						className="relative border-none cursor-pointer p-0 overflow-hidden"
+						style={{
+							backgroundColor: `var(--${token})`,
+							flex: isActive ? 4 : 1,
+							transition:
+								'flex 300ms ease-out, background-color 0.3s ease-in-out, color 0.3s ease-in-out',
+						}}
+						onPointerEnter={() => setActive(token)}
+						onPointerLeave={() => setActive(clicked ?? defaultActive)}
+						onClick={() => {
+							if (clicked === token) {
+								setClicked(null);
+								setActive(defaultActive);
+							} else {
+								setClicked(token);
+								setActive(token);
+							}
+						}}
+						aria-label={`${token}: ${color}`}
+					>
+						{isActive && (
+							<div
+								className="absolute inset-0 flex flex-col items-start justify-end gap-0.5 text-center px-2.5 pb-1"
+								style={{ color: `var(--${fgToken})` }}
+							>
+								<span className="text-xs leading-tight whitespace-nowrap">
+									{token}
+								</span>
+								<span
+									className="text-xs font-light leading-tight whitespace-nowrap"
+									style={{ color: `var(--${fgWeakToken})` }}
+								>
+									{color}
+								</span>
+							</div>
+						)}
+					</button>
+				);
+			})}
+		</div>
+	);
 }

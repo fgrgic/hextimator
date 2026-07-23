@@ -101,8 +101,13 @@ function RevealingLogo({
 export function HextimatorLogoReveal(
 	props: SVGProps<SVGSVGElement> & { scale?: number },
 ) {
-	const { scale, className, width: widthProp, height: heightProp, ...svgProps } =
-		props;
+	const {
+		scale,
+		className,
+		width: widthProp,
+		height: heightProp,
+		...svgProps
+	} = props;
 	const width = scale ? scale * 257 : Number(widthProp ?? 257);
 	const height = scale ? scale * 40 : Number(heightProp ?? 40);
 

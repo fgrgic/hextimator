@@ -29,7 +29,8 @@ await page.goto('http://localhost:5174/', { waitUntil: 'networkidle' });
 const mobile = await page.evaluate(() => ({
 	viewport: document.documentElement.clientWidth,
 	docWidth: document.documentElement.scrollWidth,
-	overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
+	overflow:
+		document.documentElement.scrollWidth > document.documentElement.clientWidth,
 }));
 
 console.log(JSON.stringify({ desktop, mobile }, null, 2));
