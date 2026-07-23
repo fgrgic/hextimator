@@ -13,7 +13,7 @@
 	},
 	"private": true,
 	"scripts": {
-		"postinstall": "ln -sfn AGENTS.md CLAUDE.md",
+		"postinstall": "bash scripts/link-agents.sh || true",
 		"changeset": "changeset",
 		"version-packages": "changeset version",
 		"format": "biome format --write .",
