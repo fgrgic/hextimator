@@ -17,6 +17,9 @@ bun-debug.log*
 # claude (nested worktrees are full git repos; never commit as submodule)
 .claude/worktrees/
 
+# generated as symlink during postinstall
+CLAUDE.md
+
 # editor
 .DS_Store
 .vscode/
