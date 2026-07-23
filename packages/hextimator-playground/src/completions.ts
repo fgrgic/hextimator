@@ -200,8 +200,8 @@ const VARIANT_PLACEMENTS: CompletionEntry[] = [
 	{
 		label: 'from',
 		type: 'property',
-		info: "Derive from an existing variant ('strong', 'weak', etc.)",
-		detail: "'strong' | 'weak'",
+		info: "Derive from an existing variant ('strong', 'weak', 'foreground', 'foreground-weak', etc.)",
+		detail: "'strong' | 'weak' | 'foreground' | 'foreground-weak'",
 	},
 	{
 		label: 'between',

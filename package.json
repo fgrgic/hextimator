@@ -20,6 +20,7 @@
 		"check": "biome check --write .",
 		"dev:playground": "bun run --filter hextimator dev & bun run --filter '@hextimator/playground' dev & bun run --filter playground dev",
 		"dev:website": "bun run --filter hextimator dev & bun run --filter '@hextimator/playground' dev & bun run --filter website dev",
+		"build:package": "bun run --filter hextimator build",
 		"build:website": "bun run --filter hextimator build && bun run --filter '@hextimator/playground' build && bun run --filter website build",
 		"build:playground": "bun run --filter hextimator build && bun run --filter '@hextimator/playground' build && bun run --filter playground build",
 		"deploy:website": "bun run build:website && wrangler deploy --config apps/website/wrangler.jsonc",

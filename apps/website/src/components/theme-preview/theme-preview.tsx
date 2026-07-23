@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { ThemePreviewProps } from './theme-preview.types';
 
 const FOREGROUND_SUFFIX = '-foreground';
+const FOREGROUND_WEAK_SUFFIX = '-foreground-weak';
 const SEMANTIC_ROLES = new Set(['positive', 'negative', 'caution']);
 
 function getRole(token: string) {
@@ -16,6 +17,10 @@ function getVariant(token: string) {
 
 function getForegroundToken(token: string) {
 	return `${getRole(token)}${FOREGROUND_SUFFIX}`;
+}
+
+function getForegroundWeakToken(token: string) {
+	return `${getRole(token)}${FOREGROUND_WEAK_SUFFIX}`;
 }
 
 export function ThemePreview({
@@ -49,7 +54,8 @@ export function ThemePreview({
 
 	const entries = Object.entries(tokens)
 		.filter(([key]) => {
-			if (key.endsWith(FOREGROUND_SUFFIX)) return false;
+			// Foreground tokens (including -foreground-weak) are label text, not swatches.
+			if (key.includes(FOREGROUND_SUFFIX)) return false;
 			if (key === 'brand-exact') return false;
 			const role = getRole(key);
 			const variant = getVariant(key);
@@ -66,11 +72,14 @@ export function ThemePreview({
 		<div
 			{...props}
 			ref={containerRef}
-			className={`flex min-w-0 max-w-full flex-row h-12 rounded-lg overflow-hidden w-full border border-surface-weak shadow-xs ${props.className ?? ''}`}
+			className={`flex min-w-0 max-w-full flex-row h-12 rounded-lg overflow-hidden w-full border border-surface-weak shadow-xs ${
+				props.className ?? ''
+			}`}
 		>
 			{entries.map(([token, color]) => {
 				const isActive = active === token;
 				const fgToken = getForegroundToken(token);
+				const fgWeakToken = getForegroundWeakToken(token);
 
 				return (
 					<button
@@ -104,7 +113,10 @@ export function ThemePreview({
 								<span className="text-xs leading-tight whitespace-nowrap">
 									{token}
 								</span>
-								<span className="text-xs font-light leading-tight whitespace-nowrap">
+								<span
+									className="text-xs font-light leading-tight whitespace-nowrap"
+									style={{ color: `var(--${fgWeakToken})` }}
+								>
 									{color}
 								</span>
 							</div>
