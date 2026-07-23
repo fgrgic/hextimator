@@ -1,6 +1,18 @@
 # AGENTS.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to agents when working with code in this repository.
+
+## Agent instructions (source of truth)
+
+`AGENTS.md` is the only committed instruction file. Tool-specific files (`CLAUDE.md`, `GEMINI.md`, `.cursorrules`, `.cursor/rules/AGENTS.md`, `.windsurfrules`, `.windsurf/rules/AGENTS.md`, `.github/copilot-instructions.md`, `.rules`) are generated symlinks created by `scripts/link-agents.sh`.
+
+Regenerate them with:
+
+```bash
+bash scripts/link-agents.sh
+# or
+npm install   # / bun install — runs postinstall
+```
 
 ## Project
 
