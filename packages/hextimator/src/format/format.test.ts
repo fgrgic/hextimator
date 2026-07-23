@@ -223,7 +223,11 @@ describe('format() — options', () => {
 			excludeVariants: ['strong', 'weak'],
 		}) as Record<string, string>;
 		expect(Object.keys(result).some((k) => k.endsWith('-strong'))).toBe(false);
-		expect(Object.keys(result).some((k) => k.endsWith('-weak'))).toBe(false);
+		expect(
+			Object.keys(result).some(
+				(k) => k.endsWith('-weak') && !k.endsWith('-foreground-weak'),
+			),
+		).toBe(false);
 		expect(result.surface).toBeDefined();
 		expect(result['surface-foreground']).toBeDefined();
 	});

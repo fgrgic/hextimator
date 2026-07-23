@@ -551,11 +551,24 @@ export function expandColorToScale(
 		skipSurfaceCap,
 	);
 
+	// Softest foreground: slide from foreground toward DEFAULT until it sits at
+	// the contrast boundary against DEFAULT (same as `addVariant('x', { from: 'foreground' })`).
+	const foregroundWeakBoundaryL = findContrastBoundaryLightness(
+		foregroundColorOKLCH,
+		normalizedColorOKLCH,
+		contrastTarget,
+	);
+	const foregroundWeakColorOKLCH: OKLCH = {
+		...foregroundColorOKLCH,
+		l: foregroundWeakBoundaryL ?? foregroundColorOKLCH.l,
+	};
+
 	return {
 		DEFAULT: { ...normalizedColorOKLCH },
 		strong: { ...strongColorOKLCH },
 		weak: { ...weakColorOKLCH },
 		foreground: { ...foregroundColorOKLCH },
+		'foreground-weak': { ...foregroundWeakColorOKLCH },
 	};
 }
 

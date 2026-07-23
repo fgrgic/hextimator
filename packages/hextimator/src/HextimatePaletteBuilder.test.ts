@@ -1328,7 +1328,13 @@ describe('HextimatePaletteBuilder: invertedVariants', () => {
 		const keys = Object.keys(result.light);
 		expect(keys.some((k) => k.startsWith('caution-'))).toBe(false);
 		expect(keys.some((k) => k === 'caution-inverted')).toBe(false);
-		expect(keys.some((k) => k.includes('-weak-inverted'))).toBe(false);
+		expect(
+			keys.some(
+				(k) =>
+					k.includes('-weak-inverted') &&
+					!k.includes('-foreground-weak-inverted'),
+			),
+		).toBe(false);
 		expect(result.light['accent-inverted']).toMatch(/^#[0-9a-f]{6}$/);
 	});
 

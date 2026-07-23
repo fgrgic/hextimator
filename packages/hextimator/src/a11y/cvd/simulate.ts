@@ -51,6 +51,7 @@ export function simulatePalette(
 			strong: scale.strong,
 			weak: scale.weak,
 			foreground: scale.foreground,
+			'foreground-weak': scale['foreground-weak'],
 		};
 
 		for (const variant of Object.keys(scale)) {
