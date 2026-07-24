@@ -1,3 +1,9 @@
+## 0.14.2
+
+### Patch Changes
+
+- [#180](https://github.com/fgrgic/hextimator/pull/180) [`4783af1`](https://github.com/fgrgic/hextimator/commit/4783af1270f6e8104a7fb8b902caf4410276cf27) Thanks [@fgrgic](https://github.com/fgrgic)! - Adds missing foreground-weak variant to llms.txt
+
 ## 0.14.1
 
 ### Patch Changes
