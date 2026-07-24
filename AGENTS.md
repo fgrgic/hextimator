@@ -11,7 +11,7 @@ Regenerate them with:
 ```bash
 bash scripts/link-agents.sh
 # or
-npm install   # / bun install — runs postinstall
+bun install # runs the above script during postinstall
 ```
 
 ## Project
