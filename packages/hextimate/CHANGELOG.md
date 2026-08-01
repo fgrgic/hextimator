@@ -1,5 +1,14 @@
 # hextimate
 
+## 0.14.3
+
+### Patch Changes
+
+- [#182](https://github.com/fgrgic/hextimator/pull/182) [`b01e908`](https://github.com/fgrgic/hextimator/commit/b01e90847e747502bab743e61c14f9b9e47a6e9b) Thanks [@fgrgic](https://github.com/fgrgic)! - Fix the `hextimator` and `hextimate` CLI commands producing no output when invoked through `npx`.
+
+- Updated dependencies [[`b01e908`](https://github.com/fgrgic/hextimator/commit/b01e90847e747502bab743e61c14f9b9e47a6e9b), [`b01e908`](https://github.com/fgrgic/hextimator/commit/b01e90847e747502bab743e61c14f9b9e47a6e9b)]:
+  - hextimator@0.14.3
+
 ## 0.14.2
 
 ### Patch Changes
