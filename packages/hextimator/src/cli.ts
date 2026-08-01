@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
@@ -109,7 +109,7 @@ function parseBaseLightnessRange(
 	return [lo, hi];
 }
 
-function run(): void {
+function runCli(): void {
 	const { values, positionals } = parseArgs({
 		allowPositionals: true,
 		options: {
@@ -380,6 +380,15 @@ function run(): void {
 	}
 }
 
+export function run(): void {
+	try {
+		runCli();
+	} catch (err) {
+		console.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
+		process.exit(1);
+	}
+}
+
 /**
  * Builds the final text the CLI prints for a formatted palette.
  */
@@ -403,11 +412,6 @@ function serialize(value: unknown): string {
 }
 
 // Only run when invoked as the CLI entry, not when imported (e.g. by tests).
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-	try {
-		run();
-	} catch (err) {
-		console.error(`Error: ${err instanceof Error ? err.message : String(err)}`);
-		process.exit(1);
-	}
+if (realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
+	run();
 }

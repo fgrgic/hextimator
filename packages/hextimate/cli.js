@@ -1,2 +1,4 @@
 #!/usr/bin/env node
-import 'hextimator/cli';
+import { run } from 'hextimator/cli';
+
+run();
