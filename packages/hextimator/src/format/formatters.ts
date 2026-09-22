@@ -47,6 +47,7 @@ export type StylesheetDarkMode = 'media' | 'class' | 'data-attribute' | false;
 export interface StylesheetOptions {
 	selector?: string;
 	darkMode?: StylesheetDarkMode;
+	theme?: 'light' | 'dark' | 'both';
 }
 
 function declsFromEntries(
@@ -74,10 +75,18 @@ export function formatCSSStylesheet(
 ): string {
 	const selector = opts.selector ?? ':root';
 	const darkMode: StylesheetDarkMode = opts.darkMode ?? 'media';
+	const theme =
+		opts.theme === 'dark'
+			? 'dark'
+			: darkMode === false
+				? 'light'
+				: (opts.theme ?? 'both');
 
 	const lightBlock = `${selector} {\n${declsFromEntries(lightEntries, sep, '--', '  ')}\n}`;
+	const rootDarkBlock = `${selector} {\n${declsFromEntries(darkEntries, sep, '--', '  ')}\n}`;
 
-	if (darkMode === false) return lightBlock;
+	if (theme === 'light') return lightBlock;
+	if (theme === 'dark') return rootDarkBlock;
 
 	if (darkMode === 'media') {
 		const darkInner = declsFromEntries(darkEntries, sep, '--', '    ');
@@ -96,10 +105,17 @@ export function formatTailwindStylesheet(
 	opts: StylesheetOptions = {},
 ): string {
 	const darkMode: StylesheetDarkMode = opts.darkMode ?? 'media';
+	const selectedTheme =
+		opts.theme === 'dark'
+			? 'dark'
+			: darkMode === false
+				? 'light'
+				: (opts.theme ?? 'both');
 
-	const theme = `@theme {\n${declsFromEntries(lightEntries, sep, '--color-', '  ')}\n}`;
+	const themeEntries = selectedTheme === 'dark' ? darkEntries : lightEntries;
+	const theme = `@theme {\n${declsFromEntries(themeEntries, sep, '--color-', '  ')}\n}`;
 
-	if (darkMode === false) return theme;
+	if (selectedTheme !== 'both') return theme;
 
 	if (darkMode === 'media') {
 		const darkInner = declsFromEntries(darkEntries, sep, '--color-', '    ');

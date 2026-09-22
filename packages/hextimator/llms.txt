@@ -29,7 +29,7 @@ Quote hex colors in the shell (`'#6366f1'`).
 | `-p`, `--preset` | Preset name, **repeatable** in order (`muted` then `shadcn`, etc.) | - |
 | `-f`, `--format` | `css`, `object`, `tailwind`, `tailwind-css`, `scss`, `json` | `css` |
 | `-c`, `--colors` | `hex`, `rgb`, `hsl`, `oklch`, `p3` (+ `-raw` variants) | `hex` |
-| `-t`, `--theme` | `light`, `dark`, `both` (ignored for `css` / `tailwind-css`) | `both` |
+| `-t`, `--theme` | `light`, `dark`, `both` | `both` |
 | `-o`, `--output` | Write file instead of stdout | stdout |
 | `--dark-mode` | `media`, `class`, `data-attribute`, `off` (stylesheet formats only) | `media` |
 | `--selector` | Root selector for CSS output | `:root` |
@@ -100,7 +100,7 @@ const sheet = hextimate("#6366f1").format({ as: "css", colors: "oklch" });
 | `tailwind-css` | Tailwind v4 `@theme` string |
 | `scss` / `json` | As named |
 
-`colors`, `darkMode` (`"media"` \| `"class"` \| `"data-attribute"` \| `false`), `selector`, `roleNames`, `variantNames`, `separator`, `keyPrefix`, `excludeRoles`, `excludeVariants` match the CLI conceptually.
+`colors`, `theme` (`"light"` \| `"dark"` \| `"both"`), `darkMode` (`"media"` \| `"class"` \| `"data-attribute"` \| `false`), `selector`, `roleNames`, `variantNames`, `separator`, `keyPrefix`, `excludeRoles`, `excludeVariants` match the CLI conceptually.
 
 ### Default token grid
 

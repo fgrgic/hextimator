@@ -63,6 +63,7 @@ export function formatStylesheet(
 	const stylesheetOpts = {
 		selector: options?.selector,
 		darkMode: options?.darkMode,
+		theme: options?.theme,
 	};
 
 	if (options?.as === 'tailwind-css') {

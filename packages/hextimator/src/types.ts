@@ -278,13 +278,23 @@ export interface HextimateFormatOptions {
 	as?: 'object' | 'css' | 'tailwind' | 'tailwind-css' | 'scss' | 'json';
 
 	/**
+	 * Theme palettes to include in stylesheet outputs (`as: 'css'`, `as: 'tailwind-css'`).
+	 * Ignored for every other output format.
+	 *
+	 * - `'both'` (default): emit light tokens plus dark tokens using `darkMode`
+	 * - `'light'`: emit light tokens only
+	 * - `'dark'`: emit dark tokens as the root theme, without a dark-mode wrapper
+	 */
+	theme?: 'light' | 'dark' | 'both';
+
+	/**
 	 * Dark-mode strategy for stylesheet outputs (`as: 'css'`, `as: 'tailwind-css'`).
 	 * Ignored for every other output format.
 	 *
 	 * - `'media'` (default): wraps dark tokens in `@media (prefers-color-scheme: dark)`
 	 * - `'class'`: dark tokens apply under `.dark` (and descendants)
 	 * - `'data-attribute'`: dark tokens apply under `[data-theme="dark"]`
-	 * - `false`: omit dark tokens entirely (light-only output)
+	 * - `false`: omit dark tokens entirely (legacy alias for `theme: 'light'`)
 	 */
 	darkMode?: 'media' | 'class' | 'data-attribute' | false;
 

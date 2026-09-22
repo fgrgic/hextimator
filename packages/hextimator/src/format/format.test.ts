@@ -119,6 +119,16 @@ describe('formatStylesheet() — css', () => {
 		expect(css).not.toContain('@media');
 		expect(css).not.toContain('.dark');
 	});
+
+	it('emits a dark-only root stylesheet when theme is dark', () => {
+		const css = formatStylesheet(palette, darkPalette, {
+			as: 'css',
+			theme: 'dark',
+		});
+		const darkOnly = format(darkPalette, { as: 'object' });
+		expect(css).toContain(`--surface: ${darkOnly.surface};`);
+		expect(css).not.toContain('@media');
+	});
 });
 
 describe('formatStylesheet() — tailwind-css', () => {
@@ -132,6 +142,16 @@ describe('formatStylesheet() — tailwind-css', () => {
 	it('emits dark overrides via @media by default', () => {
 		const css = formatStylesheet(palette, darkPalette, { as: 'tailwind-css' });
 		expect(css).toContain('@media (prefers-color-scheme: dark)');
+	});
+
+	it('emits a dark-only @theme stylesheet when theme is dark', () => {
+		const css = formatStylesheet(palette, darkPalette, {
+			as: 'tailwind-css',
+			theme: 'dark',
+		});
+		const darkOnly = format(darkPalette, { as: 'object' });
+		expect(css).toContain(`--color-surface: ${darkOnly.surface};`);
+		expect(css).not.toContain('@media');
 	});
 });
 
