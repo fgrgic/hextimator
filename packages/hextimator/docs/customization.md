@@ -44,8 +44,11 @@ Passed to `.format()` - these affect the output shape.
 | `excludeRoles`     | `string[]`                                                                                        | `[]`           | Role keys to omit from the output entirely (internal names, before `roleNames`)                                                                                                |
 | `excludeVariants`  | `string[]`                                                                                        | `[]`           | Variant keys to omit from every role's output (internal names, before `variantNames`)                                                                                          |
 | `darkMode`         | `"media" \| "class" \| "data-attribute" \| false`                                                 | `"media"`      | Dark-mode strategy for stylesheet outputs (`as: 'css'`, `as: 'tailwind-css'`)                                                                                                  |
+| `theme`            | `"light" \| "dark" \| "both"`                                                                     | `"both"`       | Palettes included in stylesheet outputs. `"dark"` emits dark tokens directly in the root block                                                                                |
 | `selector`         | `string`                                                                                          | `":root"`      | Root selector for `as: 'css'` output                                                                                                                                           |
 | `invertedVariants` | `boolean`                                                                                         | `false`        | Emit an extra `-inverted` copy of every token whose value is the opposite mode's. Flips with the active mode. See [Inverted variants](#inverted-variants)                      |
+
+For a dark-only stylesheet, set `theme: "dark"`. Dark tokens are emitted directly in `:root` for `css` or `@theme` for `tailwind-css`, without a media query or selector override. `darkMode: false` remains supported as a legacy alias for `theme: "light"`.
 
 ### Output formats
 

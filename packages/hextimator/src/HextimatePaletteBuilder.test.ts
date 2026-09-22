@@ -90,6 +90,14 @@ describe('HextimatePaletteBuilder: format()', () => {
 		expect(result).not.toContain('@media');
 	});
 
+	it('css format supports dark-only output', () => {
+		const builder = hextimate('#ff6600');
+		const result = builder.format({ as: 'css', theme: 'dark' });
+		const dark = builder.format({ as: 'object' }).dark;
+		expect(result).toContain(`--surface: ${dark.surface};`);
+		expect(result).not.toContain('@media');
+	});
+
 	it('scss format prefixes keys with $', () => {
 		const result = hextimate('#ff6600').format({ as: 'scss' });
 		const keys = Object.keys(result.light);

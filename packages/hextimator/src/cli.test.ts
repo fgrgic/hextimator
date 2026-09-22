@@ -29,6 +29,7 @@ const GENERATION_OPTION_TO_CLI_FLAG: Record<string, string | null> = {
  */
 const FORMAT_OPTION_TO_CLI_FLAG: Record<string, string | null> = {
 	as: 'format',
+	theme: 'theme',
 	colors: 'colors',
 	separator: 'separator',
 	keyPrefix: 'key-prefix',
@@ -119,5 +120,15 @@ describe('CLI json output is not double-encoded', () => {
 		);
 		expect(typeof parsed.accent).toBe('string');
 		expect(parsed.light).toBeUndefined();
+	});
+});
+
+describe('CLI stylesheet theme filtering', () => {
+	test('--theme dark emits dark tokens at the root', () => {
+		const builder = hextimate('#3366cc');
+		const output = renderOutput(builder, { as: 'css', theme: 'dark' }, 'dark');
+		const dark = builder.format({ as: 'object' }).dark;
+		expect(output).toContain(`--surface: ${dark.surface};`);
+		expect(output).not.toContain('@media');
 	});
 });

@@ -98,6 +98,34 @@ describe('formatCSSStylesheet', () => {
 		expect(css).toContain('--surface: #ffffff;');
 	});
 
+	it('emits only light tokens when theme is light', () => {
+		const css = formatCSSStylesheet(lightEntries, darkEntries, '-', {
+			theme: 'light',
+		});
+		expect(css).toContain('--surface: #ffffff;');
+		expect(css).not.toContain('#111111');
+		expect(css).not.toContain('@media');
+	});
+
+	it('emits dark tokens at the root when theme is dark', () => {
+		const css = formatCSSStylesheet(lightEntries, darkEntries, '-', {
+			theme: 'dark',
+		});
+		expect(css).toContain(':root {');
+		expect(css).toContain('--surface: #111111;');
+		expect(css).not.toContain('#ffffff');
+		expect(css).not.toContain('@media');
+	});
+
+	it('allows theme dark to override legacy darkMode false', () => {
+		const css = formatCSSStylesheet(lightEntries, darkEntries, '-', {
+			theme: 'dark',
+			darkMode: false,
+		});
+		expect(css).toContain('--surface: #111111;');
+		expect(css).not.toContain('#ffffff');
+	});
+
 	it('class dark-mode uses .dark selector', () => {
 		const css = formatCSSStylesheet(lightEntries, darkEntries, '-', {
 			darkMode: 'class',
@@ -160,6 +188,15 @@ describe('formatTailwindStylesheet', () => {
 		expect(css).not.toContain('@media');
 		expect(css).not.toContain('.dark');
 		expect(css).not.toContain('#111111');
+	});
+
+	it('emits dark tokens directly in @theme when theme is dark', () => {
+		const css = formatTailwindStylesheet(lightEntries, darkEntries, '-', {
+			theme: 'dark',
+		});
+		expect(css).toContain('--color-surface: #111111;');
+		expect(css).not.toContain('#ffffff');
+		expect(css).not.toContain('@media');
 	});
 });
 

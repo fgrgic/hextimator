@@ -41,7 +41,7 @@ Presets:
 Format options:
   -f, --format <type>         css | object | tailwind | tailwind-css | scss | json  (default: css)
   -c, --colors <type>         hex | rgb | hsl | oklch | p3 and -raw variants        (default: hex)
-  -t, --theme <type>          light | dark | both  (ignored for css/tailwind-css)   (default: both)
+  -t, --theme <type>          light | dark | both                                  (default: both)
       --dark-mode <strategy>  media | class | data-attribute | off  (css/tailwind-css only, default: media)
       --selector <css>        Root selector for css output                           (default: :root)
       --separator <char>      Token separator                                       (default: -)
@@ -330,6 +330,7 @@ function runCli(): void {
 
 	const hasPreset = values.preset && values.preset.length > 0;
 	const formatOptions: HextimateFormatOptions = {};
+	formatOptions.theme = values.theme as HextimateFormatOptions['theme'];
 	if (values.format) {
 		formatOptions.as = values.format as HextimateFormatOptions['as'];
 	} else if (!hasPreset) {

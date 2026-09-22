@@ -242,7 +242,7 @@ Two new flags mirror the API:
 | `--dark-mode` | `media`, `class`, `data-attribute`, `false` (stylesheet outputs only) | `media` |
 | `--selector`  | Root selector for `--format css`                                      | `:root` |
 
-`--theme` is now ignored for `css` and `tailwind-css` (both themes always combine into one string); it still applies to `object`, `tailwind`, `scss`, and `json`.
+`--theme` applies to every output. For `css` and `tailwind-css`, `dark` emits dark tokens directly in the root block, while `light` emits only light tokens.
 
 ## 0.2.x → 0.3.0
 
