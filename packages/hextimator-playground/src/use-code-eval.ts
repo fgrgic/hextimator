@@ -15,7 +15,7 @@ type ColorFormat =
 
 type CodeEvalResult = {
 	object: HextimateResult | null;
-	css: HextimateResult | null;
+	hex: HextimateResult | null;
 	error: string | null;
 };
 
@@ -29,11 +29,11 @@ export function useCodeEval(
 ) {
 	const [result, setResult] = useState<CodeEvalResult>({
 		object: null,
-		css: null,
+		hex: null,
 		error: null,
 	});
 	const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
-	const lastCssRef = useRef<HextimateResult | null>(null);
+	const lastHexRef = useRef<HextimateResult | null>(null);
 	const lastObjectRef = useRef<HextimateResult | null>(null);
 
 	const evaluate = useCallback(
@@ -50,7 +50,7 @@ export function useCodeEval(
 				if (!builder || typeof builder.format !== 'function') {
 					setResult({
 						object: lastObjectRef.current,
-						css: lastCssRef.current,
+						hex: lastHexRef.current,
 						error:
 							'Code must return a HextimatePaletteBuilder (the result of hextimate() chaining).',
 					});
@@ -58,15 +58,15 @@ export function useCodeEval(
 				}
 
 				const object = builder.format({ as: 'object', colors: format });
-				const css = builder.format({ as: 'css', colors: 'hex' });
+				const hex = builder.format({ as: 'object', colors: 'hex' });
 
-				lastCssRef.current = css;
+				lastHexRef.current = hex;
 				lastObjectRef.current = object;
-				setResult({ object, css, error: null });
+				setResult({ object, hex, error: null });
 			} catch (e) {
 				setResult({
 					object: lastObjectRef.current,
-					css: lastCssRef.current,
+					hex: lastHexRef.current,
 					error: e instanceof Error ? e.message : String(e),
 				});
 			}

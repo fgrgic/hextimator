@@ -30,7 +30,7 @@ const BUILDER_METHODS: CompletionEntry[] = [
 		label: 'addToken',
 		type: 'method',
 		detail: '(name, value)',
-		info: 'Add a standalone token',
+		info: 'Add a standalone token or override a palette color with a dotted key',
 		apply: "addToken('name', { from: 'accent' })",
 	},
 	{
@@ -123,6 +123,18 @@ const STYLE_OPTIONS: CompletionEntry[] = [
 		detail: "'AAA' | 'AA' | number",
 	},
 	{
+		label: 'placeholderContrastRatio',
+		type: 'property',
+		info: "Minimum placeholder contrast on surface backgrounds. Default: 'AA' (4.5). Use 'AAA' to require 7:1.",
+		detail: "'AAA' | 'AA' | number",
+	},
+	{
+		label: 'propertyAware',
+		type: 'property',
+		info: 'Generate semantic text and icon colors for surfaces. Default: true. Set false for legacy output.',
+		detail: 'boolean',
+	},
+	{
 		label: 'hueShift',
 		type: 'property',
 		info: 'Hue shift per variant step (degrees). Default: 0',
@@ -183,6 +195,12 @@ const THEME_ADJUSTMENTS: CompletionEntry[] = [
 		detail: "'AAA' | 'AA' | number",
 	},
 	{
+		label: 'placeholderContrastRatio',
+		type: 'property',
+		info: 'Override placeholder contrast for this theme',
+		detail: "'AAA' | 'AA' | number",
+	},
+	{
 		label: 'surfaceMaxChroma',
 		type: 'property',
 		info: 'Override global surfaceMaxChroma for this theme',
@@ -227,8 +245,8 @@ function matchContext(text: string): CompletionEntry[] | null {
 	// presets.
 	if (/presets\.\s*[a-zA-Z]*$/.test(text)) return PRESETS;
 
-	// Inside .light({ or .dark({ — theme adjustments
-	if (/\.\s*(?:light|dark)\s*\(\s*\{[^}]*$/.test(text))
+	// Theme adjustments inside style branches.
+	if (/\.style\s*\([\s\S]*\b(?:light|dark)\s*:\s*\{[^}]*$/.test(text))
 		return THEME_ADJUSTMENTS;
 
 	// Inside addVariant second arg
@@ -236,8 +254,7 @@ function matchContext(text: string): CompletionEntry[] | null {
 		return VARIANT_PLACEMENTS;
 
 	// Inside hextimate(...).style({ ... }) — style options
-	if (/hextimate\s*\([^)]*\)\s*\.style\s*\(\s*\{[^}]*$/.test(text))
-		return STYLE_OPTIONS;
+	if (/\.style\s*\(\s*\{[^}]*$/.test(text)) return STYLE_OPTIONS;
 
 	return null;
 }

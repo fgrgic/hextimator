@@ -914,6 +914,8 @@ function groupByRole(
 		} else {
 			const role = key.slice(0, dashIdx);
 			const variant = key.slice(dashIdx + 1);
+			if (variant.startsWith('ink') || variant.startsWith('placeholder'))
+				continue;
 			out[role] ??= {};
 			out[role][variant] = flat[key];
 		}
