@@ -9,6 +9,7 @@ export function extractGlobalThemeAdjustments(
 		light: _l,
 		dark: _d,
 		invertDarkModeSurfaceAccent: _i,
+		propertyAware: _p,
 		inputLightness: _inp,
 		...global
 	} = options;

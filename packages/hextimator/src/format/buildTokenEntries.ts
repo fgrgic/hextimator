@@ -1,3 +1,4 @@
+import { INK_ROLES } from '../generate/propertyColors';
 import type { HextimatePalette } from '../generate/types';
 import type { Color, ColorInput } from '../types';
 import { serializeColor } from './serializeColor';
@@ -30,11 +31,33 @@ export function buildTokenEntries(
 			const raw = scale[variant];
 			if (!isColorObject(raw)) continue;
 
+			const roleName = options?.roleNames?.[role] ?? role;
+			const kind = variant.startsWith('ink')
+				? 'ink'
+				: variant.startsWith('placeholder')
+					? 'placeholder'
+					: 'fill';
+			const fillVariant =
+				variant.replace(/^(ink|placeholder)-?/, '') || 'DEFAULT';
+			const propertyAware =
+				INK_ROLES.some((r) => r === role) && scale.ink !== undefined;
+			const propertyUtility =
+				propertyAware && ['DEFAULT', 'weak', 'strong'].includes(fillVariant)
+					? ({
+							kind,
+							name:
+								(options?.variantNames?.[fillVariant] ?? fillVariant) ===
+								'DEFAULT'
+									? roleName
+									: `${roleName}${options?.separator ?? '-'}${options?.variantNames?.[fillVariant] ?? fillVariant}`,
+						} as const)
+					: undefined;
 			entries.push({
 				role: options?.roleNames?.[role] ?? role,
 				variant: options?.variantNames?.[variant] ?? variant,
 				isDefault: variant === 'DEFAULT',
 				value: serializeColor(raw, colorFormat),
+				...(propertyUtility ? { propertyUtility } : {}),
 			});
 		}
 	}
@@ -53,8 +76,18 @@ export function buildTokenEntries(
  * For the DEFAULT variant the flat key collapses to `role-inverted`.
  */
 export function withInvertedSuffix(entry: TokenEntry, sep: string): TokenEntry {
+	const propertyUtility = entry.propertyUtility
+		? {
+				...entry.propertyUtility,
+				name: `${entry.propertyUtility.name}${sep}inverted`,
+			}
+		: undefined;
 	if (entry.isDefault && entry.variant === 'DEFAULT') {
-		return { ...entry, isDefault: false, variant: 'inverted' };
+		return { ...entry, isDefault: false, variant: 'inverted', propertyUtility };
 	}
-	return { ...entry, variant: `${entry.variant}${sep}inverted` };
+	return {
+		...entry,
+		variant: `${entry.variant}${sep}inverted`,
+		propertyUtility,
+	};
 }

@@ -58,7 +58,7 @@ export function useCodeEval(
 				}
 
 				const object = builder.format({ as: 'object', colors: format });
-				const css = builder.format({ as: 'css', colors: 'hex' });
+				const css = builder.format({ as: 'object', colors: 'hex' });
 
 				lastCssRef.current = css;
 				lastObjectRef.current = object;

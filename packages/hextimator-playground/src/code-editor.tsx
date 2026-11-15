@@ -224,12 +224,26 @@ function TokenList({
 						| undefined;
 					const hexColor =
 						cssTokens?.[name] ?? cssTokens?.[`--${name}`] ?? value;
+					const isText = /-(ink|placeholder)(-|$)/.test(name);
+					const utility = name.includes('-placeholder')
+						? name.replace(/^(.+)-placeholder/, 'placeholder-$1')
+						: `text-${name.replace(/-ink(?=-|$)/, '')}`;
 					return (
 						<div key={name} className="hxp-token-row">
 							<span
-								className="hxp-token-swatch"
-								style={{ background: hexColor }}
-							/>
+								className={`hxp-token-swatch ${isText ? 'hxp-token-text' : ''}`}
+								style={{
+									background: isText
+										? (cssTokens?.surface ??
+											cssTokens?.background ??
+											'var(--surface)')
+										: hexColor,
+									color: hexColor,
+								}}
+								title={isText ? utility : name}
+							>
+								{isText ? 'Aa' : null}
+							</span>
 							<span className="hxp-token-name">{name}</span>
 							<code className="hxp-token-value">{value}</code>
 						</div>

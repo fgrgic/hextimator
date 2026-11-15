@@ -7,6 +7,7 @@ export interface TokenEntry {
 	variant: string;
 	isDefault: boolean;
 	value: string;
+	propertyUtility?: { kind: 'fill' | 'ink' | 'placeholder'; name: string };
 }
 
 export type FlatTokenMap = Record<string, string>;

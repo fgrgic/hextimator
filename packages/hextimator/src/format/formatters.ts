@@ -1,3 +1,4 @@
+import { propertyUtilities } from './propertyUtilities';
 import type { FlatTokenMap, NestedTokenMap, TokenEntry } from './types';
 
 export function toFlatKey(entry: TokenEntry, sep: string): string {
@@ -104,6 +105,17 @@ export function formatTailwindStylesheet(
 	sep: string,
 	opts: StylesheetOptions = {},
 ): string {
+	if (lightEntries.some((entry) => entry.propertyUtility)) {
+		const entries = opts.theme === 'dark' ? darkEntries : lightEntries;
+		const aliases = entries
+			.filter((entry) => !entry.propertyUtility)
+			.map(
+				(entry) =>
+					`  --color-${toFlatKey(entry, sep)}: var(--${toFlatKey(entry, sep)});`,
+			)
+			.join('\n');
+		return `${formatCSSStylesheet(lightEntries, darkEntries, sep, opts)}\n@theme inline {\n${aliases}\n}\n${propertyUtilities(entries, sep)}`;
+	}
 	const darkMode: StylesheetDarkMode = opts.darkMode ?? 'media';
 	const selectedTheme =
 		opts.theme === 'dark'

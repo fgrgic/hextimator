@@ -10,6 +10,11 @@ import { toFlatKey } from './format/formatters';
 import { serializeColor } from './format/serializeColor';
 import type { TokenEntry } from './format/types';
 import { generate } from './generate';
+import {
+	INK_ROLES,
+	INK_VARIANTS,
+	propertyColors,
+} from './generate/propertyColors';
 import type { ColorScale, HextimatePalette } from './generate/types';
 import {
 	CONTRAST_MARGIN,
@@ -139,6 +144,8 @@ export class HextimatePaletteBuilder {
 		name: string;
 		value: TokenValue;
 	}> = [];
+	private overriddenSurfaces = false;
+	private readonly propertyOverrides = new Map<string, TokenValue>();
 	private readonly weakSideVariants: string[] = ['weak'];
 	private readonly strongSideVariants: string[] = ['strong'];
 	private readonly foregroundAnchoredVariants: Set<string> = new Set();
@@ -180,6 +187,8 @@ export class HextimatePaletteBuilder {
 			this.resolvedOptions(),
 		);
 		this.standaloneTokens.length = 0;
+		this.propertyOverrides.clear();
+		this.overriddenSurfaces = false;
 		this.weakSideVariants.length = 0;
 		this.weakSideVariants.push('weak');
 		this.strongSideVariants.length = 0;
@@ -504,29 +513,37 @@ export class HextimatePaletteBuilder {
 				}
 			: options;
 
+		const lightPalette = this.outputPalette('light');
+		const darkPalette = this.outputPalette('dark');
 		const colorFormat = mergedOptions?.colors ?? 'hex';
 
-		this.assertNoPaletteLabelCollisions(mergedOptions);
+		this.assertNoPaletteLabelCollisions(mergedOptions, lightPalette);
 
 		const lightTokens = this.resolveStandaloneTokens(
 			'light',
-			this.lightPalette,
+			lightPalette,
 			colorFormat,
 		);
 		const darkTokens = this.resolveStandaloneTokens(
 			'dark',
-			this.darkPalette,
+			darkPalette,
 			colorFormat,
 		);
 
 		const inverted = mergedOptions?.invertedVariants
-			? this.buildInvertedEntries(mergedOptions, lightTokens, darkTokens)
+			? this.buildInvertedEntries(
+					mergedOptions,
+					lightTokens,
+					darkTokens,
+					lightPalette,
+					darkPalette,
+				)
 			: { lightBlock: [], darkBlock: [] };
 
 		if (mergedOptions?.as === 'css' || mergedOptions?.as === 'tailwind-css') {
 			return formatStylesheet(
-				this.lightPalette,
-				this.darkPalette,
+				lightPalette,
+				darkPalette,
 				mergedOptions,
 				[...lightTokens, ...inverted.lightBlock],
 				[...darkTokens, ...inverted.darkBlock],
@@ -534,11 +551,11 @@ export class HextimatePaletteBuilder {
 		}
 
 		return {
-			light: format(this.lightPalette, mergedOptions, [
+			light: format(lightPalette, mergedOptions, [
 				...lightTokens,
 				...inverted.lightBlock,
 			]),
-			dark: format(this.darkPalette, mergedOptions, [
+			dark: format(darkPalette, mergedOptions, [
 				...darkTokens,
 				...inverted.darkBlock,
 			]),
@@ -549,10 +566,12 @@ export class HextimatePaletteBuilder {
 		options: HextimateFormatOptions,
 		lightStandalone: TokenEntry[],
 		darkStandalone: TokenEntry[],
+		lightPalette: HextimatePalette,
+		darkPalette: HextimatePalette,
 	): { lightBlock: TokenEntry[]; darkBlock: TokenEntry[] } {
 		const sep = options.separator ?? '-';
-		const lightBase = buildTokenEntries(this.lightPalette, options);
-		const darkBase = buildTokenEntries(this.darkPalette, options);
+		const lightBase = buildTokenEntries(lightPalette, options);
+		const darkBase = buildTokenEntries(darkPalette, options);
 		return {
 			// Light block carries dark values under -inverted suffix.
 			lightBlock: [
@@ -565,6 +584,24 @@ export class HextimatePaletteBuilder {
 				...lightStandalone.map((e) => withInvertedSuffix(e, sep)),
 			],
 		};
+	}
+
+	private outputPalette(theme: 'light' | 'dark'): HextimatePalette {
+		const palette = propertyColors(
+			theme === 'light' ? this.lightPalette : this.darkPalette,
+			theme,
+			this.resolvedOptions(),
+			this.overriddenSurfaces,
+		);
+		for (const [coordinate, value] of this.propertyOverrides) {
+			const [role, variant] = coordinate.split('.');
+			if (!palette[role]?.[variant]) continue;
+			palette[role][variant] = convert(
+				this.resolveTokenValue(value, theme, palette),
+				'oklch',
+			);
+		}
+		return palette;
 	}
 
 	private applyRole(name: string, color: ColorInput | DerivedToken): void {
@@ -716,6 +753,15 @@ export class HextimatePaletteBuilder {
 	}
 
 	private applyToken(name: string, value: TokenValue): void {
+		const [role, variant] = name.split('.');
+		if (
+			name === `${role}.${variant}` &&
+			INK_ROLES.some((r) => r === role) &&
+			INK_VARIANTS.some((v) => v === variant)
+		) {
+			this.propertyOverrides.set(name, value);
+			return;
+		}
 		if (name.includes('.')) {
 			this.applyPalettePin(name, value);
 			return;
@@ -747,6 +793,8 @@ export class HextimatePaletteBuilder {
 			}
 		}
 
+		if (role === 'surface' && ['DEFAULT', 'weak', 'strong'].includes(variant))
+			this.overriddenSurfaces = true;
 		this.lightPalette[role][variant] = convert(
 			this.resolveTokenValue(value, 'light', this.lightPalette),
 			'oklch',
@@ -763,6 +811,7 @@ export class HextimatePaletteBuilder {
 	 */
 	private assertNoPaletteLabelCollisions(
 		options?: HextimateFormatOptions,
+		palette: HextimatePalette = this.lightPalette,
 	): void {
 		if (this.standaloneTokens.length === 0) return;
 
@@ -774,9 +823,9 @@ export class HextimatePaletteBuilder {
 			{ role: string; variant: string; isDefault: boolean }
 		>();
 
-		for (const role of Object.keys(this.lightPalette)) {
+		for (const role of Object.keys(palette)) {
 			if (excludeRoles.has(role)) continue;
-			const scale = this.lightPalette[role];
+			const scale = palette[role];
 			for (const variant of Object.keys(scale)) {
 				if (excludeVariants.has(variant)) continue;
 				const raw = scale[variant];

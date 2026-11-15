@@ -1,9 +1,10 @@
-import type { ComponentPropsWithRef } from 'react';
+import type { ComponentPropsWithRef, ReactNode } from 'react';
 import { cn } from '../../utils/cn';
 
 type SectionProps = ComponentPropsWithRef<'div'> & {
 	title: string;
 	description: string;
+	preview?: ReactNode;
 	reversed?: boolean;
 	stacked?: boolean;
 };
@@ -11,6 +12,7 @@ type SectionProps = ComponentPropsWithRef<'div'> & {
 export function Section({
 	title,
 	description,
+	preview,
 	children,
 	reversed,
 	stacked,
@@ -28,6 +30,7 @@ export function Section({
 				<div className="flex flex-col gap-1">
 					<h2>{title}</h2>
 					<p className="font-light text-sm">{description}</p>
+					{preview}
 				</div>
 				<div className="w-full">{children}</div>
 			</div>
@@ -46,6 +49,7 @@ export function Section({
 			<div className="flex flex-col flex-1 justify-center">
 				<h2>{title}</h2>
 				<p className="text-sm font-light">{description}</p>
+				{preview}
 			</div>
 			<div className="flex flex-1">{children}</div>
 		</div>

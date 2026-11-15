@@ -63,6 +63,8 @@ Style options:
       --dark-max-chroma <n>   Dark theme max chroma
       --base-lightness-range <min,max>     Default clamp for both themes (overridden by per-theme flags)
       --min-contrast <value>  AAA | AA | <number>                  (default: AAA)
+      --placeholder-contrast <value>  AAA | AA | <number>          (default: AA)
+      --legacy-colors         Disable property-aware semantic inks
       --invert-dark           Swap surface/accent hues in dark mode   (requires --surface-color)
 
 Semantic colors:
@@ -136,6 +138,8 @@ function runCli(): void {
 			'dark-max-chroma': { type: 'string' },
 			'base-lightness-range': { type: 'string' },
 			'min-contrast': { type: 'string' },
+			'placeholder-contrast': { type: 'string' },
+			'legacy-colors': { type: 'boolean' },
 			'invert-dark': { type: 'boolean' },
 			positive: { type: 'string' },
 			negative: { type: 'string' },
@@ -226,6 +230,13 @@ function runCli(): void {
 			styleOptions.minContrastRatio = Number(mc);
 		}
 	}
+
+	if (values['placeholder-contrast']) {
+		const target = values['placeholder-contrast'];
+		styleOptions.placeholderContrastRatio =
+			target === 'AAA' || target === 'AA' ? target : Number(target);
+	}
+	if (values['legacy-colors']) styleOptions.propertyAware = false;
 
 	if (values['invert-dark']) {
 		styleOptions.invertDarkModeSurfaceAccent = true;
