@@ -18,40 +18,52 @@ export const INK_VARIANTS = [
 	'placeholder-weak',
 	'placeholder-strong',
 ] as const;
+export const SURFACE_VARIANTS = ['DEFAULT', 'weak', 'strong'];
 
-function solveInk(
+const INK_STEP = 0.12;
+const PLACEHOLDER_STEP = 0.06;
+
+export function isInkRole(role: string): boolean {
+	return (INK_ROLES as readonly string[]).includes(role);
+}
+
+/**
+ * Weak meets the target, or gets the strongest available contrast when the
+ * surfaces make the target unreachable. DEFAULT and strong step toward the endpoint.
+ */
+function solveScale(
 	base: OKLCH,
 	surfaces: Color[],
 	target: number,
-	allowUnreachable: boolean,
-): OKLCH {
+	step: number,
+): [weak: OKLCH, DEFAULT: OKLCH, strong: OKLCH] {
+	const withL = (l: number): OKLCH => ({ ...base, l, alpha: 1 });
 	const contrast = (color: OKLCH) =>
 		Math.min(...surfaces.map((surface) => calculateContrast(color, surface)));
-	const dark = { ...base, l: 0, alpha: 1 };
-	const light = { ...base, l: 1, alpha: 1 };
-	const endpoint = contrast(dark) >= contrast(light) ? dark : light;
-	if (contrast(endpoint) < target) {
-		if (allowUnreachable) return convert(convert(endpoint, 'srgb'), 'oklch');
-		throw new Error(
-			`Surface backgrounds cannot support ${target}:1 semantic text contrast. Adjust the surface overrides or contrast target.`,
-		);
-	}
-	const bufferedTarget = Math.min(target + CONTRAST_MARGIN, contrast(endpoint));
-	let fail = endpoint.l === 0 ? 1 : 0;
-	let pass = endpoint.l;
+	const toGamut = (color: OKLCH) => convert(convert(color, 'srgb'), 'oklch');
+
+	const endpointL = contrast(withL(0)) >= contrast(withL(1)) ? 0 : 1;
+	const maxContrast = contrast(withL(endpointL));
+	const bufferedTarget = Math.min(target + CONTRAST_MARGIN, maxContrast);
+	let fail = 1 - endpointL;
+	let pass = endpointL;
 	for (let i = 0; i < 24; i++) {
 		const mid = (fail + pass) / 2;
-		if (contrast({ ...base, l: mid, alpha: 1 }) >= bufferedTarget) pass = mid;
+		if (contrast(withL(mid)) >= bufferedTarget) pass = mid;
 		else fail = mid;
 	}
-	return convert(convert({ ...base, l: pass, alpha: 1 }, 'srgb'), 'oklch');
+	const weak = toGamut(withL(pass));
+	const towardEndpoint = (t: number): OKLCH => ({
+		...weak,
+		l: weak.l + (endpointL - weak.l) * t,
+	});
+	return [weak, towardEndpoint(step), towardEndpoint(step * 2)];
 }
 
 export function propertyColors(
 	palette: HextimatePalette,
 	theme: ThemeType,
 	options: HextimateStyleOptions,
-	allowUnreachable = false,
 ): HextimatePalette {
 	if (options.propertyAware === false) return palette;
 	const settings = resolveMergedThemeAdjustments(theme, options);
@@ -59,43 +71,33 @@ export function propertyColors(
 	const placeholderTarget = resolveContrastRatio(
 		settings.placeholderContrastRatio ?? 'AA',
 	);
-	const surfaces = ['DEFAULT', 'weak', 'strong'].map((variant) =>
+	const surfaces = SURFACE_VARIANTS.map((variant) =>
 		parse(palette.surface[variant]),
 	);
 	const result = { ...palette };
 	for (const role of INK_ROLES) {
 		if (!palette[role]) continue;
 		const base = convert(parse(palette[role].DEFAULT), 'oklch');
-		const weak = solveInk(base, surfaces, textTarget, allowUnreachable);
-		const minimumContrast = (l: number) =>
-			Math.min(
-				...surfaces.map((surface) =>
-					calculateContrast({ ...base, l, alpha: 1 }, surface),
-				),
-			);
-		const endpoint = minimumContrast(0) >= minimumContrast(1) ? 0 : 1;
-		const ink = { ...weak, l: weak.l + (endpoint - weak.l) * 0.12 };
-		const strong = { ...weak, l: weak.l + (endpoint - weak.l) * 0.24 };
-		const placeholderWeak = solveInk(
+		const [inkWeak, ink, inkStrong] = solveScale(
+			base,
+			surfaces,
+			textTarget,
+			INK_STEP,
+		);
+		const [placeholderWeak, placeholder, placeholderStrong] = solveScale(
 			base,
 			surfaces,
 			placeholderTarget,
-			allowUnreachable,
+			PLACEHOLDER_STEP,
 		);
 		result[role] = {
 			...palette[role],
-			'ink-weak': weak,
+			'ink-weak': inkWeak,
 			ink,
-			'ink-strong': strong,
-			placeholder: {
-				...placeholderWeak,
-				l: placeholderWeak.l + (endpoint - placeholderWeak.l) * 0.06,
-			},
+			'ink-strong': inkStrong,
+			placeholder,
 			'placeholder-weak': placeholderWeak,
-			'placeholder-strong': {
-				...placeholderWeak,
-				l: placeholderWeak.l + (endpoint - placeholderWeak.l) * 0.12,
-			},
+			'placeholder-strong': placeholderStrong,
 		};
 	}
 	return result;

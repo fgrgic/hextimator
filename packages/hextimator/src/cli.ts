@@ -222,19 +222,16 @@ function runCli(): void {
 		if (pair) styleOptions.baseLightnessRange = pair;
 	}
 
+	const parseContrast = (value: string) =>
+		value === 'AAA' || value === 'AA' ? value : Number(value);
 	if (values['min-contrast']) {
-		const mc = values['min-contrast'];
-		if (mc === 'AAA' || mc === 'AA') {
-			styleOptions.minContrastRatio = mc;
-		} else {
-			styleOptions.minContrastRatio = Number(mc);
-		}
+		styleOptions.minContrastRatio = parseContrast(values['min-contrast']);
 	}
 
 	if (values['placeholder-contrast']) {
-		const target = values['placeholder-contrast'];
-		styleOptions.placeholderContrastRatio =
-			target === 'AAA' || target === 'AA' ? target : Number(target);
+		styleOptions.placeholderContrastRatio = parseContrast(
+			values['placeholder-contrast'],
+		);
 	}
 	if (values['legacy-colors']) styleOptions.propertyAware = false;
 

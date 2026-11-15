@@ -11,8 +11,8 @@ import { serializeColor } from './format/serializeColor';
 import type { TokenEntry } from './format/types';
 import { generate } from './generate';
 import {
-	INK_ROLES,
 	INK_VARIANTS,
+	isInkRole,
 	propertyColors,
 } from './generate/propertyColors';
 import type { ColorScale, HextimatePalette } from './generate/types';
@@ -144,7 +144,6 @@ export class HextimatePaletteBuilder {
 		name: string;
 		value: TokenValue;
 	}> = [];
-	private overriddenSurfaces = false;
 	private readonly propertyOverrides = new Map<string, TokenValue>();
 	private readonly weakSideVariants: string[] = ['weak'];
 	private readonly strongSideVariants: string[] = ['strong'];
@@ -188,7 +187,6 @@ export class HextimatePaletteBuilder {
 		);
 		this.standaloneTokens.length = 0;
 		this.propertyOverrides.clear();
-		this.overriddenSurfaces = false;
 		this.weakSideVariants.length = 0;
 		this.weakSideVariants.push('weak');
 		this.strongSideVariants.length = 0;
@@ -591,11 +589,14 @@ export class HextimatePaletteBuilder {
 			theme === 'light' ? this.lightPalette : this.darkPalette,
 			theme,
 			this.resolvedOptions(),
-			this.overriddenSurfaces,
 		);
 		for (const [coordinate, value] of this.propertyOverrides) {
 			const [role, variant] = coordinate.split('.');
-			if (!palette[role]?.[variant]) continue;
+			if (!palette[role]?.[variant]) {
+				throw new Error(
+					`Unknown variant "${variant}" in palette coordinate "${coordinate}". Inks require propertyAware.`,
+				);
+			}
 			palette[role][variant] = convert(
 				this.resolveTokenValue(value, theme, palette),
 				'oklch',
@@ -756,8 +757,8 @@ export class HextimatePaletteBuilder {
 		const [role, variant] = name.split('.');
 		if (
 			name === `${role}.${variant}` &&
-			INK_ROLES.some((r) => r === role) &&
-			INK_VARIANTS.some((v) => v === variant)
+			isInkRole(role) &&
+			(INK_VARIANTS as readonly string[]).includes(variant)
 		) {
 			this.propertyOverrides.set(name, value);
 			return;
@@ -793,8 +794,6 @@ export class HextimatePaletteBuilder {
 			}
 		}
 
-		if (role === 'surface' && ['DEFAULT', 'weak', 'strong'].includes(variant))
-			this.overriddenSurfaces = true;
 		this.lightPalette[role][variant] = convert(
 			this.resolveTokenValue(value, 'light', this.lightPalette),
 			'oklch',
@@ -810,8 +809,8 @@ export class HextimatePaletteBuilder {
 	 * roleNames / variantNames / separator / excludes are applied.
 	 */
 	private assertNoPaletteLabelCollisions(
-		options?: HextimateFormatOptions,
-		palette: HextimatePalette = this.lightPalette,
+		options: HextimateFormatOptions | undefined,
+		palette: HextimatePalette,
 	): void {
 		if (this.standaloneTokens.length === 0) return;
 

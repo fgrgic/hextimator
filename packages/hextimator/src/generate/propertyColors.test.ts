@@ -173,6 +173,15 @@ describe('property-aware colors', () => {
 		).toBe('#123456');
 	});
 
+	it('rejects ink overrides when property-aware colors are disabled', () => {
+		expect(() =>
+			hextimate('#ff6600')
+				.style({ propertyAware: false })
+				.addToken('negative.ink', '#123456')
+				.format(),
+		).toThrow('Unknown variant "ink"');
+	});
+
 	it('allows standalone tokens to reference generated inks', () => {
 		const result = hextimate('#ff6600')
 			.addToken('error-label', { from: 'negative.ink' })
@@ -180,10 +189,20 @@ describe('property-aware colors', () => {
 		expect(result.light['error-label']).toBe(result.light['negative-ink']);
 	});
 
-	it('rejects impossible contrast settings rather than claiming success', () => {
-		expect(() =>
-			hextimate('#ff6600').style({ placeholderContrastRatio: 21 }).format(),
-		).toThrow('cannot support');
+	it('uses the strongest available contrast when a target is unreachable', () => {
+		const result = hextimate('#ff6600')
+			.style({ minContrastRatio: 14, placeholderContrastRatio: 21 })
+			.format({ as: 'object' });
+		for (const palette of [result.light, result.dark]) {
+			for (const variant of ['ink-strong', 'placeholder-weak']) {
+				const strongest = Math.min(
+					...['surface', 'surface-weak', 'surface-strong'].map((surface) =>
+						contrast(palette[`negative-${variant}`], palette[surface]),
+					),
+				);
+				expect(strongest).toBeGreaterThan(10);
+			}
+		}
 	});
 
 	it('preserves explicit surface overrides even when no ink can support all surfaces', () => {

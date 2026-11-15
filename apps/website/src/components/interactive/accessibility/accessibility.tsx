@@ -65,6 +65,12 @@ export function Accessibility() {
 		applyAccessibility(value, cvdType, simulatePreview);
 	};
 
+	const handlePlaceholderChange = (value: number) => {
+		handleInteract();
+		setPlaceholderContrastRatio(value);
+		applyAccessibility(contrastRatio, cvdType, simulatePreview, value);
+	};
+
 	const handleCvdChange = (type: CVDType | 'none') => {
 		handleInteract();
 		setCvdType(type);
@@ -102,7 +108,7 @@ export function Accessibility() {
 							: ''
 				}
 				min={1}
-				max={7}
+				max={14}
 				step={0.5}
 				onChange={handleContrastChange}
 				onInteract={handleInteract}
@@ -116,13 +122,10 @@ export function Accessibility() {
 				min={4.5}
 				max={7}
 				step={0.5}
-				onChange={(value) => {
-					handleInteract();
-					setPlaceholderContrastRatio(value);
-					applyAccessibility(contrastRatio, cvdType, simulatePreview, value);
-				}}
+				onChange={handlePlaceholderChange}
 				onInteract={handleInteract}
 				unit=":1"
+				aria-label="Minimum contrast ratio for placeholders"
 			/>
 
 			<div className="flex flex-col gap-1.5">

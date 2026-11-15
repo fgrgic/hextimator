@@ -1,21 +1,20 @@
 import { useState } from 'react';
 import { stopColorCycler } from '../../hero/color-cycler-signal';
 
+const SURFACE_OPTIONS = [
+	{ name: 'surface', label: 'Default' },
+	{ name: 'surface-weak', label: 'Weak' },
+	{ name: 'surface-strong', label: 'Strong' },
+];
+
 export function AccessibilityPreview() {
 	const [surface, setSurface] = useState('surface');
 
 	return (
 		<div className="mt-5 flex flex-col gap-2">
-			<fieldset
-				aria-label="Preview background"
-				className="flex flex-wrap items-center gap-1 text-xs"
-			>
+			<fieldset className="flex flex-wrap items-center gap-1 text-xs">
 				<legend className="sr-only">Preview background</legend>
-				{[
-					{ name: 'surface', label: 'Default' },
-					{ name: 'surface-weak', label: 'Weak' },
-					{ name: 'surface-strong', label: 'Strong' },
-				].map((option) => (
+				{SURFACE_OPTIONS.map((option) => (
 					<button
 						type="button"
 						key={option.name}

@@ -85,7 +85,7 @@ hextimate('#ff6600').style({
 });
 ```
 
-Set `placeholderContrastRatio: 'AAA'` to require 7:1, or supply a numeric target. This is a minimum, not a preference. Each target also accepts per-theme overrides under `light` and `dark`. Impossible targets throw. Explicit surface overrides remain final; if they make a shared ink impossible, Hextimator uses the strongest available contrast and the override owns that risk.
+Set `placeholderContrastRatio: 'AAA'` to require 7:1, or supply a numeric target. This is a minimum, not a preference. Each target also accepts per-theme overrides under `light` and `dark`. When the surfaces cannot reach a target, hextimator uses the strongest available contrast. Explicit surface overrides remain final.
 
 Inks are generated at output time against the final surface values. Direct ink overrides remain final too:
 

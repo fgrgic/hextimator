@@ -1,29 +1,18 @@
 @theme inline {
-	--color-accent-foreground-inverted: var(--accent-foreground-inverted);
-	--color-accent-foreground-weak-inverted: var(
-		--accent-foreground-weak-inverted
-	);
-	--color-surface-inverted: var(--surface-inverted);
-	--color-surface-strong-inverted: var(--surface-strong-inverted);
-	--color-surface-weak-inverted: var(--surface-weak-inverted);
-	--color-surface-foreground-inverted: var(--surface-foreground-inverted);
-	--color-surface-foreground-weak-inverted: var(
-		--surface-foreground-weak-inverted
-	);
-	--color-positive-foreground-inverted: var(--positive-foreground-inverted);
-	--color-positive-foreground-weak-inverted: var(
-		--positive-foreground-weak-inverted
-	);
-	--color-negative-foreground-inverted: var(--negative-foreground-inverted);
-	--color-negative-foreground-weak-inverted: var(
-		--negative-foreground-weak-inverted
-	);
-	--color-caution-foreground-inverted: var(--caution-foreground-inverted);
-	--color-caution-foreground-weak-inverted: var(
-		--caution-foreground-weak-inverted
-	);
+  --color-surface-inverted: var(--surface-inverted);
+  --color-surface-strong-inverted: var(--surface-strong-inverted);
+  --color-surface-weak-inverted: var(--surface-weak-inverted);
+  --color-surface-foreground-inverted: var(--surface-foreground-inverted);
+  --color-surface-foreground-weak-inverted: var(--surface-foreground-weak-inverted);
+  --color-accent-foreground-inverted: var(--accent-foreground-inverted);
+  --color-accent-foreground-weak-inverted: var(--accent-foreground-weak-inverted);
+  --color-positive-foreground-inverted: var(--positive-foreground-inverted);
+  --color-positive-foreground-weak-inverted: var(--positive-foreground-weak-inverted);
+  --color-negative-foreground-inverted: var(--negative-foreground-inverted);
+  --color-negative-foreground-weak-inverted: var(--negative-foreground-weak-inverted);
+  --color-caution-foreground-inverted: var(--caution-foreground-inverted);
+  --color-caution-foreground-weak-inverted: var(--caution-foreground-weak-inverted);
 }
-
 @utility bg-accent-inverted {
   background-color: var(--accent-inverted);
 }

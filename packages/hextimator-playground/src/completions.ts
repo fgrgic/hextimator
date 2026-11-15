@@ -134,7 +134,6 @@ const STYLE_OPTIONS: CompletionEntry[] = [
 		info: 'Generate semantic text and icon colors for surfaces. Default: true. Set false for legacy output.',
 		detail: 'boolean',
 	},
-
 	{
 		label: 'hueShift',
 		type: 'property',
@@ -201,7 +200,6 @@ const THEME_ADJUSTMENTS: CompletionEntry[] = [
 		info: 'Override placeholder contrast for this theme',
 		detail: "'AAA' | 'AA' | number",
 	},
-
 	{
 		label: 'surfaceMaxChroma',
 		type: 'property',
