@@ -12,6 +12,7 @@ import type { TokenEntry } from './format/types';
 import { generate } from './generate';
 import {
 	isRoleForeground,
+	type SurfaceForegroundRoles,
 	surfaceForegrounds,
 } from './generate/surfaceForegrounds';
 import type { ColorScale, HextimatePalette } from './generate/types';
@@ -27,6 +28,14 @@ import {
 } from './generate/utils';
 import { parse } from './parse';
 import type { HextimatePreset } from './presets/types';
+import {
+	baseTheme,
+	generatedRoles,
+	isGeneratedRole,
+	isGeneratedToken,
+	type ThemeDefinition,
+	type ThemeTokenValue,
+} from './theme';
 import type {
 	Color,
 	ColorInput,
@@ -129,6 +138,7 @@ export class HextimatePaletteBuilder {
 	private lightPalette!: HextimatePalette;
 	private darkPalette!: HextimatePalette;
 	private readonly inputColor: Color;
+	private readonly theme: ThemeDefinition;
 	private options: Partial<HextimateStyleOptions>;
 	private readonly operations: Array<
 		| { method: 'addRole'; args: [string, ColorInput | DerivedToken] }
@@ -153,10 +163,11 @@ export class HextimatePaletteBuilder {
 	}> = [];
 	private presetFormatDefaults?: HextimateFormatOptions;
 
-	constructor(color: Color) {
+	constructor(color: Color, theme: ThemeDefinition = baseTheme) {
 		this.inputColor = color;
+		this.theme = theme;
 		this.options = {};
-		this.seedOptionsForFork({});
+		this.seedOptionsForFork(mergeStyleOptions(theme.style));
 	}
 
 	/**
@@ -174,15 +185,18 @@ export class HextimatePaletteBuilder {
 		seededOptions: Partial<HextimateStyleOptions>,
 	): void {
 		this.options = { ...seededOptions };
+		const roles = generatedRoles(this.theme);
 		this.lightPalette = generate(
 			this.inputColor,
 			'light',
 			this.resolvedOptions(),
+			roles,
 		);
 		this.darkPalette = generate(
 			this.inputColor,
 			'dark',
 			this.resolvedOptions(),
+			roles,
 		);
 		this.standaloneTokens.length = 0;
 		this.foregroundOverrides.clear();
@@ -193,17 +207,52 @@ export class HextimatePaletteBuilder {
 		this.foregroundAnchoredVariants.clear();
 		this.betweenVariants.length = 0;
 		this.presetFormatDefaults = undefined;
-		this.applyToken('brand-exact', this.inputColor);
+		this.applyTheme();
+	}
+
+	/** Custom roles, variants, tokens, and format defaults from the theme. Generated roles already exist. */
+	private applyTheme(): void {
+		const theme = this.theme;
+		for (const [name, role] of Object.entries(theme.roles ?? {})) {
+			if (isGeneratedRole(role)) continue;
+			this.applyRole(name, 'color' in role ? role.color : role);
+		}
+		for (const variant of theme.variants ?? []) {
+			this.applyVariant(variant.name, variant.placement);
+		}
+		for (const token of theme.tokens ?? []) {
+			this.applyToken(token.name, this.resolveThemeToken(token.value));
+		}
+		if (theme.format || theme.variantNames) {
+			this.presetFormatDefaults = {
+				...theme.format,
+				variantNames: { ...theme.format?.variantNames, ...theme.variantNames },
+			};
+		}
+	}
+
+	private resolveThemeToken(value: ThemeTokenValue): TokenValue {
+		if (!isGeneratedToken(value)) return value;
+		if (value.generate === 'brand-exact') return this.inputColor;
 
 		const colorOKLCH = convert(this.inputColor, 'oklch');
 		const lightFg = { ...colorOKLCH, l: 0.97, c: Math.min(colorOKLCH.c, 0.01) };
 		const darkFg = { ...colorOKLCH, l: 0.1, c: Math.min(colorOKLCH.c, 0.01) };
-		const brandForeground =
-			calculateContrast(this.inputColor, lightFg) >=
+		return calculateContrast(this.inputColor, lightFg) >=
 			calculateContrast(this.inputColor, darkFg)
-				? lightFg
-				: darkFg;
-		this.applyToken('brand-exact-foreground', brandForeground);
+			? lightFg
+			: darkFg;
+	}
+
+	/** Every role the theme declares gets colored text on its surface role. */
+	private surfaceForegroundRoles(): SurfaceForegroundRoles {
+		const surface = generatedRoles(this.theme).find(
+			(r) => r.generate === 'surface',
+		)?.name;
+		return {
+			surface,
+			roles: Object.keys(this.theme.roles ?? {}).filter((r) => r !== surface),
+		};
 	}
 
 	private rebuildFromOperations(): void {
@@ -333,16 +382,8 @@ export class HextimatePaletteBuilder {
 		this.operations.push({ method: 'preset', args: [preset] });
 		if (preset.style) {
 			this.options = mergeStyleOptions(this.options, preset.style);
-			this.lightPalette = generate(
-				this.inputColor,
-				'light',
-				this.resolvedOptions(),
-			);
-			this.darkPalette = generate(
-				this.inputColor,
-				'dark',
-				this.resolvedOptions(),
-			);
+			this.rebuildFromOperations();
+			return this;
 		}
 		this.applyPresetRolesTokensFormat(preset);
 		return this;
@@ -437,7 +478,7 @@ export class HextimatePaletteBuilder {
 	 */
 	fork(color?: ColorInput): HextimatePaletteBuilder {
 		const newColor = color !== undefined ? parse(color) : this.inputColor;
-		const builder = new HextimatePaletteBuilder(newColor);
+		const builder = new HextimatePaletteBuilder(newColor, this.theme);
 		builder.seedOptionsForFork({ ...this.options });
 
 		for (const op of this.operations) {
@@ -588,6 +629,7 @@ export class HextimatePaletteBuilder {
 			theme === 'light' ? this.lightPalette : this.darkPalette,
 			theme,
 			this.resolvedOptions(),
+			this.surfaceForegroundRoles(),
 		);
 		for (const [coordinate, value] of this.foregroundOverrides) {
 			const [role, variant] = coordinate.split('.');
@@ -749,7 +791,10 @@ export class HextimatePaletteBuilder {
 
 	private applyToken(name: string, value: TokenValue): void {
 		const [role, variant] = name.split('.');
-		if (name === `${role}.${variant}` && isRoleForeground(role, variant)) {
+		if (
+			name === `${role}.${variant}` &&
+			isRoleForeground(this.surfaceForegroundRoles(), role, variant)
+		) {
 			this.foregroundOverrides.set(name, value);
 			return;
 		}
@@ -1025,8 +1070,9 @@ export class HextimatePaletteBuilder {
 			return this.strongSideVariants;
 		}
 
+		const surface = this.surfaceForegroundRoles().surface;
 		const sampleRole = Object.keys(this.lightPalette).find(
-			(r) => r !== 'surface',
+			(r) => r !== surface,
 		);
 		if (!sampleRole) return null;
 

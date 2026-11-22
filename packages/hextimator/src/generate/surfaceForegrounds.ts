@@ -9,21 +9,21 @@ import {
 	resolveContrastRatio,
 } from './utils';
 
-export const FOREGROUND_ROLES = [
-	'accent',
-	'positive',
-	'negative',
-	'caution',
-] as const;
-
 const SURFACE_VARIANTS = ['DEFAULT', 'weak', 'strong'];
 
+/** Which role is the surface and which roles get colored text on it. */
+export interface SurfaceForegroundRoles {
+	surface?: string;
+	roles: string[];
+}
+
 /** `foreground-negative` and the like, which `addToken('surface.foreground-negative', ...)` overrides. */
-export function isRoleForeground(role: string, variant: string) {
-	return (
-		role === 'surface' &&
-		FOREGROUND_ROLES.some((r) => variant === `foreground-${r}`)
-	);
+export function isRoleForeground(
+	{ surface, roles }: SurfaceForegroundRoles,
+	role: string,
+	variant: string,
+) {
+	return role === surface && roles.some((r) => variant === `foreground-${r}`);
 }
 
 /**
@@ -51,22 +51,24 @@ function solveContrast(base: OKLCH, surfaces: Color[], target: number): OKLCH {
 }
 
 /**
- * Adds `surface.foreground-<role>`: text in the role's hue that meets
+ * Adds `<surface>.foreground-<role>`: text in the role's hue that meets
  * `minContrastRatio` on surface DEFAULT, weak, and strong.
  */
 export function surfaceForegrounds(
 	palette: HextimatePalette,
 	theme: ThemeType,
 	options: HextimateStyleOptions,
+	{ surface: surfaceRole, roles }: SurfaceForegroundRoles,
 ): HextimatePalette {
+	if (!surfaceRole || !palette[surfaceRole]) return palette;
 	const target = resolveContrastRatio(
 		resolveMergedThemeAdjustments(theme, options).minContrastRatio,
 	);
 	const surfaces = SURFACE_VARIANTS.map((variant) =>
-		parse(palette.surface[variant]),
+		parse(palette[surfaceRole][variant]),
 	);
-	const surface = { ...palette.surface };
-	for (const role of FOREGROUND_ROLES) {
+	const surface = { ...palette[surfaceRole] };
+	for (const role of roles) {
 		if (!palette[role]) continue;
 		surface[`foreground-${role}`] = solveContrast(
 			convert(parse(palette[role].DEFAULT), 'oklch'),
@@ -74,5 +76,5 @@ export function surfaceForegrounds(
 			target,
 		);
 	}
-	return { ...palette, surface };
+	return { ...palette, [surfaceRole]: surface };
 }
