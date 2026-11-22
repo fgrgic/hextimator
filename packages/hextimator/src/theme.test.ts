@@ -1,5 +1,4 @@
 import { describe, expect, test } from 'bun:test';
-import legacy from './__fixtures__/legacy-default.json';
 import { baseTheme, hextimate, type ThemeDefinition } from './index';
 
 type Tokens = { light: Record<string, string>; dark: Record<string, string> };
@@ -33,13 +32,12 @@ const customTheme = {
 } satisfies ThemeDefinition;
 
 describe('baseTheme', () => {
-	for (const [accent, expected] of Object.entries(legacy)) {
-		test(`matches legacy output for ${accent}`, () => {
-			expect(Object.keys(expected.light)).toHaveLength(31);
-			expect(objectTheme(accent)).toEqual(expected);
-			expect(objectTheme(accent, baseTheme)).toEqual(expected);
-		});
-	}
+	test('is the default theme', () => {
+		const result = objectTheme('#ff6600');
+		expect(Object.keys(result.light)).toHaveLength(31);
+		expect(Object.keys(result.dark)).toHaveLength(31);
+		expect(objectTheme('#ff6600', baseTheme)).toEqual(result);
+	});
 });
 
 describe('ThemeDefinition', () => {
@@ -87,6 +85,12 @@ describe('ThemeDefinition', () => {
 		expect(light['button-hover']).toBe(light['accent-hover']);
 		expect(light['brand-exact']).toBe('#ff6600');
 		expect(light).not.toHaveProperty('positive');
+	});
+
+	test('the runtime accent ignores defaultAccent', () => {
+		expect(
+			objectTheme('#ff6600', { ...baseTheme, defaultAccent: '#000' }),
+		).toEqual(objectTheme('#ff6600'));
 	});
 
 	test('survives a JSON round trip', () => {

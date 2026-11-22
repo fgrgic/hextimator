@@ -30,6 +30,8 @@ export type ThemeTokenValue = TokenValue | { generate: TokenGenerator };
  * Plain data, so it survives a JSON round trip.
  */
 export interface ThemeDefinition {
+	/** Accent for tools that preview a theme on its own. `hextimate(accent, theme)` ignores it. */
+	defaultAccent?: ColorInput;
 	style?: HextimateStyleOptions;
 	/** The key sets the output role name. */
 	roles?: Record<string, RoleDefinition>;
