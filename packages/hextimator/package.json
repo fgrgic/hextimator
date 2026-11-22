@@ -62,7 +62,7 @@
 		"CHANGELOG.md"
 	],
 	"scripts": {
-		"build": "bun scripts/generate-fallback-css.ts && tsup",
+		"build": "bun scripts/generate-fallback-css.ts && bun scripts/generate-tailwind-css.ts && biome format --write tailwind.css tailwind-inverted.css && tsup",
 		"dev": "tsup --watch",
 		"generate:fallback": "bun scripts/generate-fallback-css.ts",
 		"test": "bun test"
