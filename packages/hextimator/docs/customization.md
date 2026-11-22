@@ -122,8 +122,6 @@ Pair with the companion stylesheet so `bg-accent-inverted`, `text-surface-foregr
 @import "hextimator/tailwind-inverted.css";
 ```
 
-For a custom `ThemeDefinition`, write `tailwindAliases(theme)` to a CSS file in your app's build script and import that file into your Tailwind stylesheet. Import `tailwindAliases` from `hextimator`. To generate the companion aliases, call `tailwindAliases(theme, { inverted: true })` and enable `invertedVariants` when formatting the runtime palette.
-
 ```jsx
 {
   /* One class, flips with mode */

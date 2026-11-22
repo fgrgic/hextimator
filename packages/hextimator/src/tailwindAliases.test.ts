@@ -69,3 +69,40 @@ test('matches formatted custom token names in both modes', () => {
 		);
 	}
 });
+
+test('matches CSS output and object output for a theme with CSS defaults', () => {
+	const theme = {
+		...baseTheme,
+		format: { as: 'css', keyPrefix: 'app-' },
+	} satisfies ThemeDefinition;
+	const builder = hextimate('#f60', theme);
+	const overrides = { separator: '_', roleNames: { accent: 'primary' } };
+	const css = builder.format({ ...overrides, as: 'css', theme: 'light' });
+	const cssKeys = Array.from(
+		css.matchAll(/^ {2}--([^:]+):/gm),
+		(match) => match[1],
+	);
+	expect(declarations(tailwindAliases(theme, overrides))).toEqual(
+		cssKeys.map((key) => `--color-${key}:var(--${key})`).sort(),
+	);
+
+	const { light } = builder.format({ ...overrides, as: 'object' });
+	expect(
+		declarations(tailwindAliases(theme, { ...overrides, as: 'object' })),
+	).toEqual(
+		Object.keys(light)
+			.map((key) => `--color-${key}:var(--${key})`)
+			.sort(),
+	);
+});
+
+test('requires an explicit runtime format for themes that emit Tailwind colors', () => {
+	const theme = {
+		...baseTheme,
+		format: { as: 'tailwind-css' },
+	} satisfies ThemeDefinition;
+	expect(() => tailwindAliases(theme)).toThrow('object or css runtime output');
+	expect(tailwindAliases(theme, { as: 'object' })).toBe(
+		tailwindAliases(baseTheme),
+	);
+});
