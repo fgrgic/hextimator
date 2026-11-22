@@ -16,6 +16,14 @@ export type { HextimateConfig } from './presets/fromConfig';
 export { fromConfig } from './presets/fromConfig';
 export type { HextimatePreset } from './presets/types';
 export type {
+	RoleDefinition,
+	RoleGenerator,
+	ThemeDefinition,
+	ThemeTokenValue,
+	TokenGenerator,
+} from './theme';
+export { baseTheme } from './theme';
+export type {
 	HextimateFormatOptions,
 	HextimateStyleOptions,
 	ThemeAdjustments,

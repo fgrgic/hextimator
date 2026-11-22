@@ -1,5 +1,6 @@
 import { HextimatePaletteBuilder } from './HextimatePaletteBuilder';
 import { parse } from './parse';
+import type { ThemeDefinition } from './theme';
 import type { ColorInput } from './types';
 
 /** Thrown when `hextimate()` fails to parse or generate a palette from the given input. */
@@ -14,7 +15,11 @@ export class HextimateError extends Error {
 }
 
 /**
- * Creates a palette builder from an accent/brand color.
+ * Creates a palette builder from an accent/brand color and an optional theme.
+ * Without a theme it uses `baseTheme`.
+ *
+ * @example
+ * const css = hextimate('#ff6600', myTheme).format({ as: 'css' });
  *
  * @example
  * // Two-step API: generate, then format
@@ -29,10 +34,13 @@ export class HextimateError extends Error {
  *   .addVariant('hover', { from: 'strong' })
  *   .format({ as: 'tailwind' });
  */
-export function hextimate(color: ColorInput): HextimatePaletteBuilder {
+export function hextimate(
+	color: ColorInput,
+	theme?: ThemeDefinition,
+): HextimatePaletteBuilder {
 	try {
 		const parsedColor = parse(color);
-		return new HextimatePaletteBuilder(parsedColor);
+		return new HextimatePaletteBuilder(parsedColor, theme);
 	} catch (e) {
 		if (e instanceof HextimateError) {
 			throw e;

@@ -5,8 +5,9 @@ import { hextimate } from '../hextimate';
 import { parse } from '../parse';
 import type { ColorFormat } from '../types';
 import { generate } from './generate';
-import { FOREGROUND_ROLES } from './surfaceForegrounds';
 import { calculateContrast } from './utils';
+
+const FOREGROUND_ROLES = ['accent', 'positive', 'negative', 'caution'];
 
 const seeds = [
 	'#0000ff',
