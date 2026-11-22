@@ -85,8 +85,8 @@ export function formatCSSStylesheet(
 	const lightBlock = `${selector} {\n${declsFromEntries(lightEntries, sep, '--', '  ')}\n}`;
 	const rootDarkBlock = `${selector} {\n${declsFromEntries(darkEntries, sep, '--', '  ')}\n}`;
 
-	if (theme === 'light') return lightBlock;
 	if (theme === 'dark') return rootDarkBlock;
+	if (theme === 'light' || darkMode === false) return lightBlock;
 
 	if (darkMode === 'media') {
 		const darkInner = declsFromEntries(darkEntries, sep, '--', '    ');
@@ -119,7 +119,7 @@ export function formatTailwindStylesheet(
 	const themeEntries = selectedTheme === 'dark' ? darkEntries : lightEntries;
 	const theme = `@theme {\n${declsFromEntries(themeEntries, sep, '--color-', '  ')}\n}`;
 
-	if (selectedTheme !== 'both') return theme;
+	if (selectedTheme !== 'both' || darkMode === false) return theme;
 
 	if (darkMode === 'media') {
 		const darkInner = declsFromEntries(darkEntries, sep, '--color-', '    ');

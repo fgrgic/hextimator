@@ -79,7 +79,7 @@ function App() {
 					</div>
 					<Section
 						title="Build the rules"
-						description="Configure lightness, chroma, and hue shifts for your palette. Once saved as a preset, any brand color produces a full theme with these same rules"
+						description="Configure lightness, chroma, and hue shifts for your palette. Once saved as a preset, any brand color produces a full theme with these same rules."
 						id="theme-preferences"
 					>
 						<ThemePreferences />
@@ -94,7 +94,7 @@ function App() {
 					<Section
 						title="Accessibility built-in"
 						preview={<AccessibilityPreview />}
-						description="Semantic text and icons meet your contrast target on every surface variant. Fills pair with their foregrounds. Placeholders default to 4.5:1."
+						description="Semantic text and icons meet your contrast target on every surface variant, up to the strongest contrast available. Fills pair with their foregrounds. Placeholders default to 4.5:1."
 					>
 						<Accessibility />
 					</Section>

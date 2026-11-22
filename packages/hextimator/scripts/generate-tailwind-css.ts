@@ -19,15 +19,27 @@ const brandExact = ['brand-exact', 'brand-exact-foreground'].map((role) => ({
 	isDefault: true,
 	value: '',
 }));
-
-writeFileSync(
-	join(root, 'tailwind.css'),
-	`${formatPropertyAwareTailwind([...entries, ...brandExact], '-')}\n`,
-);
-writeFileSync(
-	join(root, 'tailwind-inverted.css'),
-	`${formatPropertyAwareTailwind(
+const stylesheets = {
+	'tailwind.css': formatPropertyAwareTailwind([...entries, ...brandExact], '-'),
+	'tailwind-inverted.css': formatPropertyAwareTailwind(
 		entries.map((entry) => withInvertedSuffix(entry, '-')),
 		'-',
-	)}\n`,
+	),
+};
+
+for (const [file, css] of Object.entries(stylesheets)) {
+	writeFileSync(join(root, file), `${css}\n`);
+}
+
+const biome = Bun.spawnSync(
+	[
+		process.execPath,
+		'x',
+		'biome',
+		'format',
+		'--write',
+		...Object.keys(stylesheets),
+	],
+	{ cwd: root, stdout: 'inherit', stderr: 'inherit' },
 );
+if (!biome.success) process.exit(biome.exitCode);
