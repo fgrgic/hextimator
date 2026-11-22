@@ -96,9 +96,9 @@ npx hextimator '#BADA55' --preset bold
 | negative | DEFAULT, strong, weak, foreground, foreground-weak |
 | caution  | DEFAULT, strong, weak, foreground, foreground-weak |
 
-`foreground-weak` is the softest foreground that still meets your contrast target against the role's DEFAULT background - use it for secondary or muted text.
+`foreground-weak` is the softest foreground that still meets your contrast target against the role's DEFAULT background - use it for secondary or muted text and placeholders.
 
-Accent and semantic roles also include `ink`, `ink-weak`, `ink-strong`, `placeholder`, `placeholder-weak`, and `placeholder-strong`. Inks meet `minContrastRatio` against all three surface backgrounds, or get the strongest contrast available when the target is out of reach. Placeholders default to 4.5:1; set `placeholderContrastRatio: 'AAA'` for 7:1. Tailwind text and icon utilities select ink while background and border utilities keep the existing fill. See [Tailwind](docs/tailwind.md) for mapping and legacy mode.
+Surface also has `foreground-accent`, `foreground-positive`, `foreground-negative`, and `foreground-caution`: text in the role's color that meets your contrast target on surface DEFAULT, weak, and strong. Use `text-surface-foreground-negative` for an error message on the page, and `text-negative-foreground` for text on a `bg-negative` fill.
 
 Plus **`brand-exact`** (your input color, unchanged) and **`brand-exact-foreground`**.
 

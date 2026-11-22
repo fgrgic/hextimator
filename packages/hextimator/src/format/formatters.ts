@@ -104,10 +104,6 @@ export function formatTailwindStylesheet(
 	sep: string,
 	opts: StylesheetOptions = {},
 ): string {
-	if (lightEntries.some((entry) => entry.propertyUtility)) {
-		const entries = opts.theme === 'dark' ? darkEntries : lightEntries;
-		return `${formatCSSStylesheet(lightEntries, darkEntries, sep, opts)}\n${formatPropertyAwareTailwind(entries, sep)}`;
-	}
 	const darkMode: StylesheetDarkMode = opts.darkMode ?? 'media';
 	const selectedTheme =
 		opts.theme === 'dark'
@@ -129,75 +125,4 @@ export function formatTailwindStylesheet(
 	const darkSel = darkSelectorFor(darkMode);
 	const darkBlock = `${darkSel} {\n${declsFromEntries(darkEntries, sep, '--color-', '  ')}\n}`;
 	return `${theme}\n${darkBlock}`;
-}
-
-const INK_PROPERTIES = {
-	text: 'color',
-	fill: 'fill',
-	stroke: 'stroke',
-	caret: 'caret-color',
-	decoration: 'text-decoration-color',
-};
-
-const FILL_PROPERTIES = {
-	bg: 'background-color',
-	border: 'border-color',
-	'border-x': 'border-inline-color',
-	'border-y': 'border-block-color',
-	'border-t': 'border-top-color',
-	'border-r': 'border-right-color',
-	'border-b': 'border-bottom-color',
-	'border-l': 'border-left-color',
-	'border-s': 'border-inline-start-color',
-	'border-e': 'border-inline-end-color',
-	outline: 'outline-color',
-	ring: '--tw-ring-color',
-	'ring-offset': '--tw-ring-offset-color',
-	shadow: '--tw-shadow-color',
-	'inset-ring': '--tw-inset-ring-color',
-	'inset-shadow': '--tw-inset-shadow-color',
-};
-
-function propertyUtilityRules(entry: TokenEntry, sep: string): string[] {
-	if (!entry.propertyUtility) return [];
-	const { kind, name } = entry.propertyUtility;
-	const value = `var(--${toFlatKey(entry, sep)})`;
-	if (kind === 'placeholder') {
-		return [
-			`@utility placeholder-${name} {\n  &::placeholder {\n    color: ${value};\n    opacity: 1;\n  }\n}`,
-		];
-	}
-	const rules = Object.entries(
-		kind === 'ink' ? INK_PROPERTIES : FILL_PROPERTIES,
-	).map(
-		([utility, property]) =>
-			`@utility ${utility}-${name} {\n  ${property}: ${value};\n}`,
-	);
-	if (kind === 'fill') {
-		rules.push(
-			`@utility divide-${name} {\n  :where(& > :not(:last-child)) {\n    border-color: ${value};\n  }\n}`,
-		);
-	}
-	return rules;
-}
-
-/**
- * Semantic roles get per-property `@utility` rules; every other token is aliased
- * into Tailwind's `--color-*` namespace. Both read bare variables at the element.
- */
-export function formatPropertyAwareTailwind(
-	entries: TokenEntry[],
-	sep: string,
-): string {
-	const aliases = entries
-		.filter((entry) => !entry.propertyUtility)
-		.map((entry) => {
-			const key = toFlatKey(entry, sep);
-			return `  --color-${key}: var(--${key});`;
-		})
-		.join('\n');
-	const utilities = entries
-		.flatMap((entry) => propertyUtilityRules(entry, sep))
-		.join('\n\n');
-	return `@theme inline {\n${aliases}\n}\n${utilities}`;
 }

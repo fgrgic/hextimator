@@ -123,18 +123,6 @@ const STYLE_OPTIONS: CompletionEntry[] = [
 		detail: "'AAA' | 'AA' | number",
 	},
 	{
-		label: 'placeholderContrastRatio',
-		type: 'property',
-		info: "Minimum placeholder contrast on surface backgrounds. Default: 'AA' (4.5). Use 'AAA' to require 7:1.",
-		detail: "'AAA' | 'AA' | number",
-	},
-	{
-		label: 'propertyAware',
-		type: 'property',
-		info: 'Generate semantic text and icon colors for surfaces. Default: true. Set false for legacy output.',
-		detail: 'boolean',
-	},
-	{
 		label: 'hueShift',
 		type: 'property',
 		info: 'Hue shift per variant step (degrees). Default: 0',
@@ -192,12 +180,6 @@ const THEME_ADJUSTMENTS: CompletionEntry[] = [
 		label: 'minContrastRatio',
 		type: 'property',
 		info: 'Override global contrast ratio for this theme',
-		detail: "'AAA' | 'AA' | number",
-	},
-	{
-		label: 'placeholderContrastRatio',
-		type: 'property',
-		info: 'Override placeholder contrast for this theme',
 		detail: "'AAA' | 'AA' | number",
 	},
 	{

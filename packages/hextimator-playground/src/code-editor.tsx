@@ -206,6 +206,13 @@ export function CodeEditor({
 	);
 }
 
+/** Text tokens preview as "Aa" on the background they are meant for. */
+function textBackground(name: string): string | undefined {
+	const inverted = name.endsWith('-inverted') ? '-inverted' : '';
+	const role = name.match(/^(.+?)-foreground(-[a-z]+)?(-inverted)?$/)?.[1];
+	return role && `${role}${inverted}`;
+}
+
 function TokenList({
 	object,
 	hex,
@@ -223,23 +230,18 @@ function TokenList({
 						| Record<string, string>
 						| undefined;
 					const hexColor = hexTokens?.[name] ?? value;
-					const textKindPattern = /-(ink|placeholder)(?=-|$)/;
-					const textKind = name.match(textKindPattern)?.[1];
-					const isText = textKind !== undefined;
-					const utility = `${textKind === 'placeholder' ? 'placeholder' : 'text'}-${name.replace(textKindPattern, '')}`;
+					const background = textBackground(name);
+					const isText = background !== undefined;
 					return (
 						<div key={name} className="hxp-token-row">
 							<span
 								className={`hxp-token-swatch ${isText ? 'hxp-token-text' : ''}`}
 								style={{
 									background: isText
-										? (hexTokens?.surface ??
-											hexTokens?.background ??
-											'var(--surface)')
+										? (hexTokens?.[background] ?? `var(--${background})`)
 										: hexColor,
 									color: hexColor,
 								}}
-								title={isText ? utility : name}
 							>
 								{isText ? 'Aa' : null}
 							</span>

@@ -10,22 +10,21 @@ function labels(doc: string) {
 	)?.options.map((option) => option.label);
 }
 
-test('offers property-aware and placeholder settings in style options', () => {
+test('offers style settings', () => {
 	const options = labels("hextimate('#ff6600').style({ ");
-	expect(options).toContain('propertyAware');
-	expect(options).toContain('placeholderContrastRatio');
+	expect(options).toContain('minContrastRatio');
 });
 
 test('offers style settings after applying a preset', () => {
 	expect(
 		labels("hextimate('#ff6600').preset(presets.muted).style({ "),
-	).toContain('placeholderContrastRatio');
+	).toContain('minContrastRatio');
 });
 
-test('offers placeholder contrast in both theme branches without the global flag', () => {
+test('offers theme adjustments in both theme branches without global-only options', () => {
 	for (const theme of ['light', 'dark']) {
 		const options = labels(`hextimate('#ff6600').style({ ${theme}: { `);
-		expect(options).toContain('placeholderContrastRatio');
-		expect(options).not.toContain('propertyAware');
+		expect(options).toContain('minContrastRatio');
+		expect(options).not.toContain('invertDarkModeSurfaceAccent');
 	}
 });

@@ -17,7 +17,6 @@ import {
 } from './components';
 import { Button } from './components/button';
 import { Context7Chat } from './components/context7-chat';
-import { AccessibilityPreview } from './components/interactive/accessibility/accessibility-preview';
 import { GetStarted } from './components/interactive/get-started';
 import { ThemeColorMeta } from './components/theme-color-meta';
 import { ThemePreview } from './components/theme-preview';
@@ -93,8 +92,7 @@ function App() {
 					</Section>
 					<Section
 						title="Accessibility built-in"
-						preview={<AccessibilityPreview />}
-						description="Semantic text and icons meet your contrast target on every surface variant, up to the strongest contrast available. Fills pair with their foregrounds. Placeholders default to 4.5:1."
+						description="Every generated foreground meets your minimum contrast ratio against its background, including positive, negative, caution, and accent text on every surface. Adapt palettes for color vision deficiencies in one call."
 					>
 						<Accessibility />
 					</Section>

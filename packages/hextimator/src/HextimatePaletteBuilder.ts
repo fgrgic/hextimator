@@ -11,10 +11,9 @@ import { serializeColor } from './format/serializeColor';
 import type { TokenEntry } from './format/types';
 import { generate } from './generate';
 import {
-	INK_VARIANTS,
-	isInkRole,
-	propertyColors,
-} from './generate/propertyColors';
+	isRoleForeground,
+	surfaceForegrounds,
+} from './generate/surfaceForegrounds';
 import type { ColorScale, HextimatePalette } from './generate/types';
 import {
 	CONTRAST_MARGIN,
@@ -144,7 +143,7 @@ export class HextimatePaletteBuilder {
 		name: string;
 		value: TokenValue;
 	}> = [];
-	private readonly propertyOverrides = new Map<string, TokenValue>();
+	private readonly foregroundOverrides = new Map<string, TokenValue>();
 	private readonly weakSideVariants: string[] = ['weak'];
 	private readonly strongSideVariants: string[] = ['strong'];
 	private readonly foregroundAnchoredVariants: Set<string> = new Set();
@@ -186,7 +185,7 @@ export class HextimatePaletteBuilder {
 			this.resolvedOptions(),
 		);
 		this.standaloneTokens.length = 0;
-		this.propertyOverrides.clear();
+		this.foregroundOverrides.clear();
 		this.weakSideVariants.length = 0;
 		this.weakSideVariants.push('weak');
 		this.strongSideVariants.length = 0;
@@ -585,18 +584,13 @@ export class HextimatePaletteBuilder {
 	}
 
 	private outputPalette(theme: 'light' | 'dark'): HextimatePalette {
-		const palette = propertyColors(
+		const palette = surfaceForegrounds(
 			theme === 'light' ? this.lightPalette : this.darkPalette,
 			theme,
 			this.resolvedOptions(),
 		);
-		for (const [coordinate, value] of this.propertyOverrides) {
+		for (const [coordinate, value] of this.foregroundOverrides) {
 			const [role, variant] = coordinate.split('.');
-			if (!palette[role]?.[variant]) {
-				throw new Error(
-					`Unknown variant "${variant}" in palette coordinate "${coordinate}". Inks require propertyAware.`,
-				);
-			}
 			palette[role][variant] = convert(
 				this.resolveTokenValue(value, theme, palette),
 				'oklch',
@@ -755,12 +749,8 @@ export class HextimatePaletteBuilder {
 
 	private applyToken(name: string, value: TokenValue): void {
 		const [role, variant] = name.split('.');
-		if (
-			name === `${role}.${variant}` &&
-			isInkRole(role) &&
-			(INK_VARIANTS as readonly string[]).includes(variant)
-		) {
-			this.propertyOverrides.set(name, value);
+		if (name === `${role}.${variant}` && isRoleForeground(role, variant)) {
+			this.foregroundOverrides.set(name, value);
 			return;
 		}
 		if (name.includes('.')) {

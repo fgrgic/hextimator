@@ -19,7 +19,6 @@ export function Accessibility() {
 	const { style, setStyle, setConfigure } = useHextimatorTheme();
 
 	const [contrastRatio, setContrastRatio] = useState(7);
-	const [placeholderContrastRatio, setPlaceholderContrastRatio] = useState(4.5);
 	const [cvdType, setCvdType] = useState<CVDType | 'none'>('none');
 	const [simulatePreview, setSimulatePreview] = useState(false);
 
@@ -33,16 +32,10 @@ export function Accessibility() {
 	};
 
 	const applyAccessibility = useCallback(
-		(
-			ratio: number,
-			cvd: CVDType | 'none',
-			simulate: boolean,
-			placeholderRatio = placeholderContrastRatio,
-		) => {
+		(ratio: number, cvd: CVDType | 'none', simulate: boolean) => {
 			setStyle({
 				...style,
 				minContrastRatio: ratio,
-				placeholderContrastRatio: placeholderRatio,
 			});
 
 			if (cvd === 'none') {
@@ -56,19 +49,13 @@ export function Accessibility() {
 				});
 			}
 		},
-		[style, setStyle, setConfigure, placeholderContrastRatio],
+		[style, setStyle, setConfigure],
 	);
 
 	const handleContrastChange = (value: number) => {
 		handleInteract();
 		setContrastRatio(value);
 		applyAccessibility(value, cvdType, simulatePreview);
-	};
-
-	const handlePlaceholderChange = (value: number) => {
-		handleInteract();
-		setPlaceholderContrastRatio(value);
-		applyAccessibility(contrastRatio, cvdType, simulatePreview, value);
 	};
 
 	const handleCvdChange = (type: CVDType | 'none') => {
@@ -82,23 +69,21 @@ export function Accessibility() {
 	const handleReset = () => {
 		handleInteract();
 		setContrastRatio(7);
-		setPlaceholderContrastRatio(4.5);
 		setCvdType('none');
 		setSimulatePreview(false);
 		setStyle({
 			...style,
 			minContrastRatio: 7,
-			placeholderContrastRatio: 4.5,
 		});
 		setConfigure(undefined);
 	};
 
 	return (
-		<InteractiveCard className="gap-4">
+		<InteractiveCard>
 			<h3>Accessibility</h3>
 
 			<RangeSlider
-				label="Text contrast"
+				label="Min contrast"
 				value={contrastRatio}
 				valueClassName={
 					contrastRatio >= 7
@@ -114,18 +99,6 @@ export function Accessibility() {
 				onInteract={handleInteract}
 				unit=":1"
 				aria-label="Minimum contrast ratio for generated colors"
-			/>
-
-			<RangeSlider
-				label="Placeholder contrast"
-				value={placeholderContrastRatio}
-				min={4.5}
-				max={7}
-				step={0.5}
-				onChange={handlePlaceholderChange}
-				onInteract={handleInteract}
-				unit=":1"
-				aria-label="Minimum contrast ratio for placeholders"
 			/>
 
 			<div className="flex flex-col gap-1.5">

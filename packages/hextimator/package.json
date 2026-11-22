@@ -50,23 +50,19 @@
 		},
 		"./cli": "./dist/cli.js",
 		"./tailwind.css": "./tailwind.css",
-		"./tailwind-legacy.css": "./tailwind-legacy.css",
-		"./tailwind-legacy-inverted.css": "./tailwind-legacy-inverted.css",
 		"./tailwind-inverted.css": "./tailwind-inverted.css",
 		"./fallback.css": "./fallback.css"
 	},
 	"files": [
 		"dist",
 		"tailwind.css",
-		"tailwind-legacy.css",
-		"tailwind-legacy-inverted.css",
 		"tailwind-inverted.css",
 		"fallback.css",
 		"llms.txt",
 		"CHANGELOG.md"
 	],
 	"scripts": {
-		"build": "bun scripts/generate-fallback-css.ts && bun scripts/generate-tailwind-css.ts && tsup",
+		"build": "bun scripts/generate-fallback-css.ts && tsup",
 		"dev": "tsup --watch",
 		"generate:fallback": "bun scripts/generate-fallback-css.ts",
 		"test": "bun test"

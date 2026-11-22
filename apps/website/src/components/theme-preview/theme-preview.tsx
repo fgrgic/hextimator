@@ -54,7 +54,8 @@ export function ThemePreview({
 
 	const entries = Object.entries(tokens)
 		.filter(([key]) => {
-			if (/-(foreground|ink|placeholder)(-|$)/.test(key)) return false;
+			// Foreground tokens (including -foreground-weak) are label text, not swatches.
+			if (key.includes(FOREGROUND_SUFFIX)) return false;
 			if (key === 'brand-exact') return false;
 			const role = getRole(key);
 			const variant = getVariant(key);

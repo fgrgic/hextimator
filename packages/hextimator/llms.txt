@@ -37,8 +37,6 @@ Quote hex colors in the shell (`'#6366f1'`).
 | `--key-prefix` | For `object` / `json`; use `--` for CSS-like keys | (empty) |
 | `--exclude-role`, `--exclude-variant` | Omit by internal name (repeatable) | - |
 | `--min-contrast` | `AAA`, `AA`, or number | `AAA` |
-| `--placeholder-contrast` | `AAA`, `AA`, or number | `AA` |
-| `--legacy-colors` | Disable property-aware inks | Off |
 
 ### Style / semantics (CLI mirrors library `style`)
 
@@ -106,7 +104,7 @@ const sheet = hextimate("#6366f1").format({ as: "css", colors: "oklch" });
 
 ### Default token grid
 
-Roles: `surface`, `accent`, `positive`, `negative`, `caution`. Variants: default (no suffix), `strong`, `weak`, `foreground`, `foreground-weak` (softest text that still meets the contrast target vs DEFAULT). Plus `brand-exact` and `brand-exact-foreground`.
+Roles: `surface`, `accent`, `positive`, `negative`, `caution`. Variants: default (no suffix), `strong`, `weak`, `foreground`, `foreground-weak` (softest text that still meets the contrast target vs DEFAULT). Surface also has `foreground-accent`, `foreground-positive`, `foreground-negative`, `foreground-caution`: role-colored text that meets the contrast target on surface DEFAULT, weak, and strong (`text-surface-foreground-negative` for errors on the page; `text-negative-foreground` for text on a negative fill). Plus `brand-exact` and `brand-exact-foreground`.
 
 ### Utilities
 
@@ -162,11 +160,7 @@ Custom presets are plain objects (`style`, `roles`, `variants`, `tokens`, `forma
 @import "hextimator/tailwind.css";
 ```
 
-Semantic background and border classes keep the fill value. Text, SVG fill/stroke, caret, and decoration classes use `role-ink` (plus `-weak` / `-strong`). Placeholder classes use `role-placeholder` with opacity 1. Inks support surface DEFAULT, weak, and strong in the same theme. Other backgrounds require explicit foreground pairing. Surface utilities keep their existing values.
-
-`.style({ placeholderContrastRatio: 'AAA' })` enforces 7:1 placeholders. Default: 4.5:1. Text uses `minContrastRatio` (default 7:1). `.style({ propertyAware: false })` omits inks; pair with `hextimator/tailwind-legacy.css` (and `tailwind-legacy-inverted.css` for inverted variants). Do not import both utility stylesheets.
-
-Static semantic utilities do not support opacity modifiers. `text-negative/50` and `bg-negative/50` emit no CSS. Arbitrary values are an explicit escape hatch. Custom/preset names need generated `tailwind-css` output or manual utilities. Override ink with `.addToken('negative.ink', '#b42318')`. Direct overrides own contrast risk.
+Registers utilities for built-in token names (`bg-accent`, etc.). Custom or preset-only names may need CLI-generated CSS.
 
 ## Fallback before JS
 

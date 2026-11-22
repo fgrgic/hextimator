@@ -19,8 +19,6 @@ const GENERATION_OPTION_TO_CLI_FLAG: Record<string, string | null> = {
 	light: 'light-lightness', // light.baseLightness exposed as --light-lightness
 	dark: 'dark-lightness', // dark.baseLightness exposed as --dark-lightness
 	minContrastRatio: 'min-contrast',
-	placeholderContrastRatio: 'placeholder-contrast',
-	propertyAware: 'legacy-colors',
 	invertDarkModeSurfaceAccent: 'invert-dark',
 	semanticColors: 'positive', // exposed as --positive, --negative, --caution
 	semanticColorRanges: null, // not exposed in CLI (advanced, rarely used)

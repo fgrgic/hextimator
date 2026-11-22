@@ -139,13 +139,11 @@ export interface ThemeAdjustments {
 	baseLightnessRange?: readonly [number, number];
 
 	/**
-	 * Minimum contrast for role fills against foreground, and semantic inks against surface backgrounds.
+	 * Minimum contrast between non-foreground variants and foreground, and
+	 * between `surface-foreground-<role>` and every surface variant.
 	 * `"AAA"` → 7, `"AA"` → 4.5, or a number.
 	 */
 	minContrastRatio?: 'AAA' | 'AA' | number;
-
-	/** Minimum placeholder contrast on surface backgrounds. Default: AA (4.5). */
-	placeholderContrastRatio?: 'AAA' | 'AA' | number;
 
 	/**
 	 * Max chroma for surface (`surface`, `strong`, `weak`). Default `0.01`.
@@ -198,8 +196,6 @@ export interface ThemeAdjustments {
  * to override per theme.
  */
 export interface HextimateStyleOptions extends ThemeAdjustments {
-	/** Generate semantic inks for surface backgrounds. Default: true. */
-	propertyAware?: boolean;
 	/**
 	 * In dark mode: surface hue becomes accent and accent hue becomes surface.
 	 * Requires a `surfaceColor` on the invert path (top-level or `dark`).

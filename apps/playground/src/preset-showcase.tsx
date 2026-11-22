@@ -44,7 +44,7 @@ export function buildPlaygroundCode(
 			? `hextimate(${literal})`
 			: `hextimate(${literal})\n  .preset(presets.${presetId})`;
 	return `${head}
-  // .style({ minContrastRatio: 'AAA', placeholderContrastRatio: 'AA' })
+  // .style({ minContrastRatio: 'AA' })
   // .preset(presets.shadcn)
   // .addRole('cta', '#ff006e')
   // .addVariant('muted', { from: 'weak' })

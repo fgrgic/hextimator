@@ -87,7 +87,7 @@
 	padding: 0.5rem 0.75rem;
 	font-size: 0.8rem;
 	font-family: monospace;
-	color: var(--negative-ink, #ff6b6b);
+	color: var(--surface-foreground-negative, #ff6b6b);
 	border-top: 1px solid var(--surface-weak, rgba(128, 128, 128, 0.25));
 	background: var(--surface);
 	word-break: break-all;
@@ -118,8 +118,8 @@
 }
 
 .hxp-token-swatch {
-	width: 18px;
-	height: 18px;
+	width: 24px;
+	height: 24px;
 	border-radius: 4px;
 	flex-shrink: 0;
 	border: 1px solid var(--surface-weak, rgba(128, 128, 128, 0.25));
@@ -129,9 +129,7 @@
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 28px;
-	height: 24px;
-	font-size: 14px;
+	font-size: 12px;
 	font-weight: 600;
 }
 

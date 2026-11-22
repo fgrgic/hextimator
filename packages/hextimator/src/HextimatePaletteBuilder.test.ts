@@ -122,7 +122,7 @@ describe('HextimatePaletteBuilder: format()', () => {
 	it('tailwind-css format returns a single combined stylesheet string', () => {
 		const result = hextimate('#ff6600').format({ as: 'tailwind-css' });
 		expect(typeof result).toBe('string');
-		expect(result).toContain('@theme inline {');
+		expect(result).toContain('@theme {');
 		expect(result).toContain('--color-surface:');
 		expect(result.match(/@theme/g) ?? []).toHaveLength(1);
 	});
@@ -1340,9 +1340,7 @@ describe('HextimatePaletteBuilder: invertedVariants', () => {
 			keys.some(
 				(k) =>
 					k.includes('-weak-inverted') &&
-					!k.includes('-foreground-weak-inverted') &&
-					!k.includes('-ink-weak-inverted') &&
-					!k.includes('-placeholder-weak-inverted'),
+					!k.includes('-foreground-weak-inverted'),
 			),
 		).toBe(false);
 		// Excluding "weak" must not drop the distinct foreground-weak variant.
@@ -1457,9 +1455,9 @@ describe('HextimatePaletteBuilder: invertedVariants', () => {
 		}) as string;
 
 		const [themeBlock, darkBlock] = css.split('.dark {');
-		expect(themeBlock).toContain('--accent-inverted:');
+		expect(themeBlock).toContain('--color-accent-inverted:');
 		expect(darkBlock).toBeDefined();
-		expect(darkBlock).toContain('--accent-inverted:');
+		expect(darkBlock).toContain('--color-accent-inverted:');
 	});
 
 	it('darkMode: false still emits inverted vars (one block, dark values under -inverted)', () => {
