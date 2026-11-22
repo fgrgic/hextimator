@@ -1,4 +1,74 @@
+import { baseTheme, type ThemeDefinition } from '../theme';
 import type { HextimatePreset } from './types';
+
+const variantNames = {
+	foreground: 'foreground',
+};
+
+const format = {
+	as: 'css',
+	colors: 'oklch',
+	roleNames: {
+		surface: 'background',
+		accent: 'primary',
+		negative: 'destructive',
+		positive: 'success',
+	},
+	excludeRoles: ['caution'],
+	excludeVariants: ['strong', 'weak', 'foreground-weak'],
+} satisfies NonNullable<ThemeDefinition['format']>;
+
+const tokens: NonNullable<HextimatePreset['tokens']> = [
+	// shadcn uses bare --foreground (not --background-foreground)
+	{ name: 'foreground', value: { from: 'surface.foreground' } },
+
+	// card / popover — same as background
+	{ name: 'card', value: { from: 'surface' } },
+	{ name: 'card-foreground', value: { from: 'surface.foreground' } },
+	{ name: 'popover', value: { from: 'surface' } },
+	{ name: 'popover-foreground', value: { from: 'surface.foreground' } },
+
+	// secondary — subtle contrast from background
+	{ name: 'secondary', value: { from: 'surface' } },
+	{ name: 'secondary-foreground', value: { from: 'surface.foreground' } },
+
+	// muted — similar to secondary, but with dimmer foreground
+	{ name: 'muted', value: { from: 'surface' } },
+	{
+		name: 'muted-foreground',
+		value: {
+			from: 'surface.foreground',
+			emphasis: -0.25,
+		},
+	},
+
+	// accent (shadcn meaning: subtle hover highlight, not the brand color)
+	{ name: 'accent', value: { from: 'surface' } },
+	{ name: 'accent-foreground', value: { from: 'surface.foreground' } },
+
+	// border / input
+	{
+		name: 'border',
+		value: { from: 'surface', emphasis: +0.8 },
+	},
+	{
+		name: 'input',
+		value: {
+			from: 'surface',
+			emphasis: +0.8,
+		},
+	},
+
+	// ring — uses the brand/primary color
+	{ name: 'ring', value: { from: 'accent' } },
+
+	// chart tokens colors use brand/priamry color
+	{ name: 'chart-1', value: { from: 'accent' } },
+	{ name: 'chart-2', value: { from: 'chart-1', emphasis: -0.04 } },
+	{ name: 'chart-3', value: { from: 'chart-2', emphasis: -0.04 } },
+	{ name: 'chart-4', value: { from: 'chart-3', emphasis: -0.04 } },
+	{ name: 'chart-5', value: { from: 'chart-4', emphasis: -0.04 } },
+];
 
 /**
  * Preset for shadcn/ui projects.
@@ -24,70 +94,13 @@ import type { HextimatePreset } from './types';
  * });
  */
 export const shadcn: HextimatePreset = {
-	tokens: [
-		// shadcn uses bare --foreground (not --background-foreground)
-		{ name: 'foreground', value: { from: 'surface.foreground' } },
-
-		// card / popover — same as background
-		{ name: 'card', value: { from: 'surface' } },
-		{ name: 'card-foreground', value: { from: 'surface.foreground' } },
-		{ name: 'popover', value: { from: 'surface' } },
-		{ name: 'popover-foreground', value: { from: 'surface.foreground' } },
-
-		// secondary — subtle contrast from background
-		{ name: 'secondary', value: { from: 'surface' } },
-		{ name: 'secondary-foreground', value: { from: 'surface.foreground' } },
-
-		// muted — similar to secondary, but with dimmer foreground
-		{ name: 'muted', value: { from: 'surface' } },
-		{
-			name: 'muted-foreground',
-			value: {
-				from: 'surface.foreground',
-				emphasis: -0.25,
-			},
-		},
-
-		// accent (shadcn meaning: subtle hover highlight, not the brand color)
-		{ name: 'accent', value: { from: 'surface' } },
-		{ name: 'accent-foreground', value: { from: 'surface.foreground' } },
-
-		// border / input
-		{
-			name: 'border',
-			value: { from: 'surface', emphasis: +0.8 },
-		},
-		{
-			name: 'input',
-			value: {
-				from: 'surface',
-				emphasis: +0.8,
-			},
-		},
-
-		// ring — uses the brand/primary color
-		{ name: 'ring', value: { from: 'accent' } },
-
-		// chart tokens colors use brand/priamry color
-		{ name: 'chart-1', value: { from: 'accent' } },
-		{ name: 'chart-2', value: { from: 'chart-1', emphasis: -0.04 } },
-		{ name: 'chart-3', value: { from: 'chart-2', emphasis: -0.04 } },
-		{ name: 'chart-4', value: { from: 'chart-3', emphasis: -0.04 } },
-		{ name: 'chart-5', value: { from: 'chart-4', emphasis: -0.04 } },
-	],
-	format: {
-		as: 'css',
-		colors: 'oklch',
-		roleNames: {
-			surface: 'background',
-			accent: 'primary',
-			negative: 'destructive',
-			positive: 'success',
-		},
-		variantNames: {
-			foreground: 'foreground',
-		},
-		excludeRoles: ['caution'],
-		excludeVariants: ['strong', 'weak', 'foreground-weak'],
-	},
+	tokens,
+	format: { ...format, variantNames },
 };
+
+export const shadcnTheme = {
+	...baseTheme,
+	tokens: [...baseTheme.tokens, ...tokens],
+	variantNames,
+	format,
+} satisfies ThemeDefinition;
