@@ -9,6 +9,7 @@ import {
 
 function declarations(css: string): string[] {
 	return css
+		.replace(/^\/\*.*?\*\/\n/, '')
 		.replace(/\s+/g, '')
 		.replace(/^@themeinline\{|\}$/g, '')
 		.split(';')
