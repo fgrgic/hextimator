@@ -23,6 +23,7 @@ export type {
 	TokenGenerator,
 } from './theme';
 export { baseTheme } from './theme';
+export * as themes from './themes';
 export type {
 	HextimateFormatOptions,
 	HextimateStyleOptions,
