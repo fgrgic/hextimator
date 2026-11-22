@@ -139,7 +139,8 @@ export interface ThemeAdjustments {
 	baseLightnessRange?: readonly [number, number];
 
 	/**
-	 * Minimum contrast between non-foreground variants and foreground.
+	 * Minimum contrast between non-foreground variants and foreground, and
+	 * between `surface-foreground-<role>` and every surface variant.
 	 * `"AAA"` → 7, `"AA"` → 4.5, or a number.
 	 */
 	minContrastRatio?: 'AAA' | 'AA' | number;

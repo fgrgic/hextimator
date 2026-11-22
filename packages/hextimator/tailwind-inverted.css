@@ -13,6 +13,18 @@
 	--color-surface-foreground-weak-inverted: var(
 		--surface-foreground-weak-inverted
 	);
+	--color-surface-foreground-accent-inverted: var(
+		--surface-foreground-accent-inverted
+	);
+	--color-surface-foreground-positive-inverted: var(
+		--surface-foreground-positive-inverted
+	);
+	--color-surface-foreground-negative-inverted: var(
+		--surface-foreground-negative-inverted
+	);
+	--color-surface-foreground-caution-inverted: var(
+		--surface-foreground-caution-inverted
+	);
 	--color-positive-inverted: var(--positive-inverted);
 	--color-positive-strong-inverted: var(--positive-strong-inverted);
 	--color-positive-weak-inverted: var(--positive-weak-inverted);

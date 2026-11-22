@@ -78,7 +78,7 @@ function App() {
 					</div>
 					<Section
 						title="Build the rules"
-						description="Configure lightness, chroma, and hue shifts for your palette. Once saved as a preset, any brand color produces a full theme with these same rules"
+						description="Configure lightness, chroma, and hue shifts for your palette. Once saved as a preset, any brand color produces a full theme with these same rules."
 						id="theme-preferences"
 					>
 						<ThemePreferences />
@@ -92,7 +92,7 @@ function App() {
 					</Section>
 					<Section
 						title="Accessibility built-in"
-						description="Every generated foreground meets your minimum contrast ratio against its background. Adapt palettes for color vision deficiencies in one call."
+						description="Every generated foreground meets your minimum contrast ratio against its background, including positive, negative, caution, and accent text on every surface. Adapt palettes for color vision deficiencies in one call."
 					>
 						<Accessibility />
 					</Section>

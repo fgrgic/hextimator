@@ -104,7 +104,7 @@ const sheet = hextimate("#6366f1").format({ as: "css", colors: "oklch" });
 
 ### Default token grid
 
-Roles: `surface`, `accent`, `positive`, `negative`, `caution`. Variants: default (no suffix), `strong`, `weak`, `foreground`, `foreground-weak` (softest text that still meets the contrast target vs DEFAULT). Plus `brand-exact` and `brand-exact-foreground`.
+Roles: `surface`, `accent`, `positive`, `negative`, `caution`. Variants: default (no suffix), `strong`, `weak`, `foreground`, `foreground-weak` (softest text that still meets the contrast target vs DEFAULT). Surface also has `foreground-accent`, `foreground-positive`, `foreground-negative`, `foreground-caution`: role-colored text that meets the contrast target on surface DEFAULT, weak, and strong (`text-surface-foreground-negative` for errors on the page; `text-negative-foreground` for text on a negative fill). Plus `brand-exact` and `brand-exact-foreground`.
 
 ### Utilities
 

@@ -27,7 +27,7 @@ export default defineConfig({
 @import "hextimator/tailwind.css";
 ```
 
-That's it. All 25 built-in tokens (accent, surface, positive, negative, caution × DEFAULT/strong/weak/foreground/foreground-weak) are available as Tailwind utilities.
+That's it. All built-in tokens (accent, surface, positive, negative, caution × DEFAULT/strong/weak/foreground/foreground-weak, plus surface foreground-accent/positive/negative/caution) are available as Tailwind utilities.
 
 ## How it works
 
@@ -60,3 +60,15 @@ If you extend the palette with `addRole()` or `addVariant()`, add the extra toke
   --color-cta-foreground: var(--cta-foreground);
 }
 ```
+
+## Colored text on surfaces
+
+`text-negative` uses the same color as `bg-negative`, which is made for fills and may not be readable as text. For colored text on the page, use the surface foregrounds:
+
+```html
+<p class="text-surface-foreground-negative">Payment failed</p>
+<p class="text-surface-foreground-positive">Changes saved</p>
+<button class="bg-negative text-negative-foreground">Delete</button>
+```
+
+`surface-foreground-accent`, `-positive`, `-negative`, and `-caution` meet `minContrastRatio` on `surface`, `surface-weak`, and `surface-strong`. For placeholders, use `placeholder-surface-foreground-weak`.

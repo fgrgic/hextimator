@@ -125,7 +125,10 @@ describe('formatStylesheet() — css', () => {
 			as: 'css',
 			theme: 'dark',
 		});
-		const darkOnly = format(darkPalette, { as: 'object' });
+		const darkOnly = format(darkPalette, { as: 'object' }) as Record<
+			string,
+			string
+		>;
 		expect(css).toContain(`--surface: ${darkOnly.surface};`);
 		expect(css).not.toContain('@media');
 	});
@@ -149,7 +152,10 @@ describe('formatStylesheet() — tailwind-css', () => {
 			as: 'tailwind-css',
 			theme: 'dark',
 		});
-		const darkOnly = format(darkPalette, { as: 'object' });
+		const darkOnly = format(darkPalette, { as: 'object' }) as Record<
+			string,
+			string
+		>;
 		expect(css).toContain(`--color-surface: ${darkOnly.surface};`);
 		expect(css).not.toContain('@media');
 	});

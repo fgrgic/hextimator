@@ -96,7 +96,9 @@ npx hextimator '#BADA55' --preset bold
 | negative | DEFAULT, strong, weak, foreground, foreground-weak |
 | caution  | DEFAULT, strong, weak, foreground, foreground-weak |
 
-`foreground-weak` is the softest foreground that still meets your contrast target against the role's DEFAULT background - use it for secondary or muted text.
+`foreground-weak` is the softest foreground that still meets your contrast target against the role's DEFAULT background - use it for secondary or muted text and placeholders.
+
+Surface also has `foreground-accent`, `foreground-positive`, `foreground-negative`, and `foreground-caution`: text in the role's color that meets your contrast target on surface DEFAULT, weak, and strong. Use `text-surface-foreground-negative` for an error message on the page, and `text-negative-foreground` for text on a `bg-negative` fill.
 
 Plus **`brand-exact`** (your input color, unchanged) and **`brand-exact-foreground`**.
 

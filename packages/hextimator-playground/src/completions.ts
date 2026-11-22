@@ -30,7 +30,7 @@ const BUILDER_METHODS: CompletionEntry[] = [
 		label: 'addToken',
 		type: 'method',
 		detail: '(name, value)',
-		info: 'Add a standalone token',
+		info: 'Add a standalone token or override a palette color with a dotted key',
 		apply: "addToken('name', { from: 'accent' })",
 	},
 	{
@@ -227,8 +227,8 @@ function matchContext(text: string): CompletionEntry[] | null {
 	// presets.
 	if (/presets\.\s*[a-zA-Z]*$/.test(text)) return PRESETS;
 
-	// Inside .light({ or .dark({ — theme adjustments
-	if (/\.\s*(?:light|dark)\s*\(\s*\{[^}]*$/.test(text))
+	// Theme adjustments inside style branches.
+	if (/\.style\s*\([\s\S]*\b(?:light|dark)\s*:\s*\{[^}]*$/.test(text))
 		return THEME_ADJUSTMENTS;
 
 	// Inside addVariant second arg
@@ -236,8 +236,7 @@ function matchContext(text: string): CompletionEntry[] | null {
 		return VARIANT_PLACEMENTS;
 
 	// Inside hextimate(...).style({ ... }) — style options
-	if (/hextimate\s*\([^)]*\)\s*\.style\s*\(\s*\{[^}]*$/.test(text))
-		return STYLE_OPTIONS;
+	if (/\.style\s*\(\s*\{[^}]*$/.test(text)) return STYLE_OPTIONS;
 
 	return null;
 }

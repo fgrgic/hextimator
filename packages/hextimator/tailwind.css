@@ -9,6 +9,10 @@
 	--color-surface-weak: var(--surface-weak);
 	--color-surface-foreground: var(--surface-foreground);
 	--color-surface-foreground-weak: var(--surface-foreground-weak);
+	--color-surface-foreground-accent: var(--surface-foreground-accent);
+	--color-surface-foreground-positive: var(--surface-foreground-positive);
+	--color-surface-foreground-negative: var(--surface-foreground-negative);
+	--color-surface-foreground-caution: var(--surface-foreground-caution);
 	--color-positive: var(--positive);
 	--color-positive-strong: var(--positive-strong);
 	--color-positive-weak: var(--positive-weak);

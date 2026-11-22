@@ -88,7 +88,7 @@ export function CodeEditor({
 	const [outputMode, setOutputMode] = useState<'light' | 'dark'>('light');
 	const [colorFormat, setColorFormat] = useState<ColorFormat>('hex');
 
-	const { object, css, error } = useCodeEval(code, color, colorFormat);
+	const { object, hex, error } = useCodeEval(code, color, colorFormat);
 
 	const handleChange = useCallback((value: string) => {
 		setCode(value);
@@ -196,7 +196,7 @@ export function CodeEditor({
 				</div>
 				<div className="hxp-output-scroll">
 					{object ? (
-						<TokenList object={object} css={css} outputMode={outputMode} />
+						<TokenList object={object} hex={hex} outputMode={outputMode} />
 					) : (
 						<span className="hxp-output-placeholder">Evaluating...</span>
 					)}
@@ -206,30 +206,45 @@ export function CodeEditor({
 	);
 }
 
+/** Text tokens preview as "Aa" on the background they are meant for. */
+function textBackground(name: string): string | undefined {
+	const inverted = name.endsWith('-inverted') ? '-inverted' : '';
+	const role = name.match(/^(.+?)-foreground(-[a-z]+)?(-inverted)?$/)?.[1];
+	return role && `${role}${inverted}`;
+}
+
 function TokenList({
 	object,
-	css,
+	hex,
 	outputMode,
 }: {
 	object: HextimateResult;
-	css: HextimateResult | null;
+	hex: HextimateResult | null;
 	outputMode: 'light' | 'dark';
 }) {
 	return (
 		<div className="hxp-token-list">
 			{Object.entries(object[outputMode] as Record<string, string>).map(
 				([name, value]) => {
-					const cssTokens = css?.[outputMode] as
+					const hexTokens = hex?.[outputMode] as
 						| Record<string, string>
 						| undefined;
-					const hexColor =
-						cssTokens?.[name] ?? cssTokens?.[`--${name}`] ?? value;
+					const hexColor = hexTokens?.[name] ?? value;
+					const background = textBackground(name);
+					const isText = background !== undefined;
 					return (
 						<div key={name} className="hxp-token-row">
 							<span
-								className="hxp-token-swatch"
-								style={{ background: hexColor }}
-							/>
+								className={`hxp-token-swatch ${isText ? 'hxp-token-text' : ''}`}
+								style={{
+									background: isText
+										? (hexTokens?.[background] ?? `var(--${background})`)
+										: hexColor,
+									color: hexColor,
+								}}
+							>
+								{isText ? 'Aa' : null}
+							</span>
 							<span className="hxp-token-name">{name}</span>
 							<code className="hxp-token-value">{value}</code>
 						</div>
