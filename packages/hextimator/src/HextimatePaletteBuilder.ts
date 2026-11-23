@@ -154,6 +154,7 @@ export class HextimatePaletteBuilder {
 		value: TokenValue;
 	}> = [];
 	private readonly foregroundOverrides = new Map<string, TokenValue>();
+	private readonly pinnedCoordinates = new Set<string>();
 	private readonly weakSideVariants: string[] = ['weak'];
 	private readonly strongSideVariants: string[] = ['strong'];
 	private readonly foregroundAnchoredVariants: Set<string> = new Set();
@@ -203,6 +204,7 @@ export class HextimatePaletteBuilder {
 		);
 		this.standaloneTokens.length = 0;
 		this.foregroundOverrides.clear();
+		this.pinnedCoordinates.clear();
 		this.weakSideVariants.length = 0;
 		this.weakSideVariants.push('weak');
 		this.strongSideVariants.length = 0;
@@ -850,6 +852,41 @@ export class HextimatePaletteBuilder {
 			this.resolveTokenValue(value, 'dark', this.darkPalette),
 			'oklch',
 		);
+		this.pinnedCoordinates.add(coordinate);
+
+		if (variant !== 'DEFAULT' && variant !== 'foreground') return;
+		const repickForeground =
+			variant === 'DEFAULT' &&
+			!this.pinnedCoordinates.has(`${role}.foreground`);
+		const recomputeWeak = !this.pinnedCoordinates.has(
+			`${role}.foreground-weak`,
+		);
+		const contrastTarget =
+			resolveContrastRatio(this.options.minContrastRatio) + CONTRAST_MARGIN;
+		for (const palette of [this.lightPalette, this.darkPalette]) {
+			const scale = palette[role];
+			if (scale.foreground === undefined) continue;
+			const base = convert(parse(scale.DEFAULT), 'oklch');
+			let foreground = convert(parse(scale.foreground), 'oklch');
+			if (
+				repickForeground &&
+				calculateContrast(foreground, base) < contrastTarget
+			) {
+				const [dark, light] = [0.1, 0.97].map((l) => ({ ...foreground, l }));
+				foreground =
+					calculateContrast(dark, base) >= calculateContrast(light, base)
+						? dark
+						: light;
+				scale.foreground = foreground;
+			}
+			if (recomputeWeak && scale['foreground-weak'] !== undefined) {
+				scale['foreground-weak'] = computeSoftestForeground(
+					foreground,
+					base,
+					contrastTarget,
+				);
+			}
+		}
 	}
 
 	/**

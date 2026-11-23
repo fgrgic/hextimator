@@ -695,6 +695,63 @@ describe('HextimatePaletteBuilder: addToken palette addressing', () => {
 		expect(result.light.surface).toBe(pin);
 	});
 
+	it('surface.DEFAULT pin keeps foreground-weak at the contrast target', () => {
+		const result = formatObject(
+			hextimate('#1C2E44', {
+				roles: { surface: { generate: 'surface' } },
+				style: { minContrastRatio: 'AA', surfaceMaxChroma: 0.03 },
+				tokens: [
+					{
+						name: 'surface.DEFAULT',
+						value: { light: '#f2f2f2', dark: '#162f46' },
+					},
+				],
+			}),
+		);
+		for (const palette of [result.light, result.dark]) {
+			expect(
+				calculateContrast(
+					parseColor(palette['surface-foreground-weak']),
+					parseColor(palette.surface),
+				),
+			).toBeGreaterThanOrEqual(4.5);
+		}
+	});
+
+	it('black DEFAULT pin flips foreground and foreground-weak to pass', () => {
+		const result = formatObject(
+			hextimate('#ff6600').addToken('surface.DEFAULT', '#000000'),
+		);
+		for (const palette of [result.light, result.dark]) {
+			for (const key of ['surface-foreground', 'surface-foreground-weak']) {
+				expect(
+					calculateContrast(
+						parseColor(palette[key]),
+						parseColor(palette.surface),
+					),
+				).toBeGreaterThanOrEqual(4.5);
+			}
+		}
+	});
+
+	it('foreground pin survives a later DEFAULT pin', () => {
+		const result = formatObject(
+			hextimate('#ff6600')
+				.addToken('surface.foreground', '#222222')
+				.addToken('surface.DEFAULT', '#000000'),
+		);
+		expect(result.light['surface-foreground']).toBe('#222222');
+	});
+
+	it('foreground-weak pin survives a later DEFAULT pin', () => {
+		const result = formatObject(
+			hextimate('#ff6600')
+				.addToken('surface.foreground-weak', '#777777')
+				.addToken('surface.DEFAULT', '#112233'),
+		);
+		expect(result.light['surface-foreground-weak']).toBe('#777777');
+	});
+
 	it('fork replays palette pins', () => {
 		const pin = '#123456';
 		const builder = hextimate('#ff6600').addToken('surface.weak', pin);
