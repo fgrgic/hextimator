@@ -2,7 +2,7 @@ export const CONTEXT7_LIBRARY = '/fgrgic/hextimator';
 export const CONTEXT7_API_URL = 'https://context7.com';
 export const CONTEXT7_PLACEHOLDER = 'Ask about hextimator...';
 export const CONTEXT7_WELCOME_MESSAGE =
-	"Hello! I'm here to help you with hextimator. Ask about setup, usage, presets, or anything else from the docs.";
+	"Hello! I'm here to help you with hextimator. Ask about setup, usage, themes, or anything else from the docs.";
 
 export type Context7ChatMessage = {
 	id: string;

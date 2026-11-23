@@ -1,5 +1,5 @@
 import type { HextimateResult } from 'hextimator';
-import { hextimate, presets } from 'hextimator';
+import { baseTheme, hextimate, presets, themes } from 'hextimator';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 type ColorFormat =
@@ -42,10 +42,12 @@ export function useCodeEval(
 				const fn = new Function(
 					'hextimate',
 					'presets',
+					'themes',
+					'baseTheme',
 					'color',
 					`"use strict";\nreturn (\n${source}\n);`,
 				);
-				const builder = fn(hextimate, presets, currentColor);
+				const builder = fn(hextimate, presets, themes, baseTheme, currentColor);
 
 				if (!builder || typeof builder.format !== 'function') {
 					setResult({

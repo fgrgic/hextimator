@@ -6,7 +6,7 @@
 
 Runtime theming for multi-tenant apps.
 
-Your customers pick a brand color. Your app looks good. Every time. No per-customer design reviews, no manual tuning, no edge cases where that shade of yellow breaks your UI.
+Your customers pick a brand color; your app always looks good. No per-customer design reviews, no manual tuning, no edge cases where that shade of yellow breaks your UI.
 
 Try it in the playground: **[hextimator.com](https://hextimator.com)**
 

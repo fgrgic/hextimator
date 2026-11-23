@@ -13,55 +13,6 @@ type CompletionEntry = {
 
 const BUILDER_METHODS: CompletionEntry[] = [
 	{
-		label: 'addRole',
-		type: 'method',
-		detail: '(name, color)',
-		info: 'Add a named color role to the palette',
-		apply: "addRole('name', '#color')",
-	},
-	{
-		label: 'addVariant',
-		type: 'method',
-		detail: '(name, placement)',
-		info: 'Add a variant (e.g. hover, muted)',
-		apply: "addVariant('name', { from: 'strong' })",
-	},
-	{
-		label: 'addToken',
-		type: 'method',
-		detail: '(name, value)',
-		info: 'Add a standalone token or override a palette color with a dotted key',
-		apply: "addToken('name', { from: 'accent' })",
-	},
-	{
-		label: 'preset',
-		type: 'method',
-		detail: '(preset)',
-		info: 'Apply a preset configuration',
-		apply: 'preset(presets.shadcn)',
-	},
-	{
-		label: 'style',
-		type: 'method',
-		detail: '(partial)',
-		info: 'Merge style options and regenerate the palette',
-		apply: "style({ minContrastRatio: 'AA' })",
-	},
-	{
-		label: 'light',
-		type: 'method',
-		detail: '(adjustments)',
-		info: 'Light theme overrides (baseLightness, maxChroma)',
-		apply: 'style({ light: { baseLightness: 0.65 } })',
-	},
-	{
-		label: 'dark',
-		type: 'method',
-		detail: '(adjustments)',
-		info: 'Dark theme overrides (baseLightness, maxChroma)',
-		apply: 'style({ dark: { baseLightness: 0.55 } })',
-	},
-	{
 		label: 'simulate',
 		type: 'method',
 		detail: '(type, severity?)',
@@ -79,7 +30,7 @@ const BUILDER_METHODS: CompletionEntry[] = [
 		label: 'fork',
 		type: 'method',
 		detail: '(color?)',
-		info: 'Clone builder; chain .style() to change style options',
+		info: 'Clone builder, optionally with a new accent',
 		apply: "fork('#color')",
 	},
 	{
@@ -212,31 +163,41 @@ const VARIANT_PLACEMENTS: CompletionEntry[] = [
 	},
 ];
 
-const PRESETS: CompletionEntry[] = [
+const THEMES: CompletionEntry[] = [
+	{ label: 'themes.shadcn', type: 'variable', info: 'shadcn/ui theme' },
+	{ label: 'themes.mui', type: 'variable', info: 'MUI theme' },
+	{ label: 'themes.muted', type: 'variable', info: 'Desaturated style theme' },
 	{
-		label: 'presets.shadcn',
+		label: 'themes.vibrant',
 		type: 'variable',
-		info: 'shadcn/ui-compatible preset',
+		info: 'High-chroma style theme',
+	},
+	{ label: 'themes.tinted', type: 'variable', info: 'Accent-tinted neutrals' },
+	{
+		label: 'themes.bold',
+		type: 'variable',
+		info: 'Strong-contrast style theme',
 	},
 ];
 
 function matchContext(text: string): CompletionEntry[] | null {
+	if (/\bthemes\.\s*[a-zA-Z]*$/.test(text)) return THEMES;
+
 	// After a dot: builder methods
 	if (/\.\s*[a-zA-Z]*$/.test(text)) return BUILDER_METHODS;
 
-	// presets.
-	if (/presets\.\s*[a-zA-Z]*$/.test(text)) return PRESETS;
-
 	// Theme adjustments inside style branches.
-	if (/\.style\s*\([\s\S]*\b(?:light|dark)\s*:\s*\{[^}]*$/.test(text))
+	if (/\bstyle\s*[(:][\s\S]*\b(?:light|dark)\s*:\s*\{[^}]*$/.test(text))
 		return THEME_ADJUSTMENTS;
 
-	// Inside addVariant second arg
-	if (/\.addVariant\s*\([^,]+,\s*\{[^}]*$/.test(text))
+	if (
+		/\bplacement\s*:\s*\{[^}]*$/.test(text) ||
+		/\.addVariant\s*\([^,]+,\s*\{[^}]*$/.test(text)
+	)
 		return VARIANT_PLACEMENTS;
 
-	// Inside hextimate(...).style({ ... }) — style options
-	if (/\.style\s*\(\s*\{[^}]*$/.test(text)) return STYLE_OPTIONS;
+	// Style options in a theme's `style` field or `.style({ ... })`
+	if (/\bstyle\s*[(:]\s*\{[^}]*$/.test(text)) return STYLE_OPTIONS;
 
 	return null;
 }
@@ -271,7 +232,7 @@ export function hextimatorCompletions(
 
 	const from =
 		context.pos -
-		(word.startsWith('presets.')
+		(word.startsWith('themes.')
 			? word.length
 			: (word.split('.').pop()?.length ?? 0));
 

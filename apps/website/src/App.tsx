@@ -38,7 +38,7 @@ function PlaygroundSection() {
 	return (
 		<Section
 			title="Try it out"
-			description="Edit the code below and watch the theme update live. Copy the snippet to start your own preset."
+			description="Edit the code below and watch the theme update live. Copy the snippet to start your own theme."
 			stacked
 			id="playground"
 		>
@@ -78,7 +78,7 @@ function App() {
 					</div>
 					<Section
 						title="Build the rules"
-						description="Configure lightness, chroma, and hue shifts for your palette. Once saved as a preset, any brand color produces a full theme with these same rules."
+						description="Configure lightness, chroma, and hue shifts for your palette. Save them as a theme, and any brand color produces a full palette with the same rules."
 						id="theme-preferences"
 					>
 						<ThemePreferences />

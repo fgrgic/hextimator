@@ -30,7 +30,7 @@ export function OtherFeatures() {
 			<BentoCard
 				span="wide"
 				title="Perceptually uniform"
-				description="Built on OKLCH. Define a preset once — every color you feed it produces equally balanced contrast, regardless of hue."
+				description="Built on OKLCH. Define a theme once — every color you feed it produces equally balanced contrast, regardless of hue."
 				visual={<HueGradient />}
 			/>
 			<BentoCard
@@ -68,8 +68,8 @@ export function OtherFeatures() {
 				icon={<GitFork />}
 			></BentoCard>
 			<BentoCard
-				title="Build presets"
-				description="Hextimator includes presets for popular tools such as shadcn. Build your own presets for tools you use."
+				title="Build themes"
+				description="Hextimator includes themes for popular tools such as shadcn. Build your own themes for tools you use."
 				icon={<ControlSlider />}
 			></BentoCard>
 		</BentoGrid>

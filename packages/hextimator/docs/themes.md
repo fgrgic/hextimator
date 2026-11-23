@@ -1,23 +1,52 @@
-# Customization
+# Themes
 
-## Style options
+A theme describes what your brand color turns into. The accent stays a separate input, so one theme serves every tenant.
 
-Passed to `.style()` on the palette builder (and to the `style` field on presets, or the React `style` prop). **HextimateStyleOptions** is **[`ThemeAdjustments`](#themeadjustments)** (set fields at the top level for both themes) plus the extra options in the table below.
+```ts
+hextimate(accent).format(); // default theme
+hextimate(accent, theme).format(); // your theme
+```
+
+A `ThemeDefinition` is plain data, so you can store it in a database or load it from a CMS.
+
+## Fields
+
+| Field          | What it does                                                         |
+| -------------- | -------------------------------------------------------------------- |
+| `style`        | Contrast, chroma, lightness, and hue settings. See [Style](#style).  |
+| `roles`        | Roles to generate. The key sets the output name.                     |
+| `variants`     | Extra variants added to every role.                                  |
+| `tokens`       | Standalone tokens.                                                   |
+| `variantNames` | Renames variant suffixes, such as `{ foreground: "contrastText" }`.  |
+| `format`       | Default output options. `.format()` options override them. See [Format](#format). |
+
+Every field is optional. A theme without `roles` produces no roles.
+
+## Style
+
+Style shapes the look of every token: contrast, colorfulness, lightness, and how far surfaces drift from the accent. Set an option at the top level for both modes, or under `light` or `dark` for one.
+
+```ts
+style: {
+  minContrastRatio: "AA",
+  surfaceHueShift: 160,
+  light: { baseLightness: 0.6 },
+}
+```
 
 | Option                        | Type                                    | Default | Description                                                                                                          |
 | ----------------------------- | --------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------- |
-| `light`                       | [`ThemeAdjustments`](#themeadjustments) | —       | Per-light-theme overrides (same fields as `ThemeAdjustments`; omitted keys inherit from the top-level style object). |
-| `dark`                        | [`ThemeAdjustments`](#themeadjustments) | —       | Per-dark-theme overrides (same as `light`).                                                                          |
+| `light`                       | [`ThemeAdjustments`](#themeadjustments) | -       | Per-light-theme overrides (same fields as `ThemeAdjustments`; omitted keys inherit from the top-level style object). |
+| `dark`                        | [`ThemeAdjustments`](#themeadjustments) | -       | Per-dark-theme overrides (same as `light`).                                                                          |
 | `invertDarkModeSurfaceAccent` | `boolean`                               | `false` | Swap surface and accent hues in dark mode. Requires `surfaceColor` on the invert path (top-level or under `dark`).   |
 
-### `ThemeAdjustments`
+#### `ThemeAdjustments`
 
-Generation knobs. You can set any of these at the **top level** of `.style()` for both themes, or under **`light` / `dark`** to override that theme only; omitted nested keys keep the top-level value.
+Generation knobs. You can set any of these at the **top level** of `style` for both themes, or under **`light` / `dark`** to override that theme only; omitted nested keys keep the top-level value.
 
 | Field                 | Type                                 | Default (when not set)                                                                                                                     | Description                                                                                                        |
 | --------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
-| `baseLightness`       | `number` (0-1)                       | Brand color OKLCH **L**, clamped via `baseLightnessRange` (per-theme, then top-level, then built-ins: light `[0.4,0.9]`, dark `[0.2,0.8]`) | Absolute lightness anchor for accent fills (not `addToken({ lightness })` offsets).                                |
-| `lightness`           | `number` (0-1)                       | —                                                                                                                                          | **Deprecated** (use `baseLightness`). Still read under `light` / `dark` only for backwards compatibility.          |
+| `baseLightness`       | `number` (0-1)                       | Brand color OKLCH **L**, clamped via `baseLightnessRange` (per-theme, then top-level, then built-ins: light `[0.4,0.9]`, dark `[0.2,0.8]`) | Absolute lightness anchor for accent fills (not the relative `lightness` offset on tokens).                                |
 | `maxChroma`           | `number`                             | No extra cap                                                                                                                               | Max chroma for accent and semantic fills in scope; higher values are clamped.                                      |
 | `baseLightnessRange`  | `[min, max]` (OKLCH **L**, 0-1 each) | Built-in range per theme, unless top-level sets this tuple                                                                                 | Clamps `baseLightness` and input-derived anchors. Under `light` / `dark`, overrides top-level for that theme only. |
 | `minContrastRatio`    | `"AAA" \| "AA" \| number`            | `"AAA"` (= 7) at top level; nested inherits top-level                                                                                      | Minimum WCAG contrast between non-foreground variants and foreground. `"AA"` = 4.5, or pass a number.              |
@@ -29,19 +58,94 @@ Generation knobs. You can set any of these at the **top level** of `.style()` fo
 | `semanticColors`      | `{ positive?, negative?, caution? }` | Auto-filled from seed (top-level); under `light` / `dark`, each key merges with top-level                                                  | Explicit semantic role colors. Unset slots inherit.                                                                |
 | `semanticColorRanges` | `{ positive?, negative?, caution? }` | `positive: [120,160]`, `negative: [5,30]`, `caution: [45,70]` (after top-level + merge)                                                    | OKLCH hue arcs for discovering semantic bases. Per-theme keys merge with top-level.                                |
 
-## Format options
+## Roles
 
-Passed to `.format()` - these affect the output shape.
+A role is one of three shapes:
+
+```ts
+roles: {
+  // A built-in generator: surface, accent, positive, negative, or caution
+  surface: { generate: "surface" },
+  brand: { generate: "accent" },
+
+  // A fixed color
+  cta: { color: "#ee2244" },
+
+  // Derived from another role. hue rotates in OKLCH degrees.
+  secondary: { from: "brand", hue: 180 },
+}
+```
+
+Every role gets `DEFAULT`, `strong`, `weak`, `foreground`, and `foreground-weak`, plus any theme `variants`.
+
+The surface also gets readable colored text for every other role: `surface-foreground-brand`, `surface-foreground-cta`, and so on. Each meets `minContrastRatio` on the surface's DEFAULT, weak, and strong.
+
+Any generator except `surface` can appear more than once. A second `surface` throws.
+
+## Variants
+
+A variant adds a step to every role:
+
+```ts
+variants: [
+  { name: "hover", placement: { from: "strong" } }, // one step past strong
+  { name: "subtle", placement: { from: "weak" } }, // one step past weak
+  { name: "soft", placement: { between: ["DEFAULT", "weak"] } }, // midpoint
+]
+```
+
+`from` can also name an earlier custom variant, such as `{ from: "hover" }`.
+
+## Tokens
+
+A token is a single value:
+
+```ts
+tokens: [
+  { name: "ring", value: { from: "accent" } },
+  { name: "border", value: { from: "surface.weak", lightness: -0.05 } },
+  { name: "muted-text", value: { from: "surface.foreground", emphasis: -0.3 } },
+  { name: "logo", value: "#FF6600" },
+  { name: "page", value: { light: "#ffffff", dark: "#1a1a1a" } },
+  { name: "surface.strong", value: "#fafafa" },
+]
+```
+
+- `from` takes `role` or `role.variant`.
+- `lightness`, `chroma`, and `hue` are fixed offsets in OKLCH.
+- `emphasis` moves toward more contrast (positive) or less (negative). It flips between light and dark, so one value works in both.
+- `{ light, dark }` sets a value per mode.
+- A dotted name such as `surface.strong` overrides a generated color before anything derives from it. A kebab name that matches a generated token, such as `surface-strong`, throws.
+- `{ generate: "brand-exact" }` is your input color unchanged. `{ generate: "brand-exact-foreground" }` is readable text on it.
+
+## Order
+
+hextimator applies a theme in a fixed order: generated roles, then other roles, then variants, then tokens. A derived role can reference only the built-in variants. Tokens can reference any variant.
+
+## Extending
+
+Spread a theme and override fields. The last value of each field wins. Arrays and `roles` replace the whole field, so spread the base values to keep them:
+
+```ts
+const theme = {
+  ...themes.shadcn,
+  style: themes.muted.style,
+  tokens: [...themes.shadcn.tokens, { name: "sidebar", value: { from: "surface.weak" } }],
+} satisfies ThemeDefinition;
+```
+
+## Format
+
+Set defaults in the theme's `format`, or pass options to `.format()`.
 
 | Option             | Type                                                                                              | Default        | Description                                                                                                                                                                    |
 | ------------------ | ------------------------------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `as`               | `"object" \| "css" \| "tailwind" \| "tailwind-css" \| "scss" \| "json"`                           | `"object"`     | Output format (see [Output formats](#output-formats))                                                                                                              |
 | `colors`           | `"hex" \| "rgb" \| "rgb-raw" \| "hsl" \| "hsl-raw" \| "oklch" \| "oklch-raw" \| "p3" \| "p3-raw"` | `"hex"`        | Color value serialization (see [Color value formats](#color-value-formats))                                                                                        |
-| `roleNames`        | `Record<string, string>`                                                                          | Built-in names | Rename roles in output keys (e.g. `{ accent: "brand", surface: "background" }`)                                                                                                |
 | `variantNames`     | `Record<string, string>`                                                                          | Built-in names | Rename variant suffixes in output keys (e.g. `{ strong: "primary", foreground: "text" }`)                                                                                      |
 | `separator`        | `string`                                                                                          | `"-"`          | Separator between role and variant in token keys                                                                                                                               |
 | `keyPrefix`        | `string`                                                                                          | `""`           | Prepended to each flat key for `as: "object"` and `as: "json"` only (e.g. `"--"` for CSS custom property names). Ignored for `scss`, nested `tailwind`, and stylesheet outputs |
-| `excludeRoles`     | `string[]`                                                                                        | `[]`           | Role keys to omit from the output entirely (internal names, before `roleNames`)                                                                                                |
+| `excludeRoles`     | `string[]`                                                                                        | `[]`           | Role keys to omit from the output entirely                                                                                                                                       |
 | `excludeVariants`  | `string[]`                                                                                        | `[]`           | Variant keys to omit from every role's output (internal names, before `variantNames`)                                                                                          |
 | `darkMode`         | `"media" \| "class" \| "data-attribute" \| false`                                                 | `"media"`      | Dark-mode strategy for stylesheet outputs (`as: 'css'`, `as: 'tailwind-css'`)                                                                                                  |
 | `theme`            | `"light" \| "dark" \| "both"`                                                                     | `"both"`       | Palettes included in stylesheet outputs. `"dark"` emits dark tokens directly in the root block                                                                                |
@@ -50,18 +154,20 @@ Passed to `.format()` - these affect the output shape.
 
 For a dark-only stylesheet, set `theme: "dark"`. Dark tokens are emitted directly in `:root` for `css` or `@theme` for `tailwind-css`, without a media query or selector override. `darkMode: false` remains supported as a legacy alias for `theme: "light"`.
 
+For a dark-only stylesheet, set `theme: "dark"`.
+
 ### Output formats
 
-All formats return `{ light: { ... }, dark: { ... } }`.
+All formats return `{ light, dark }`, except the stylesheet formats, which return one string.
 
-- **`"object"`** (default) — plain keys: `accent`, `accent-strong`, … Optional **`keyPrefix: "--"`** gives `--accent`, `--accent-strong`, … when you need CSS-style names without stylesheet output.
-- **`"css"`** — CSS custom properties: `--accent`, `--accent-strong`, …
-- **`"tailwind"`** — nested tokens: `{ accent: { DEFAULT, strong, … } }`
-- **`"tailwind-css"`** — `@theme` block with `--color-accent`, `--color-accent-strong`, …
-- **`"scss"`** — SCSS variables: `$accent`, `$accent-strong`, …
-- **`"json"`** — JSON string of the plain object (supports **`keyPrefix`** the same way as **`object`**)
+- `"object"` (default): flat keys such as `accent-strong`. Add `keyPrefix: "--"` for CSS-style names.
+- `"css"`: a stylesheet with `--accent`, `--accent-strong`, ...
+- `"tailwind"`: nested tokens, `{ accent: { DEFAULT, strong, ... } }`
+- `"tailwind-css"`: a Tailwind `@theme` block with `--color-accent`, ...
+- `"scss"`: `$accent`, `$accent-strong`, ...
+- `"json"`: the flat object as a JSON string
 
-### Color value formats
+### Color formats
 
 | `colors`          | Example output                       |
 | ----------------- | ------------------------------------ |
@@ -75,97 +181,20 @@ All formats return `{ light: { ... }, dark: { ... } }`.
 | `"p3"`            | `"color(display-p3 0.39 0.34 0.79)"` |
 | `"p3-raw"`        | `"0.39 0.34 0.79"`                   |
 
-### Flexible color input
+`hextimate` accepts hex, CSS color strings, RGB tuples, and numeric `0xRRGGBB`.
 
-Besides hex, **`hextimate`** accepts CSS color strings, RGB tuples, and numeric `0xRRGGBB` — anything **`parseColor`** understands.
+hextimator ignores alpha. `rgba(255, 0, 0, 0.5)` becomes `rgb(255, 0, 0)`. Contrast depends on the background behind a color, which hextimator cannot know. Add opacity in your UI layer if you need it.
 
-> **Note on alpha**: Alpha values are intentionally ignored — `rgba(255, 0, 0, 0.5)` is treated as fully opaque `rgb(255, 0, 0)`. Alpha tokens undermine accessibility guarantees because contrast ratios depend on the background, which hextimator does not control. You can add opacity modifiers in your UI layer when needed.
+### Inverted variants
 
-## Inverted variants
+`invertedVariants: true` adds an `-inverted` copy of every token with the opposite mode's value. Use it for sections that contrast with the page, such as a dark band on a light site.
 
-`invertedVariants: true` emits an extra `-inverted` copy of every token. The value is the opposite mode's value: in light mode `--accent-inverted` holds the dark accent; in dark mode it holds the light accent. Inverted tokens flip with the active mode just like regular tokens, so a single class gives you a "contrast" section that always inverts.
-
-Use for sections that intentionally contrast with their surroundings: testimonials, alternating stripes, hero callouts, "spotlight" panels, opposite-mode previews.
-
-```ts
-hextimate("#6A5ACD").format({
-  as: "css",
-  invertedVariants: true,
-  darkMode: "class",
-});
+```html
+<section class="bg-surface-inverted text-surface-foreground-inverted">...</section>
 ```
 
-Produces (abridged):
+With Tailwind, also import `hextimator/tailwind-inverted.css`, or generate aliases with `tailwindAliases(theme, { inverted: true })`.
 
-```css
-:root {
-  --accent: #6a5acd;
-  /* ... normal tokens ... */
-  --accent-inverted: #9c8fe8; /* dark value while in light mode */
-  --accent-strong-inverted: #b3a9ef;
-  /* ... -inverted for every role and variant ... */
-}
-.dark {
-  --accent: #9c8fe8;
-  /* ... */
-  --accent-inverted: #6a5acd; /* light value while in dark mode */
-  --accent-strong-inverted: #5a4abc;
-}
-```
+## Forking
 
-### Tailwind
-
-Pair with the companion stylesheet so `bg-accent-inverted`, `text-surface-foreground-inverted`, etc. resolve:
-
-```css
-@import "hextimator/tailwind.css";
-@import "hextimator/tailwind-inverted.css";
-```
-
-```jsx
-{
-  /* One class, flips with mode */
-}
-<section className='bg-surface-inverted text-surface-foreground-inverted'>
-  Contrast section: dark on a light page, light on a dark page.
-</section>;
-```
-
-### Always-dark or always-light sections
-
-Inverted tokens compose with Tailwind's `dark:` variant to lock a section to one mode:
-
-```jsx
-{
-  /* Always dark: inverted in light mode + regular in dark mode = always dark */
-}
-<nav
-  className='
-    bg-surface-inverted dark:bg-surface
-    text-surface-foreground-inverted dark:text-surface-foreground
-  '
->
-  Always-dark navbar.
-</nav>;
-
-{
-  /* Always light: regular in light mode + inverted in dark mode = always light */
-}
-<aside
-  className='
-    bg-surface dark:bg-surface-inverted
-    text-surface-foreground dark:text-surface-foreground-inverted
-  '
->
-  Always-light card on a dark app.
-</aside>;
-```
-
-### Notes
-
-- Inverted tokens respect `excludeRoles`, `excludeVariants`, `roleNames`, `variantNames`, `separator`, and `keyPrefix` just like regular tokens.
-- For per-palette outputs (`object`, `scss`, `json`, `tailwind`), `result.light['accent-inverted']` equals `result.dark.accent`, and vice versa.
-- For stylesheet outputs the inverted tokens appear in both the root and dark-mode blocks with swapped values, using normal CSS cascade.
-- With `darkMode: false`, only the root block is emitted and `-inverted` simply holds the dark palette's values (a useful "give me dark colors in a light-only app" escape hatch).
-- `hextimator/fallback.css` does not include inverted variants. If you rely on the fallback for pre-JS paint, generate a custom fallback with `hextimate(...).format({ as: 'css', invertedVariants: true })` and ship that instead.
-- The companion `tailwind-inverted.css` maps the five built-in roles (`surface`, `accent`, `positive`, `negative`, `caution`). Custom roles added via `addRole` need their own `@theme inline` mappings to be usable as Tailwind utilities.
+`.fork(color?)` copies a builder, including any CVD adaptation, with an optional new accent.
