@@ -1,3 +1,9 @@
+## 0.15.1
+
+### Patch Changes
+
+- [#204](https://github.com/fgrgic/hextimator/pull/204) [`b584853`](https://github.com/fgrgic/hextimator/commit/b584853cafe67ab17a5991bf26008239c48208b7) Thanks [@fgrgic](https://github.com/fgrgic)! - Keep text readable when a token pins `role.DEFAULT` or `role.foreground`. A pinned DEFAULT now flips `foreground` to the other end when it misses `minContrastRatio`, and `foreground-weak` is recomputed against the pinned colors. Pinned `foreground` and `foreground-weak` values are kept.
+
 ## 0.15.0
 
 ### Minor Changes
