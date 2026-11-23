@@ -15,6 +15,7 @@ export * as presets from './presets';
 export type { HextimateConfig } from './presets/fromConfig';
 export { fromConfig } from './presets/fromConfig';
 export type { HextimatePreset } from './presets/types';
+export { tailwindAliases } from './tailwindAliases';
 export type {
 	RoleDefinition,
 	RoleGenerator,
