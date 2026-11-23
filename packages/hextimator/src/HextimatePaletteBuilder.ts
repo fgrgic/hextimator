@@ -174,7 +174,8 @@ export class HextimatePaletteBuilder {
 	 * Merges style options into the builder and regenerates the palettes,
 	 * then replays recorded operations so roles and variants reflect the new style.
 	 *
-	 * @deprecated Set `style` on a theme instead: `hextimate(accent, { ...theme, style })`.
+	 * @deprecated Set `style` on a `ThemeDefinition`: `hextimate(accent, { ...theme, style })`.
+	 * See the {@link https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md#014x--0150-themes | Migration guide}.
 	 */
 	style(partial: Partial<HextimateStyleOptions>): this {
 		this.operations.push({ method: 'style', args: [partial] });
@@ -327,7 +328,8 @@ export class HextimatePaletteBuilder {
 	 *
 	 * @param name Role name (e.g. "cta", "banner")
 	 * @param color Base color or derived token for the role
-	 * @deprecated Declare the role in a theme instead: `roles: { cta: { color: '#ff0066' } }`.
+	 * @deprecated Declare the role in a `ThemeDefinition`: `roles: { cta: { color: '#ff0066' } }`.
+	 * See the {@link https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md#014x--0150-themes | Migration guide}.
 	 */
 	addRole(name: string, color: ColorInput | DerivedToken): this {
 		this.operations.push({ method: 'addRole', args: [name, color] });
@@ -343,7 +345,8 @@ export class HextimatePaletteBuilder {
 	 *
 	 * @param name Variant name (e.g. "placeholder", "highlight")
 	 * @param placement Placement of the variant, either `{ from: 'weak' }` or `{ between: ['DEFAULT', 'strong'] }`
-	 * @deprecated Declare the variant in a theme instead: `variants: [{ name, placement }]`.
+	 * @deprecated Declare the variant in a `ThemeDefinition`: `variants: [{ name, placement }]`.
+	 * See the {@link https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md#014x--0150-themes | Migration guide}.
 	 */
 	addVariant(name: string, placement: VariantPlacement): this {
 		this.operations.push({ method: 'addVariant', args: [name, placement] });
@@ -357,7 +360,8 @@ export class HextimatePaletteBuilder {
 	 * Override with a dotted key: `surface.weak`, `surface.DEFAULT` (not `surface-weak`).
 	 * A kebab key that matches a generated label throws at format time.
 	 *
-	 * @deprecated Declare the token in a theme instead: `tokens: [{ name, value }]`.
+	 * @deprecated Declare the token in a `ThemeDefinition`: `tokens: [{ name, value }]`.
+	 * See the {@link https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md#014x--0150-themes | Migration guide}.
 	 */
 	addToken(name: string, value: TokenValue): this {
 		this.operations.push({ method: 'addToken', args: [name, value] });
@@ -384,7 +388,8 @@ export class HextimatePaletteBuilder {
 	 *   .preset(presets.shadcn)
 	 *   .format({ colors: 'hsl-raw' });
 	 *
-	 * @deprecated Pass a theme instead: `hextimate(accent, themes.shadcn)`.
+	 * @deprecated Pass a `ThemeDefinition`: `hextimate(accent, themes.shadcn)`.
+	 * See the {@link https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md#014x--0150-themes | Migration guide}.
 	 */
 	preset(preset: HextimatePreset): this {
 		this.operations.push({ method: 'preset', args: [preset] });

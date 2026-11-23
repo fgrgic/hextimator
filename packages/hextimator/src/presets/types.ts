@@ -23,6 +23,7 @@ import type {
  *   .format();
  *
  * @deprecated Use a `ThemeDefinition` with `hextimate(accent, theme)`.
+ * See the {@link https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md#014x--0150-themes | Migration guide}.
  */
 export interface HextimatePreset {
 	/** Style options (contrast, hue shifts, lightness, chroma). Applied before roles/variants/tokens. */

@@ -229,7 +229,8 @@ export interface HextimateFormatOptions {
 	 * - negative: "negative"
 	 * - caution: "caution"
 	 *
-	 * @deprecated Name roles with theme keys instead: `roles: { brand: { generate: 'accent' } }`.
+	 * @deprecated Rename roles with `ThemeDefinition` role keys: `roles: { brand: { generate: 'accent' } }`.
+	 * See the {@link https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md#014x--0150-themes | Migration guide}.
 	 */
 	roleNames?: Record<string, string>;
 

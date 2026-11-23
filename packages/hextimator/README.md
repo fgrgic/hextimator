@@ -12,7 +12,7 @@
 
 Runtime theming for multi-tenant apps.
 
-Your customers pick a brand color. Your app looks good every time. No per-customer design reviews. No manual tuning. Yellow does not break your UI.
+Your customers pick a brand color; your app always looks good. No per-customer design reviews. No manual tuning. Yellow does not break your UI.
 
 Each call takes under a millisecond (~0.4ms [^perf]). Same color and options always produce the same tokens. Run it on the request path. Cache it if you want.
 
@@ -81,7 +81,7 @@ CLI: `npx hextimator '#BADA55'`
 <p class="text-surface-foreground-negative">Payment failed</p>
 ```
 
-Every class uses your brand color, run through the theme. Change the color at runtime and the classes follow. See [Tailwind](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/tailwind.md).
+Every class uses your brand color, run through the theme. Change the color at runtime and the classes follow.
 
 ## Theme
 
@@ -113,6 +113,16 @@ const theme = {
 hextimate(accent, theme).format();
 ```
 
+With Tailwind, keep `hextimator/tailwind.css` and register the new names:
+
+```css
+@theme inline {
+  --color-cta: var(--cta);
+  --color-cta-foreground: var(--cta-foreground);
+  --color-ring: var(--ring);
+}
+```
+
 ### Replace it
 
 Declare only what you want:
@@ -129,17 +139,23 @@ const theme = {
 hextimate(accent, theme).format(); // --page, --brand, --danger, ...
 ```
 
+With Tailwind, generate the stylesheet from your theme in a build script and import it instead of `hextimator/tailwind.css`:
+
+```ts
+import { tailwindAliases } from "hextimator";
+
+writeFileSync("src/hextimator-theme.css", tailwindAliases(theme));
+```
+
+Rerun it when the theme changes. Accent changes need no rebuild.
+
 Ready-made themes for shadcn/ui, MUI, and a few styles live in `themes`: `hextimate(accent, themes.shadcn)`.
 
 ## Docs
 
-- [Themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/themes.md)
-- [Roles, variants, and tokens](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/extending-the-palette.md)
+- [Themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/themes.md): every field, style, and format option
 - [Built-in themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/presets.md)
-- [Customization](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md): style and format options
-- [Tailwind](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/tailwind.md)
 - [React](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/react.md)
-- [Multiple themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md)
 - [Color vision deficiency](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/color-vision-deficiency.md)
 - [Examples](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/examples.md)
 - [Migration](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md)

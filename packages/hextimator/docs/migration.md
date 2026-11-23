@@ -118,7 +118,7 @@ Themes are plain data, so stored configs round-trip through JSON the same way.
 
 ### Tailwind
 
-Custom role names need their own aliases. Generate them with `tailwindAliases(theme)`. See [Tailwind](tailwind.md#custom-themes).
+Custom role names need their own aliases. Generate them with `tailwindAliases(theme)`. See the [README](../README.md#theme).
 
 ### React
 
@@ -379,7 +379,7 @@ Two new flags mirror the API:
 | `base.fork(options)` (same color)                       | `base.fork().style(options)`                                                                         |
 | Preset field `generation`                               | Preset field `style`                                                                                 |
 | Type `HextimateGenerationOptions`                       | `HextimateStyleOptions`                                                                              |
-| `themeLightness` (and similar) on a flat options object | Use `light` / `dark` on `ThemeAdjustments` inside `.style()` — see [Customization](customization.md) |
+| `themeLightness` (and similar) on a flat options object | Use `light` / `dark` on `ThemeAdjustments` inside `.style()` (see [Themes](themes.md#style)) |
 
 Search your codebase for `hextimate(`, `.fork(`, `generation:`, and `HextimateGenerationOptions`.
 
@@ -395,6 +395,5 @@ Search your codebase for `hextimate(`, `.fork(`, `generation:`, and `HextimateGe
 ## Further reading
 
 - [Themes](themes.md): fields and rules
-- [Customization](customization.md): style and format options reference
 - [Built-in themes](presets.md): shadcn, MUI, and style themes
 - [React](react.md): provider, hook, scope props

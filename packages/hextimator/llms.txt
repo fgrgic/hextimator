@@ -199,11 +199,7 @@ Neutral placeholders for **default** `hextimate()` variable names only. Does not
 ## Full reference (optional)
 
 - [Themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/themes.md)
-- [Roles, variants, and tokens](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/extending-the-palette.md)
 - [Built-in themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/presets.md)
-- [Customization (style & format)](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md)
-- [Multiple themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md)
 - [Color vision deficiency](https://github.com/fgrgic/hextimator/docs/color-vision-deficiency.md)
 - [React](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/react.md)
-- [Tailwind](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/tailwind.md)
 - [Examples](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/examples.md)

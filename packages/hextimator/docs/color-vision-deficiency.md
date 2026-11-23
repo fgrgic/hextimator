@@ -31,12 +31,10 @@ Both methods accept an optional `severity` parameter (0–1, default `1`):
 
 Supported CVD types: `protanopia`, `deuteranopia`, `tritanopia`, `achromatopsia`. Use `severity` to control partial deficiency.
 
-You can also chain them with other builder methods:
+They work with any theme:
 
 ```typescript
-const theme = hextimate("#3a86ff").style({ minContrastRatio: "AAA" })
-  .addRole("banner", "#ff006e")
-  .addVariant("intense", { from: "strong" })
+const css = hextimate("#3a86ff", theme)
   .adaptFor("deuteranopia")
-  .format({ as: "css", colors: "hex" });
+  .format({ as: "css" });
 ```
