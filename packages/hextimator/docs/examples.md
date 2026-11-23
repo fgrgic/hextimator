@@ -2,58 +2,57 @@
 
 ## shadcn/ui theme
 
-Use the built-in preset — see [Presets](presets.md) for details and customization options.
+Use the built-in theme. See [Built-in themes](presets.md) for details.
 
-```typescript
-import { hextimate, presets } from "hextimator";
+```ts
+import { hextimate, themes } from "hextimator";
 
-const theme = hextimate("#6366F1").preset(presets.shadcn).format();
+const css = hextimate("#6366F1", themes.shadcn).format();
 ```
 
-For older shadcn versions, add "hsl-raw" colors:
+For older shadcn versions, use `hsl-raw` colors:
 
-```typescript
-const theme = hextimate("#6366F1")
-  .preset(presets.shadcn)
-  .format({ colors: "hsl-raw" });
+```ts
+const css = hextimate("#6366F1", themes.shadcn).format({ colors: "hsl-raw" });
 ```
 
 ## Stripe-style payment UI
 
-```typescript
-const theme = hextimate("#635BFF")
-  .addToken("text-secondary", { from: "surface.foreground", lightness: +0.25 })
-  .addToken("text-placeholder", { from: "surface.foreground", lightness: +0.4 })
-  .addToken("icon", { from: "surface.foreground", lightness: +0.15 })
-  .format({
-    roleNames: {
-      accent: "primary",
-      surface: "background",
-      positive: "success",
-      negative: "danger",
-      caution: "warning",
-    },
-    variantNames: {
-      foreground: "text",
-    },
-  });
+```ts
+const theme = {
+  roles: {
+    background: { generate: "surface" },
+    primary: { generate: "accent" },
+    success: { generate: "positive" },
+    danger: { generate: "negative" },
+    warning: { generate: "caution" },
+  },
+  tokens: [
+    { name: "text-secondary", value: { from: "background.foreground", lightness: 0.25 } },
+    { name: "text-placeholder", value: { from: "background.foreground", lightness: 0.4 } },
+    { name: "icon", value: { from: "background.foreground", lightness: 0.15 } },
+  ],
+  variantNames: { foreground: "text" },
+} satisfies ThemeDefinition;
+
+hextimate("#635BFF", theme).format();
 
 // Output keys (light & dark):
 // primary, primary-strong, primary-weak, primary-text,
 // background, background-strong, background-weak, background-text,
-// success, danger, caution + variants,
+// success, danger, warning + variants,
 // text-secondary, text-placeholder, icon
 ```
 
 ## Slack-style sidebar
 
-```typescript
-const theme = hextimate("#4A154B").format({
-  roleNames: {
-    surface: "column-bg",
-    accent: "active-item",
-    positive: "active-presence",
-    negative: "mention-badge",
+```ts
+const theme = {
+  roles: {
+    "column-bg": { generate: "surface" },
+    "active-item": { generate: "accent" },
+    "active-presence": { generate: "positive" },
+    "mention-badge": { generate: "negative" },
   },
   variantNames: {
     DEFAULT: "DEFAULT",
@@ -61,10 +60,12 @@ const theme = hextimate("#4A154B").format({
     weak: "hover-item",
     foreground: "text-color",
   },
-});
+} satisfies ThemeDefinition;
+
+hextimate("#4A154B", theme).format();
 
 // Output keys (light & dark):
 // column-bg-DEFAULT, column-bg-menu-bg, column-bg-hover-item, column-bg-text-color,
 // active-item-DEFAULT, active-item-menu-bg, active-item-hover-item, active-item-text-color,
-// active-presence, mention-badge, caution + variants
+// active-presence and mention-badge + variants
 ```

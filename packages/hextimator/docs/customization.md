@@ -2,7 +2,18 @@
 
 ## Style options
 
-Passed to `.style()` on the palette builder (and to the `style` field on presets, or the React `style` prop). **HextimateStyleOptions** is **[`ThemeAdjustments`](#themeadjustments)** (set fields at the top level for both themes) plus the extra options in the table below.
+Set on a theme's `style` field, or the React `style` prop. **HextimateStyleOptions** is **[`ThemeAdjustments`](#themeadjustments)** (set fields at the top level for both themes) plus the extra options in the table below.
+
+```ts
+const theme = {
+  ...baseTheme,
+  style: {
+    minContrastRatio: "AA",
+    surfaceHueShift: 160,
+    light: { baseLightness: 0.6 },
+  },
+} satisfies ThemeDefinition;
+```
 
 | Option                        | Type                                    | Default | Description                                                                                                          |
 | ----------------------------- | --------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------- |
@@ -12,11 +23,11 @@ Passed to `.style()` on the palette builder (and to the `style` field on presets
 
 ### `ThemeAdjustments`
 
-Generation knobs. You can set any of these at the **top level** of `.style()` for both themes, or under **`light` / `dark`** to override that theme only; omitted nested keys keep the top-level value.
+Generation knobs. You can set any of these at the **top level** of `style` for both themes, or under **`light` / `dark`** to override that theme only; omitted nested keys keep the top-level value.
 
 | Field                 | Type                                 | Default (when not set)                                                                                                                     | Description                                                                                                        |
 | --------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
-| `baseLightness`       | `number` (0-1)                       | Brand color OKLCH **L**, clamped via `baseLightnessRange` (per-theme, then top-level, then built-ins: light `[0.4,0.9]`, dark `[0.2,0.8]`) | Absolute lightness anchor for accent fills (not `addToken({ lightness })` offsets).                                |
+| `baseLightness`       | `number` (0-1)                       | Brand color OKLCH **L**, clamped via `baseLightnessRange` (per-theme, then top-level, then built-ins: light `[0.4,0.9]`, dark `[0.2,0.8]`) | Absolute lightness anchor for accent fills (not the relative `lightness` offset on tokens).                                |
 | `lightness`           | `number` (0-1)                       | —                                                                                                                                          | **Deprecated** (use `baseLightness`). Still read under `light` / `dark` only for backwards compatibility.          |
 | `maxChroma`           | `number`                             | No extra cap                                                                                                                               | Max chroma for accent and semantic fills in scope; higher values are clamped.                                      |
 | `baseLightnessRange`  | `[min, max]` (OKLCH **L**, 0-1 each) | Built-in range per theme, unless top-level sets this tuple                                                                                 | Clamps `baseLightness` and input-derived anchors. Under `light` / `dark`, overrides top-level for that theme only. |
@@ -31,17 +42,16 @@ Generation knobs. You can set any of these at the **top level** of `.style()` fo
 
 ## Format options
 
-Passed to `.format()` - these affect the output shape.
+Passed to `.format()`, or set as defaults on a theme's `format` field. These affect the output shape. To rename roles, change the role keys in your [theme](themes.md).
 
 | Option             | Type                                                                                              | Default        | Description                                                                                                                                                                    |
 | ------------------ | ------------------------------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `as`               | `"object" \| "css" \| "tailwind" \| "tailwind-css" \| "scss" \| "json"`                           | `"object"`     | Output format (see [Output formats](#output-formats))                                                                                                              |
 | `colors`           | `"hex" \| "rgb" \| "rgb-raw" \| "hsl" \| "hsl-raw" \| "oklch" \| "oklch-raw" \| "p3" \| "p3-raw"` | `"hex"`        | Color value serialization (see [Color value formats](#color-value-formats))                                                                                        |
-| `roleNames`        | `Record<string, string>`                                                                          | Built-in names | Rename roles in output keys (e.g. `{ accent: "brand", surface: "background" }`)                                                                                                |
 | `variantNames`     | `Record<string, string>`                                                                          | Built-in names | Rename variant suffixes in output keys (e.g. `{ strong: "primary", foreground: "text" }`)                                                                                      |
 | `separator`        | `string`                                                                                          | `"-"`          | Separator between role and variant in token keys                                                                                                                               |
 | `keyPrefix`        | `string`                                                                                          | `""`           | Prepended to each flat key for `as: "object"` and `as: "json"` only (e.g. `"--"` for CSS custom property names). Ignored for `scss`, nested `tailwind`, and stylesheet outputs |
-| `excludeRoles`     | `string[]`                                                                                        | `[]`           | Role keys to omit from the output entirely (internal names, before `roleNames`)                                                                                                |
+| `excludeRoles`     | `string[]`                                                                                        | `[]`           | Role keys to omit from the output entirely                                                                                                                                       |
 | `excludeVariants`  | `string[]`                                                                                        | `[]`           | Variant keys to omit from every role's output (internal names, before `variantNames`)                                                                                          |
 | `darkMode`         | `"media" \| "class" \| "data-attribute" \| false`                                                 | `"media"`      | Dark-mode strategy for stylesheet outputs (`as: 'css'`, `as: 'tailwind-css'`)                                                                                                  |
 | `theme`            | `"light" \| "dark" \| "both"`                                                                     | `"both"`       | Palettes included in stylesheet outputs. `"dark"` emits dark tokens directly in the root block                                                                                |
@@ -163,9 +173,9 @@ Inverted tokens compose with Tailwind's `dark:` variant to lock a section to one
 
 ### Notes
 
-- Inverted tokens respect `excludeRoles`, `excludeVariants`, `roleNames`, `variantNames`, `separator`, and `keyPrefix` just like regular tokens.
+- Inverted tokens respect `excludeRoles`, `excludeVariants`, `variantNames`, `separator`, and `keyPrefix` just like regular tokens.
 - For per-palette outputs (`object`, `scss`, `json`, `tailwind`), `result.light['accent-inverted']` equals `result.dark.accent`, and vice versa.
 - For stylesheet outputs the inverted tokens appear in both the root and dark-mode blocks with swapped values, using normal CSS cascade.
 - With `darkMode: false`, only the root block is emitted and `-inverted` simply holds the dark palette's values (a useful "give me dark colors in a light-only app" escape hatch).
 - `hextimator/fallback.css` does not include inverted variants. If you rely on the fallback for pre-JS paint, generate a custom fallback with `hextimate(...).format({ as: 'css', invertedVariants: true })` and ship that instead.
-- The companion `tailwind-inverted.css` maps the five built-in roles (`surface`, `accent`, `positive`, `negative`, `caution`). Custom roles added via `addRole` need their own `@theme inline` mappings to be usable as Tailwind utilities.
+- The companion `tailwind-inverted.css` maps the default theme's tokens. For a custom theme, generate inverted aliases with `tailwindAliases(theme, { inverted: true })`. See [Tailwind](tailwind.md#custom-themes).

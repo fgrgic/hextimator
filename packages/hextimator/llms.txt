@@ -1,7 +1,7 @@
 # hextimator
 
 > One brand color in. A complete, accessible light + dark theme out.
-> Use it programmatically (`hextimate(color)`) or via CLI (`npx hextimator`).
+> Use it programmatically (`hextimate(color)` or `hextimate(color, theme)`) or via CLI (`npx hextimator`).
 
 Generates palettes in **OKLCH** for perceptually even contrast; outputs map to sRGB with gamut mapping. WCAG contrast targets are configurable (`AAA` default).
 
@@ -10,7 +10,7 @@ Generates palettes in **OKLCH** for perceptually even contrast; outputs map to s
 - **Got a color, want a stylesheet?** - CLI (section 1)
 - **Got a color, want JSON / programmatic access?** - Library (section 2)
 - **Building a React app?** - React (section 3)
-- **Need a specific framework's tokens?** - Presets (section 4)
+- **Need custom roles, tokens, or a framework's tokens?** - Themes (section 4)
 
 ## 1. CLI
 
@@ -74,17 +74,15 @@ const tokens = hextimate("#6366f1").format();
 // { light: { accent, "accent-strong", ... }, dark: { ... } }
 
 const sheet = hextimate("#6366f1").format({ as: "css", colors: "oklch" });
+const shadcn = hextimate("#6366f1", themes.shadcn).format();
 ```
 
-### Builder (chainable)
+`hextimate(color, theme?)` returns a builder. The theme (section 4) sets roles, tokens, and style.
+
+### Builder
 
 | Call | Role |
 |------|------|
-| `.preset(p)` | Apply preset(s); call multiple times, later wins on conflicts |
-| `.style(partial)` | Merge `HextimateStyleOptions` (contrast, surfaces, semantics, etc.) |
-| `.addRole(name, color)` | New role with default / strong / weak / foreground / foreground-weak |
-| `.addVariant(name, placement)` | Extra lightness step on every role |
-| `.addToken(name, value)` | Standalone derived token |
 | `.fork(color?)` | Clone for another brand / tenant |
 | `.simulate(cvdType, severity?)` | CVD preview |
 | `.adaptFor(cvdType, severity?)` | Optimize palette for a CVD type |
@@ -100,7 +98,9 @@ const sheet = hextimate("#6366f1").format({ as: "css", colors: "oklch" });
 | `tailwind-css` | Tailwind v4 `@theme` string |
 | `scss` / `json` | As named |
 
-`colors`, `theme` (`"light"` \| `"dark"` \| `"both"`), `darkMode` (`"media"` \| `"class"` \| `"data-attribute"` \| `false`), `selector`, `roleNames`, `variantNames`, `separator`, `keyPrefix`, `excludeRoles`, `excludeVariants` match the CLI conceptually.
+`colors`, `theme` (`"light"` \| `"dark"` \| `"both"`), `darkMode` (`"media"` \| `"class"` \| `"data-attribute"` \| `false`), `selector`, `variantNames`, `separator`, `keyPrefix`, `excludeRoles`, `excludeVariants` match the CLI conceptually.
+
+Deprecated but still working: `.preset()`, `.style()`, `.addRole()`, `.addVariant()`, `.addToken()`, `fromConfig()`, `format.roleNames`. Use a theme instead.
 
 ### Default token grid
 
@@ -134,9 +134,35 @@ For app-wide state and palette switching: `HextimatorProvider`, `useHextimatorTh
 
 React options align with `.style()`, `.preset()` / `presets[]`, `.format()` (output is CSS variables).
 
-## 4. Presets
+## 4. Themes
 
-Import: `import { hextimate, presets } from "hextimator"`.
+A `ThemeDefinition` is plain JSON-friendly data. `baseTheme` is the default. Extend by spreading; arrays and `roles` replace the whole field.
+
+```typescript
+import { baseTheme, hextimate, type ThemeDefinition } from "hextimator";
+
+const theme = {
+  ...baseTheme,
+  style: { minContrastRatio: "AA", surfaceHueShift: 160 },
+  roles: {
+    ...baseTheme.roles,                       // key = output name
+    cta: { color: "#ee2244" },                // fixed color
+    secondary: { from: "accent", hue: 180 },  // derived
+  },
+  variants: [{ name: "hover", placement: { from: "strong" } }],
+  tokens: [...baseTheme.tokens, { name: "ring", value: { from: "accent" } }],
+  variantNames: { foreground: "text" },
+  format: { as: "css", colors: "oklch" },
+} satisfies ThemeDefinition;
+
+hextimate("#6366f1", theme).format();
+```
+
+Role generators: `surface` (at most one), `accent`, `positive`, `negative`, `caution`. Token generators: `brand-exact`, `brand-exact-foreground`. Applied in order: generated roles, other roles, variants, tokens.
+
+### Built-in themes
+
+Import: `import { hextimate, themes } from "hextimator"`.
 
 | Name | Kind | Notes |
 |------|------|--------|
@@ -148,10 +174,10 @@ Import: `import { hextimate, presets } from "hextimator"`.
 | `bold` | Style | Stronger accents, higher chroma on neutrals |
 
 ```typescript
-hextimate("#6366f1").preset(presets.muted).preset(presets.shadcn).format();
+hextimate("#6366f1", { ...themes.shadcn, style: themes.muted.style }).format();
 ```
 
-Custom presets are plain objects (`style`, `roles`, `variants`, `tokens`, `format`); see repo docs linked below.
+The CLI picks them by name (`--preset shadcn`). The React `presets` prop takes the matching `presets.*` objects.
 
 ## Tailwind CSS v4
 
@@ -160,7 +186,7 @@ Custom presets are plain objects (`style`, `roles`, `variants`, `tokens`, `forma
 @import "hextimator/tailwind.css";
 ```
 
-Registers utilities for built-in token names (`bg-accent`, etc.). Custom or preset-only names may need CLI-generated CSS.
+Registers utilities for the default theme's names (`bg-accent`, etc.). For a custom theme, write `tailwindAliases(theme)` to a CSS file in a build script and import that instead.
 
 ## Fallback before JS
 
@@ -172,9 +198,11 @@ Neutral placeholders for **default** `hextimate()` variable names only. Does not
 
 ## Full reference (optional)
 
-- [Extending the palette](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/extending-the-palette.md)
+- [Themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/themes.md)
+- [Roles, variants, and tokens](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/extending-the-palette.md)
+- [Built-in themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/presets.md)
 - [Customization (style & format)](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md)
-- [Multiple themes / fork](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md)
+- [Multiple themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md)
 - [Color vision deficiency](https://github.com/fgrgic/hextimator/docs/color-vision-deficiency.md)
 - [React](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/react.md)
 - [Tailwind](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/tailwind.md)

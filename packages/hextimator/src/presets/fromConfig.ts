@@ -7,13 +7,19 @@ import type { HextimatePreset } from './types';
  *
  * Shared vocabulary between app code and tooling: the same object an app runs
  * is the object a design-tool plugin runs.
+ *
+ * @deprecated Store a `ThemeDefinition` and call `hextimate(color, theme)`.
  */
 export type HextimateConfig = {
 	color: ColorInput;
 	presets?: HextimatePreset[];
 };
 
-/** Apply a {@link HextimateConfig}: `hextimate(color)` then each preset in order. */
+/**
+ * Apply a {@link HextimateConfig}: `hextimate(color)` then each preset in order.
+ *
+ * @deprecated Use `hextimate(color, theme)` with a `ThemeDefinition`.
+ */
 export function fromConfig(c: HextimateConfig) {
 	let b = hextimate(c.color);
 	for (const p of c.presets ?? []) b = b.preset(p);

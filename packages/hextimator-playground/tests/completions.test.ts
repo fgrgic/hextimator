@@ -28,3 +28,16 @@ test('offers theme adjustments in both theme branches without global-only option
 		expect(options).not.toContain('invertDarkModeSurfaceAccent');
 	}
 });
+
+test('offers style settings in a theme definition', () => {
+	expect(labels('hextimate(color, { ...baseTheme, style: { ')).toContain(
+		'minContrastRatio',
+	);
+	expect(labels('hextimate(color, { style: { light: { ')).not.toContain(
+		'invertDarkModeSurfaceAccent',
+	);
+});
+
+test('offers built-in themes', () => {
+	expect(labels('hextimate(color, themes.')).toContain('themes.shadcn');
+});

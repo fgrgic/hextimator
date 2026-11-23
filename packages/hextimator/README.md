@@ -45,15 +45,11 @@ hextimator is not the first palette generator. It targets one job the others ski
 
 Hand-crafting one brand's design system? Several of these beat hextimator. Color comes from user input (tenants, white-label customers, CMS authors)? That is hextimator's job.
 
-## Installation
+## 30-second start
 
 ```bash
 npm i hextimator
 ```
-
-**Tailwind v4:** import `hextimator/tailwind.css` in your CSS entry (see [Tailwind](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/tailwind.md)).
-
-## 30-second integration
 
 ```ts
 import { hextimate } from "hextimator";
@@ -61,58 +57,89 @@ import { hextimate } from "hextimator";
 const css = hextimate("#C0FFEE").format({ as: "css" });
 ```
 
-`hextimate` turns one color into a theme. You choose how to ship it: inline `<style>`, a `.css` file, a template partial, an edge cache, or something else. For tokens instead of a stylesheet, use `format({ as: 'object' })`.
+One color in, light and dark CSS variables out. Ship them however you like: inline `<style>`, a `.css` file, an edge cache. No DOM, so it works with SSR.
 
-No DOM. Pure computation. Works with SSR.
-
-### React (SSR-safe)
+React:
 
 ```tsx
 import { HextimatorStyle } from "hextimator/react";
 
-<HextimatorStyle color={"#0FF1CE"} />;
+<HextimatorStyle color="#0FF1CE" />;
 ```
 
-Put it in your layout `<head>`. Server render writes a `<style>` node. No `useEffect`. No FOUC when you pair it with static HTML. API and dark mode: [React](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/react.md).
+CLI: `npx hextimator '#BADA55'`
 
-### CLI (and AI agents)
+## Tailwind
 
-Same engine as the library. Flags for presets and format.
-
-```bash
-npx hextimator '#BADA55' --preset shadcn    # framework-shaped tokens
-npx hextimator '#BADA55' --preset muted       # style preset
-npx hextimator '#BADA55' --preset vibrant
-npx hextimator '#BADA55' --preset bold
+```css
+@import "tailwindcss";
+@import "hextimator/tailwind.css";
 ```
 
-## What is in every theme
+```html
+<button class="bg-accent text-accent-foreground">Save</button>
+<p class="text-surface-foreground-negative">Payment failed</p>
+```
 
-| Role     | Variants                                          |
-| -------- | ------------------------------------------------- |
-| surface  | DEFAULT, strong, weak, foreground, foreground-weak |
-| accent   | DEFAULT, strong, weak, foreground, foreground-weak |
-| positive | DEFAULT, strong, weak, foreground, foreground-weak |
-| negative | DEFAULT, strong, weak, foreground, foreground-weak |
-| caution  | DEFAULT, strong, weak, foreground, foreground-weak |
+Every class uses your brand color, run through the theme. Change the color at runtime and the classes follow. See [Tailwind](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/tailwind.md).
 
-`foreground-weak` is the softest foreground that still meets your contrast target against the role's DEFAULT background - use it for secondary or muted text and placeholders.
+## Theme
 
-Surface also has `foreground-accent`, `foreground-positive`, `foreground-negative`, and `foreground-caution`: text in the role's color that meets your contrast target on surface DEFAULT, weak, and strong. Use `text-surface-foreground-negative` for an error message on the page, and `text-negative-foreground` for text on a `bg-negative` fill.
+The theme decides what your brand color turns into. You can use it as is, add to it, or replace it.
 
-Plus **`brand-exact`** (your input color, unchanged) and **`brand-exact-foreground`**.
+### Use it as is
 
-## Customization and reference
+```ts
+hextimate(accent).format();
+```
 
+You get five roles: `surface`, `accent`, `positive`, `negative`, and `caution`. Each has `DEFAULT`, `strong`, `weak`, `foreground`, and `foreground-weak`. The surface also gets readable colored text for each role, such as `surface-foreground-negative`. Plus `brand-exact`, your input color unchanged.
+
+Every foreground meets WCAG AAA contrast against its background.
+
+### Add to it
+
+Spread `baseTheme` and add what you need:
+
+```ts
+import { baseTheme, hextimate, type ThemeDefinition } from "hextimator";
+
+const theme = {
+  ...baseTheme,
+  roles: { ...baseTheme.roles, cta: { color: "#ee2244" } },
+  tokens: [...baseTheme.tokens, { name: "ring", value: { from: "accent" } }],
+} satisfies ThemeDefinition;
+
+hextimate(accent, theme).format();
+```
+
+### Replace it
+
+Declare only what you want:
+
+```ts
+const theme = {
+  roles: {
+    page: { generate: "surface" },
+    brand: { generate: "accent" },
+    danger: { generate: "negative" },
+  },
+} satisfies ThemeDefinition;
+
+hextimate(accent, theme).format(); // --page, --brand, --danger, ...
+```
+
+Ready-made themes for shadcn/ui, MUI, and a few styles live in `themes`: `hextimate(accent, themes.shadcn)`.
+
+## Docs
+
+- [Themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/themes.md)
+- [Roles, variants, and tokens](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/extending-the-palette.md)
+- [Built-in themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/presets.md)
 - [Customization](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/customization.md): style and format options
-- [Extending the palette](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/extending-the-palette.md): `addRole`, `addVariant`, `addToken`
-- [Presets](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/presets.md): shadcn/ui configs and custom presets
-- [Multiple themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md): dynamic theming and `.fork()`
-- [React](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/react.md): hook, `HextimatorStyle`, provider, scoped themes, dark mode
-- [Tailwind CSS v4](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/tailwind.md): setup and usage
-
-### Also
-
+- [Tailwind](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/tailwind.md)
+- [React](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/react.md)
+- [Multiple themes](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/multiple-themes.md)
 - [Color vision deficiency](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/color-vision-deficiency.md)
 - [Examples](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/examples.md)
 - [Migration](https://github.com/fgrgic/hextimator/blob/main/packages/hextimator/docs/migration.md)
@@ -125,7 +152,7 @@ APCA is the perceptual model in draft WCAG 3. Better for a lot of UI. Not what p
 
 ## Stability
 
-The API follows strict semver. Builder methods, options, formats, CLI flags, and token names only break in majors, with notes in migration.md.
+The API follows strict semver. Theme fields, builder methods, options, formats, CLI flags, and token names only break in majors, with notes in migration.md.
 
 Generated color values are a separate contract. Output is fully deterministic: same version, same color, same options, same tokens. The algorithm itself may improve in minors (wider hue ranges, better anchors), which changes the exact values a theme produces. Every such change is flagged in the changelog with how to opt back into the old behavior.
 

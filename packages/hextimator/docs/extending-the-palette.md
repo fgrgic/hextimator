@@ -1,73 +1,94 @@
-# Extending the palette
+# Roles, variants, and tokens
 
-## `addRole` — add a new color with its full scale
+These are the building blocks of a [theme](themes.md). Each example extends `baseTheme`.
 
-Need more than the built-in 5 roles? Add any number of seed colors. Each gets its own DEFAULT, strong, weak, foreground, and foreground-weak variants.
+## Roles: a color with its full scale
 
-```typescript
-hextimate("#6A5ACD")
-  .addRole("cta", "#EE2244")
-  .format({ as: "css" });
-// Adds: --cta, --cta-strong, --cta-weak, --cta-foreground, --cta-foreground-weak
+Each role gets DEFAULT, strong, weak, foreground, and foreground-weak.
+
+```ts
+const theme = {
+  ...baseTheme,
+  roles: {
+    ...baseTheme.roles,
+    cta: { color: "#EE2244" },
+    secondary: { from: "accent", hue: 180 },
+  },
+} satisfies ThemeDefinition;
+
+hextimate("#6A5ACD", theme).format({ as: "css" });
+// Adds: --cta, --cta-strong, --cta-weak, --cta-foreground, --cta-foreground-weak,
+// --surface-foreground-cta, and the same for secondary
 ```
 
-## `addVariant` — add a lightness step to every role
+A role is a built-in generator (`{ generate: "accent" }`), a fixed color (`{ color }`), or derived from another role (`{ from, hue?, chroma?, lightness? }`). `hue` rotates in OKLCH degrees, so `180` gives a complementary color.
 
-Extend the scale depth across all roles at once.
+## Variants: a step on every role
 
-```typescript
-hextimate("#6A5ACD")
-  .addVariant("hover", { from: "strong" })
-  .addVariant("subtle", { between: ["DEFAULT", "weak"] })
-  .format({ as: "tailwind" });
+Extend the scale of every role at once.
+
+```ts
+const theme = {
+  ...baseTheme,
+  variants: [
+    { name: "hover", placement: { from: "strong" } },
+    { name: "subtle", placement: { between: ["DEFAULT", "weak"] } },
+  ],
+} satisfies ThemeDefinition;
 // Every role now has: DEFAULT, strong, weak, foreground, foreground-weak, hover, subtle
 ```
 
-- `{ from: "strong" }` — one step past strong (stronger)
-- `{ from: "weak" }` — one step past weak (weaker)
-- `{ from: "hover" }` — chain them: go past a custom variant
-- `{ between: ["DEFAULT", "weak"] }` — midpoint between two variants
+- `{ from: "strong" }`: one step past strong
+- `{ from: "weak" }`: one step past weak
+- `{ from: "hover" }`: one step past a custom variant
+- `{ between: ["DEFAULT", "weak"] }`: midpoint between two variants
 
-## `addToken` — add standalone derived tokens
+Variants apply in order, so a later variant can build on an earlier one.
 
-For one-off tokens that don't need a full scale. Every token is derived from the palette, so changing the seed color updates everything.
+## Tokens: standalone values
 
-```typescript
-hextimate("#6A5ACD")
-  .addToken("border", { from: "surface.weak", lightness: -0.05 })
-  .addToken("ring", { from: "accent" })
-  .addToken("placeholder", { from: "surface.foreground", lightness: +0.3 })
-  .format({ as: "css" });
+For one-off values that do not need a full scale. A token derived from the palette follows the accent.
+
+```ts
+const theme = {
+  ...baseTheme,
+  tokens: [
+    ...baseTheme.tokens,
+    { name: "border", value: { from: "surface.weak", lightness: -0.05 } },
+    { name: "ring", value: { from: "accent" } },
+    { name: "placeholder", value: { from: "surface.foreground", emphasis: -0.3 } },
+  ],
+} satisfies ThemeDefinition;
 // Adds: --border, --ring, --placeholder
 ```
 
-You can also pass a raw color value instead of deriving from the palette:
+`from` takes `role` or `role.variant`. Offsets:
 
-```typescript
-.addToken("brand-exact", "#FF6600")
-.addToken("page", {
-  light: "#ffffff",
-  dark: "#1a1a1a",
-})
+- `lightness`, `chroma`, `hue`: fixed offsets in OKLCH
+- `emphasis`: shifts toward more contrast (positive) or less (negative). It flips between light and dark, so one value works in both modes.
+
+A token can also be a fixed color or per-mode values:
+
+```ts
+tokens: [
+  { name: "logo", value: "#FF6600" },
+  { name: "page", value: { light: "#ffffff", dark: "#1a1a1a" } },
+  {
+    name: "divider",
+    value: {
+      light: { from: "surface.weak", lightness: -0.05 },
+      dark: { from: "surface.weak", lightness: 0.05 },
+    },
+  },
+];
 ```
 
-When light and dark themes need different directions:
+### Overriding generated colors
 
-```typescript
-.addToken("border", {
-  light: { from: "surface.weak", lightness: -0.05 },
-  dark: { from: "surface.weak", lightness: +0.05 },
-})
+Use a dotted name (`role.variant`). The override lands before anything derives from it:
+
+```ts
+tokens: [{ name: "surface.strong", value: "#fafafa" }];
 ```
 
-### Overriding generated tokens
-
-Use a dotted key (`role.variant`) so the override lands before anything derives from it:
-
-```typescript
-hextimate("#6A5ACD")
-  .addToken("surface.strong", "#fafafa")
-  .format({ as: "css" });
-```
-
-A kebab key that matches a generated label (e.g. `"surface-strong"`) throws — search `collides with a generated token`.
+A kebab name that matches a generated label, such as `"surface-strong"`, throws. Search for `collides with a generated token`.

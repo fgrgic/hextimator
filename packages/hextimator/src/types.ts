@@ -228,6 +228,8 @@ export interface HextimateFormatOptions {
 	 * - positive: "positive"
 	 * - negative: "negative"
 	 * - caution: "caution"
+	 *
+	 * @deprecated Name roles with theme keys instead: `roles: { brand: { generate: 'accent' } }`.
 	 */
 	roleNames?: Record<string, string>;
 

@@ -1,53 +1,31 @@
 # Tailwind CSS v4
 
-hextimator ships a ready-made CSS file that registers all built-in color tokens with Tailwind v4. This gives you utility classes like `bg-accent`, `text-surface-foreground`, `border-negative`, etc.
-
-## Setup
-
-1. Install Tailwind v4 with the Vite plugin:
-
-```bash
-npm install tailwindcss @tailwindcss/vite
-```
-
-2. Add the plugin to your `vite.config.ts`:
-
-```typescript
-import tailwindcss from "@tailwindcss/vite";
-
-export default defineConfig({
-  plugins: [tailwindcss()],
-});
-```
-
-3. Import Tailwind and hextimator's theme in your CSS:
+Import hextimator's stylesheet after Tailwind:
 
 ```css
 @import "tailwindcss";
 @import "hextimator/tailwind.css";
 ```
 
-That's it. All built-in tokens (accent, surface, positive, negative, caution × DEFAULT/strong/weak/foreground/foreground-weak, plus surface foreground-accent/positive/negative/caution) are available as Tailwind utilities.
+Now every token in the default theme is a Tailwind color:
 
-## How it works
-
-`hextimator/tailwind.css` contains a `@theme inline` block that maps Tailwind's `--color-*` namespace to bare CSS variables:
-
-```css
-@theme inline {
-  --color-accent: var(--accent);
-  --color-accent-strong: var(--accent-strong);
-  /* ...all 25 tokens */
-}
+```html
+<button class="bg-accent text-accent-foreground">Save</button>
+<button class="bg-negative text-negative-foreground">Delete</button>
+<p class="text-surface-foreground-negative">Payment failed</p>
 ```
 
-At runtime, you set the bare variables (`--accent`, `--surface`, etc.) on any element — via JavaScript, inline styles, or the React hook — and Tailwind utilities resolve them automatically.
+The classes point at CSS variables, such as `--accent`. hextimator fills those variables with your brand color. Change the color at runtime and every class follows.
 
-The `inline` keyword means values are resolved where the class is applied, not at `:root`. This enables scoped theming — different parts of the page can have different brand colors.
+For colored text on the page, use `text-surface-foreground-*`. `text-negative` is the fill color and may be hard to read on the surface.
 
-## Custom roles and variants
+## Custom themes
 
-If you extend the palette with `addRole()` or `addVariant()`, add the extra tokens to your CSS:
+The stylesheet only knows the default names. If your theme adds or renames tokens, Tailwind needs to know them too.
+
+### Added a few tokens
+
+Keep the stylesheet and add the new names:
 
 ```css
 @import "tailwindcss";
@@ -55,20 +33,38 @@ If you extend the palette with `addRole()` or `addVariant()`, add the extra toke
 
 @theme inline {
   --color-cta: var(--cta);
-  --color-cta-strong: var(--cta-strong);
-  --color-cta-weak: var(--cta-weak);
   --color-cta-foreground: var(--cta-foreground);
 }
 ```
 
-## Colored text on surfaces
+### Replaced the theme
 
-`text-negative` uses the same color as `bg-negative`, which is made for fills and may not be readable as text. For colored text on the page, use the surface foregrounds:
+Generate the stylesheet from your theme before Tailwind builds:
 
-```html
-<p class="text-surface-foreground-negative">Payment failed</p>
-<p class="text-surface-foreground-positive">Changes saved</p>
-<button class="bg-negative text-negative-foreground">Delete</button>
+```ts
+// scripts/tailwind-theme.ts
+import { writeFileSync } from "node:fs";
+import { tailwindAliases } from "hextimator";
+import { theme } from "../src/theme";
+
+writeFileSync("src/hextimator-theme.css", tailwindAliases(theme));
 ```
 
-`surface-foreground-accent`, `-positive`, `-negative`, and `-caution` meet `minContrastRatio` on `surface`, `surface-weak`, and `surface-strong`. For placeholders, use `placeholder-surface-foreground-weak`.
+Run it before `dev` and `build`, then import the file instead of `hextimator/tailwind.css`:
+
+```css
+@import "tailwindcss";
+@import "./hextimator-theme.css";
+```
+
+Rerun it when the theme's tokens change. Accent changes need no rebuild.
+
+## Inverted tokens
+
+For sections in the opposite mode, format with `invertedVariants: true` and add the companion stylesheet:
+
+```css
+@import "hextimator/tailwind-inverted.css";
+```
+
+For a custom theme, use `tailwindAliases(theme, { inverted: true })`. See [Inverted variants](customization.md#inverted-variants).

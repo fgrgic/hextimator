@@ -21,6 +21,8 @@ import type {
  * const theme = hextimate('#6366F1')
  *   .preset(presets.shadcn)
  *   .format();
+ *
+ * @deprecated Use a `ThemeDefinition` with `hextimate(accent, theme)`.
  */
 export interface HextimatePreset {
 	/** Style options (contrast, hue shifts, lightness, chroma). Applied before roles/variants/tokens. */

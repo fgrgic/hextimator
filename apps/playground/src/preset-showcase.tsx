@@ -39,16 +39,14 @@ export function buildPlaygroundCode(
 		color.includes("'") || color.includes('"') || color.includes('\n')
 			? JSON.stringify(color)
 			: `'${color}'`;
-	const head =
-		presetId === 'default'
-			? `hextimate(${literal})`
-			: `hextimate(${literal})\n  .preset(presets.${presetId})`;
-	return `${head}
-  // .style({ minContrastRatio: 'AA' })
-  // .preset(presets.shadcn)
-  // .addRole('cta', '#ff006e')
-  // .addVariant('muted', { from: 'weak' })
-  // .addToken('ring', { from: 'accent', emphasis: -0.2 })
+	const theme = presetId === 'default' ? 'baseTheme' : `themes.${presetId}`;
+	return `hextimate(${literal}, {
+  ...${theme},
+  // style: { minContrastRatio: 'AA' },
+  // roles: { ...baseTheme.roles, cta: { color: '#ff006e' } },
+  // variants: [{ name: 'muted', placement: { from: 'weak' } }],
+  // tokens: [...baseTheme.tokens, { name: 'ring', value: { from: 'accent' } }],
+})
 `;
 }
 

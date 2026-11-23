@@ -19,20 +19,17 @@ export class HextimateError extends Error {
  * Without a theme it uses `baseTheme`.
  *
  * @example
- * const css = hextimate('#ff6600', myTheme).format({ as: 'css' });
+ * const css = hextimate('#ff6600').format({ as: 'css' });
  *
  * @example
- * // Two-step API: generate, then format
- * const theme = hextimate('#ff6600')
- *   .format({ as: 'css', colors: 'oklch' });
+ * const theme = {
+ *   ...baseTheme,
+ *   style: { minContrastRatio: 'AA' },
+ *   roles: { ...baseTheme.roles, cta: { color: '#ee2244' } },
+ *   variants: [{ name: 'hover', placement: { from: 'strong' } }],
+ * } satisfies ThemeDefinition;
  *
- * @example
- * // Extended: add roles and variants before formatting
- * const theme = hextimate('#ff6600')
- *   .style({ light: { baseLightness: 0.5 }, dark: { baseLightness: 0.65, maxChroma: 0.1 } })
- *   .addRole('cta', '#ee2244')
- *   .addVariant('hover', { from: 'strong' })
- *   .format({ as: 'tailwind' });
+ * const css = hextimate('#ff6600', theme).format({ as: 'css' });
  */
 export function hextimate(
 	color: ColorInput,

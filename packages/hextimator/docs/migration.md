@@ -2,6 +2,128 @@
 
 Breaking changes by release. See the [CHANGELOG](../CHANGELOG.md) for release notes and PR links.
 
+## 0.14.x → 0.15.0: themes
+
+`hextimate(accent, theme)` replaces presets, `fromConfig()`, and builder configuration. The old APIs still work but are deprecated:
+
+- `fromConfig()` and `HextimateConfig`
+- `.preset()` and `HextimatePreset`
+- `.style()`, `.addRole()`, `.addVariant()`, `.addToken()`
+- `format.roleNames`
+
+Start from `baseTheme` to keep the default roles and tokens. A preset added to the default palette. A theme without `baseTheme` contains only what it declares.
+
+### Built-in presets
+
+```ts
+// before
+hextimate(color).preset(presets.shadcn).format();
+hextimate(color).preset(presets.muted).preset(presets.shadcn).format();
+
+// after
+hextimate(color, themes.shadcn).format();
+hextimate(color, { ...themes.shadcn, style: themes.muted.style }).format();
+```
+
+### Builder calls
+
+```ts
+// before
+hextimate(color)
+  .style({ minContrastRatio: "AA" })
+  .addRole("cta", "#ee2244")
+  .addRole("secondary", { from: "accent", hue: 180 })
+  .addVariant("hover", { from: "strong" })
+  .addToken("ring", { from: "accent" })
+  .format({ roleNames: { accent: "brand" } });
+
+// after
+const { accent, ...roles } = baseTheme.roles;
+
+const theme = {
+  ...baseTheme,
+  style: { minContrastRatio: "AA" },
+  roles: {
+    brand: accent,
+    ...roles,
+    cta: { color: "#ee2244" },
+    secondary: { from: "brand", hue: 180 },
+  },
+  variants: [{ name: "hover", placement: { from: "strong" } }],
+  tokens: [...baseTheme.tokens, { name: "ring", value: { from: "brand" } }],
+} satisfies ThemeDefinition;
+
+hextimate(color, theme).format();
+```
+
+| Before                           | After                                      |
+| -------------------------------- | ------------------------------------------ |
+| `.style(options)`                | `style: options`                           |
+| `.addRole(name, color)`          | `roles: { [name]: { color } }`             |
+| `.addRole(name, { from, ... })`  | `roles: { [name]: { from, ... } }`         |
+| `.addVariant(name, placement)`   | `variants: [{ name, placement }]`          |
+| `.addToken(name, value)`         | `tokens: [{ name, value }]`                |
+| `format: { roleNames }`          | Rename the keys in `roles`                 |
+| `.fork().style(options)`         | Spread the theme and change `style`        |
+
+Renamed roles change references too. With `brand: accent`, use `{ from: "brand" }`, not `{ from: "accent" }`.
+
+### Custom presets
+
+Roles move from an array to an object. Everything else keeps its shape.
+
+```ts
+// before
+const myPreset: HextimatePreset = {
+  style: { surfaceHueShift: 180 },
+  roles: [{ name: "cta", color: "#ee2244" }],
+  tokens: [{ name: "border", value: { from: "surface", emphasis: 0.1 } }],
+  format: { as: "css", roleNames: { surface: "background" } },
+};
+
+// after
+const { surface, ...roles } = baseTheme.roles;
+
+const myTheme = {
+  ...baseTheme,
+  style: { surfaceHueShift: 180 },
+  roles: { background: surface, ...roles, cta: { color: "#ee2244" } },
+  tokens: [
+    ...baseTheme.tokens,
+    { name: "border", value: { from: "background", emphasis: 0.1 } },
+  ],
+  format: { as: "css" },
+} satisfies ThemeDefinition;
+```
+
+### `fromConfig()`
+
+Store a theme next to the accent instead of a preset list:
+
+```ts
+// before
+fromConfig({ color: tenant.color, presets: [presets.shadcn] }).format();
+
+// after
+hextimate(tenant.color, tenant.theme ?? themes.shadcn).format();
+```
+
+Themes are plain data, so stored configs round-trip through JSON the same way.
+
+### Output differences
+
+- Custom roles in a theme get colored text on the surface. `cta` adds `surface-foreground-cta`. Roles from `.addRole()` did not.
+- Colored text names follow the role keys. Renaming `accent` to `brand` turns `surface-foreground-accent` into `surface-foreground-brand`.
+- A theme applies roles, then variants, then tokens. A chain that added a token before a role, or a role that referenced a custom variant, needs a token instead.
+
+### Tailwind
+
+Custom role names need their own aliases. Generate them with `tailwindAliases(theme)`. See [Tailwind](tailwind.md#custom-themes).
+
+### React
+
+The React components still take `style`, `presets`, and `configure`. No change is needed yet.
+
 ## 0.12.x → 0.13.0
 
 If you overrode a generated token with a kebab key, use a dotted key instead so the write lands before derivation:
@@ -272,7 +394,7 @@ Search your codebase for `hextimate(`, `.fork(`, `generation:`, and `HextimateGe
 
 ## Further reading
 
-- [Customization](customization.md) — style and format options reference
-- [Multiple themes](multiple-themes.md) — `.fork()` + `.style()`
-- [Presets](presets.md) — preset `style`, chaining, `.style()` after `.preset()`
-- [React](react.md) — provider, hook, scope props
+- [Themes](themes.md): fields and rules
+- [Customization](customization.md): style and format options reference
+- [Built-in themes](presets.md): shadcn, MUI, and style themes
+- [React](react.md): provider, hook, scope props
