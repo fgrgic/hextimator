@@ -13,26 +13,50 @@ A `ThemeDefinition` is plain data, so you can store it in a database or load it 
 
 | Field          | What it does                                                         |
 | -------------- | -------------------------------------------------------------------- |
+| `style`        | Contrast, chroma, lightness, and hue settings. See [Style](#style).  |
 | `roles`        | Roles to generate. The key sets the output name.                     |
 | `variants`     | Extra variants added to every role.                                  |
 | `tokens`       | Standalone tokens.                                                   |
-| `style`        | Contrast, chroma, lightness, and hue settings. See [Style](#style).  |
 | `variantNames` | Renames variant suffixes, such as `{ foreground: "contrastText" }`.  |
 | `format`       | Default output options. `.format()` options override them. See [Format](#format). |
 
 Every field is optional. A theme without `roles` produces no roles.
 
-## Extending
+## Style
 
-Spread a theme and override fields. The last value of each field wins. Arrays and `roles` replace the whole field, so spread the base values to keep them:
+Style shapes the look of every token: contrast, colorfulness, lightness, and how far surfaces drift from the accent. Set an option at the top level for both modes, or under `light` or `dark` for one.
 
 ```ts
-const theme = {
-  ...themes.shadcn,
-  style: themes.muted.style,
-  tokens: [...themes.shadcn.tokens, { name: "sidebar", value: { from: "surface.weak" } }],
-} satisfies ThemeDefinition;
+style: {
+  minContrastRatio: "AA",
+  surfaceHueShift: 160,
+  light: { baseLightness: 0.6 },
+}
 ```
+
+| Option                        | Type                                    | Default | Description                                                                                                          |
+| ----------------------------- | --------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------- |
+| `light`                       | [`ThemeAdjustments`](#themeadjustments) | -       | Per-light-theme overrides (same fields as `ThemeAdjustments`; omitted keys inherit from the top-level style object). |
+| `dark`                        | [`ThemeAdjustments`](#themeadjustments) | -       | Per-dark-theme overrides (same as `light`).                                                                          |
+| `invertDarkModeSurfaceAccent` | `boolean`                               | `false` | Swap surface and accent hues in dark mode. Requires `surfaceColor` on the invert path (top-level or under `dark`).   |
+
+#### `ThemeAdjustments`
+
+Generation knobs. You can set any of these at the **top level** of `style` for both themes, or under **`light` / `dark`** to override that theme only; omitted nested keys keep the top-level value.
+
+| Field                 | Type                                 | Default (when not set)                                                                                                                     | Description                                                                                                        |
+| --------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| `baseLightness`       | `number` (0-1)                       | Brand color OKLCH **L**, clamped via `baseLightnessRange` (per-theme, then top-level, then built-ins: light `[0.4,0.9]`, dark `[0.2,0.8]`) | Absolute lightness anchor for accent fills (not the relative `lightness` offset on tokens).                                |
+| `maxChroma`           | `number`                             | No extra cap                                                                                                                               | Max chroma for accent and semantic fills in scope; higher values are clamped.                                      |
+| `baseLightnessRange`  | `[min, max]` (OKLCH **L**, 0-1 each) | Built-in range per theme, unless top-level sets this tuple                                                                                 | Clamps `baseLightness` and input-derived anchors. Under `light` / `dark`, overrides top-level for that theme only. |
+| `minContrastRatio`    | `"AAA" \| "AA" \| number`            | `"AAA"` (= 7) at top level; nested inherits top-level                                                                                      | Minimum WCAG contrast between non-foreground variants and foreground. `"AA"` = 4.5, or pass a number.              |
+| `surfaceMaxChroma`    | `number`                             | `0.01` (top-level); nested inherits top-level                                                                                              | Max chroma for surface scale (`surface`, `strong`, `weak`).                                                        |
+| `foregroundMaxChroma` | `number`                             | `0.01` (top-level); nested inherits top-level                                                                                              | Max chroma for foreground variants (e.g. `accent-foreground`).                                                     |
+| `surfaceColor`        | `ColorInput`                         | Low-chroma derivation from the brand color (top-level); nested inherits top-level                                                          | Surface baseline for this scope. Per-theme: `light.surfaceColor` / `dark.surfaceColor`.                            |
+| `surfaceHueShift`     | `number` (degrees)                   | `0` (top-level); nested inherits top-level                                                                                                 | Rotate surface hue vs accent. **Ignored** when `surfaceColor` is set for that scope.                               |
+| `hueShift`            | `number` (degrees)                   | `0` (top-level); nested inherits top-level                                                                                                 | Per-variant hue shift on accent and semantic scales (strong/weak steps).                                           |
+| `semanticColors`      | `{ positive?, negative?, caution? }` | Auto-filled from seed (top-level); under `light` / `dark`, each key merges with top-level                                                  | Explicit semantic role colors. Unset slots inherit.                                                                |
+| `semanticColorRanges` | `{ positive?, negative?, caution? }` | `positive: [120,160]`, `negative: [5,30]`, `caution: [45,70]` (after top-level + merge)                                                    | OKLCH hue arcs for discovering semantic bases. Per-theme keys merge with top-level.                                |
 
 ## Roles
 
@@ -98,39 +122,17 @@ tokens: [
 
 hextimator applies a theme in a fixed order: generated roles, then other roles, then variants, then tokens. A derived role can reference only the built-in variants. Tokens can reference any variant.
 
-## Style
+## Extending
+
+Spread a theme and override fields. The last value of each field wins. Arrays and `roles` replace the whole field, so spread the base values to keep them:
 
 ```ts
-style: {
-  minContrastRatio: "AA",
-  surfaceHueShift: 160,
-  light: { baseLightness: 0.6 },
-}
+const theme = {
+  ...themes.shadcn,
+  style: themes.muted.style,
+  tokens: [...themes.shadcn.tokens, { name: "sidebar", value: { from: "surface.weak" } }],
+} satisfies ThemeDefinition;
 ```
-
-| Option                        | Type                                    | Default | Description                                                                                                          |
-| ----------------------------- | --------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------- |
-| `light`                       | [`ThemeAdjustments`](#themeadjustments) | -       | Per-light-theme overrides (same fields as `ThemeAdjustments`; omitted keys inherit from the top-level style object). |
-| `dark`                        | [`ThemeAdjustments`](#themeadjustments) | -       | Per-dark-theme overrides (same as `light`).                                                                          |
-| `invertDarkModeSurfaceAccent` | `boolean`                               | `false` | Swap surface and accent hues in dark mode. Requires `surfaceColor` on the invert path (top-level or under `dark`).   |
-
-#### `ThemeAdjustments`
-
-Generation knobs. You can set any of these at the **top level** of `style` for both themes, or under **`light` / `dark`** to override that theme only; omitted nested keys keep the top-level value.
-
-| Field                 | Type                                 | Default (when not set)                                                                                                                     | Description                                                                                                        |
-| --------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
-| `baseLightness`       | `number` (0-1)                       | Brand color OKLCH **L**, clamped via `baseLightnessRange` (per-theme, then top-level, then built-ins: light `[0.4,0.9]`, dark `[0.2,0.8]`) | Absolute lightness anchor for accent fills (not the relative `lightness` offset on tokens).                                |
-| `maxChroma`           | `number`                             | No extra cap                                                                                                                               | Max chroma for accent and semantic fills in scope; higher values are clamped.                                      |
-| `baseLightnessRange`  | `[min, max]` (OKLCH **L**, 0-1 each) | Built-in range per theme, unless top-level sets this tuple                                                                                 | Clamps `baseLightness` and input-derived anchors. Under `light` / `dark`, overrides top-level for that theme only. |
-| `minContrastRatio`    | `"AAA" \| "AA" \| number`            | `"AAA"` (= 7) at top level; nested inherits top-level                                                                                      | Minimum WCAG contrast between non-foreground variants and foreground. `"AA"` = 4.5, or pass a number.              |
-| `surfaceMaxChroma`    | `number`                             | `0.01` (top-level); nested inherits top-level                                                                                              | Max chroma for surface scale (`surface`, `strong`, `weak`).                                                        |
-| `foregroundMaxChroma` | `number`                             | `0.01` (top-level); nested inherits top-level                                                                                              | Max chroma for foreground variants (e.g. `accent-foreground`).                                                     |
-| `surfaceColor`        | `ColorInput`                         | Low-chroma derivation from the brand color (top-level); nested inherits top-level                                                          | Surface baseline for this scope. Per-theme: `light.surfaceColor` / `dark.surfaceColor`.                            |
-| `surfaceHueShift`     | `number` (degrees)                   | `0` (top-level); nested inherits top-level                                                                                                 | Rotate surface hue vs accent. **Ignored** when `surfaceColor` is set for that scope.                               |
-| `hueShift`            | `number` (degrees)                   | `0` (top-level); nested inherits top-level                                                                                                 | Per-variant hue shift on accent and semantic scales (strong/weak steps).                                           |
-| `semanticColors`      | `{ positive?, negative?, caution? }` | Auto-filled from seed (top-level); under `light` / `dark`, each key merges with top-level                                                  | Explicit semantic role colors. Unset slots inherit.                                                                |
-| `semanticColorRanges` | `{ positive?, negative?, caution? }` | `positive: [120,160]`, `negative: [5,30]`, `caution: [45,70]` (after top-level + merge)                                                    | OKLCH hue arcs for discovering semantic bases. Per-theme keys merge with top-level.                                |
 
 ## Format
 
