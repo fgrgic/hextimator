@@ -1,3 +1,17 @@
+## 0.15.0
+
+### Minor Changes
+
+- [#200](https://github.com/fgrgic/hextimator/pull/200) [`b220fdf`](https://github.com/fgrgic/hextimator/commit/b220fdf0e113e883afa25673e2e7f1634ffd9dcc) Thanks [@fgrgic](https://github.com/fgrgic)! - Deprecate `fromConfig()`, `HextimateConfig`, `.preset()`, `HextimatePreset`, `.style()`, `.addRole()`, `.addVariant()`, `.addToken()`, and `format.roleNames` in favor of `hextimate(accent, theme)`. They still work. The migration guide shows the theme equivalent of each.
+
+- [#202](https://github.com/fgrgic/hextimator/pull/202) [`ad90f31`](https://github.com/fgrgic/hextimator/commit/ad90f31000bd9d53a4138f8beb11ecbd06c86aed) Thanks [@fgrgic](https://github.com/fgrgic)! - Add a `theme` option to `useHextimator`, `HextimatorProvider`, `HextimatorScope`, and `HextimatorStyle`. It builds with `hextimate(color, theme)`, and `configure` runs after it. A scope with its own `theme` builds fresh instead of inheriting the parent. Deprecate the `style` and `presets` options in favor of `theme`. They still work.
+
+- [#187](https://github.com/fgrgic/hextimator/pull/187) [`616f4bd`](https://github.com/fgrgic/hextimator/commit/616f4bdb2cd51abb915086635059443bb9499113) Thanks [@fgrgic](https://github.com/fgrgic)! - Add `surface-foreground-accent`, `surface-foreground-positive`, `surface-foreground-negative`, and `surface-foreground-caution`. Each is text in the role's color that meets `minContrastRatio` on surface DEFAULT, weak, and strong. Use `text-surface-foreground-negative` for an error message on the page. Existing tokens are unchanged.
+
+- [#199](https://github.com/fgrgic/hextimator/pull/199) [`4ecb246`](https://github.com/fgrgic/hextimator/commit/4ecb246f41eff44e6bc9b875361da5976fadb344) Thanks [@fgrgic](https://github.com/fgrgic)! - Add `tailwindAliases(theme)` to generate Tailwind v4 aliases for a custom theme's runtime CSS variables. Pass `{ inverted: true }` to generate aliases for inverted tokens. The package build now generates both shipped Tailwind stylesheets from `baseTheme`.
+
+- [#198](https://github.com/fgrgic/hextimator/pull/198) [`9bd8db7`](https://github.com/fgrgic/hextimator/commit/9bd8db73a221dd3b2e5cb467d65ddcec917e1fa1) Thanks [@fgrgic](https://github.com/fgrgic)! - Add `hextimate(accent, theme)` to generate light and dark palettes from a reusable `ThemeDefinition`. Extend `baseTheme` to define your own, or use one of the six built-ins from `themes`.
+
 ## 0.14.4
 
 ### Patch Changes
