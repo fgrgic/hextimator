@@ -718,6 +718,31 @@ describe('HextimatePaletteBuilder: addToken palette addressing', () => {
 		}
 	});
 
+	it('black DEFAULT pin flips foreground and foreground-weak to pass', () => {
+		const result = formatObject(
+			hextimate('#ff6600').addToken('surface.DEFAULT', '#000000'),
+		);
+		for (const palette of [result.light, result.dark]) {
+			for (const key of ['surface-foreground', 'surface-foreground-weak']) {
+				expect(
+					calculateContrast(
+						parseColor(palette[key]),
+						parseColor(palette.surface),
+					),
+				).toBeGreaterThanOrEqual(4.5);
+			}
+		}
+	});
+
+	it('foreground pin survives a later DEFAULT pin', () => {
+		const result = formatObject(
+			hextimate('#ff6600')
+				.addToken('surface.foreground', '#222222')
+				.addToken('surface.DEFAULT', '#000000'),
+		);
+		expect(result.light['surface-foreground']).toBe('#222222');
+	});
+
 	it('foreground-weak pin survives a later DEFAULT pin', () => {
 		const result = formatObject(
 			hextimate('#ff6600')

@@ -854,19 +854,35 @@ export class HextimatePaletteBuilder {
 		);
 		this.pinnedCoordinates.add(coordinate);
 
-		const weakCoordinate = `${role}.foreground-weak`;
-		if (
-			(variant === 'DEFAULT' || variant === 'foreground') &&
-			!this.pinnedCoordinates.has(weakCoordinate)
-		) {
-			const contrastTarget =
-				resolveContrastRatio(this.options.minContrastRatio) + CONTRAST_MARGIN;
-			for (const palette of [this.lightPalette, this.darkPalette]) {
-				const scale = palette[role];
-				if (scale['foreground-weak'] === undefined) continue;
+		if (variant !== 'DEFAULT' && variant !== 'foreground') return;
+		const repickForeground =
+			variant === 'DEFAULT' &&
+			!this.pinnedCoordinates.has(`${role}.foreground`);
+		const recomputeWeak = !this.pinnedCoordinates.has(
+			`${role}.foreground-weak`,
+		);
+		const contrastTarget =
+			resolveContrastRatio(this.options.minContrastRatio) + CONTRAST_MARGIN;
+		for (const palette of [this.lightPalette, this.darkPalette]) {
+			const scale = palette[role];
+			if (scale.foreground === undefined) continue;
+			const base = convert(parse(scale.DEFAULT), 'oklch');
+			let foreground = convert(parse(scale.foreground), 'oklch');
+			if (
+				repickForeground &&
+				calculateContrast(foreground, base) < contrastTarget
+			) {
+				const [dark, light] = [0.1, 0.97].map((l) => ({ ...foreground, l }));
+				foreground =
+					calculateContrast(dark, base) >= calculateContrast(light, base)
+						? dark
+						: light;
+				scale.foreground = foreground;
+			}
+			if (recomputeWeak && scale['foreground-weak'] !== undefined) {
 				scale['foreground-weak'] = computeSoftestForeground(
-					convert(parse(scale.foreground), 'oklch'),
-					convert(parse(scale.DEFAULT), 'oklch'),
+					foreground,
+					base,
 					contrastTarget,
 				);
 			}

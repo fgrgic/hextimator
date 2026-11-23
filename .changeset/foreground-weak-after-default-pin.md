@@ -2,4 +2,4 @@
 "hextimator": patch
 ---
 
-Recompute `foreground-weak` when a token pins `role.DEFAULT` or `role.foreground`, so it keeps meeting `minContrastRatio` against the pinned color. A pinned `foreground-weak` keeps its value.
+Keep text readable when a token pins `role.DEFAULT` or `role.foreground`. A pinned DEFAULT now flips `foreground` to the other end when it misses `minContrastRatio`, and `foreground-weak` is recomputed against the pinned colors. Pinned `foreground` and `foreground-weak` values are kept.
