@@ -23,7 +23,7 @@ Try it: **[hextimator.com](https://hextimator.com)**
 ## Why `hextimator` exists
 
 <p align="center">
-  <video src="https://github.com/user-attachments/assets/245f0728-38e3-425a-8d0c-87bff6f48b0f" width="100%" controls playsinline></video>
+  <video src="https://github.com/user-attachments/assets/fec967e9-9e5d-4bb1-8e02-15fbc02afb0b" width="100%" controls playsinline></video>
 </p>
 
 You ship a B2B, B2B2C, or white-label app. Every tenant brings a brand color. Your choices today:
