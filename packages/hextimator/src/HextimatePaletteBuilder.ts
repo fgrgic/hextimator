@@ -154,6 +154,7 @@ export class HextimatePaletteBuilder {
 		value: TokenValue;
 	}> = [];
 	private readonly foregroundOverrides = new Map<string, TokenValue>();
+	private readonly pinnedCoordinates = new Set<string>();
 	private readonly weakSideVariants: string[] = ['weak'];
 	private readonly strongSideVariants: string[] = ['strong'];
 	private readonly foregroundAnchoredVariants: Set<string> = new Set();
@@ -203,6 +204,7 @@ export class HextimatePaletteBuilder {
 		);
 		this.standaloneTokens.length = 0;
 		this.foregroundOverrides.clear();
+		this.pinnedCoordinates.clear();
 		this.weakSideVariants.length = 0;
 		this.weakSideVariants.push('weak');
 		this.strongSideVariants.length = 0;
@@ -850,6 +852,25 @@ export class HextimatePaletteBuilder {
 			this.resolveTokenValue(value, 'dark', this.darkPalette),
 			'oklch',
 		);
+		this.pinnedCoordinates.add(coordinate);
+
+		const weakCoordinate = `${role}.foreground-weak`;
+		if (
+			(variant === 'DEFAULT' || variant === 'foreground') &&
+			!this.pinnedCoordinates.has(weakCoordinate)
+		) {
+			const contrastTarget =
+				resolveContrastRatio(this.options.minContrastRatio) + CONTRAST_MARGIN;
+			for (const palette of [this.lightPalette, this.darkPalette]) {
+				const scale = palette[role];
+				if (scale['foreground-weak'] === undefined) continue;
+				scale['foreground-weak'] = computeSoftestForeground(
+					convert(parse(scale.foreground), 'oklch'),
+					convert(parse(scale.DEFAULT), 'oklch'),
+					contrastTarget,
+				);
+			}
+		}
 	}
 
 	/**
