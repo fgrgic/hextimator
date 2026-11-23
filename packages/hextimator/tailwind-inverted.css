@@ -47,4 +47,8 @@
 	--color-caution-foreground-weak-inverted: var(
 		--caution-foreground-weak-inverted
 	);
+	--color-brand-exact-inverted: var(--brand-exact-inverted);
+	--color-brand-exact-foreground-inverted: var(
+		--brand-exact-foreground-inverted
+	);
 }

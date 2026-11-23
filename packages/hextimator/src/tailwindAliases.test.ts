@@ -30,11 +30,9 @@ test('matches the shipped default aliases', () => {
 	expect(declarations(tailwindAliases(baseTheme))).toEqual(
 		declarations(normal),
 	);
-	expect(
-		declarations(
-			tailwindAliases({ ...baseTheme, tokens: [] }, { inverted: true }),
-		),
-	).toEqual(declarations(inverted));
+	expect(declarations(tailwindAliases(baseTheme, { inverted: true }))).toEqual(
+		declarations(inverted),
+	);
 });
 
 test('matches formatted custom token names in both modes', () => {

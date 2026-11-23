@@ -10,10 +10,7 @@ const header =
 
 for (const [file, css] of [
 	['tailwind.css', tailwindAliases(theme)],
-	[
-		'tailwind-inverted.css',
-		tailwindAliases({ ...theme, tokens: [] }, { inverted: true }),
-	],
+	['tailwind-inverted.css', tailwindAliases(theme, { inverted: true })],
 ]) {
 	const formatted = css
 		.split('\n')
