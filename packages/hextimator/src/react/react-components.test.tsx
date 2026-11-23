@@ -1,11 +1,16 @@
 import { describe, expect, it } from 'bun:test';
+import { useState } from 'react';
 import { renderToString } from 'react-dom/server';
+import { baseTheme, hextimate, type ThemeDefinition } from '../index';
+import { buildStyleContent } from './css';
 import {
 	HextimatorProvider,
 	HextimatorScope,
 	HextimatorStyle,
+	useHextimator,
 	useHextimatorTheme,
 } from './index';
+import { useStableOptions } from './use-stable-options';
 
 function ThemeColor() {
 	const { color } = useHextimatorTheme();
@@ -194,5 +199,159 @@ describe('HextimatorProvider / Scope (renderToString)', () => {
 		expect(lightAccent).toBeDefined();
 		expect(darkAccent).toBeDefined();
 		expect(lightAccent).not.toBe(darkAccent);
+	});
+});
+
+describe('theme option', () => {
+	const theme = {
+		...baseTheme,
+		roles: { ...baseTheme.roles, cta: { color: '#ee2244' } },
+	} satisfies ThemeDefinition;
+
+	function expectedCss(color: string, t?: ThemeDefinition, selector?: string) {
+		const palette = hextimate(color, t).format({ as: 'object' });
+		return buildStyleContent(palette, false, '', selector);
+	}
+
+	function cssOf(html: string) {
+		const match = html.match(/<style data-hextimator="">([\s\S]*?)<\/style>/);
+		return match?.[1].replaceAll('&quot;', '"').replaceAll('&gt;', '>');
+	}
+
+	function PaletteJson({ color, t }: { color: string; t?: ThemeDefinition }) {
+		const palette = useHextimator(color, { theme: t, darkMode: false });
+		return <pre>{JSON.stringify(palette)}</pre>;
+	}
+
+	function PaletteFromContext() {
+		const { palette } = useHextimatorTheme();
+		return <pre>{JSON.stringify(palette)}</pre>;
+	}
+
+	function decodeQuotes(html: string) {
+		return html.replaceAll('&quot;', '"');
+	}
+
+	it('HextimatorStyle matches hextimate(color, theme)', () => {
+		const html = renderToString(
+			<HextimatorStyle color="#3366ff" theme={theme} darkMode={false} />,
+		);
+		expect(cssOf(html)).toBe(expectedCss('#3366ff', theme));
+		expect(html).toContain('--cta:');
+	});
+
+	it('HextimatorStyle without theme matches baseTheme output', () => {
+		const html = renderToString(
+			<HextimatorStyle color="#3366ff" darkMode={false} />,
+		);
+		expect(cssOf(html)).toBe(expectedCss('#3366ff'));
+	});
+
+	it('useHextimator matches hextimate(color, theme)', () => {
+		const html = decodeQuotes(
+			renderToString(<PaletteJson color="#3366ff" t={theme} />),
+		);
+		expect(html).toContain(
+			JSON.stringify(hextimate('#3366ff', theme).format({ as: 'object' })),
+		);
+	});
+
+	it('useHextimator without theme matches hextimate(color)', () => {
+		const html = decodeQuotes(renderToString(<PaletteJson color="#3366ff" />));
+		expect(html).toContain(
+			JSON.stringify(hextimate('#3366ff').format({ as: 'object' })),
+		);
+	});
+
+	it('HextimatorProvider matches hextimate(color, theme)', () => {
+		const html = decodeQuotes(
+			renderToString(
+				<HextimatorProvider
+					defaultColor="#3366ff"
+					theme={theme}
+					darkMode={false}
+				>
+					<PaletteFromContext />
+				</HextimatorProvider>,
+			),
+		);
+		expect(html).toContain(
+			JSON.stringify(hextimate('#3366ff', theme).format({ as: 'object' })),
+		);
+	});
+
+	it('HextimatorScope matches hextimate(color, theme)', () => {
+		const html = renderToString(
+			<HextimatorScope defaultColor="#3366ff" theme={theme} darkMode={false}>
+				<span />
+			</HextimatorScope>,
+		);
+		const selector = html.match(/data-hextimator-scope="([^"]+)"/)?.[1];
+		expect(cssOf(html)).toBe(
+			expectedCss('#3366ff', theme, `[data-hextimator-scope="${selector}"]`),
+		);
+	});
+
+	it('scope with its own theme ignores the parent theme', () => {
+		const html = renderToString(
+			<HextimatorProvider defaultColor="#3366ff" theme={theme} darkMode={false}>
+				<HextimatorScope
+					defaultColor="#3366ff"
+					theme={baseTheme}
+					darkMode={false}
+				>
+					<span />
+				</HextimatorScope>
+			</HextimatorProvider>,
+		);
+		expect(html).not.toContain('--cta:');
+	});
+
+	it('scope without a theme inherits the parent theme', () => {
+		const html = renderToString(
+			<HextimatorProvider defaultColor="#3366ff" theme={theme} darkMode={false}>
+				<HextimatorScope defaultColor="#3366ff" darkMode={false}>
+					<span />
+				</HextimatorScope>
+			</HextimatorProvider>,
+		);
+		expect(html).toContain('--cta:');
+	});
+
+	it('configure runs after the theme', () => {
+		const html = renderToString(
+			<HextimatorStyle
+				color="#3366ff"
+				theme={{ ...theme, style: { hueShift: 0 } }}
+				configure={(b) => b.style({ hueShift: 30 })}
+				darkMode={false}
+			/>,
+		);
+		const expected = hextimate('#3366ff', { ...theme, style: { hueShift: 0 } });
+		expected.style({ hueShift: 30 });
+		expect(cssOf(html)).toBe(
+			buildStyleContent(expected.format({ as: 'object' }), false, ''),
+		);
+		expect(cssOf(html)).not.toBe(
+			expectedCss('#3366ff', { ...theme, style: { hueShift: 0 } }),
+		);
+	});
+
+	it('an inline theme with unchanged content keeps the same options', () => {
+		const seen: unknown[] = [];
+		const changed = { ...theme, style: { hueShift: 30 } };
+		function Probe() {
+			const [pass, setPass] = useState(0);
+			const stable = useStableOptions({
+				theme: pass < 2 ? { ...theme } : { ...changed },
+			});
+			seen.push(stable);
+			if (pass < 2) setPass(pass + 1);
+			return null;
+		}
+		renderToString(<Probe />);
+		expect(seen).toHaveLength(3);
+		expect(seen[1]).toBe(seen[0]);
+		expect(seen[2]).not.toBe(seen[1]);
 	});
 });

@@ -15,6 +15,7 @@ import type {
 } from '../HextimatePaletteBuilder';
 import { hextimate } from '../index';
 import type { HextimatePreset } from '../presets/types';
+import type { ThemeDefinition } from '../theme';
 import type { HextimateFormatOptions, HextimateStyleOptions } from '../types';
 import { HextimatorContext, type HextimatorContextValue } from './context';
 import { buildStyleContent } from './css';
@@ -33,7 +34,11 @@ export interface HextimatorScopeProps {
 	defaultColor: ColorInputProp;
 	/** When true, ignores any parent provider/scope and builds the theme from scratch. */
 	isolated?: boolean;
+	/** Theme for this subtree. When set, the scope builds with `hextimate(color, theme)` instead of forking the parent. */
+	theme?: ThemeDefinition;
+	/** @deprecated Set `style` on the `theme`: `theme={{ ...baseTheme, style }}`. */
 	style?: HextimateStyleOptions;
+	/** @deprecated Pass a `theme` instead: `theme={themes.shadcn}`. */
 	presets?: HextimatePreset[];
 	format?: Omit<HextimateFormatOptions, 'as'>;
 	configure?: (builder: HextimatePaletteBuilder) => void;
@@ -46,8 +51,9 @@ export interface HextimatorScopeProps {
 }
 
 /**
- * Themes a single subtree with its own brand color. Inherits the shape (roles,
- * variants, presets) of any parent provider or scope unless `isolated` is set.
+ * Themes a single subtree with its own brand color. Inherits the shape (theme,
+ * roles, variants) of any parent provider or scope unless `isolated` or its
+ * own `theme` is set.
  *
  * @example
  * ```tsx
@@ -59,6 +65,7 @@ export interface HextimatorScopeProps {
 export function HextimatorScope({
 	defaultColor,
 	isolated = false,
+	theme,
 	style: initialStyle,
 	presets: initialPresets,
 	format: formatOpts,
@@ -107,6 +114,7 @@ export function HextimatorScope({
 	const parent = useContext(HextimatorContext);
 
 	const stable = useStableOptions({
+		theme,
 		style,
 		presets,
 		format: formatOpts,
@@ -117,7 +125,9 @@ export function HextimatorScope({
 	const buildOne = useCallback(
 		(c: string) => {
 			const b =
-				!isolated && parent?.builder ? parent.builder.fork(c) : hextimate(c);
+				!isolated && !stable?.theme && parent?.builder
+					? parent.builder.fork(c)
+					: hextimate(c, stable?.theme);
 			if (stable?.style && Object.keys(stable.style).length > 0) {
 				b.style(stable.style);
 			}
@@ -125,7 +135,14 @@ export function HextimatorScope({
 			configure?.(b);
 			return b;
 		},
-		[parent?.builder, isolated, stable?.style, presets, configure],
+		[
+			parent?.builder,
+			isolated,
+			stable?.theme,
+			stable?.style,
+			presets,
+			configure,
+		],
 	);
 
 	const lightBuilder = useMemo(
