@@ -1,4 +1,5 @@
 import { convert } from '../convert';
+import { gamutMapOklch } from '../convert/gamut';
 import type { Color, HextimateStyleOptions, OKLCH } from '../types';
 import {
 	DEFAULT_DARK_THEME_LIGHTNESS,
@@ -566,9 +567,17 @@ export function expandColorToScale(
 	};
 }
 
+/** Share of the most sRGB chroma available at this lightness and hue. */
+function relativeChroma(color: OKLCH): number {
+	const max = gamutMapOklch({ ...color, c: 0.4 }).c;
+	return max > 0 ? Math.min(1, color.c / max) : 0;
+}
+
 /**
- * Softest foreground still meeting contrast: slides from `foreground` toward
- * `base` to the point where contrast against `base` first reaches `contrastTarget`.
+ * Softest foreground still meeting contrast: mixes `foreground` toward `base`
+ * up to the point where contrast against `base` first reaches `contrastTarget`.
+ * Lightness and hue blend in OKLab. Chroma blends as a share of the gamut
+ * limit, so a near-grey base still tints mid-tones the way it tints itself.
  * Falls back to `foreground` when it already sits at or below the target.
  */
 export function computeSoftestForeground(
@@ -576,12 +585,39 @@ export function computeSoftestForeground(
 	base: OKLCH,
 	contrastTarget: number,
 ): OKLCH {
-	const boundaryL = findContrastBoundaryLightness(
-		foreground,
-		base,
-		contrastTarget,
-	);
-	return { ...foreground, l: boundaryL ?? foreground.l };
+	if (calculateContrast(foreground, base) <= contrastTarget) return foreground;
+
+	const from = convert(foreground, 'oklab');
+	const to = convert(base, 'oklab');
+	const fromRelative = relativeChroma(foreground);
+	const toRelative = relativeChroma(base);
+	const mix = (t: number): OKLCH => {
+		const blended = convert(
+			{
+				space: 'oklab',
+				l: from.l + t * (to.l - from.l),
+				a: from.a + t * (to.a - from.a),
+				b: from.b + t * (to.b - from.b),
+				alpha: foreground.alpha,
+			},
+			'oklch',
+		);
+		const relative = fromRelative + t * (toRelative - fromRelative);
+		const max = gamutMapOklch({ ...blended, c: 0.4 }).c;
+		return convert(
+			convert({ ...blended, c: relative * max }, 'srgb'),
+			'oklch',
+		);
+	};
+
+	let lo = 0;
+	let hi = 1;
+	for (let i = 0; i < 20; i++) {
+		const mid = (lo + hi) / 2;
+		if (calculateContrast(mix(mid), base) > contrastTarget) lo = mid;
+		else hi = mid;
+	}
+	return mix(lo);
 }
 
 let warnedLegacyLightness = false;
