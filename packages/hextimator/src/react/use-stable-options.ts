@@ -1,21 +1,25 @@
 import { type RefObject, useRef } from 'react';
 import type { HextimatePaletteBuilder } from '../HextimatePaletteBuilder';
 import type { HextimatePreset } from '../presets/types';
+import type { ThemeDefinition } from '../theme';
 import type { HextimateFormatOptions, HextimateStyleOptions } from '../types';
 import type { DarkModeStrategy } from './types';
 
 /**
  * Options for the `useHextimator` hook, which generates a color palette and injects CSS variables based on a given color and configuration.
- * - `style`: Options for how the palette is generated (e.g., light/dark settings, contrast requirements).
+ * - `theme`: The `ThemeDefinition` to build with, as in `hextimate(color, theme)`. Defaults to `baseTheme`.
  * - `format`: Options for how the generated palette is formatted (e.g., output format).
- * - `configure`: A callback to further customize the palette builder before formatting.
+ * - `configure`: A callback to further customize the palette builder after the theme is applied.
  * - `darkMode`: Strategy for handling dark mode variants in CSS variable injection.
  * - `cssPrefix`: A prefix to apply to all generated CSS variable names.
  * - `target`: An optional ref to a specific DOM element where CSS variables should be injected instead of the document root.
  *
  */
 export interface UseHextimatorOptions {
+	theme?: ThemeDefinition;
+	/** @deprecated Set `style` on the `theme`: `{ theme: { ...baseTheme, style } }`. */
 	style?: HextimateStyleOptions;
+	/** @deprecated Pass a `theme` instead: `{ theme: themes.shadcn }`. */
 	presets?: HextimatePreset[];
 	format?: Omit<HextimateFormatOptions, 'as'>;
 	configure?: (builder: HextimatePaletteBuilder) => void;
@@ -27,6 +31,7 @@ export interface UseHextimatorOptions {
 export function useStableOptions(options?: UseHextimatorOptions) {
 	const ref = useRef(options);
 	const serialized = JSON.stringify({
+		theme: options?.theme,
 		style: options?.style,
 		presets: options?.presets,
 		format: options?.format,
@@ -37,6 +42,7 @@ export function useStableOptions(options?: UseHextimatorOptions) {
 	if (
 		serialized !==
 		JSON.stringify({
+			theme: ref.current?.theme,
 			style: ref.current?.style,
 			presets: ref.current?.presets,
 			format: ref.current?.format,

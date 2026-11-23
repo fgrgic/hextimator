@@ -14,7 +14,7 @@ import {
  * Example usage:
  * ```tsx
  * const palette = useHextimator('#ff6600', {
- *   style: { minContrastRatio: 'AA' },
+ *   theme: themes.shadcn,
  *   darkMode: { type: 'class', className: 'dark' },
  *   cssPrefix: '--myapp-',
  * });
@@ -31,7 +31,7 @@ export function useHextimator(color: string, options?: UseHextimatorOptions) {
 	const presets = stable?.presets;
 
 	const palette = useMemo(() => {
-		const builder = hextimate(color);
+		const builder = hextimate(color, stable?.theme);
 		if (stable?.style && Object.keys(stable.style).length > 0) {
 			builder.style(stable.style);
 		}
@@ -41,7 +41,7 @@ export function useHextimator(color: string, options?: UseHextimatorOptions) {
 			...stable?.format,
 			as: 'object',
 		});
-	}, [color, stable?.style, presets, stable?.format, configure]);
+	}, [color, stable?.theme, stable?.style, presets, stable?.format, configure]);
 
 	const darkMode = stable?.darkMode ?? { type: 'media' as const };
 	const cssPrefix = stable?.cssPrefix ?? '';

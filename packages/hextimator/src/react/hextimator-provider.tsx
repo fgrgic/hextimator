@@ -13,6 +13,7 @@ import type {
 } from '../HextimatePaletteBuilder';
 import { hextimate } from '../index';
 import type { HextimatePreset } from '../presets/types';
+import type { ThemeDefinition } from '../theme';
 import type { HextimateFormatOptions, HextimateStyleOptions } from '../types';
 import { HextimatorContext, type HextimatorContextValue } from './context';
 import { buildStyleContent, buildTargetedVars } from './css';
@@ -36,7 +37,11 @@ export interface HextimatorProviderProps {
 	defaultMode?: ModePreference;
 	/** Called when the mode changes. */
 	onModePreferenceChange?: (mode: ModePreference) => void;
+	/** Theme to build with, as in `hextimate(color, theme)`. Defaults to `baseTheme`. */
+	theme?: ThemeDefinition;
+	/** @deprecated Set `style` on the `theme`: `theme={{ ...baseTheme, style }}`. */
 	style?: HextimateStyleOptions;
+	/** @deprecated Pass a `theme` instead: `theme={themes.shadcn}`. */
 	presets?: HextimatePreset[];
 	format?: Omit<HextimateFormatOptions, 'as'>;
 	configure?: (builder: HextimatePaletteBuilder) => void;
@@ -61,6 +66,7 @@ export function HextimatorProvider({
 	onColorChange,
 	defaultMode: initialMode = 'system',
 	onModePreferenceChange,
+	theme,
 	style: initialStyle,
 	presets: initialPresets,
 	format: formatOpts,
@@ -136,6 +142,7 @@ export function HextimatorProvider({
 	);
 
 	const stable = useStableOptions({
+		theme,
 		style,
 		presets,
 		format: formatOpts,
@@ -145,7 +152,7 @@ export function HextimatorProvider({
 
 	const buildOne = useCallback(
 		(c: string) => {
-			const b = hextimate(c);
+			const b = hextimate(c, stable?.theme);
 			if (stable?.style && Object.keys(stable.style).length > 0) {
 				b.style(stable.style);
 			}
@@ -153,7 +160,7 @@ export function HextimatorProvider({
 			configure?.(b);
 			return b;
 		},
-		[stable?.style, presets, configure],
+		[stable?.theme, stable?.style, presets, configure],
 	);
 
 	const lightBuilder = useMemo(
