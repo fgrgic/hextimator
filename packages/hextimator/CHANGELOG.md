@@ -1,3 +1,9 @@
+## 0.15.3
+
+### Patch Changes
+
+- [#209](https://github.com/fgrgic/hextimator/pull/209) [`ad503bb`](https://github.com/fgrgic/hextimator/commit/ad503bb971707d9753c822eca5a0330271768bef) Thanks [@fgrgic](https://github.com/fgrgic)! - Make the `foreground-weak` tint subtle. It now blends `foreground` toward `DEFAULT` in OKLab, so it carries only as much color as the mix gives. It still meets `minContrastRatio` against `DEFAULT`.
+
 ## 0.15.2
 
 ### Patch Changes
