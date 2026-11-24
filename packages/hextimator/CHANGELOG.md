@@ -1,3 +1,9 @@
+## 0.15.2
+
+### Patch Changes
+
+- [#207](https://github.com/fgrgic/hextimator/pull/207) [`eb74e17`](https://github.com/fgrgic/hextimator/commit/eb74e17e06ef4c3a4c173f46c833b6665e0120bd) Thanks [@fgrgic](https://github.com/fgrgic)! - Tint `foreground-weak` with its role color. It now blends `foreground` toward `DEFAULT`, keeping a share of the gamut chroma, so muted text on a near-grey surface carries the surface hue. It still meets `minContrastRatio` against `DEFAULT`.
+
 ## 0.15.1
 
 ### Patch Changes
